@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { motion } from "framer-motion";
+import { Link } from "react-router-dom"; // Adjust based on your routing setup
 export const Login = () => {
   const [form, setForm] = useState({
     email: "",
@@ -18,14 +19,14 @@ export const Login = () => {
   return (
     <div className="min-h-screen bg-[#0f172a] flex items-center justify-center relative">
       {/* Soft blur background layer */}
-      <div className="absolute inset-0 bg-black/40 backdrop-blur-sm z-0" />
+      <div className="absolute inset-0 bg-[#0f172a] backdrop-blur-sm z-0" />
 
       {/* Animated Login Card */}
       <motion.div
-        initial={{ opacity: 0, scale: 0.95, y: 30 }}
+        initial={{ opacity: 0, scale: 0.95, y: 150 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
-        transition={{ duration: 0.8 }}
-        className="relative z-10 bg-[#10172A]/80 backdrop-blur-md border border-blue-500/20 shadow-lg rounded-2xl p-8 w-full max-w-md text-white"
+        transition={{ duration: 1 }}
+        className="relative z-10 bg-gradient-to-br from-[#1e1b4b]/80 to-[#312e81]/80 backdrop-blur-md border border-purple-500/30 shadow-lg rounded-2xl p-8 w-full max-w-md text-white"
       >
         <h2 className="text-2xl font-bold mb-6 text-center text-blue-400">
           Welcome Back
@@ -55,11 +56,22 @@ export const Login = () => {
           </div>
           <button
             type="submit"
-            className="w-full py-2 mt-4 bg-blue-500 hover:bg-blue-600 transition-all rounded-lg font-semibold shadow-md cursor-pointer"
+            className="w-full py-2 mt-4 bg-blue-500 hover:bg-blue-600 transition-all rounded-lg font-semibold shadow-md"
           >
             Log In
           </button>
         </form>
+
+        {/* Bottom line with link */}
+        <div className="mt-6 text-center text-sm text-gray-400">
+          Don't have an account?{" "}
+          <Link
+            to="/signup"
+            className="text-blue-400 hover:text-blue-500 transition-all underline"
+          >
+            Sign Up
+          </Link>
+        </div>
       </motion.div>
     </div>
   );
