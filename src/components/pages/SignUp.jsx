@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { motion } from "framer-motion";
-
+import { Link } from "react-router-dom";
 export const SignUp = () => {
   const [form, setForm] = useState({
     name: "",
@@ -19,12 +19,12 @@ export const SignUp = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[#0f172a] flex items-center justify-center px-4">
+    <div className="min-h-screen bg-zinc-900 flex items-center justify-center px-4">
       <motion.div
         initial={{ opacity: 0, y: 150 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 1 }}
-        className="w-full max-w-md"
+        className="w-full max-w-md "
       >
         <div className="bg-gradient-to-br from-[#1e1b4b]/80 to-[#312e81]/80 backdrop-blur-md border border-purple-500/30 shadow-lg rounded-2xl p-8 text-white">
           <h2 className="text-2xl font-bold mb-6 text-center text-purple-300 drop-shadow">
@@ -43,7 +43,9 @@ export const SignUp = () => {
               />
             </div>
             <div>
-              <label className="block mb-1 text-sm text-purple-200">Email</label>
+              <label className="block mb-1 text-sm text-purple-200">
+                Email
+              </label>
               <input
                 type="email"
                 name="email"
@@ -54,7 +56,9 @@ export const SignUp = () => {
               />
             </div>
             <div>
-              <label className="block mb-1 text-sm text-purple-200">Password</label>
+              <label className="block mb-1 text-sm text-purple-200">
+                Password
+              </label>
               <input
                 type="password"
                 name="password"
@@ -71,6 +75,15 @@ export const SignUp = () => {
               Sign Up
             </button>
           </form>
+          <div className="mt-6 text-center text-sm text-gray-400">
+            Already have an account?{" "}
+            <Link
+              to="/login"
+              className="text-blue-400 hover:text-blue-500 transition-all underline"
+            >
+              Login
+            </Link>
+          </div>
         </div>
       </motion.div>
     </div>

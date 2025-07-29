@@ -17,7 +17,7 @@ export const Login = () => {
     // Add login logic here
   };
   return (
-    <div className="min-h-screen bg-[#0f172a] flex items-center justify-center relative">
+    <div className="min-h-screen bg-zinc-800 flex items-center justify-center relative">
       {/* Soft blur background layer */}
       <div className="absolute inset-0 bg-[#0f172a] backdrop-blur-sm z-0" />
 
