@@ -1,4 +1,5 @@
 import React from "react";
+import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import {
   BookOpenCheck,
@@ -32,13 +33,20 @@ export const LandingPage = () => {
 
           {/* Navigation Links */}
           <ul className="hidden md:flex space-x-6 text-sm md:text-base font-medium">
-            {["Home", "Paths", "Leaderboard", "Login"].map((link) => (
+            {[
+              { label: "Home", path: "/" },
+              { label: "Paths", path: "/paths" },
+              { label: "Signup", path: "/signup" },
+              { label: "Login", path: "/login" },
+            ].map(({ label, path }) => (
               <li
-                key={link}
+                key={label}
                 className="relative group text-gray-300 hover:text-blue-400 cursor-pointer transition duration-300"
               >
-                {link}
-                <span className="absolute left-0 -bottom-1 w-0 h-0.5 bg-blue-500 transition-all group-hover:w-full duration-300"></span>
+                <Link to={path}>
+                  {label}
+                  <span className="absolute left-0 -bottom-1 w-0 h-0.5 bg-blue-500 transition-all group-hover:w-full duration-300"></span>
+                </Link>
               </li>
             ))}
           </ul>
