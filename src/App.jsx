@@ -5,6 +5,7 @@ import { SignUp } from "./components/pages/SignUp";
 import { Login } from "./components/pages/Login";
 import { PublicLayout } from "./components/pages/PublicLayout";
 import { UserLayout } from "./components/user/UserLayout";
+import { UserDashboard } from "./components/user/UserDashboard";
 function App() {
   return (
     <>
@@ -12,7 +13,9 @@ function App() {
         <Route path="/" element={<PublicLayout />}></Route>
         <Route path="signup" element={<SignUp />}></Route>
         <Route path="login" element={<Login />}></Route>
-        <Route path="user" element={<UserLayout />}></Route>
+        <Route path="user" element={<UserLayout />}>
+        <Route path="dashboard" element={<UserDashboard/>}></Route>
+        </Route>
       </Routes>
     </>
   );
