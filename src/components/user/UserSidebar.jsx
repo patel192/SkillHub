@@ -43,7 +43,7 @@ export const UserSidebar = ({ isOpen }) => {
           <User size={18} /> Profile
         </Link>
         <Link
-          to="/certificates"
+          to="/user/certificates"
           className="flex items-center gap-3 hover:text-blue-400"
         >
           <BadgeCheck size={18} /> Certificates
