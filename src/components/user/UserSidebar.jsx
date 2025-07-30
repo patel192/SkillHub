@@ -7,7 +7,8 @@ import {
   MessageSquare,
   Settings,
   LogOut,
-  Map
+  Map,
+  Trophy
 } from "lucide-react";
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
@@ -64,6 +65,12 @@ export const UserSidebar = ({ isOpen }) => {
           className="flex items-center gap-3 hover:text-blue-400"
         >
           <Map size={18} /> RoadMaps
+        </Link>
+        <Link
+          to="/raodmap"
+          className="flex items-center gap-3 hover:text-blue-400"
+        >
+          <Trophy size={18} /> LeaderBoard
         </Link>
 
         <div className="mt-auto">
