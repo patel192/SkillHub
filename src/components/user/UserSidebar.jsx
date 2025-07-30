@@ -31,7 +31,7 @@ export const UserSidebar = ({ isOpen }) => {
           <LayoutDashboard size={18} /> Dashboard
         </Link>
         <Link
-          to="/courses"
+          to="/user/mycourses"
           className="flex items-center gap-3 hover:text-blue-400"
         >
           <BookOpen size={18} /> My Courses
