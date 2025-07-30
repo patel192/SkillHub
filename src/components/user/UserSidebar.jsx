@@ -1,7 +1,17 @@
 import React from "react";
-import { LayoutDashboard, BookOpen, LogOut } from "lucide-react";
+import {
+  LayoutDashboard,
+  BookOpen,
+  User,
+  BadgeCheck,
+  MessageSquare,
+  Settings,
+  LogOut,
+  Map
+} from "lucide-react";
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
+
 export const UserSidebar = ({ isOpen }) => {
   return (
     <motion.aside
@@ -12,7 +22,7 @@ export const UserSidebar = ({ isOpen }) => {
         isOpen ? "w-64" : "w-0 overflow-hidden"
       } transition-all duration-300`}
     >
-      <nav className="flex flex-col gap-6 text-sm font-medium">
+      <nav className="flex flex-col gap-10 text-sm font-medium">
         <Link
           to="/dashboard"
           className="flex items-center gap-3 hover:text-blue-400"
@@ -26,11 +36,44 @@ export const UserSidebar = ({ isOpen }) => {
           <BookOpen size={18} /> My Courses
         </Link>
         <Link
-          to="/logout"
-          className="flex items-center gap-3 hover:text-red-400 mt-auto"
+          to="/profile"
+          className="flex items-center gap-3 hover:text-blue-400"
         >
-          <LogOut size={18} /> Logout
+          <User size={18} /> Profile
         </Link>
+        <Link
+          to="/certificates"
+          className="flex items-center gap-3 hover:text-blue-400"
+        >
+          <BadgeCheck size={18} /> Certificates
+        </Link>
+        <Link
+          to="/messages"
+          className="flex items-center gap-3 hover:text-blue-400"
+        >
+          <MessageSquare size={18} /> Messages
+        </Link>
+        <Link
+          to="/settings"
+          className="flex items-center gap-3 hover:text-blue-400"
+        >
+          <Settings size={18} /> Settings
+        </Link>
+        <Link
+          to="/raodmap"
+          className="flex items-center gap-3 hover:text-blue-400"
+        >
+          <Map size={18} /> RoadMaps
+        </Link>
+
+        <div className="mt-auto">
+          <Link
+            to="/logout"
+            className="flex items-center gap-3 hover:text-red-400"
+          >
+            <LogOut size={18} /> Logout
+          </Link>
+        </div>
       </nav>
     </motion.aside>
   );
