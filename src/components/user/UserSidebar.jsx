@@ -49,7 +49,7 @@ export const UserSidebar = ({ isOpen }) => {
           <BadgeCheck size={18} /> Certificates
         </Link>
         <Link
-          to="/messages"
+          to="/user/messages"
           className="flex items-center gap-3 hover:text-blue-400"
         >
           <MessageSquare size={18} /> Messages

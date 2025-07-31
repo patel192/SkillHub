@@ -8,6 +8,7 @@ import { UserLayout } from "./components/user/UserLayout";
 import { UserDashboard } from "./components/user/UserDashboard";
 import { MyCourses } from "./components/user/course/MyCourses";
 import { Certificates } from "./components/user/certificate/Certificates";
+import { Messages } from "./components/user/messages/Messages";
 function App() {
   return (
     <>
@@ -19,6 +20,7 @@ function App() {
         <Route path="dashboard" element={<UserDashboard/>}></Route>
         <Route path="mycourses" element={<MyCourses/>}></Route>
         <Route path="certificates" element={<Certificates/>}></Route>
+        <Route path="messages" element={<Messages/>}></Route>
         </Route>
       </Routes>
     </>
