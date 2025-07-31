@@ -1,4 +1,5 @@
 import React from "react";
+import { useNavigate } from "react-router-dom";
 import {
   LayoutDashboard,
   BookOpen,
@@ -8,12 +9,13 @@ import {
   Settings,
   LogOut,
   Map,
-  Trophy
+  Trophy,
 } from "lucide-react";
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
 
 export const UserSidebar = ({ isOpen }) => {
+  const navigate = useNavigate();
   return (
     <motion.aside
       initial={{ x: -100 }}
@@ -74,12 +76,14 @@ export const UserSidebar = ({ isOpen }) => {
         </Link>
 
         <div className="mt-auto">
-          <Link
-            to="/logout"
+          <button
             className="flex items-center gap-3 hover:text-red-400"
+            onClick={() => {
+              navigate("/login");
+            }}
           >
             <LogOut size={18} /> Logout
-          </Link>
+          </button>
         </div>
       </nav>
     </motion.aside>
