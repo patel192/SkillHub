@@ -67,7 +67,7 @@ export const UserSidebar = ({ isOpen }) => {
           <Map size={18} /> RoadMaps
         </Link>
         <Link
-          to="/raodmap"
+          to="/user/leaderboard"
           className="flex items-center gap-3 hover:text-blue-400"
         >
           <Trophy size={18} /> LeaderBoard

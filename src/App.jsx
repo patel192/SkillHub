@@ -10,6 +10,7 @@ import { MyCourses } from "./components/user/course/MyCourses";
 import { Certificates } from "./components/user/certificate/Certificates";
 import { Messages } from "./components/user/messages/Messages";
 import { RoadMap } from "./components/user/roadmap/RoadMap";
+import { LeaderBoard } from "./components/user/leaderboard/LeaderBoard";
 function App() {
   return (
     <>
@@ -23,6 +24,7 @@ function App() {
         <Route path="certificates" element={<Certificates/>}></Route>
         <Route path="messages" element={<Messages/>}></Route>
         <Route path="raodmap" element={<RoadMap/>}></Route>
+        <Route path="leaderboard" element={<LeaderBoard/>}></Route>
         </Route>
       </Routes>
     </>
