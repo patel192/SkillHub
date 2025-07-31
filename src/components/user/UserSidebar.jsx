@@ -57,7 +57,7 @@ export const UserSidebar = ({ isOpen }) => {
           <MessageSquare size={18} /> Messages
         </Link>
         <Link
-          to="/settings"
+          to="/user/settings"
           className="flex items-center gap-3 hover:text-blue-400"
         >
           <Settings size={18} /> Settings

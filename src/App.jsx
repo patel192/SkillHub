@@ -12,6 +12,7 @@ import { Messages } from "./components/user/messages/Messages";
 import { RoadMap } from "./components/user/roadmap/RoadMap";
 import { LeaderBoard } from "./components/user/leaderboard/LeaderBoard";
 import { Profile } from "./components/user/Profile";
+import { Settings } from "./components/user/Settings";
 function App() {
   return (
     <>
@@ -27,6 +28,7 @@ function App() {
         <Route path="raodmap" element={<RoadMap/>}></Route>
         <Route path="leaderboard" element={<LeaderBoard/>}></Route>
         <Route path="profile" element={<Profile/>}></Route>
+        <Route path="settings" element={<Settings/>}></Route>
         </Route>
       </Routes>
     </>
