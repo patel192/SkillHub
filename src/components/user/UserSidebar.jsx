@@ -39,7 +39,7 @@ export const UserSidebar = ({ isOpen }) => {
           <BookOpen size={18} /> My Courses
         </Link>
         <Link
-          to="/profile"
+          to="/user/profile"
           className="flex items-center gap-3 hover:text-blue-400"
         >
           <User size={18} /> Profile
