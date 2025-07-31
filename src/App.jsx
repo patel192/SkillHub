@@ -9,6 +9,7 @@ import { UserDashboard } from "./components/user/UserDashboard";
 import { MyCourses } from "./components/user/course/MyCourses";
 import { Certificates } from "./components/user/certificate/Certificates";
 import { Messages } from "./components/user/messages/Messages";
+import { RoadMap } from "./components/user/roadmap/RoadMap";
 function App() {
   return (
     <>
@@ -21,6 +22,7 @@ function App() {
         <Route path="mycourses" element={<MyCourses/>}></Route>
         <Route path="certificates" element={<Certificates/>}></Route>
         <Route path="messages" element={<Messages/>}></Route>
+        <Route path="raodmap" element={<RoadMap/>}></Route>
         </Route>
       </Routes>
     </>
