@@ -8,6 +8,8 @@ import {
   FaGithub,
   FaGoogle,
   FaDiscord,
+  FaLink,
+  
 } from "react-icons/fa";
 
 export const Settings = () => {
@@ -19,13 +21,13 @@ export const Settings = () => {
         return (
           <div className="space-y-4">
             <h3 className="text-lg font-semibold">Personal Information</h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <input type="text" placeholder="Full Name" className="input" />
-              <input type="email" placeholder="Email" className="input" />
-              <input type="text" placeholder="Username" className="input" />
-              <input type="tel" placeholder="Phone Number" className="input" />
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+              <input type="text" placeholder="Full Name" className="input p-3 rounded placeholder-shown:bg-zinc-800 duration-500 focus:p-4 focus:bg-gradient-to-b from-blue-700 to-purple-600" />
+              <input type="email" placeholder="Email" className="input p-3 rounded placeholder-shown:bg-zinc-800 duration-500 focus:p-4 focus:bg-gradient-to-b from-blue-700 to-purple-600" />
+              <input type="text" placeholder="Username" className="input p-3 rounded placeholder-shown:bg-zinc-800 duration-500 focus:p-4 focus:bg-gradient-to-b from-blue-700 to-purple-600" />
+              <input type="tel" placeholder="Phone Number" className="input p-3 rounded placeholder-shown:bg-zinc-800 duration-500 focus:p-4 focus:bg-gradient-to-b from-blue-700 to-purple-600" />
             </div>
-            <button className="btn-primary">Save Changes</button>
+            <button className="btn-primary bg-blue-600 rounded p-2 pl-4 pr-4 hover:scale-110 duration-600 hover:bg-green-500 ">Save Changes</button>
           </div>
         );
 
@@ -121,42 +123,56 @@ export const Settings = () => {
         ⚙️ User Settings
       </h2>
 
-      <div className="flex flex-wrap gap-2 mb-6 justify-center">
+      <div className="flex flex-wrap gap-10 mb-6 justify-between">
         <button
           onClick={() => setActiveTab("account")}
-          className={`tab-btn ${activeTab === "account" ? "active" : ""}`}
+          className={`tab-btn  w-1/9  ${
+            activeTab === "account" ? "active" : ""
+          }`}
         >
-          <FaUserCog className="mr-1" /> Account
+          <div className="flex justify-center items-center flex-col bg-green-500 rounded-2xl h-20">
+            <FaUserCog className="mr-1" /> Account
+          </div>
         </button>
         <button
           onClick={() => setActiveTab("privacy")}
-          className={`tab-btn ${activeTab === "privacy" ? "active" : ""}`}
+          className={`tab-btn w-1/9 ${activeTab === "privacy" ? "active" : ""}`}
         >
-          <FaLock className="mr-1" /> Privacy
+          <div className="flex justify-center items-center flex-col bg-blue-500 rounded-2xl h-20">
+            <FaLock className="mr-1" /> Privacy
+          </div>
         </button>
         <button
           onClick={() => setActiveTab("appearance")}
-          className={`tab-btn ${activeTab === "appearance" ? "active" : ""}`}
+          className={`tab-btn w-1/9 ${activeTab === "appearance" ? "active" : ""}`}
         >
-          <FaPalette className="mr-1" /> Appearance
+          <div className="flex justify-center items-center flex-col bg-purple-500 rounded-2xl h-20">
+            <FaPalette className="mr-1" /> Appearance
+          </div>
         </button>
         <button
           onClick={() => setActiveTab("notifications")}
-          className={`tab-btn ${activeTab === "notifications" ? "active" : ""}`}
+          className={`tab-btn w-1/9 ${activeTab === "notifications" ? "active" : ""}`}
         >
-          <FaBell className="mr-1" /> Notifications
+          <div className="flex justify-center items-center flex-col bg-yellow-500 rounded-2xl h-20">
+            <FaBell className="mr-1" /> Notifications
+          </div>
         </button>
         <button
           onClick={() => setActiveTab("integrations")}
-          className={`tab-btn ${activeTab === "integrations" ? "active" : ""}`}
+          className={`tab-btn w-1/9 ${activeTab === "integrations" ? "active" : ""}`}
         >
-          🔗 Integrations
+          <div className="flex justify-center items-center flex-col bg-pink-500 rounded-2xl h-20">
+            <FaLink className="mr-1" />
+            Integrations</div>
         </button>
         <button
           onClick={() => setActiveTab("deactivate")}
-          className={`tab-btn ${activeTab === "deactivate" ? "active" : ""}`}
+          className={`tab-btn w-1/9 ${activeTab === "deactivate" ? "active" : ""}`}
         >
-          🗑️ Deactivate
+          <div className="flex justify-center items-center flex-col bg-red-500 rounded-2xl h-20">
+            <FaTrashAlt className="mr-1" />
+            Deactivate</div>
         </button>
       </div>
 

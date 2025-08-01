@@ -1,0 +1,28 @@
+@keyframes gradient-move {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+.focus\:animate-gradient-move {
+  background-size: 200% 200%;
+  background-image: linear-gradient(to right, #1e3a8a, #6b21a8);
+  animation: gradient-move 4s ease infinite;
+}
+input:-webkit-autofill {
+  transition: background-color 5000s ease-in-out 0s;
+  -webkit-text-fill-color: white !important;
+  background-color: transparent !important;
+  background-image: linear-gradient(to right, #1e40af, #6b21a8) !important;
+  box-shadow: 0 0 0px 1000px #1e293b inset !important; /* fallback background */
+}
+
+input:-webkit-autofill:focus {
+  background-image: linear-gradient(to right, #3b82f6, #8b5cf6) !important;
+}
