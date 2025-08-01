@@ -130,7 +130,7 @@ export const Settings = () => {
             activeTab === "account" ? "active" : ""
           }`}
         >
-          <div className="flex justify-center items-center flex-col bg-green-500 rounded-2xl h-20">
+          <div className="flex justify-center items-center flex-col bg-green-500 rounded-2xl h-20 hover:scale-110 duration-500 cursor-pointer">
             <FaUserCog className="mr-1" /> Account
           </div>
         </button>
@@ -138,7 +138,7 @@ export const Settings = () => {
           onClick={() => setActiveTab("privacy")}
           className={`tab-btn w-1/9 ${activeTab === "privacy" ? "active" : ""}`}
         >
-          <div className="flex justify-center items-center flex-col bg-blue-500 rounded-2xl h-20">
+          <div className="flex justify-center items-center flex-col bg-blue-500 rounded-2xl h-20 hover:scale-110 duration-500 cursor-pointer">
             <FaLock className="mr-1" /> Privacy
           </div>
         </button>
@@ -146,7 +146,7 @@ export const Settings = () => {
           onClick={() => setActiveTab("appearance")}
           className={`tab-btn w-1/9 ${activeTab === "appearance" ? "active" : ""}`}
         >
-          <div className="flex justify-center items-center flex-col bg-purple-500 rounded-2xl h-20">
+          <div className="flex justify-center items-center flex-col bg-purple-500 rounded-2xl h-20 hover:scale-110 duration-500 cursor-pointer">
             <FaPalette className="mr-1" /> Appearance
           </div>
         </button>
@@ -154,7 +154,7 @@ export const Settings = () => {
           onClick={() => setActiveTab("notifications")}
           className={`tab-btn w-1/9 ${activeTab === "notifications" ? "active" : ""}`}
         >
-          <div className="flex justify-center items-center flex-col bg-yellow-500 rounded-2xl h-20">
+          <div className="flex justify-center items-center flex-col bg-yellow-500 rounded-2xl h-20 hover:scale-110 duration-500 cursor-pointer">
             <FaBell className="mr-1" /> Notifications
           </div>
         </button>
@@ -162,7 +162,7 @@ export const Settings = () => {
           onClick={() => setActiveTab("integrations")}
           className={`tab-btn w-1/9 ${activeTab === "integrations" ? "active" : ""}`}
         >
-          <div className="flex justify-center items-center flex-col bg-pink-500 rounded-2xl h-20">
+          <div className="flex justify-center items-center flex-col bg-pink-500 rounded-2xl h-20 hover:scale-110 duration-500 cursor-pointer">
             <FaLink className="mr-1" />
             Integrations</div>
         </button>
@@ -170,7 +170,7 @@ export const Settings = () => {
           onClick={() => setActiveTab("deactivate")}
           className={`tab-btn w-1/9 ${activeTab === "deactivate" ? "active" : ""}`}
         >
-          <div className="flex justify-center items-center flex-col bg-red-500 rounded-2xl h-20">
+          <div className="flex justify-center items-center flex-col bg-red-500 rounded-2xl h-20 hover:scale-110 duration-500 cursor-pointer" >
             <FaTrashAlt className="mr-1" />
             Deactivate</div>
         </button>
