@@ -1,9 +1,10 @@
 import React, { useState } from "react";
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
+import axios from "axios";
 export const SignUp = () => {
   const [form, setForm] = useState({
-    name: "",
+    fullname: "",
     email: "",
     password: "",
   });
@@ -12,10 +13,13 @@ export const SignUp = () => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async(e) => {
     e.preventDefault();
     console.log(form);
-    // Add your signup logic here
+    const res = await axios.post("http://localhost:5000/user", form);
+    console.log(res);
+    alert("Account created successfully!");
+   
   };
 
   return (
@@ -35,8 +39,8 @@ export const SignUp = () => {
               <label className="block mb-1 text-sm text-purple-200">Name</label>
               <input
                 type="text"
-                name="name"
-                value={form.name}
+                name="fullname"
+                value={form.fullname}
                 onChange={handleChange}
                 required
                 className="w-full px-4 py-2 rounded bg-[#1e293b] border border-purple-600 focus:outline-none focus:ring-2 focus:ring-purple-500 text-white"
