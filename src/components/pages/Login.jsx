@@ -1,7 +1,10 @@
 import React, { useState } from "react";
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom"; // Adjust based on your routing setup
+import axios from "axios";
+import { useNavigate } from "react-router-dom";
 export const Login = () => {
+  const navigate = useNavigate();
   const [form, setForm] = useState({
     email: "",
     password: "",
@@ -11,10 +14,17 @@ export const Login = () => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     console.log(form);
-    // Add login logic here
+    const res = await axios.post("http://localhost:8000/loginuser", form);
+    if (res.status === 200) {
+      alert("Login successful!");
+      navigate("/user/dashboard"); // Redirect to dashboard or home page
+      // Redirect or perform further actions
+    } else {
+      alert("Login failed. Please check your credentials.");
+    }
   };
   return (
     <div className="min-h-screen bg-zinc-800 flex items-center justify-center relative">
