@@ -1,25 +1,29 @@
 import React, { useState } from "react";
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import axios from "axios";
 export const SignUp = () => {
+  const navigate = useNavigate();
   const [form, setForm] = useState({
     fullname: "",
     email: "",
     password: "",
+    role:"user",
+    avatar: "",
+    isActive: "true",
   });
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = async(e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     console.log(form);
-    const res = await axios.post("http://localhost:5000/user", form);
-    console.log(res);
+    const res = await axios.post("http://localhost:8000/user", form);
     alert("Account created successfully!");
-   
+    navigate("/login");
   };
 
   return (
