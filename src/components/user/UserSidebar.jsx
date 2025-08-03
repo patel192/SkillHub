@@ -27,7 +27,7 @@ export const UserSidebar = ({ isOpen }) => {
     >
       <nav className="flex flex-col gap-10 text-sm font-medium">
         <Link
-          to="/user/"
+          to="/user/dashboard"
           className="flex items-center gap-3 hover:text-blue-400"
         >
           <LayoutDashboard size={18} /> Dashboard
