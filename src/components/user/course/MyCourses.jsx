@@ -7,10 +7,9 @@ export const MyCourses = () => {
   const [activeTab, setActiveTab] = useState("my");
   const [myCourses, setMyCourses] = useState([]);
   const [discoverCourses, setDiscoverCourses] = useState([]);
+
   useEffect(() => {
-    
-      fetchMyCourses();
-    
+    fetchMyCourses();
     fetchDiscoverCourses();
   }, []);
 
@@ -26,7 +25,7 @@ export const MyCourses = () => {
   const fetchDiscoverCourses = async () => {
     try {
       const res = await axios.get(`http://localhost:8000/courses`);
-      setDiscoverCourses(res.data.data || []);
+      setDiscoverCourses(res.data || []);
     } catch (error) {
       console.error("Error fetching discoverable courses:", error.message);
     }
@@ -83,13 +82,17 @@ export const MyCourses = () => {
               className="bg-[#1E293B] rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl transform hover:-translate-y-1 transition-all duration-300"
             >
               <img
-                src={course.thumbnail || "https://source.unsplash.com/featured/?learning"}
+                src={course.imageUrl
+                }
                 alt={course.title}
-                className="w-full h-40 object-cover"
+                className="w-40 h-40 object-cover m-auto"
               />
+
               <div className="p-4">
                 <h3 className="text-xl font-semibold mb-2">{course.title}</h3>
-                <p className="text-sm text-gray-400 mb-4">{course.description}</p>
+                <p className="text-sm text-gray-400 mb-4">
+                  {course.description}
+                </p>
 
                 {activeTab === "my" && course.progress != null && (
                   <div className="mb-2">
@@ -113,7 +116,9 @@ export const MyCourses = () => {
             </motion.div>
           ))
         ) : (
-          <p className="text-gray-400 col-span-full text-center">No courses found.</p>
+          <p className="text-gray-400 col-span-full text-center">
+            No courses found.
+          </p>
         )}
       </div>
     </div>
