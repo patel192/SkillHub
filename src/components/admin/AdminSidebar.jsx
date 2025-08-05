@@ -8,7 +8,7 @@ export const AdminSidebar = ({ isOpen }) => {
    const { pathname } = useLocation();
 
   const navItems = [
-    { label: "Dashboard", icon: <LayoutDashboard size={18} />, path: "/admin/dashboard" },
+    { label: "Dashboard", icon: <LayoutDashboard size={18} />, path: "/admin/admindashboard" },
     { label: "Courses", icon: <Book size={18} />, path: "/admin/courses" },
     { label: "Users", icon: <Users size={18} />, path: "/admin/users" },
     { label: "Resources", icon: <FileText size={18} />, path: "/admin/resources" },
