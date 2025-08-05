@@ -2,9 +2,17 @@ import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { useParams } from "react-router-dom";
 import axios from "axios";
-import { BadgeCheck, Clock, DollarSign, BookOpen, User } from "lucide-react";
+import {
+  BadgeCheck,
+  Clock,
+  DollarSign,
+  BookOpen,
+  User,
+  Sparkles,
+} from "lucide-react";
+
 export const CourseDetails = () => {
-  const { courseId } = useParams(); // Assuming your route is like /courses/:courseId
+  const { courseId } = useParams();
   const [course, setCourse] = useState(null);
   const [enrolled, setEnrolled] = useState(false);
 
@@ -15,7 +23,6 @@ export const CourseDetails = () => {
   const fetchCourseDetails = async () => {
     try {
       const res = await axios.get(`http://localhost:8000/course/${courseId}`);
-      console.log("Course Data:", res.data.data);
       setCourse(res.data.data);
     } catch (error) {
       console.error("Failed to fetch course", error);
@@ -24,76 +31,97 @@ export const CourseDetails = () => {
 
   const handleEnroll = () => {
     setEnrolled(true);
-    // You can add POST /enroll API here
+    // Later: axios.post('/api/enroll', { userId, courseId })
   };
 
   if (!course) {
-    return <div className="text-white p-6">Loading course...</div>;
+    return (
+      <div className="text-white p-6 text-center text-xl animate-pulse">
+        Loading course...
+      </div>
+    );
   }
+
   return (
     <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      className="p-6 max-w-5xl mx-auto text-white"
+      initial={{ opacity: 0, y: 30 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.5 }}
+      className="p-6 max-w-6xl mx-auto text-white"
     >
-      {/* Banner */}
-      <div className="rounded-xl overflow-hidden shadow-lg mb-6">
+      {/* Hero Banner */}
+      <div className=" w-400 h-400 rounded-xl overflow-hidden shadow-xl mb-6">
         <img
-          src={
-            course.imageUrl
-          }
+          src={course.imageUrl}
           alt={course.title}
-          className="w-70 h-64 object-cover m-auto"
-          
+          className="object-cover rounded-lg"
         />
       </div>
 
       {/* Title + Enroll */}
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-        <h2 className="text-4xl font-bold">{course.title}</h2>
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
+        <div>
+          <h1 className="text-4xl font-bold mb-2 flex items-center gap-2">
+            <Sparkles size={28} className="text-indigo-400" />
+            {course.title}
+          </h1>
+          <p className="text-gray-400 max-w-2xl">{course.description}</p>
+        </div>
         <button
           onClick={handleEnroll}
           disabled={enrolled}
-          className={`px-6 py-2 rounded-full text-white font-semibold transition duration-300 ${
+          className={`px-6 py-2 rounded-full text-white font-semibold transition duration-300 shadow-lg ${
             enrolled
               ? "bg-green-600 cursor-not-allowed"
-              : "bg-indigo-600 hover:bg-indigo-700"
+              : "bg-gradient-to-r from-indigo-500 to-purple-600 hover:opacity-90"
           }`}
         >
-          {enrolled ? "Enrolled" : "Enroll Now"}
+          {enrolled ? "🎓 Enrolled" : "🚀 Enroll Now"}
         </button>
       </div>
 
-      {/* Meta Info */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 mt-6 text-gray-300 text-sm">
-        <div className="flex items-center gap-2">
-          <User size={18} /> <span>Instructor: {course.instructor}</span>
-        </div>
-        <div className="flex items-center gap-2">
-          <BookOpen size={18} /> <span>Category: {course.category}</span>
-        </div>
-        <div className="flex items-center gap-2">
-          <Clock size={18} /> <span>Duration: {course.duration}</span>
-        </div>
-        <div className="flex items-center gap-2">
-          <BadgeCheck size={18} /> <span>Level: {course.level}</span>
-        </div>
-        <div className="flex items-center gap-2">
-          <DollarSign size={18} />{" "}
-          <span>{course.price > 0 ? `₹${course.price}` : "Free"}</span>
-        </div>
-        <div className="flex items-center gap-2">
-          <span>
-            Status: {course.isPublished ? "Published" : "Unpublished"}
-          </span>
-        </div>
+      {/* Metadata Badges */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 text-sm mb-8">
+        <CourseMeta icon={<User size={18} />} label="Instructor" value={course.instructor} />
+        <CourseMeta icon={<BookOpen size={18} />} label="Category" value={course.category} />
+        <CourseMeta icon={<Clock size={18} />} label="Duration" value={course.duration} />
+        <CourseMeta icon={<BadgeCheck size={18} />} label="Level" value={course.level} />
+        <CourseMeta icon={<DollarSign size={18} />} label="Price" value={course.price > 0 ? `₹${course.price}` : "Free"} />
+        <CourseMeta
+          icon={<BadgeCheck size={18} />}
+          label="Status"
+          value={
+            <span
+              className={`px-2 py-1 rounded text-xs font-bold ${
+                course.isPublished ? "bg-green-600" : "bg-yellow-500"
+              }`}
+            >
+              {course.isPublished ? "Published" : "Unpublished"}
+            </span>
+          }
+        />
       </div>
 
-      {/* Description */}
-      <div className="mt-10">
-        <h3 className="text-2xl font-semibold mb-3">Course Overview</h3>
-        <p className="text-gray-300 leading-relaxed">{course.description}</p>
+      {/* Course Overview */}
+      <div>
+        <h3 className="text-2xl font-semibold mb-4 border-b border-gray-700 pb-2">
+          📘 Course Overview
+        </h3>
+        <p className="text-gray-300 leading-relaxed text-base">
+          {course.description}
+        </p>
       </div>
     </motion.div>
   );
 };
+
+// Reusable Metadata Component
+const CourseMeta = ({ icon, label, value }) => (
+  <div className="flex items-center gap-3 bg-[#1f2937] p-4 rounded-lg shadow">
+    <div className="text-indigo-400">{icon}</div>
+    <div>
+      <p className="text-gray-400">{label}</p>
+      <p className="font-medium text-white">{value}</p>
+    </div>
+  </div>
+);

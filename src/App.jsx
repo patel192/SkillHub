@@ -14,6 +14,8 @@ import { LeaderBoard } from "./components/user/leaderboard/LeaderBoard";
 import { Profile } from "./components/user/Profile";
 import { Settings } from "./components/user/Settings";
 import { CourseDetails } from "./components/user/course/CourseDetails";
+import { AdminLayout } from "./components/admin/AdminLayout";
+import { AdminDashboard } from "./components/admin/AdminDashboard";
 function App() {
   return (
     <>
@@ -31,6 +33,9 @@ function App() {
         <Route path="profile" element={<Profile/>}></Route>
         <Route path="settings" element={<Settings/>}></Route>
         <Route path="course/:courseId" element={<CourseDetails/>}></Route>
+        </Route>
+        <Route path="admin" element={<AdminLayout/>}>
+        <Route path="admindashboard" element={<AdminDashboard/>}></Route>
         </Route>
       </Routes>
     </>
