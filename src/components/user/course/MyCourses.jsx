@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { PlayCircle, BookOpen, Flame } from "lucide-react";
 import axios from "axios";
+import { Link } from "react-router-dom";
 
 export const MyCourses = () => {
   const [activeTab, setActiveTab] = useState("my");
@@ -82,10 +83,9 @@ export const MyCourses = () => {
               className="bg-[#1E293B] rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl transform hover:-translate-y-1 transition-all duration-300"
             >
               <img
-                src={course.imageUrl
-                }
+                src={course.imageUrl}
                 alt={course.title}
-                className="w-40 h-40 object-cover m-auto"
+                className="w-20 h-20 object-cover m-auto"
               />
 
               <div className="p-4">
@@ -108,10 +108,13 @@ export const MyCourses = () => {
                   </div>
                 )}
 
-                <button className="w-full mt-3 bg-indigo-600 hover:bg-indigo-700 text-white py-2 rounded-lg flex items-center justify-center gap-2 transition-all duration-300">
-                  <PlayCircle size={18} />
-                  {activeTab === "my" ? "Continue" : "Start Learning"}
-                </button>
+                <Link
+                to={`/user/course/${course._id}`}>
+                  <button className="w-full mt-3 bg-indigo-600 hover:bg-indigo-700 text-white py-2 rounded-lg flex items-center justify-center gap-2 transition-all duration-300">
+                    <PlayCircle size={18} />
+                    {activeTab === "my" ? "Continue" : "Start Learning"}
+                  </button>
+                </Link>
               </div>
             </motion.div>
           ))

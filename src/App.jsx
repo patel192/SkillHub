@@ -13,6 +13,7 @@ import { RoadMap } from "./components/user/roadmap/RoadMap";
 import { LeaderBoard } from "./components/user/leaderboard/LeaderBoard";
 import { Profile } from "./components/user/Profile";
 import { Settings } from "./components/user/Settings";
+import { CourseDetails } from "./components/user/course/CourseDetails";
 function App() {
   return (
     <>
@@ -29,6 +30,7 @@ function App() {
         <Route path="leaderboard" element={<LeaderBoard/>}></Route>
         <Route path="profile" element={<Profile/>}></Route>
         <Route path="settings" element={<Settings/>}></Route>
+        <Route path="course/:courseId" element={<CourseDetails/>}></Route>
         </Route>
       </Routes>
     </>
