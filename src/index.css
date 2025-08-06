@@ -26,3 +26,4 @@ input:-webkit-autofill {
 input:-webkit-autofill:focus {
   background-image: linear-gradient(to right, #3b82f6, #8b5cf6) !important;
 }
+

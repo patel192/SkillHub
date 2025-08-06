@@ -75,7 +75,7 @@ export const Courses = () => {
                     <img
                       src={course.imageUrl}
                       alt="thumbnail"
-                      className="w-14 h-14 object-cover rounded"
+                      className="w-10 h-10 object-cover rounded"
                     />
                   </td>
                   <td className="p-3">{course.title}</td>

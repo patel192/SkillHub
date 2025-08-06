@@ -17,6 +17,7 @@ import { CourseDetails } from "./components/user/course/CourseDetails";
 import { AdminLayout } from "./components/admin/AdminLayout";
 import { AdminDashboard } from "./components/admin/AdminDashboard";
 import { Courses } from "./components/admin/course/Courses";
+import { Users } from "./components/admin/users/Users";
 function App() {
   return (
     <>
@@ -38,6 +39,7 @@ function App() {
         <Route path="admin" element={<AdminLayout/>}>
         <Route path="admindashboard" element={<AdminDashboard/>}></Route>
         <Route path="courses" element={<Courses/>}></Route>
+        <Route path="users" element={<Users/>}></Route>
         </Route>
       </Routes>
     </>
