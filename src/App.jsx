@@ -18,6 +18,7 @@ import { AdminLayout } from "./components/admin/AdminLayout";
 import { AdminDashboard } from "./components/admin/AdminDashboard";
 import { Courses } from "./components/admin/course/Courses";
 import { Users } from "./components/admin/users/Users";
+import UserDetails from "./components/admin/users/UserDetails";
 function App() {
   return (
     <>
@@ -40,6 +41,7 @@ function App() {
         <Route path="admindashboard" element={<AdminDashboard/>}></Route>
         <Route path="courses" element={<Courses/>}></Route>
         <Route path="users" element={<Users/>}></Route>
+        <Route path="users/:id" element={<UserDetails/>}></Route>
         </Route>
       </Routes>
     </>
