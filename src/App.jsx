@@ -19,6 +19,7 @@ import { AdminDashboard } from "./components/admin/AdminDashboard";
 import { Courses } from "./components/admin/course/Courses";
 import { Users } from "./components/admin/users/Users";
 import UserDetails from "./components/admin/users/UserDetails";
+import { Resources } from "./components/admin/resource/Resources";
 function App() {
   return (
     <>
@@ -27,21 +28,23 @@ function App() {
         <Route path="signup" element={<SignUp />}></Route>
         <Route path="login" element={<Login />}></Route>
         <Route path="user" element={<UserLayout />}>
-        <Route path="dashboard" element={<UserDashboard/>}></Route>
-        <Route path="mycourses" element={<MyCourses/>}></Route>
-        <Route path="certificates" element={<Certificates/>}></Route>
-        <Route path="messages" element={<Messages/>}></Route>
-        <Route path="raodmap" element={<RoadMap/>}></Route>
-        <Route path="leaderboard" element={<LeaderBoard/>}></Route>
-        <Route path="profile" element={<Profile/>}></Route>
-        <Route path="settings" element={<Settings/>}></Route>
-        <Route path="course/:courseId" element={<CourseDetails/>}></Route>
+          <Route path="dashboard" element={<UserDashboard />}></Route>
+          <Route path="mycourses" element={<MyCourses />}></Route>
+          <Route path="certificates" element={<Certificates />}></Route>
+          <Route path="messages" element={<Messages />}></Route>
+          <Route path="raodmap" element={<RoadMap />}></Route>
+          <Route path="leaderboard" element={<LeaderBoard />}></Route>
+          <Route path="profile" element={<Profile />}></Route>
+          <Route path="settings" element={<Settings />}></Route>
+          <Route path="course/:courseId" element={<CourseDetails />}></Route>
         </Route>
-        <Route path="admin" element={<AdminLayout/>}>
-        <Route path="admindashboard" element={<AdminDashboard/>}></Route>
-        <Route path="courses" element={<Courses/>}></Route>
-        <Route path="users" element={<Users/>}></Route>
-        <Route path="users/:id" element={<UserDetails/>}></Route>
+        <Route path="admin" element={<AdminLayout />}>
+          <Route path="admindashboard" element={<AdminDashboard />}></Route>
+          <Route path="resources" element={<Resources />}></Route>
+
+          <Route path="courses" element={<Courses />}></Route>
+          <Route path="users" element={<Users />}></Route>
+          <Route path="users/:id" element={<UserDetails />}></Route>
         </Route>
       </Routes>
     </>
