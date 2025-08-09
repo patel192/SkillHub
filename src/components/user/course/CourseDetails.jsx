@@ -14,10 +14,12 @@ import {
 export const CourseDetails = () => {
   const { courseId } = useParams();
   const [course, setCourse] = useState(null);
+  const [overview, setOverview] = useState([]);
   const [enrolled, setEnrolled] = useState(false);
 
   useEffect(() => {
     fetchCourseDetails();
+    fetchCourseOverview();
   }, [courseId]);
 
   const fetchCourseDetails = async () => {
@@ -26,6 +28,15 @@ export const CourseDetails = () => {
       setCourse(res.data.data);
     } catch (error) {
       console.error("Failed to fetch course", error);
+    }
+  };
+
+  const fetchCourseOverview = async () => {
+    try {
+      const res = await axios.get(`http://localhost:8000/overview/${courseId}`);
+      setOverview(res.data.data?.overview || []);
+    } catch (error) {
+      console.error("Failed to fetch course overview", error);
     }
   };
 
@@ -50,11 +61,11 @@ export const CourseDetails = () => {
       className="p-6 max-w-6xl mx-auto text-white"
     >
       {/* Hero Banner */}
-      <div className=" w-400 h-400 rounded-xl overflow-hidden shadow-xl mb-6">
+      <div className="w-100 h-100 rounded-xl overflow-hidden shadow-xl mb-6 m-auto">
         <img
           src={course.imageUrl}
           alt={course.title}
-          className="object-cover rounded-lg"
+          className="w-full h-auto rounded-lg"
         />
       </div>
 
@@ -107,9 +118,15 @@ export const CourseDetails = () => {
         <h3 className="text-2xl font-semibold mb-4 border-b border-gray-700 pb-2">
           📘 Course Overview
         </h3>
-        <p className="text-gray-300 leading-relaxed text-base">
-          {course.description}
-        </p>
+        {overview.length > 0 ? (
+          <ul className="list-disc pl-6 text-gray-300 leading-relaxed text-base space-y-2">
+            {overview.map((point, idx) => (
+              <li key={idx}>{point}</li>
+            ))}
+          </ul>
+        ) : (
+          <p className="text-gray-400 italic">No overview available.</p>
+        )}
       </div>
     </motion.div>
   );
