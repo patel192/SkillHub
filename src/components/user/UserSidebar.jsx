@@ -79,6 +79,8 @@ export const UserSidebar = ({ isOpen }) => {
           <button
             className="flex items-center gap-3 hover:text-red-400"
             onClick={() => {
+              localStorage.removeItem("fullname")
+              localStorage.removeItem("userId")
               navigate("/login");
             }}
           >

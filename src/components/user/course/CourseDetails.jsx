@@ -9,6 +9,7 @@ import {
   BookOpen,
   User,
   Sparkles,
+  Book,
 } from "lucide-react";
 
 export const CourseDetails = () => {
@@ -18,13 +19,6 @@ export const CourseDetails = () => {
   const [enrolled, setEnrolled] = useState(false);
 
   const userId = localStorage.getItem("userId");
-
-  const EnrollData = {
-    userId,
-    courseId,
-    status: "Registered",
-    progress: "0",
-  };
 
   useEffect(() => {
     fetchCourseDetails();
@@ -44,18 +38,21 @@ export const CourseDetails = () => {
   const fetchCourseOverview = async () => {
     try {
       const res = await axios.get(`http://localhost:8000/overview/${courseId}`);
-      setOverview(res.data.data?.overview || []);
+      let data = res.data.data?.overview || [];
+      if (typeof data === "string") {
+        data = data.split("\n").filter(Boolean); // convert to array
+      }
+      setOverview(data);
     } catch (error) {
       console.error("Failed to fetch course overview", error);
     }
   };
 
-  // ✅ New function to check enrollment status
   const checkIfEnrolled = async () => {
     try {
-      const res = await axios.get(`http://localhost:8000/enrollment/user/${userId}`);
+      const res = await axios.get(`http://localhost:8000/enrollment/${userId}`);
       const isAlreadyEnrolled = res.data.data.some(
-        (enroll) => enroll.courseId === courseId
+        (enroll) => enroll.courseId?.toString?.() === courseId.toString()
       );
       setEnrolled(isAlreadyEnrolled);
     } catch (error) {
@@ -65,8 +62,13 @@ export const CourseDetails = () => {
 
   const handleEnroll = async () => {
     try {
-      await axios.post("http://localhost:8000/enrollment", EnrollData);
-      setEnrolled(true);
+      await axios.post("http://localhost:8000/enrollment", {
+        userId,
+        courseId,
+        status: "Registered",
+        progress: 0,
+      });
+      await checkIfEnrolled(); // ✅ ensure state updates from DB
     } catch (error) {
       console.error("Failed to enroll", error);
     }
@@ -175,11 +177,24 @@ export const CourseDetails = () => {
           <p className="text-gray-400 italic">No overview available.</p>
         )}
       </div>
+      {enrolled && (
+        <div className="mt-8 flex justify-center">
+          <button
+            onClick={() => {
+              window.location.href = `/learn/${courseId}`;
+            }}
+            className="px-8 py-3 bg-blue-600 hover:bg-blue-700 hover:scale-105 text-white font-semibold rounded-full shadow-lg transition duration-300"
+          >
+            <div className="flex gap-3">
+              <Book size={20} /> Continue Learning
+            </div>
+          </button>
+        </div>
+      )}
     </motion.div>
   );
 };
 
-// Reusable Metadata Component
 const CourseMeta = ({ icon, label, value }) => (
   <div className="flex items-center gap-3 bg-[#1f2937] p-4 rounded-lg shadow">
     <div className="text-indigo-400">{icon}</div>
