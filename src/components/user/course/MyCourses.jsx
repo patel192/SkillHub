@@ -8,27 +8,49 @@ export const MyCourses = () => {
   const [activeTab, setActiveTab] = useState("my");
   const [myCourses, setMyCourses] = useState([]);
   const [discoverCourses, setDiscoverCourses] = useState([]);
+  const userId = localStorage.getItem("userId");
 
   useEffect(() => {
-    fetchMyCourses();
     fetchDiscoverCourses();
   }, []);
 
-  const fetchMyCourses = async () => {
-    try {
-      const res = await axios.get(`http://localhost:8000/courses`);
-      setMyCourses(res.data.data || []);
-    } catch (error) {
-      console.error("Error fetching my courses:", error.message);
+  useEffect(() => {
+    if (discoverCourses.length > 0) {
+      fetchMyCourses();
     }
-  };
+  }, [discoverCourses]);
 
   const fetchDiscoverCourses = async () => {
     try {
       const res = await axios.get(`http://localhost:8000/courses`);
-      setDiscoverCourses(res.data || []);
+      setDiscoverCourses(res.data.data || []);
     } catch (error) {
       console.error("Error fetching discoverable courses:", error.message);
+    }
+  };
+
+  const fetchMyCourses = async () => {
+    try {
+      const res = await axios.get(`http://localhost:8000/enrollment/${userId}`);
+      const enrollments = res.data.data || [];
+
+      // Merge enrollment data with course details
+      const merged = enrollments.map((enrollment) => {
+        const course = discoverCourses.find(
+          (c) => c._id === enrollment.courseId
+        );
+        return course
+          ? {
+              ...course,
+              progress: enrollment.progress,
+              status: enrollment.status,
+            }
+          : null;
+      }).filter(Boolean);
+
+      setMyCourses(merged);
+    } catch (error) {
+      console.error("Error fetching my courses:", error.message);
     }
   };
 
@@ -108,8 +130,7 @@ export const MyCourses = () => {
                   </div>
                 )}
 
-                <Link
-                to={`/user/course/${course._id}`}>
+                <Link to={`/user/course/${course._id}`}>
                   <button className="w-full mt-3 bg-indigo-600 hover:bg-indigo-700 text-white py-2 rounded-lg flex items-center justify-center gap-2 transition-all duration-300">
                     <PlayCircle size={18} />
                     {activeTab === "my" ? "Continue" : "Start Learning"}

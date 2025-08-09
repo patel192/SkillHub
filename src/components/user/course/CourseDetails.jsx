@@ -17,9 +17,19 @@ export const CourseDetails = () => {
   const [overview, setOverview] = useState([]);
   const [enrolled, setEnrolled] = useState(false);
 
+  const userId = localStorage.getItem("userId");
+
+  const EnrollData = {
+    userId,
+    courseId,
+    status: "Registered",
+    progress: "0",
+  };
+
   useEffect(() => {
     fetchCourseDetails();
     fetchCourseOverview();
+    checkIfEnrolled();
   }, [courseId]);
 
   const fetchCourseDetails = async () => {
@@ -40,9 +50,26 @@ export const CourseDetails = () => {
     }
   };
 
-  const handleEnroll = () => {
-    setEnrolled(true);
-    // Later: axios.post('/api/enroll', { userId, courseId })
+  // ✅ New function to check enrollment status
+  const checkIfEnrolled = async () => {
+    try {
+      const res = await axios.get(`http://localhost:8000/enrollment/user/${userId}`);
+      const isAlreadyEnrolled = res.data.data.some(
+        (enroll) => enroll.courseId === courseId
+      );
+      setEnrolled(isAlreadyEnrolled);
+    } catch (error) {
+      console.error("Failed to check enrollment", error);
+    }
+  };
+
+  const handleEnroll = async () => {
+    try {
+      await axios.post("http://localhost:8000/enrollment", EnrollData);
+      setEnrolled(true);
+    } catch (error) {
+      console.error("Failed to enroll", error);
+    }
   };
 
   if (!course) {
@@ -93,11 +120,31 @@ export const CourseDetails = () => {
 
       {/* Metadata Badges */}
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 text-sm mb-8">
-        <CourseMeta icon={<User size={18} />} label="Instructor" value={course.instructor} />
-        <CourseMeta icon={<BookOpen size={18} />} label="Category" value={course.category} />
-        <CourseMeta icon={<Clock size={18} />} label="Duration" value={course.duration} />
-        <CourseMeta icon={<BadgeCheck size={18} />} label="Level" value={course.level} />
-        <CourseMeta icon={<DollarSign size={18} />} label="Price" value={course.price > 0 ? `₹${course.price}` : "Free"} />
+        <CourseMeta
+          icon={<User size={18} />}
+          label="Instructor"
+          value={course.instructor}
+        />
+        <CourseMeta
+          icon={<BookOpen size={18} />}
+          label="Category"
+          value={course.category}
+        />
+        <CourseMeta
+          icon={<Clock size={18} />}
+          label="Duration"
+          value={course.duration}
+        />
+        <CourseMeta
+          icon={<BadgeCheck size={18} />}
+          label="Level"
+          value={course.level}
+        />
+        <CourseMeta
+          icon={<DollarSign size={18} />}
+          label="Price"
+          value={course.price > 0 ? `₹${course.price}` : "Free"}
+        />
         <CourseMeta
           icon={<BadgeCheck size={18} />}
           label="Status"

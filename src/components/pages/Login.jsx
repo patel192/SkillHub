@@ -19,6 +19,8 @@ export const Login = () => {
     console.log(form);
     const res = await axios.post("http://localhost:8000/loginuser", form);
     if (res.status === 200) {
+      localStorage.setItem("userId", res.data.data._id);
+      localStorage.setItem("fullname", res.data.data.fullname);
       alert("Login successful!");
       navigate("/user/dashboard"); // Redirect to dashboard or home page
       // Redirect or perform further actions
