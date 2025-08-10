@@ -181,7 +181,7 @@ export const CourseDetails = () => {
         <div className="mt-8 flex justify-center">
           <button
             onClick={() => {
-              window.location.href = `/learn/${courseId}`;
+              window.location.href = `/user/learn/${courseId}`;
             }}
             className="px-8 py-3 bg-blue-600 hover:bg-blue-700 hover:scale-105 text-white font-semibold rounded-full shadow-lg transition duration-300"
           >

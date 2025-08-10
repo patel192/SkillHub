@@ -20,6 +20,7 @@ import { Courses } from "./components/admin/course/Courses";
 import { Users } from "./components/admin/users/Users";
 import UserDetails from "./components/admin/users/UserDetails";
 import { Resources } from "./components/admin/resource/Resources";
+import { LearningPage } from "./components/user/course/LearningPage";
 function App() {
   return (
     <>
@@ -37,6 +38,8 @@ function App() {
           <Route path="profile" element={<Profile />}></Route>
           <Route path="settings" element={<Settings />}></Route>
           <Route path="course/:courseId" element={<CourseDetails />}></Route>
+          <Route path="learn/:courseId" element={<LearningPage />}></Route>
+
         </Route>
         <Route path="admin" element={<AdminLayout />}>
           <Route path="admindashboard" element={<AdminDashboard />}></Route>
