@@ -19,9 +19,12 @@ export const LearningPage = () => {
       try {
         const res = await fetch(`http://localhost:8000/lessons/${courseId}`);
         const data = await res.json();
-        setLessons(data.data || []);
-        if (data.data && data.data.length > 0) {
-          setSelectedLesson(data.data[0]);
+        if (Array.isArray(data.data)) {
+          setLessons(data.data);
+          if (data.data.length > 0) {
+            setSelectedLesson(data.data[0]);
+            
+          }
         }
       } catch (err) {
         console.error("Error fetching lessons:", err);
@@ -36,7 +39,10 @@ export const LearningPage = () => {
       try {
         const res = await fetch(`http://localhost:8000/challenges/${courseId}`);
         const data = await res.json();
-        setChallenges(data.data || []);
+        if (Array.isArray(data.data)) {
+          setChallenges(data.data);
+
+        }
       } catch (err) {
         console.error("Error fetching challenges:", err);
       }
@@ -44,7 +50,8 @@ export const LearningPage = () => {
     fetchChallenges();
   }, [courseId]);
 
-  const parseContent = (content) => {
+  // Parse content for lessons
+  const parseContent = (content = "") => {
     const regex = /```(\w+)?\n([\s\S]*?)```/g;
     let match;
     let parts = [];
@@ -52,10 +59,10 @@ export const LearningPage = () => {
 
     while ((match = regex.exec(content)) !== null) {
       if (match.index > lastIndex) {
-        parts.push({
-          type: "note",
-          text: content.slice(lastIndex, match.index).trim(),
-        });
+        const textPart = content.slice(lastIndex, match.index).trim();
+        if (textPart) {
+          parts.push({ type: "note", text: textPart });
+        }
       }
       parts.push({
         type: "code",
@@ -66,26 +73,44 @@ export const LearningPage = () => {
     }
 
     if (lastIndex < content.length) {
-      parts.push({
-        type: "note",
-        text: content.slice(lastIndex).trim(),
-      });
+      const textPart = content.slice(lastIndex).trim();
+      if (textPart) {
+        parts.push({ type: "note", text: textPart });
+      }
     }
     return parts;
   };
 
-  const handleRunCode = () => {
+  // Run challenge code
+  const handleRunCode = async () => {
+    if (!selectedChallenge?._id) {
+      alert("Please select a challenge first.");
+      return;
+    }
     try {
-      // Simple execution for demo purposes (not safe in production)
-      // eslint-disable-next-line no-eval
-      const result = eval(userCode);
-      alert(`Output: ${result}`);
+      const res = await fetch(
+        `http://localhost:8000/verify-challenge/${selectedChallenge._id}`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ userCode }),
+        }
+      );
+      const data = await res.json();
+      if (data.success) {
+        alert("✅ All tests passed!");
+      } else {
+        alert("❌ Some tests failed:\n" + JSON.stringify(data.results, null, 2));
+      }
     } catch (err) {
+      console.log("Verification results:", data);
+
       alert(`Error: ${err.message}`);
     }
   };
+
   return (
-    <div className="flex h-screen bg-[#0d1117] text-white">
+  <div className="flex h-screen bg-[#0d1117] text-white">
       {/* Sidebar */}
       <div className="w-64 bg-[#161b22] border-r border-gray-700 overflow-y-auto">
         <h2 className="p-4 text-lg font-bold border-b border-gray-700">
@@ -137,11 +162,14 @@ export const LearningPage = () => {
                   key={challenge._id}
                   onClick={() => {
                     setSelectedChallenge(challenge);
+                    console.log(selectedChallenge._id)
                     setSelectedLesson(null);
                     setUserCode(challenge.starterCode || "");
                   }}
                   className={`block w-full text-left px-4 py-2 text-sm hover:bg-[#21262d] ${
-                    selectedChallenge?._id === challenge._id ? "bg-[#30363d]" : ""
+                    selectedChallenge?._id === challenge._id
+                      ? "bg-[#30363d]"
+                      : ""
                   }`}
                 >
                   {challenge.title}
@@ -154,19 +182,18 @@ export const LearningPage = () => {
 
       {/* Main Content */}
       <div className="flex-1 p-6 overflow-y-auto">
+        {/* Lesson View */}
         {selectedLesson && (
           <>
             <h1 className="text-2xl font-bold mb-4">{selectedLesson.title}</h1>
             {parseContent(selectedLesson.content).map((part, idx) =>
               part.type === "note" ? (
-                part.text && (
-                  <p
-                    key={idx}
-                    className="mb-4 leading-relaxed text-gray-200 whitespace-pre-line"
-                  >
-                    {part.text}
-                  </p>
-                )
+                <p
+                  key={idx}
+                  className="mb-4 leading-relaxed text-gray-200 whitespace-pre-line"
+                >
+                  {part.text}
+                </p>
               ) : (
                 <SyntaxHighlighter
                   key={idx}
@@ -185,10 +212,15 @@ export const LearningPage = () => {
           </>
         )}
 
+        {/* Challenge View */}
         {selectedChallenge && (
           <>
-            <h1 className="text-2xl font-bold mb-2">{selectedChallenge.title}</h1>
-            <p className="mb-4 text-gray-300">{selectedChallenge.description}</p>
+            <h1 className="text-2xl font-bold mb-2">
+              {selectedChallenge.title}
+            </h1>
+            <p className="mb-4 text-gray-300">
+              {selectedChallenge.description}
+            </p>
 
             <textarea
               value={userCode}
@@ -204,7 +236,9 @@ export const LearningPage = () => {
                 ▶ Run
               </button>
               <button
-                onClick={() => setUserCode(selectedChallenge.solutionCode || "")}
+                onClick={() =>
+                  setUserCode(selectedChallenge.solutionCode || "")
+                }
                 className="bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded"
               >
                 💡 Show Solution
