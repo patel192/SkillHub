@@ -2,16 +2,16 @@ import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import { vscDarkPlus } from "react-syntax-highlighter/dist/esm/styles/prism";
-
 export const LearningPage = () => {
-    const [lessons, setLessons] = useState([]);
-  const [challenges, setChallenges] = useState([]);
+ const { courseId } = useParams();
+  const [lessons, setLessons] = useState([]);
   const [selectedLesson, setSelectedLesson] = useState(null);
-  const [selectedChallenge, setSelectedChallenge] = useState(null);
   const [learningOpen, setLearningOpen] = useState(true);
-  const [challengesOpen, setChallengesOpen] = useState(false);
-  const [userCode, setUserCode] = useState("");
-  const { courseId } = useParams();
+
+  const [quizQuestions, setQuizQuestions] = useState([]);
+  const [selectedQuestionId, setSelectedQuestionId] = useState(null);
+  const [quizAnswers, setQuizAnswers] = useState({});
+  const [quizResults, setQuizResults] = useState(null);
 
   // Fetch lessons
   useEffect(() => {
@@ -21,10 +21,7 @@ export const LearningPage = () => {
         const data = await res.json();
         if (Array.isArray(data.data)) {
           setLessons(data.data);
-          if (data.data.length > 0) {
-            setSelectedLesson(data.data[0]);
-            
-          }
+          if (data.data.length > 0) setSelectedLesson(data.data[0]);
         }
       } catch (err) {
         console.error("Error fetching lessons:", err);
@@ -33,24 +30,22 @@ export const LearningPage = () => {
     fetchLessons();
   }, [courseId]);
 
-  // Fetch challenges
+  // Fetch quiz questions
   useEffect(() => {
-    const fetchChallenges = async () => {
+    const fetchQuiz = async () => {
       try {
-        const res = await fetch(`http://localhost:8000/challenges/${courseId}`);
-        const data = await res.json();
-        if (Array.isArray(data.data)) {
-          setChallenges(data.data);
-
-        }
+        const res = await fetch(`http://localhost:8000/questions/${courseId}`);
+        console.log(res.body)
+        if (Array.isArray()) setQuizQuestions();
+        console.log(quizQuestions);
       } catch (err) {
-        console.error("Error fetching challenges:", err);
+        console.error("Error fetching quiz:", err);
       }
     };
-    fetchChallenges();
+    fetchQuiz();
   }, [courseId]);
 
-  // Parse content for lessons
+  // Parse lesson content
   const parseContent = (content = "") => {
     const regex = /```(\w+)?\n([\s\S]*?)```/g;
     let match;
@@ -60,9 +55,7 @@ export const LearningPage = () => {
     while ((match = regex.exec(content)) !== null) {
       if (match.index > lastIndex) {
         const textPart = content.slice(lastIndex, match.index).trim();
-        if (textPart) {
-          parts.push({ type: "note", text: textPart });
-        }
+        if (textPart) parts.push({ type: "note", text: textPart });
       }
       parts.push({
         type: "code",
@@ -74,50 +67,44 @@ export const LearningPage = () => {
 
     if (lastIndex < content.length) {
       const textPart = content.slice(lastIndex).trim();
-      if (textPart) {
-        parts.push({ type: "note", text: textPart });
-      }
+      if (textPart) parts.push({ type: "note", text: textPart });
     }
     return parts;
   };
 
-  // Run challenge code
-  const handleRunCode = async () => {
-    if (!selectedChallenge?._id) {
-      alert("Please select a challenge first.");
-      return;
-    }
-    try {
-      const res = await fetch(
-        `http://localhost:8000/verify-challenge/${selectedChallenge._id}`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ userCode }),
-        }
-      );
-      const data = await res.json();
-      if (data.success) {
-        alert("✅ All tests passed!");
-      } else {
-        alert("❌ Some tests failed:\n" + JSON.stringify(data.results, null, 2));
-      }
-    } catch (err) {
-      console.log("Verification results:", data);
-
-      alert(`Error: ${err.message}`);
-    }
+  const handleQuizChange = (questionId, option) => {
+    setQuizAnswers((prev) => ({ ...prev, [questionId]: option }));
   };
 
+  const handleSubmitQuiz = () => {
+    const results = quizQuestions.map((q) => ({
+      ...q,
+      userAnswer: quizAnswers[q.id] || null,
+      isCorrect: quizAnswers[q.id] === q.correctAnswer,
+    }));
+
+    const correctCount = results.filter((r) => r.isCorrect).length;
+
+    setQuizResults({
+      total: quizQuestions.length,
+      correct: correctCount,
+      details: results,
+    });
+  };
+
+  const selectedQuestion = quizQuestions.find(
+    (q) => q.id === selectedQuestionId
+  );
+
   return (
-  <div className="flex h-screen bg-[#0d1117] text-white">
+    <div className="flex h-screen bg-[#0d1117] text-white">
       {/* Sidebar */}
       <div className="w-64 bg-[#161b22] border-r border-gray-700 overflow-y-auto">
         <h2 className="p-4 text-lg font-bold border-b border-gray-700">
           Course Menu
         </h2>
 
-        {/* Learning Dropdown */}
+        {/* Lessons Dropdown */}
         <div>
           <button
             onClick={() => setLearningOpen(!learningOpen)}
@@ -133,7 +120,9 @@ export const LearningPage = () => {
                   key={lesson._id}
                   onClick={() => {
                     setSelectedLesson(lesson);
-                    setSelectedChallenge(null);
+                    setSelectedQuestionId(null);
+                    setQuizAnswers({});
+                    setQuizResults(null);
                   }}
                   className={`block w-full text-left px-4 py-2 text-sm hover:bg-[#21262d] ${
                     selectedLesson?._id === lesson._id ? "bg-[#30363d]" : ""
@@ -146,44 +135,33 @@ export const LearningPage = () => {
           )}
         </div>
 
-        {/* Challenges Dropdown */}
-        <div>
-          <button
-            onClick={() => setChallengesOpen(!challengesOpen)}
-            className="w-full text-left px-4 py-2 font-semibold hover:bg-[#21262d] flex justify-between items-center"
-          >
-            <span>🏆 Challenges</span>
-            <span>{challengesOpen ? "▲" : "▼"}</span>
-          </button>
-          {challengesOpen && (
+        {/* Quiz Sidebar */}
+        {quizQuestions.length > 0 && (
+          <div className="mt-4">
+            <h2 className="p-4 text-lg font-bold border-b border-gray-700">
+              📝 Quiz
+            </h2>
             <div className="pl-4">
-              {challenges.map((challenge) => (
+              {quizQuestions.map((q, idx) => (
                 <button
-                  key={challenge._id}
-                  onClick={() => {
-                    setSelectedChallenge(challenge);
-                    console.log(selectedChallenge._id)
-                    setSelectedLesson(null);
-                    setUserCode(challenge.starterCode || "");
-                  }}
+                  key={q.id}
+                  onClick={() => setSelectedQuestionId(q.id)}
                   className={`block w-full text-left px-4 py-2 text-sm hover:bg-[#21262d] ${
-                    selectedChallenge?._id === challenge._id
-                      ? "bg-[#30363d]"
-                      : ""
+                    selectedQuestionId === q.id ? "bg-[#30363d]" : ""
                   }`}
                 >
-                  {challenge.title}
+                  Question {idx + 1}
                 </button>
               ))}
             </div>
-          )}
-        </div>
+          </div>
+        )}
       </div>
 
       {/* Main Content */}
       <div className="flex-1 p-6 overflow-y-auto">
-        {/* Lesson View */}
-        {selectedLesson && (
+        {/* Lesson Content */}
+        {selectedLesson && !selectedQuestion && (
           <>
             <h1 className="text-2xl font-bold mb-4">{selectedLesson.title}</h1>
             {parseContent(selectedLesson.content).map((part, idx) =>
@@ -212,39 +190,41 @@ export const LearningPage = () => {
           </>
         )}
 
-        {/* Challenge View */}
-        {selectedChallenge && (
-          <>
-            <h1 className="text-2xl font-bold mb-2">
-              {selectedChallenge.title}
-            </h1>
-            <p className="mb-4 text-gray-300">
-              {selectedChallenge.description}
-            </p>
+        {/* Selected Quiz Question */}
+        {selectedQuestion && (
+          <div className="mt-8">
+            <h2 className="text-xl font-semibold mb-4">
+              Question: {quizQuestions.indexOf(selectedQuestion) + 1}
+            </h2>
+            <p className="mb-4">{selectedQuestion.question}</p>
+            {selectedQuestion.options.map((opt) => (
+              <label key={opt} className="block mb-2">
+                <input
+                  type="radio"
+                  name={selectedQuestion.id}
+                  value={opt}
+                  disabled={quizResults !== null}
+                  checked={quizAnswers[selectedQuestion.id] === opt}
+                  onChange={() => handleQuizChange(selectedQuestion.id, opt)}
+                  className="mr-2"
+                />
+                {opt}
+              </label>
+            ))}
 
-            <textarea
-              value={userCode}
-              onChange={(e) => setUserCode(e.target.value)}
-              className="w-full h-64 p-4 font-mono text-sm bg-[#161b22] text-white border border-gray-600 rounded mb-4"
-            />
+            <button
+              onClick={handleSubmitQuiz}
+              className="mt-4 bg-green-600 hover:bg-green-700 px-4 py-2 rounded"
+            >
+              Submit Quiz
+            </button>
 
-            <div className="flex gap-4">
-              <button
-                onClick={handleRunCode}
-                className="bg-green-600 hover:bg-green-700 px-4 py-2 rounded"
-              >
-                ▶ Run
-              </button>
-              <button
-                onClick={() =>
-                  setUserCode(selectedChallenge.solutionCode || "")
-                }
-                className="bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded"
-              >
-                💡 Show Solution
-              </button>
-            </div>
-          </>
+            {quizResults && (
+              <p className="mt-4 text-lg">
+                You got {quizResults.correct}/{quizResults.total} correct!
+              </p>
+            )}
+          </div>
         )}
       </div>
     </div>
