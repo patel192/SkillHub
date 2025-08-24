@@ -20,7 +20,29 @@ export const LearningPage = () => {
   const [points, setPoints] = useState(0);
   const [title, setTitle] = useState("Beginner");
 
-  // 🎯 Title calculation
+  // 🎯 Load saved progress from localStorage
+  useEffect(() => {
+    const savedProgress = JSON.parse(localStorage.getItem(`quiz_${courseId}`));
+    if (savedProgress) {
+      setQuizAnswers(savedProgress.quizAnswers || {});
+      setCurrentQuestionIndex(savedProgress.currentQuestionIndex || 0);
+      setPoints(savedProgress.points || 0);
+    }
+  }, [courseId]);
+
+  // 📝 Save progress to localStorage
+  const saveProgress = (newAnswers, newPoints, newIndex) => {
+    localStorage.setItem(
+      `quiz_${courseId}`,
+      JSON.stringify({
+        quizAnswers: newAnswers,
+        points: newPoints,
+        currentQuestionIndex: newIndex,
+      })
+    );
+  };
+
+  // 🏆 Title calculation
   useEffect(() => {
     if (points >= 100) setTitle("Master");
     else if (points >= 70) setTitle("Advanced");
@@ -89,24 +111,45 @@ export const LearningPage = () => {
   };
 
   const handleQuizChange = (questionId, optionText) => {
-    setQuizAnswers((prev) => ({ ...prev, [questionId]: optionText }));
+    const newAnswers = { ...quizAnswers, [questionId]: optionText };
+    setQuizAnswers(newAnswers);
+    saveProgress(newAnswers, points, currentQuestionIndex);
   };
 
-  const handleNextQuestion = () => {
-    if (currentQuestionIndex < quizQuestions.length - 1) {
-      setCurrentQuestionIndex(currentQuestionIndex + 1);
+  const handleNextQuestion = (skip = false) => {
+    const currentQ = quizQuestions[currentQuestionIndex];
+    let newPoints = points;
+    let newAnswers = { ...quizAnswers };
+
+    if (!skip) {
+      const userAnswer = quizAnswers[currentQ._id];
+      if (userAnswer && userAnswer === currentQ.correctAnswer) {
+        newPoints += 10;
+        setPoints(newPoints);
+      }
     } else {
-      handleSubmitQuiz();
+      newAnswers[currentQ._id] = "Skipped";
+    }
+
+    const nextIndex = currentQuestionIndex + 1;
+    setQuizAnswers(newAnswers);
+    setCurrentQuestionIndex(nextIndex);
+    saveProgress(newAnswers, newPoints, nextIndex);
+
+    if (nextIndex >= quizQuestions.length) {
+      handleSubmitQuiz(newAnswers, newPoints);
     }
   };
 
-  const handleSubmitQuiz = () => {
+  const handleSubmitQuiz = (
+    finalAnswers = quizAnswers,
+    finalPoints = points
+  ) => {
     const results = quizQuestions.map((q) => {
-      const isCorrect = quizAnswers[q._id] === q.correctAnswer;
-      if (isCorrect) setPoints((prev) => prev + 10);
+      const isCorrect = finalAnswers[q._id] === q.correctAnswer;
       return {
         ...q,
-        userAnswer: quizAnswers[q._id] || null,
+        userAnswer: finalAnswers[q._id] || null,
         isCorrect,
       };
     });
@@ -118,6 +161,8 @@ export const LearningPage = () => {
       correct: correctCount,
       details: results,
     });
+
+    localStorage.removeItem(`quiz_${courseId}`); // clear progress once finished
   };
 
   const handleLessonNavigation = (direction) => {
@@ -157,18 +202,7 @@ export const LearningPage = () => {
             className="w-full text-left px-4 py-2 font-semibold hover:bg-[#21262d] flex justify-between items-center"
           >
             <span className="flex items-center gap-2">
-              <motion.div
-                animate={{
-                  color: ["#60a5fa", "#34d399", "#fbbf24", "#f87171"],
-                }}
-                transition={{
-                  duration: 3,
-                  repeat: Infinity,
-                  repeatType: "mirror",
-                }}
-              >
-                <BookOpen size={18} />
-              </motion.div>
+              <BookOpen size={18} />
               Learning
             </span>
             <span>{learningOpen ? "▲" : "▼"}</span>
@@ -198,18 +232,7 @@ export const LearningPage = () => {
               className="w-full text-left px-4 py-2 font-semibold hover:bg-[#21262d] flex justify-between items-center"
             >
               <span className="flex items-center gap-2">
-                <motion.div
-                  animate={{
-                    color: ["#f472b6", "#a78bfa", "#38bdf8", "#facc15"],
-                  }}
-                  transition={{
-                    duration: 3,
-                    repeat: Infinity,
-                    repeatType: "mirror",
-                  }}
-                >
-                  <ClipboardList size={18} />
-                </motion.div>
+                <ClipboardList size={18} />
                 Quiz
               </span>
               <span>{quizOpen ? "▲" : "▼"}</span>
@@ -219,13 +242,11 @@ export const LearningPage = () => {
                 <button
                   onClick={() => {
                     setSelectedLesson(null);
-                    setCurrentQuestionIndex(0);
                     setQuizResults(null);
-                    setQuizAnswers({});
                   }}
                   className="block w-full text-left px-4 py-2 text-sm hover:bg-[#21262d]"
                 >
-                  Start Quiz
+                  {currentQuestionIndex > 0 ? "Resume Quiz" : "Start Quiz"}
                 </button>
               </div>
             )}
@@ -245,7 +266,9 @@ export const LearningPage = () => {
               exit={{ opacity: 0, x: -40 }}
               transition={{ duration: 0.4 }}
             >
-              <h1 className="text-2xl font-bold mb-4">{selectedLesson.title}</h1>
+              <h1 className="text-2xl font-bold mb-4">
+                {selectedLesson.title}
+              </h1>
               {parseContent(selectedLesson.content).map((part, idx) =>
                 part.type === "note" ? (
                   <p
@@ -271,25 +294,27 @@ export const LearningPage = () => {
               )}
 
               <div className="flex justify-between mt-6">
-                <button
+                <motion.button
+                  whileHover={{ scale: 1.05 }}
+                  className="bg-gradient-to-r from-gray-700 to-gray-500 hover:from-gray-600 hover:to-gray-400 px-4 py-2 rounded disabled:opacity-50"
                   onClick={() => handleLessonNavigation("prev")}
                   disabled={
                     lessons.findIndex((l) => l._id === selectedLesson._id) === 0
                   }
-                  className="bg-gray-700 hover:bg-gray-600 px-4 py-2 rounded disabled:opacity-50"
                 >
                   ⬅ Previous
-                </button>
-                <button
+                </motion.button>
+                <motion.button
+                  whileHover={{ scale: 1.05 }}
+                  className="bg-gradient-to-r from-blue-600 to-indigo-500 hover:from-blue-500 hover:to-indigo-400 px-4 py-2 rounded disabled:opacity-50"
                   onClick={() => handleLessonNavigation("next")}
                   disabled={
                     lessons.findIndex((l) => l._id === selectedLesson._id) ===
                     lessons.length - 1
                   }
-                  className="bg-gray-700 hover:bg-gray-600 px-4 py-2 rounded disabled:opacity-50"
                 >
                   Next ➡
-                </button>
+                </motion.button>
               </div>
             </motion.div>
           )}
@@ -314,7 +339,6 @@ export const LearningPage = () => {
                     type="radio"
                     name={currentQuestion._id}
                     value={opt.text}
-                    disabled={quizResults !== null}
                     checked={quizAnswers[currentQuestion._id] === opt.text}
                     onChange={() =>
                       handleQuizChange(currentQuestion._id, opt.text)
@@ -326,24 +350,73 @@ export const LearningPage = () => {
               ))}
 
               {!quizResults && (
-                <button
-                  onClick={handleNextQuestion}
-                  className="mt-4 bg-green-600 hover:bg-green-700 px-4 py-2 rounded"
-                >
-                  {currentQuestionIndex === quizQuestions.length - 1
-                    ? "Submit Quiz"
-                    : "Next Question ➡"}
-                </button>
+                <div className="flex gap-4 mt-6">
+                  {/* Next / Submit Button */}
+                  <motion.button
+                    whileHover={{ scale: 1.1 }}
+                    whileTap={{ scale: 0.95 }}
+                    animate={{
+                      background: [
+                        "linear-gradient(90deg, #3b82f6, #6366f1)",
+                        "linear-gradient(90deg, #6366f1, #8b5cf6)",
+                        "linear-gradient(90deg, #3b82f6, #6366f1)",
+                      ],
+                      boxShadow: [
+                        "0 0 10px #3b82f6",
+                        "0 0 20px #6366f1",
+                        "0 0 10px #3b82f6",
+                      ],
+                    }}
+                    transition={{
+                      duration: 2,
+                      repeat: Infinity,
+                      repeatType: "mirror",
+                    }}
+                    className="px-6 py-2 rounded-lg text-white font-semibold"
+                    onClick={() => handleNextQuestion(false)}
+                  >
+                    {currentQuestionIndex === quizQuestions.length - 1
+                      ? "🚀 Submit Quiz"
+                      : "➡ Next Question"}
+                  </motion.button>
+
+                  {/* Skip Button */}
+                  <motion.button
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    animate={{
+                      background: [
+                        "linear-gradient(90deg, #f59e0b, #f97316)",
+                        "linear-gradient(90deg, #f97316, #f59e0b)",
+                      ],
+                      boxShadow: [
+                        "0 0 10px #f59e0b",
+                        "0 0 20px #f97316",
+                        "0 0 10px #f59e0b",
+                      ],
+                    }}
+                    transition={{
+                      duration: 2,
+                      repeat: Infinity,
+                      repeatType: "mirror",
+                    }}
+                    className="px-6 py-2 rounded-lg text-white font-semibold"
+                    onClick={() => handleNextQuestion(true)}
+                  >
+                    ⏭ Skip
+                  </motion.button>
+                </div>
               )}
 
               {quizResults && (
                 <motion.div
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
-                  className="mt-4"
+                  className="mt-6"
                 >
                   <p className="text-lg">
-                    ✅ You got {quizResults.correct}/{quizResults.total} correct!
+                    ✅ You got {quizResults.correct}/{quizResults.total}{" "}
+                    correct!
                   </p>
                   <motion.div
                     className="flex items-center gap-2 mt-2"
