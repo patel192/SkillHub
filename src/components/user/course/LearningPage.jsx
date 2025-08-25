@@ -10,7 +10,7 @@ export const LearningPage = () => {
   const { courseId } = useParams();
 
   // 🔑 Replace with the real logged-in user's ObjectId string
-  const userId = "64f1a0d3e9c23a123456789a";
+  const userId = localStorage.getItem("userId")
 
   const [lessons, setLessons] = useState([]);
   const [selectedLesson, setSelectedLesson] = useState(null);
