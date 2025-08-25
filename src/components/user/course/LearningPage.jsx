@@ -1,27 +1,25 @@
+// LearningPage.jsx
 import React, { useEffect, useState, useRef } from "react";
 import { useParams } from "react-router-dom";
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import { vscDarkPlus } from "react-syntax-highlighter/dist/esm/styles/prism";
 import { motion } from "framer-motion";
-import {
-  BookOpen,
-  HelpCircle,
-  ChevronUp,
-  ChevronDown,
-  ChevronLeft,
-  ChevronRight,
-} from "lucide-react";
+import { BookOpen, HelpCircle, ChevronUp, ChevronDown } from "lucide-react";
 
 export const LearningPage = () => {
   const { courseId } = useParams();
+
+  // 🔑 Replace with the real logged-in user's ObjectId string
+  const userId = "64f1a0d3e9c23a123456789a";
+
   const [lessons, setLessons] = useState([]);
   const [selectedLesson, setSelectedLesson] = useState(null);
-  const [learningOpen, setLearningOpen] = useState(true);
+  const [learningOpen, setLearningOpen] = useState(false);
 
   const [quizQuestions, setQuizQuestions] = useState([]);
   const [quizOpen, setQuizOpen] = useState(false);
   const [currentQuestionIdx, setCurrentQuestionIdx] = useState(0);
-  const [quizAnswers, setQuizAnswers] = useState({});
+  const [quizAnswers, setQuizAnswers] = useState({}); // { [questionId]: "optionText" }
   const [quizResults, setQuizResults] = useState(null);
   const [points, setPoints] = useState(0);
 
@@ -73,30 +71,80 @@ export const LearningPage = () => {
       try {
         const res = await fetch(`http://localhost:8000/lessons/${courseId}`);
         const data = await res.json();
+        console.log("🔹 Lessons Response:", data);
         if (Array.isArray(data.data)) {
           setLessons(data.data);
           if (data.data.length > 0) setSelectedLesson(data.data[0]);
         }
       } catch (err) {
-        console.error("Error fetching lessons:", err);
+        console.error("❌ Error fetching lessons:", err);
       }
     };
     fetchLessons();
   }, [courseId]);
 
-  // Fetch quiz questions
+  // Fetch quiz + progress
   useEffect(() => {
-    const fetchQuiz = async () => {
+    const fetchQuizAndProgress = async () => {
       try {
-        const res = await fetch(`http://localhost:8000/questions/${courseId}`);
-        const data = await res.json();
-        if (Array.isArray(data.data)) setQuizQuestions(data.data);
+        // Quiz
+        const resQ = await fetch(`http://localhost:8000/questions/${courseId}`);
+        const dataQ = await resQ.json();
+        console.log("🔹 Quiz Questions Response:", dataQ);
+        if (Array.isArray(dataQ.data)) setQuizQuestions(dataQ.data);
+
+        // Progress
+        const resP = await fetch(
+          `http://localhost:8000/progress/${userId}/${courseId}`
+        );
+        const dataP = await resP.json();
+        console.log("🔹 Progress Response:", dataP);
+
+        if (dataP.success && dataP.data) {
+          setCurrentQuestionIdx(dataP.data.currentQuestionIdx || 0);
+          // quizAnswers from backend map → object
+          setQuizAnswers(dataP.data.quizAnswers || {});
+          setPoints(dataP.data.points || 0);
+        } else {
+          // Reset if no progress yet
+          setCurrentQuestionIdx(0);
+          setQuizAnswers({});
+          setPoints(0);
+        }
       } catch (err) {
-        console.error("Error fetching quiz:", err);
+        console.error("❌ Error fetching quiz/progress:", err);
       }
     };
-    fetchQuiz();
-  }, [courseId]);
+    fetchQuizAndProgress();
+  }, [courseId, userId]);
+
+  // Save progress to backend
+  const saveProgress = async (newIdx, newAnswers, newPoints) => {
+    try {
+      const payload = {
+        userId,
+        courseId,
+        currentQuestionIdx: newIdx,
+        quizAnswers: newAnswers, // object: { [questionId]: "optionText" }
+        points: newPoints,
+      };
+      console.log("🔹 Saving Progress Payload:", payload);
+
+      const res = await fetch("http://localhost:8000/progress/save", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+
+      const data = await res.json();
+      console.log("🔹 Save Progress Response:", data);
+      if (!data.success) {
+        console.warn("⚠️ Progress not saved:", data.error);
+      }
+    } catch (err) {
+      console.error("❌ Error saving progress:", err);
+    }
+  };
 
   // Parse lesson content
   const parseContent = (content = "") => {
@@ -127,47 +175,56 @@ export const LearningPage = () => {
 
   // Handle quiz answer change
   const handleQuizChange = (questionId, optionText) => {
-    setQuizAnswers((prev) => ({ ...prev, [questionId]: optionText }));
+    console.log("🔹 Answer Selected:", { questionId, optionText });
+    setQuizAnswers((prev) => {
+      const updated = { ...prev, [questionId]: optionText };
+      // Save answer as soon as it's chosen
+      saveProgress(currentQuestionIdx, updated, points);
+      return updated;
+    });
   };
 
   // Submit current quiz question
   const handleSubmitQuiz = () => {
     const currentQ = quizQuestions[currentQuestionIdx];
-    if (!quizAnswers[currentQ._id]) return; // no answer selected
+    if (!currentQ) return;
 
-    const isCorrect = currentQ.options.find(
-      (o) => o.text === quizAnswers[currentQ._id] && o.isCorrect
+    const selected = quizAnswers[currentQ._id];
+    if (!selected) {
+      console.warn("⚠️ No answer selected for this question");
+      return;
+    }
+
+    const isCorrect = currentQ.options.some(
+      (o) => o.text === selected && o.isCorrect
     );
 
+    let newPoints = points;
     if (isCorrect) {
-      setPoints((prev) => prev + (currentQ.points || 1));
+      newPoints = points + (currentQ.points || 1);
+      console.log("✅ Correct! New Points:", newPoints);
+      setPoints(newPoints);
       triggerFirework();
+    } else {
+      console.log("❌ Wrong answer, points stay:", points);
     }
 
     if (currentQuestionIdx < quizQuestions.length - 1) {
-      setCurrentQuestionIdx((prev) => prev + 1);
+      const newIdx = currentQuestionIdx + 1;
+      setCurrentQuestionIdx(newIdx);
+      saveProgress(newIdx, quizAnswers, newPoints);
     } else {
       setQuizResults(true);
+      saveProgress(currentQuestionIdx, quizAnswers, newPoints);
     }
   };
-
-  // Skip question
-  const handleSkip = () => {
-    if (currentQuestionIdx < quizQuestions.length - 1) {
-      setCurrentQuestionIdx((prev) => prev + 1);
-    } else {
-      setQuizResults(true);
-    }
-  };
-
-  const currentQuestion = quizQuestions[currentQuestionIdx];
 
   return (
     <div className="flex h-screen bg-[#0d1117] text-white relative">
       <canvas
         ref={canvasRef}
-        width={window.innerWidth}
-        height={window.innerHeight}
+        width={typeof window !== "undefined" ? window.innerWidth : 1200}
+        height={typeof window !== "undefined" ? window.innerHeight : 800}
         className="absolute top-0 left-0 pointer-events-none"
       />
 
@@ -193,6 +250,7 @@ export const LearningPage = () => {
               <button
                 key={lesson._id}
                 onClick={() => {
+                  console.log("🔹 Switching to Lesson:", lesson._id);
                   setSelectedLesson(lesson);
                   setQuizOpen(false);
                   setQuizResults(null);
@@ -211,6 +269,7 @@ export const LearningPage = () => {
         <button
           onClick={() => {
             if (quizQuestions.length > 0) {
+              console.log("🔹 Toggling Quiz Section");
               setQuizOpen(!quizOpen);
               setSelectedLesson(null);
               setQuizResults(null);
@@ -269,10 +328,9 @@ export const LearningPage = () => {
         )}
 
         {/* Quiz Content */}
-        {/* Quiz Content */}
-        {quizOpen && currentQuestion && (
+        {quizOpen && quizQuestions[currentQuestionIdx] && (
           <motion.div
-            key={currentQuestion._id}
+            key={quizQuestions[currentQuestionIdx]._id}
             initial={{ opacity: 0, y: 50 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -50 }}
@@ -297,21 +355,24 @@ export const LearningPage = () => {
               Question {currentQuestionIdx + 1} of {quizQuestions.length}
             </h2>
             <p className="mb-6 text-lg font-semibold text-gray-200">
-              {currentQuestion.question}
+              {quizQuestions[currentQuestionIdx].question}
             </p>
 
-            {/* Options */}
             <div className="grid grid-cols-1 gap-4">
-              {currentQuestion.options.map((opt) => {
+              {quizQuestions[currentQuestionIdx].options.map((opt) => {
                 const isSelected =
-                  quizAnswers[currentQuestion._id] === opt.text;
+                  quizAnswers[quizQuestions[currentQuestionIdx]._id] ===
+                  opt.text;
                 return (
                   <motion.button
                     key={opt._id}
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
                     onClick={() =>
-                      handleQuizChange(currentQuestion._id, opt.text)
+                      handleQuizChange(
+                        quizQuestions[currentQuestionIdx]._id,
+                        opt.text
+                      )
                     }
                     className={`w-full text-left px-6 py-4 rounded-xl shadow-md border transition-colors duration-300 ${
                       isSelected
@@ -325,27 +386,17 @@ export const LearningPage = () => {
               })}
             </div>
 
-            {/* Buttons */}
             <div className="flex gap-4 mt-8">
               <motion.button
-                whileHover={{ scale: 1.1 }}
-                whileTap={{ scale: 0.9 }}
+                whileHover={{ scale: 1.08 }}
+                whileTap={{ scale: 0.95 }}
                 onClick={handleSubmitQuiz}
                 className="px-6 py-3 rounded-lg bg-gradient-to-r from-green-400 to-green-600 text-white font-bold shadow-lg animate-pulse"
               >
                 Submit & Next
               </motion.button>
-              <motion.button
-                whileHover={{ scale: 1.1 }}
-                whileTap={{ scale: 0.9 }}
-                onClick={handleSkip}
-                className="px-6 py-3 rounded-lg bg-gradient-to-r from-gray-400 to-gray-600 text-white font-bold shadow-lg"
-              >
-                Skip
-              </motion.button>
             </div>
 
-            {/* Points */}
             <p className="mt-6 text-lg font-bold text-yellow-400">
               ⭐ Points: {points}
             </p>
