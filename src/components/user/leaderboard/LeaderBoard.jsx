@@ -3,27 +3,33 @@ import { Award } from "lucide-react";
 import { motion } from "framer-motion";
 
 export const LeaderBoard = () => {
-  const [activeTab, setActiveTab] = useState("monthly");
   const [users, setUsers] = useState([]);
 
   // Fetch all users with points
   useEffect(() => {
     const fetchUsers = async () => {
       try {
-        const res = await fetch("http://localhost:8000/users"); // 👈 adjust API
+        const res = await fetch("http://localhost:8000/users");
         const data = await res.json();
-        if (data.success) {
-          setUsers(data.data);
+        console.log("📌 API Response:", data);
+
+        if (Array.isArray(data.users)) {
+          setUsers(data.users);
+        } else {
+          setUsers([]);
         }
       } catch (err) {
         console.error("❌ Error fetching users:", err);
+        setUsers([]);
       }
     };
     fetchUsers();
   }, []);
 
   // Sort users by points (descending)
-  const sortedUsers = [...users].sort((a, b) => b.points - a.points);
+  const sortedUsers = Array.isArray(users)
+    ? [...users].sort((a, b) => b.points - a.points)
+    : [];
 
   return (
     <motion.div
@@ -39,30 +45,6 @@ export const LeaderBoard = () => {
           <h2 className="text-4xl font-extrabold text-center w-1/2 text-cyan-400 tracking-wide">
             Leaderboard Rankings
           </h2>
-        </div>
-
-        {/* Tabs (still here, but both use the same sorted list) */}
-        <div className="flex justify-center gap-4 mb-6">
-          <button
-            onClick={() => setActiveTab("monthly")}
-            className={`px-4 py-2 rounded-md font-medium transition-all duration-200 ${
-              activeTab === "monthly"
-                ? "bg-cyan-500 text-white shadow-lg"
-                : "bg-gray-700 hover:bg-gray-600"
-            }`}
-          >
-            Monthly
-          </button>
-          <button
-            onClick={() => setActiveTab("yearly")}
-            className={`px-4 py-2 rounded-md font-medium transition-all duration-200 ${
-              activeTab === "yearly"
-                ? "bg-cyan-500 text-white shadow-lg"
-                : "bg-gray-700 hover:bg-gray-600"
-            }`}
-          >
-            Yearly
-          </button>
         </div>
 
         {/* Leaderboard list */}
@@ -83,10 +65,10 @@ export const LeaderBoard = () => {
                     </span>
                     <img
                       src={user.avatar || "/avatars/default.png"}
-                      alt={user.name}
+                      alt={user.fullname}
                       className="w-10 h-10 rounded-full border-2 border-cyan-500"
                     />
-                    <span className="text-lg font-semibold">{user.name}</span>
+                    <span className="text-lg font-semibold">{user.fullname}</span>
                   </div>
 
                   {/* Right side (points + button) */}
