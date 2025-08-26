@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import React, { useState, useEffect } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
 import {
   FaGithub,
   FaLinkedin,
@@ -8,30 +8,61 @@ import {
 } from "react-icons/fa";
 import { motion } from "framer-motion";
 import { MdTimeline } from "react-icons/md";
+import axios from "axios";
 
 export const Profile = () => {
   const navigate = useNavigate();
+  const location = useLocation();
+
   const [editMode, setEditMode] = useState(false);
   const [activeTab, setActiveTab] = useState("profile");
+  const [userData, setUserData] = useState(null);
 
-  const [userData, setUserData] = useState({
-    name: "Muhammad Patel",
-    email: "patelmuhammad192@gmail.com",
-    bio: "Passionate Web Developer & Learner",
-    github: "https://github.com/patelmuhammad",
-    linkedin: "https://linkedin.com/in/patel-muhammad",
-    twitter: "https://twitter.com/yourhandle",
-    avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=patel",
-  });
+  const userId = localStorage.getItem("userId");
+
+  // ✅ Fetch user data from API
+  useEffect(() => {
+    const fetchUser = async () => {
+      try {
+        const res = await axios.get(`http://localhost:8000/user/${userId}`);
+        setUserData(res.data.data);
+        console.log(res);
+      } catch (err) {
+        console.error("❌ Error fetching user:", err);
+      }
+    };
+    if (userId) fetchUser();
+  }, [userId]);
+
+  //  Update avatar if coming from AvatarCustomization
+  useEffect(() => {
+    if (location.state?.selectedAvatar) {
+      setUserData((prev) => ({
+        ...prev,
+        avatar: location.state.selectedAvatar,
+      }));
+    }
+  }, [location.state]);
 
   const handleChange = (e) => {
     setUserData({ ...userData, [e.target.name]: e.target.value });
   };
 
-  const handleSave = () => {
-    setEditMode(false);
-    console.log("✅ Saved user data:", userData);
+  //  Save changes to backend
+  const handleSave = async () => {
+    try {
+      const res = await axios.put(`http://localhost:8000/user/${userId}`, userData);
+      setUserData(res.data.user);
+      setEditMode(false);
+      console.log("✅ User updated:", res.data.user);
+    } catch (err) {
+      console.error("❌ Error saving user:", err);
+    }
   };
+
+  if (!userData) {
+    return <p className="text-center text-gray-500">⏳ Loading profile...</p>;
+  }
 
   return (
     <motion.div
@@ -61,7 +92,7 @@ export const Profile = () => {
         <div className="flex flex-col sm:flex-row items-center gap-6">
           {/* Avatar */}
           <img
-            src={userData.avatar}
+            src={userData.avatar || "https://api.dicebear.com/7.x/avataaars/svg?seed=default"}
             alt="Profile"
             className="w-28 h-28 rounded-full border-4 border-purple-500 shadow-md"
           />
@@ -77,20 +108,18 @@ export const Profile = () => {
 
             {/* Editable Fields */}
             <div className="space-y-4">
-              {/* Full Name */}
               <div>
                 <label className="block text-sm font-medium">Full Name</label>
                 <input
                   type="text"
-                  name="name"
-                  value={userData.name}
+                  name="fullname"
+                  value={userData.fullname}
                   onChange={handleChange}
                   disabled={!editMode}
                   className="w-full p-2 mt-1 rounded-md bg-gray-100 dark:bg-gray-800 border"
                 />
               </div>
 
-              {/* Email */}
               <div>
                 <label className="block text-sm font-medium">Email</label>
                 <input
@@ -103,7 +132,6 @@ export const Profile = () => {
                 />
               </div>
 
-              {/* Bio */}
               <div>
                 <label className="block text-sm font-medium">Bio</label>
                 <textarea
@@ -116,7 +144,6 @@ export const Profile = () => {
                 />
               </div>
 
-              {/* GitHub */}
               <div>
                 <label className="block text-sm font-medium">GitHub</label>
                 <input
@@ -129,7 +156,6 @@ export const Profile = () => {
                 />
               </div>
 
-              {/* LinkedIn */}
               <div>
                 <label className="block text-sm font-medium">LinkedIn</label>
                 <input
@@ -142,7 +168,6 @@ export const Profile = () => {
                 />
               </div>
 
-              {/* Twitter */}
               <div>
                 <label className="block text-sm font-medium">Twitter</label>
                 <input
@@ -158,15 +183,21 @@ export const Profile = () => {
 
             {/* Social Links Preview */}
             <div className="flex items-center gap-4 mt-6">
-              <a href={userData.github} target="_blank" rel="noreferrer">
-                <FaGithub className="text-2xl hover:text-black dark:hover:text-white transition" />
-              </a>
-              <a href={userData.linkedin} target="_blank" rel="noreferrer">
-                <FaLinkedin className="text-2xl hover:text-blue-600 transition" />
-              </a>
-              <a href={userData.twitter} target="_blank" rel="noreferrer">
-                <FaTwitter className="text-2xl hover:text-blue-400 transition" />
-              </a>
+              {userData.github && (
+                <a href={userData.github} target="_blank" rel="noreferrer">
+                  <FaGithub className="text-2xl hover:text-black dark:hover:text-white transition" />
+                </a>
+              )}
+              {userData.linkedin && (
+                <a href={userData.linkedin} target="_blank" rel="noreferrer">
+                  <FaLinkedin className="text-2xl hover:text-blue-600 transition" />
+                </a>
+              )}
+              {userData.twitter && (
+                <a href={userData.twitter} target="_blank" rel="noreferrer">
+                  <FaTwitter className="text-2xl hover:text-blue-400 transition" />
+                </a>
+              )}
             </div>
 
             {/* Edit / Save */}

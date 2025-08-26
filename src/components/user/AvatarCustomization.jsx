@@ -1,6 +1,7 @@
 import React, { useState } from "react";
-
+import { useNavigate } from "react-router-dom";
 export const AvatarCustomization = () => {
+  const navigate = useNavigate()
   // Pre-generated avatar URLs
   const avatarOptions = [
     "https://api.dicebear.com/7.x/avataaars/svg?seed=bravo",
@@ -38,6 +39,7 @@ export const AvatarCustomization = () => {
 
   const handleSave = () => {
     console.log("✅ Selected Avatar:", selectedAvatar);
+    navigate("/user/profile",{state:{selectedAvatar}})
     // 👉 here you can make an API call to update user profile avatar
   };
 

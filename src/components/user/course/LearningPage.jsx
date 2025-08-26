@@ -5,12 +5,14 @@ import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import { vscDarkPlus } from "react-syntax-highlighter/dist/esm/styles/prism";
 import { motion } from "framer-motion";
 import { BookOpen, HelpCircle, ChevronUp, ChevronDown } from "lucide-react";
+import { AchievementPopup } from "../../../../utils/AchievementPopup"; // import it
 
 export const LearningPage = () => {
+  const [unlockedAchievement, setUnlockedAchievement] = useState(null);
   const { courseId } = useParams();
 
   // 🔑 Replace with the real logged-in user's ObjectId string
-  const userId = localStorage.getItem("userId")
+  const userId = localStorage.getItem("userId");
 
   const [lessons, setLessons] = useState([]);
   const [selectedLesson, setSelectedLesson] = useState(null);
@@ -24,6 +26,9 @@ export const LearningPage = () => {
   const [points, setPoints] = useState(0);
 
   const canvasRef = useRef(null);
+  const handleClosePopup = () => {
+  setUnlockedAchievement(null); // hide the popup
+};
 
   // Firework effect
   const triggerFirework = () => {
@@ -46,7 +51,7 @@ export const LearningPage = () => {
     };
 
     createParticles(canvas.width / 2, canvas.height / 2);
-
+    
     const animate = () => {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
       particles.forEach((p, idx) => {
@@ -61,10 +66,10 @@ export const LearningPage = () => {
       });
       if (particles.length > 0) requestAnimationFrame(animate);
     };
-
+    
     animate();
   };
-
+  
   // Fetch lessons
   useEffect(() => {
     const fetchLessons = async () => {
@@ -117,7 +122,7 @@ export const LearningPage = () => {
     };
     fetchQuizAndProgress();
   }, [courseId, userId]);
-
+  
   // Save progress to backend
   const saveProgress = async (newIdx, newAnswers, newPoints) => {
     try {
@@ -129,13 +134,13 @@ export const LearningPage = () => {
         points: newPoints,
       };
       console.log("🔹 Saving Progress Payload:", payload);
-
+      
       const res = await fetch("http://localhost:8000/progress/save", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
       });
-
+      
       const data = await res.json();
       console.log("🔹 Save Progress Response:", data);
       if (!data.success) {
@@ -145,14 +150,14 @@ export const LearningPage = () => {
       console.error("❌ Error saving progress:", err);
     }
   };
-
+  
   // Parse lesson content
   const parseContent = (content = "") => {
     const regex = /```(\w+)?\n([\s\S]*?)```/g;
     let match;
     let parts = [];
     let lastIndex = 0;
-
+    
     while ((match = regex.exec(content)) !== null) {
       if (match.index > lastIndex) {
         const textPart = content.slice(lastIndex, match.index).trim();
@@ -165,14 +170,14 @@ export const LearningPage = () => {
       });
       lastIndex = regex.lastIndex;
     }
-
+    
     if (lastIndex < content.length) {
       const textPart = content.slice(lastIndex).trim();
       if (textPart) parts.push({ type: "note", text: textPart });
     }
     return parts;
   };
-
+  
   // Handle quiz answer change
   const handleQuizChange = (questionId, optionText) => {
     console.log("🔹 Answer Selected:", { questionId, optionText });
@@ -185,20 +190,20 @@ export const LearningPage = () => {
   };
 
   // Submit current quiz question
-  const handleSubmitQuiz = () => {
+  const handleSubmitQuiz = async () => {
     const currentQ = quizQuestions[currentQuestionIdx];
     if (!currentQ) return;
-
+    
     const selected = quizAnswers[currentQ._id];
     if (!selected) {
       console.warn("⚠️ No answer selected for this question");
       return;
     }
-
+    
     const isCorrect = currentQ.options.some(
       (o) => o.text === selected && o.isCorrect
     );
-
+    
     let newPoints = points;
     if (isCorrect) {
       newPoints = points + (currentQ.points || 1);
@@ -208,7 +213,8 @@ export const LearningPage = () => {
     } else {
       console.log("❌ Wrong answer, points stay:", points);
     }
-
+    
+    // Save progress as before
     if (currentQuestionIdx < quizQuestions.length - 1) {
       const newIdx = currentQuestionIdx + 1;
       setCurrentQuestionIdx(newIdx);
@@ -217,10 +223,31 @@ export const LearningPage = () => {
       setQuizResults(true);
       saveProgress(currentQuestionIdx, quizAnswers, newPoints);
     }
+    
+    // 🔥 Check for new achievements after updating points
+    try {
+      const res = await fetch(
+        `http://localhost:8000/achievements/check/${userId}`
+      );
+      const data = await res.json();
+      
+      if (data.success && data.newlyUnlocked.length > 0) {
+        console.log("🏆 New Achievements Unlocked:", data.newlyUnlocked);
+
+        // Show the first unlocked achievement in popup
+        setUnlockedAchievement(data.newlyUnlocked[0]);
+      }
+    } catch (err) {
+      console.error("❌ Error checking achievements:", err);
+    }
   };
 
   return (
     <div className="flex h-screen bg-[#0d1117] text-white relative">
+      <AchievementPopup
+        achievement={unlockedAchievement}
+        onClose={handleClosePopup}
+      />
       <canvas
         ref={canvasRef}
         width={typeof window !== "undefined" ? window.innerWidth : 1200}
@@ -415,5 +442,6 @@ export const LearningPage = () => {
         )}
       </div>
     </div>
+    
   );
 };
