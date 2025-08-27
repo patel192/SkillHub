@@ -21,7 +21,7 @@ import { Users } from "./components/admin/users/Users";
 import UserDetails from "./components/admin/users/UserDetails";
 import { Resources } from "./components/admin/resource/Resources";
 import { LearningPage } from "./components/user/course/LearningPage";
-import { AvatarCustomization } from "./components/user/AvatarCustomization";
+
 function App() {
   return (
     <>
@@ -40,7 +40,7 @@ function App() {
           <Route path="settings" element={<Settings />}></Route>
           <Route path="course/:courseId" element={<CourseDetails />}></Route>
           <Route path="learn/:courseId" element={<LearningPage />}></Route>
-          <Route path="avatar" element={<AvatarCustomization />}></Route>
+          
 
         </Route>
         <Route path="admin" element={<AdminLayout />}>

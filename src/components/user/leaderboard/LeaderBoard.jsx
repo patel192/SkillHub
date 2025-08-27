@@ -2,19 +2,19 @@ import React, { useState, useEffect } from "react";
 import { Award, Trophy } from "lucide-react";
 import { motion } from "framer-motion";
 import axios from "axios";
+
 export const LeaderBoard = () => {
   const [users, setUsers] = useState([]);
   const [achievements, setAchievements] = useState([]);
-  const [activeTab, setActiveTab] = useState("leaderboard"); // "leaderboard" | "achievements"
+  const [activeTab, setActiveTab] = useState("leaderboard");
 
   // ✅ Fetch all users with points
   useEffect(() => {
     const fetchUsers = async () => {
       try {
         const res = await axios.get("http://localhost:8000/users");
-        const data = await res.json();
-        if (Array.isArray(data.users)) {
-          setUsers(data.users);
+        if (Array.isArray(res.data.users)) {
+          setUsers(res.data.users);
         } else {
           setUsers([]);
         }
@@ -26,18 +26,16 @@ export const LeaderBoard = () => {
     fetchUsers();
   }, []);
 
-  // ✅ Fetch achievements of all users (optional)
+  // ✅ Fetch achievements of logged-in user
   useEffect(() => {
     const fetchAchievements = async () => {
       try {
-        // Example: fetch achievements for one logged-in user
         const userId = localStorage.getItem("userId");
         if (!userId) return;
 
         const res = await axios.get(`http://localhost:8000/achievement/${userId}`);
-        const data = await res.json();
-        if (data.success) {
-          setAchievements(data.achievement);
+        if (res.data.success) {
+          setAchievements(res.data.achievement);
         }
       } catch (err) {
         console.error("❌ Error fetching achievements:", err);
@@ -50,10 +48,34 @@ export const LeaderBoard = () => {
     }
   }, [activeTab]);
 
-  // Sort users by points
+  // ✅ Sort users by points
   const sortedUsers = Array.isArray(users)
     ? [...users].sort((a, b) => b.points - a.points)
     : [];
+
+  // 🎖 Medal component
+  const Medal = ({ type }) => {
+    let styles = "";
+    if (type === "gold") {
+      styles =
+        "bg-gradient-to-br from-yellow-300 to-yellow-600 text-yellow-100 shadow-yellow-400";
+    } else if (type === "silver") {
+      styles =
+        "bg-gradient-to-br from-gray-300 to-gray-500 text-white shadow-gray-400";
+    } else if (type === "bronze") {
+      styles =
+        "bg-gradient-to-br from-amber-700 to-amber-900 text-amber-100 shadow-amber-700";
+    }
+    return (
+      <motion.div
+        className={`w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm shadow-lg ${styles}`}
+        animate={{ scale: [1, 1.2, 1] }}
+        transition={{ repeat: Infinity, duration: 1.5 }}
+      >
+        🏅
+      </motion.div>
+    );
+  };
 
   return (
     <motion.div
@@ -108,6 +130,12 @@ export const LeaderBoard = () => {
                         <span className="text-2xl font-bold text-cyan-400 w-10 text-center">
                           #{index + 1}
                         </span>
+
+                        {/* Glowing Medal for top 3 */}
+                        {index === 0 && <Medal type="gold" />}
+                        {index === 1 && <Medal type="silver" />}
+                        {index === 2 && <Medal type="bronze" />}
+
                         <img
                           src={user.avatar || "/avatars/default.png"}
                           alt={user.fullname}
