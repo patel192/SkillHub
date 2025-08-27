@@ -1,11 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import {
-  FaGithub,
-  FaLinkedin,
-  FaTwitter,
-  FaTrophy,
-} from "react-icons/fa";
+import { FaGithub, FaLinkedin, FaTwitter, FaTrophy } from "react-icons/fa";
 import { motion } from "framer-motion";
 import { MdTimeline } from "react-icons/md";
 import axios from "axios";
@@ -51,7 +46,10 @@ export const Profile = () => {
   //  Save changes to backend
   const handleSave = async () => {
     try {
-      const res = await axios.put(`http://localhost:8000/user/${userId}`, userData);
+      const res = await axios.put(
+        `http://localhost:8000/user/${userId}`,
+        userData
+      );
       setUserData(res.data.user);
       setEditMode(false);
       console.log("✅ User updated:", res.data.user);
@@ -92,7 +90,10 @@ export const Profile = () => {
         <div className="flex flex-col sm:flex-row items-center gap-6">
           {/* Avatar */}
           <img
-            src={userData.avatar || "https://api.dicebear.com/7.x/avataaars/svg?seed=default"}
+            src={
+              userData.avatar ||
+              "https://api.dicebear.com/7.x/avataaars/svg?seed=default"
+            }
             alt="Profile"
             className="w-28 h-28 rounded-full border-4 border-purple-500 shadow-md"
           />
@@ -233,12 +234,61 @@ export const Profile = () => {
       )}
 
       {/* Achievements Section */}
+     
       {activeTab === "achievements" && (
-        <div className="bg-white dark:bg-gray-800 shadow rounded-xl p-5 w-full">
-          <h3 className="text-xl font-semibold flex items-center gap-2 mb-4 text-yellow-600">
-            <FaTrophy /> Achievements
+        <div className="bg-white dark:bg-gray-800 shadow rounded-xl p-6 w-full">
+          <h3 className="text-xl font-semibold flex items-center gap-2 mb-6 text-yellow-600">
+            <FaTrophy className="text-yellow-500 animate-pulse" /> Achievements
           </h3>
-          <p className="text-gray-500">No achievements unlocked yet.</p>
+
+          {!userData.achievements || userData.achievements.length === 0 ? (
+            <p className="text-gray-500 text-center">
+              No achievements unlocked yet.
+            </p>
+          ) : (
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+              {userData.achievements.map((ach, idx) => (
+                <motion.div
+                  key={ach._id || idx}
+                  initial={{ opacity: 0, y: 40 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.6, delay: idx * 0.1 }}
+                  whileHover={{ scale: 1.07, rotate: 1 }}
+                  className="p-5 rounded-xl shadow-lg bg-gradient-to-tr from-gray-100 via-gray-200 to-gray-300 dark:from-gray-700 dark:via-gray-800 dark:to-gray-900 border border-yellow-500 flex flex-col items-center justify-center"
+                >
+                  {/* Achievement Icon with animation */}
+                  <motion.img
+                    src={ach.icon}
+                    alt={ach.title}
+                    className="w-20 h-20 mb-3 drop-shadow-lg"
+                    animate={{ rotate: [0, 5, -5, 0] }}
+                    transition={{
+                      repeat: Infinity,
+                      duration: 3,
+                      ease: "easeInOut",
+                    }}
+                  />
+
+                  {/* Title */}
+                  <h4 className="text-lg font-bold text-yellow-600 text-center">
+                    {ach.title}
+                  </h4>
+
+                  {/* Description */}
+                  {ach.description && (
+                    <p className="text-sm text-gray-600 dark:text-gray-300 text-center mt-2">
+                      {ach.description}
+                    </p>
+                  )}
+
+                  {/* Points Required */}
+                  <span className="mt-3 inline-block px-3 py-1 text-xs rounded-full bg-yellow-500 text-white shadow-md">
+                    {ach.pointsRequired} pts
+                  </span>
+                </motion.div>
+              ))}
+            </div>
+          )}
         </div>
       )}
     </motion.div>
