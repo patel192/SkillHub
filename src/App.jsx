@@ -21,6 +21,7 @@ import { Users } from "./components/admin/users/Users";
 import UserDetails from "./components/admin/users/UserDetails";
 import { Resources } from "./components/admin/resource/Resources";
 import { LearningPage } from "./components/user/course/LearningPage";
+import { Community } from "./components/user/communities/Community";
 
 function App() {
   return (
@@ -31,6 +32,7 @@ function App() {
         <Route path="login" element={<Login />}></Route>
         <Route path="user" element={<UserLayout />}>
           <Route path="dashboard" element={<UserDashboard />}></Route>
+          <Route path="communities" element={<Community />}></Route>
           <Route path="mycourses" element={<MyCourses />}></Route>
           <Route path="certificates" element={<Certificates />}></Route>
           <Route path="messages" element={<Messages />}></Route>

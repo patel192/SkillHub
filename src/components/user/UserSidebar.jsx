@@ -13,7 +13,7 @@ import {
 } from "lucide-react";
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
-
+import { MdPeople } from "react-icons/md";
 export const UserSidebar = ({ isOpen }) => {
   const navigate = useNavigate();
   return (
@@ -55,6 +55,12 @@ export const UserSidebar = ({ isOpen }) => {
           className="flex items-center gap-3 hover:text-blue-400"
         >
           <MessageSquare size={18} /> Messages
+        </Link>
+        <Link
+          to="/user/communities"
+          className="flex items-center gap-3 hover:text-blue-400"
+        >
+          <MdPeople size={18} /> Communities
         </Link>
         <Link
           to="/user/settings"
