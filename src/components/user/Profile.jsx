@@ -101,92 +101,134 @@ export const Profile = () => {
 
       {/* Profile Section */}
       {activeTab === "profile" && (
-        <div className="flex flex-col sm:flex-row items-center gap-6">
-          {/* Avatar */}
-          <img
-            src={userData.avatar}
-            alt="Profile"
-            className="w-28 h-28 rounded-full border-4 border-purple-500 shadow-md object-cover"
+  <div className="flex flex-col sm:flex-row items-center gap-6">
+    {/* Avatar */}
+    <img
+      src={userData.avatar}
+      alt="Profile"
+      className="w-28 h-28 rounded-full border-4 border-purple-500 shadow-md object-cover"
+    />
+
+    <div className="w-full">
+      {/* ✅ Avatar Upload Input */}
+      {editMode && (
+        <div className="mb-4">
+          <label className="block text-sm font-medium mb-2">
+            Upload New Avatar
+          </label>
+          <input
+            type="file"
+            accept="image/*"
+            onChange={(e) => setAvatarFile(e.target.files[0])}
+            className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4
+              file:rounded-md file:border-0 file:text-sm file:font-semibold
+              file:bg-purple-600 file:text-white hover:file:bg-purple-700"
           />
-
-          <div className="w-full">
-            {/* ✅ Avatar Upload Input */}
-            {editMode && (
-              <div className="mb-4">
-                <label className="block text-sm font-medium mb-2">
-                  Upload New Avatar
-                </label>
-                <input
-                  type="file"
-                  accept="image/*"
-                  onChange={(e) => setAvatarFile(e.target.files[0])}
-                  className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4
-                    file:rounded-md file:border-0 file:text-sm file:font-semibold
-                    file:bg-purple-600 file:text-white hover:file:bg-purple-700"
-                />
-              </div>
-            )}
-
-            {/* Editable Fields */}
-            <div className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium">Full Name</label>
-                <input
-                  type="text"
-                  name="fullname"
-                  value={userData.fullname || ""}
-                  onChange={handleChange}
-                  disabled={!editMode}
-                  className="w-full p-2 mt-1 rounded-md bg-gray-100 dark:bg-gray-800 border"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium">Email</label>
-                <input
-                  type="email"
-                  name="email"
-                  value={userData.email || ""}
-                  onChange={handleChange}
-                  disabled={!editMode}
-                  className="w-full p-2 mt-1 rounded-md bg-gray-100 dark:bg-gray-800 border"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium">Bio</label>
-                <textarea
-                  name="bio"
-                  value={userData.bio || ""}
-                  onChange={handleChange}
-                  disabled={!editMode}
-                  rows="2"
-                  className="w-full p-2 mt-1 rounded-md bg-gray-100 dark:bg-gray-800 border"
-                />
-              </div>
-            </div>
-
-            {/* Edit / Save */}
-            <div className="flex justify-end gap-4 mt-6">
-              {!editMode ? (
-                <button
-                  onClick={() => setEditMode(true)}
-                  className="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-md"
-                >
-                  Edit Info
-                </button>
-              ) : (
-                <button
-                  onClick={handleSave}
-                  className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-md"
-                >
-                  Save Changes
-                </button>
-              )}
-            </div>
-          </div>
         </div>
       )}
+
+      {/* Editable Fields */}
+      <div className="space-y-4">
+        <div>
+          <label className="block text-sm font-medium">Full Name</label>
+          <input
+            type="text"
+            name="fullname"
+            value={userData.fullname || ""}
+            onChange={handleChange}
+            disabled={!editMode}
+            className="w-full p-2 mt-1 rounded-md bg-gray-100 dark:bg-gray-800 border"
+          />
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium">Email</label>
+          <input
+            type="email"
+            name="email"
+            value={userData.email || ""}
+            onChange={handleChange}
+            disabled={!editMode}
+            className="w-full p-2 mt-1 rounded-md bg-gray-100 dark:bg-gray-800 border"
+          />
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium">Bio</label>
+          <textarea
+            name="bio"
+            value={userData.bio || ""}
+            onChange={handleChange}
+            disabled={!editMode}
+            rows="2"
+            className="w-full p-2 mt-1 rounded-md bg-gray-100 dark:bg-gray-800 border"
+          />
+        </div>
+      </div>
+
+      {/* Edit / Save */}
+      <div className="flex justify-end gap-4 mt-6">
+        {!editMode ? (
+          <button
+            onClick={() => setEditMode(true)}
+            className="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-md"
+          >
+            Edit Info
+          </button>
+        ) : (
+          <button
+            onClick={handleSave}
+            className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-md"
+          >
+            Save Changes
+          </button>
+        )}
+      </div>
+    </div>
+  </div>
+)}
+
+{/* Activity Section */}
+{activeTab === "activity" && (
+  <div className="space-y-4">
+    <h2 className="text-xl font-semibold mb-4">Recent Activity</h2>
+    <ul className="list-disc pl-6 space-y-2 text-gray-700 dark:text-gray-300">
+      <li>✔️ Logged in yesterday</li>
+      <li>📌 Updated profile last week</li>
+      <li>🏆 Joined “React Developers” community</li>
+      {/* TODO: Replace with actual user activity fetched from backend */}
+    </ul>
+  </div>
+)}
+
+{/* Achievements Section */}
+{activeTab === "achievements" && (
+  <div className="space-y-4">
+    <h2 className="text-xl font-semibold mb-4">Achievements</h2>
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+      <div className="bg-purple-100 dark:bg-gray-800 p-4 rounded-lg shadow">
+        🏅 <span className="font-medium">First Login</span>
+        <p className="text-sm text-gray-600 dark:text-gray-400">
+          Logged in for the very first time!
+        </p>
+      </div>
+      <div className="bg-purple-100 dark:bg-gray-800 p-4 rounded-lg shadow">
+        🎯 <span className="font-medium">Profile Complete</span>
+        <p className="text-sm text-gray-600 dark:text-gray-400">
+          Filled out all profile information.
+        </p>
+      </div>
+      <div className="bg-purple-100 dark:bg-gray-800 p-4 rounded-lg shadow">
+        🌟 <span className="font-medium">Active Member</span>
+        <p className="text-sm text-gray-600 dark:text-gray-400">
+          Logged in 7 days in a row.
+        </p>
+      </div>
+      {/* TODO: Load more achievements dynamically */}
+    </div>
+  </div>
+)}
+
     </motion.div>
   );
 };

@@ -1,42 +1,98 @@
 import React, { useEffect, useState } from "react";
 import { motion } from "framer-motion";
-
 import {
   FaBook,
   FaCertificate,
-  FaChartLine,
   FaClock,
   FaPlayCircle,
-  FaUserGraduate,
   FaTasks,
   FaBell,
 } from "react-icons/fa";
 import { MdLeaderboard } from "react-icons/md";
 import { AiOutlineArrowRight } from "react-icons/ai";
-export const UserDashboard = () => {
-  const [timeSpent, setTimeSpent] = useState(0);
-  const [userData, setUserData] = useState({
-    name: "Muhammad",
-    courses: 4,
-    challenges: 12,
-    certificates: 2,
-    totalMinutes: 385,
-    recentActivity: [
-      { type: "quiz", detail: "Completed: JavaScript Quiz 2" },
-      { type: "certificate", detail: "Earned Certificate: HTML Basics" },
-      { type: "video", detail: "Watched: React Components - Part 1" },
-    ],
-    recommendations: [
-      { title: "React Hooks Mastery", image: "/assets/react-course.jpg" },
-      { title: "Node.js Crash Course", image: "/assets/node-course.jpg" },
-    ],
-    leaderboardRank: 5,
-  });
+import { useNavigate } from "react-router-dom";
+import axios from "axios";
 
+export const UserDashboard = () => {
+  const [userData, setUserData] = useState(null);
+  const userId = localStorage.getItem("userId");
+  const navigate = useNavigate();
+const [courseName, setcourseName] = useState("")
   useEffect(() => {
-    const timer = setInterval(() => setTimeSpent((prev) => prev + 1), 60000);
-    return () => clearInterval(timer);
-  }, []);
+    const fetchUserDashboard = async () => {
+      try {
+        // 1. Courses
+        const resCourses = await axios.get(`http://localhost:8000/enrollment/${userId}`);
+        const dataCourses = resCourses.data;
+
+        // 2. Certificates
+        const resCerts = await axios.get(`http://localhost:8000/certificates/${userId}`);
+        const dataCerts = resCerts.data;
+
+        // 3. Learning Time from localStorage
+        let totalSeconds = 0;
+        let courseTimes = [];
+
+        Object.keys(localStorage).forEach((key) => {
+          if (key.startsWith(`learningTime_${userId}_`)) {
+            const seconds = parseInt(localStorage.getItem(key), 10) || 0;
+            totalSeconds += seconds;
+
+            const courseId = key.split("_")[2]; // extract courseId
+            courseTimes.push({ courseId, seconds });
+          }
+        });
+
+        const totalMinutes = Math.floor(totalSeconds / 60);
+
+        // find most learned course
+        let mostLearnedCourse = null;
+        if (courseTimes.length > 0) {
+          const sorted = [...courseTimes].sort((a, b) => b.seconds - a.seconds);
+          mostLearnedCourse = sorted[0];
+          const Coursename = await axios.get(`http://localhost:8000/course/${mostLearnedCourse.courseId}`);
+          setcourseName(Coursename.data.data.title)
+
+        }
+
+        // 4. Leaderboard Rank from localStorage
+        const storedRank = localStorage.getItem("userRank");
+
+        // Build user data object
+        setUserData({
+          name: "Muhammad", // TODO: fetch from profile API later
+          courses: dataCourses.data?.length || 0,
+          challenges: 12, // static for now
+          certificates: dataCerts.data?.length || 0,
+          totalMinutes,
+          mostLearnedCourse,
+          recommendations: [
+            { title: "React Hooks Mastery", image: "/assets/react-course.jpg" },
+            { title: "Node.js Crash Course", image: "/assets/node-course.jpg" },
+          ],
+          recentActivity: [
+            { type: "quiz", detail: "Completed: JavaScript Quiz 2" },
+            { type: "certificate", detail: "Earned Certificate: HTML Basics" },
+            { type: "video", detail: "Watched: React Components - Part 1" },
+          ],
+          leaderboardRank: storedRank ? parseInt(storedRank, 10) : 0,
+          
+        });
+      } catch (err) {
+        console.error("❌ Error fetching dashboard data:", err);
+      }
+    };
+
+    fetchUserDashboard();
+  }, [userId]);
+
+  if (!userData) {
+    return (
+      <div className="flex justify-center items-center h-screen text-white">
+        Loading Dashboard...
+      </div>
+    );
+  }
 
   const StatCard = ({ icon: Icon, title, value }) => (
     <motion.div
@@ -52,6 +108,7 @@ export const UserDashboard = () => {
       </div>
     </motion.div>
   );
+
   return (
     <div className="p-6 grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 text-white bg-gradient-to-br from-[#0f172a] to-[#1e293b] min-h-screen">
       {/* Welcome Header */}
@@ -65,45 +122,38 @@ export const UserDashboard = () => {
       </motion.div>
 
       {/* Stat Cards */}
-      <StatCard
-        icon={FaBook}
-        title="Courses Enrolled"
-        value={userData.courses}
-      />
-      <StatCard
-        icon={FaTasks}
-        title="Challenges Completed"
-        value={userData.challenges}
-      />
-      <StatCard
-        icon={FaCertificate}
-        title="Certificates Earned"
-        value={userData.certificates}
-      />
+      <StatCard icon={FaBook} title="Courses Enrolled" value={userData.courses} />
+      <StatCard icon={FaTasks} title="Challenges Completed" value={userData.challenges} />
+      <StatCard icon={FaCertificate} title="Certificates Earned" value={userData.certificates} />
       <StatCard
         icon={FaClock}
         title="Total Learning Time"
-        value={`${Math.floor(userData.totalMinutes / 60)}h ${
-          userData.totalMinutes % 60
-        }m`}
+        value={`${Math.floor(userData.totalMinutes / 60)}h ${userData.totalMinutes % 60}m`}
       />
 
       {/* Resume Section */}
-      <motion.div
-        whileHover={{ scale: 1.02 }}
-        className="bg-[#334155] p-5 rounded-2xl shadow-lg col-span-1"
-      >
-        <div className="flex items-center gap-4">
-          <FaPlayCircle size={30} className="text-green-400" />
-          <div>
-            <p className="text-sm text-gray-400">Continue Course</p>
-            <h2 className="font-semibold">JavaScript Basics - Functions</h2>
+      {userData.mostLearnedCourse && (
+        <motion.div
+          whileHover={{ scale: 1.02 }}
+          className="bg-[#334155] p-5 rounded-2xl shadow-lg col-span-1"
+        >
+          <div className="flex items-center gap-4">
+            <FaPlayCircle size={30} className="text-green-400" />
+            <div>
+              <p className="text-sm text-gray-400">Continue Course</p>
+              <h2 className="font-semibold">
+                {courseName}
+              </h2>
+            </div>
           </div>
-        </div>
-        <button className="mt-4 bg-green-600 px-4 py-2 rounded-lg hover:bg-green-700 transition">
-          Resume
-        </button>
-      </motion.div>
+          <button
+            className="mt-4 bg-green-600 px-4 py-2 rounded-lg hover:bg-green-700 transition"
+            onClick={() => navigate(`/learning/${userData.mostLearnedCourse.courseId}`)}
+          >
+            Resume
+          </button>
+        </motion.div>
+      )}
 
       {/* Recommendations */}
       <motion.div
@@ -161,7 +211,7 @@ export const UserDashboard = () => {
         </ul>
       </motion.div>
 
-      {/* Leaderboard */}
+      {/* Leaderboard Rank */}
       <motion.div
         whileHover={{ scale: 1.02 }}
         className="bg-[#334155] p-5 rounded-2xl shadow-lg flex items-center justify-between col-span-1"

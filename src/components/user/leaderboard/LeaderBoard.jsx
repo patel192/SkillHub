@@ -8,6 +8,8 @@ export const LeaderBoard = () => {
   const [achievements, setAchievements] = useState([]);
   const [activeTab, setActiveTab] = useState("leaderboard");
 
+  const userId = localStorage.getItem("userId"); // logged-in user
+
   // ✅ Fetch all users with points
   useEffect(() => {
     const fetchUsers = async () => {
@@ -30,10 +32,11 @@ export const LeaderBoard = () => {
   useEffect(() => {
     const fetchAchievements = async () => {
       try {
-        const userId = localStorage.getItem("userId");
         if (!userId) return;
 
-        const res = await axios.get(`http://localhost:8000/achievement/${userId}`);
+        const res = await axios.get(
+          `http://localhost:8000/achievement/${userId}`
+        );
         if (res.data.success) {
           setAchievements(res.data.achievement);
         }
@@ -46,12 +49,23 @@ export const LeaderBoard = () => {
     if (activeTab === "achievements") {
       fetchAchievements();
     }
-  }, [activeTab]);
+  }, [activeTab, userId]);
 
   // ✅ Sort users by points
   const sortedUsers = Array.isArray(users)
     ? [...users].sort((a, b) => b.points - a.points)
     : [];
+
+  // ✅ Find logged-in user rank & store in localStorage
+  useEffect(() => {
+    if (sortedUsers.length > 0 && userId) {
+      const rankIndex = sortedUsers.findIndex((u) => u._id === userId);
+      if (rankIndex !== -1) {
+        const rank = rankIndex + 1;
+        localStorage.setItem("userRank", rank); // 🚀 save for dashboard
+      }
+    }
+  }, [sortedUsers, userId]);
 
   // 🎖 Medal component
   const Medal = ({ type }) => {
@@ -141,7 +155,9 @@ export const LeaderBoard = () => {
                           alt={user.fullname}
                           className="w-10 h-10 rounded-full border-2 border-cyan-500"
                         />
-                        <span className="text-lg font-semibold">{user.fullname}</span>
+                        <span className="text-lg font-semibold">
+                          {user.fullname}
+                        </span>
                       </div>
 
                       {/* Right side */}
@@ -154,7 +170,9 @@ export const LeaderBoard = () => {
                   </motion.div>
                 ))
               ) : (
-                <p className="text-center text-gray-400">No leaderboard data yet.</p>
+                <p className="text-center text-gray-400">
+                  No leaderboard data yet.
+                </p>
               )}
             </div>
           </>

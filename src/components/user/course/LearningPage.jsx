@@ -3,6 +3,7 @@ import React, { useEffect, useState, useRef } from "react";
 import { useParams } from "react-router-dom";
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import { vscDarkPlus } from "react-syntax-highlighter/dist/esm/styles/prism";
+import { Clock } from "lucide-react";
 import { motion } from "framer-motion";
 import { BookOpen, HelpCircle, ChevronUp, ChevronDown } from "lucide-react";
 import { AchievementPopup } from "../../../../utils/AchievementPopup"; // import it
@@ -25,11 +26,23 @@ export const LearningPage = () => {
   const [quizResults, setQuizResults] = useState(null);
   const [points, setPoints] = useState(0);
 
+  // learning time
+ const [learningTime, setLearningTime] = useState(0);
+  const startTimeRef = useRef(null);
+  const intervalRef = useRef(null);
+
   const canvasRef = useRef(null);
   const handleClosePopup = () => {
     setUnlockedAchievement(null); // hide the popup
   };
-
+const getStoredTime = () => {
+    const key = `learningTime_${userId}_${courseId}`;
+    return parseInt(localStorage.getItem(key) || "0", 10);
+  };
+  const saveStoredTime = (time) => {
+    const key = `learningTime_${userId}_${courseId}`;
+    localStorage.setItem(key, time.toString());
+  };
   // Firework effect
   const triggerFirework = () => {
     const canvas = canvasRef.current;
@@ -122,7 +135,33 @@ export const LearningPage = () => {
     };
     fetchQuizAndProgress();
   }, [courseId, userId]);
+ useEffect(() => {
+    // Load saved time
+    setLearningTime(getStoredTime());
 
+    // Start
+    startTimeRef.current = Date.now();
+    intervalRef.current = setInterval(() => {
+      const sessionTime = Math.floor((Date.now() - startTimeRef.current) / 1000);
+      setLearningTime(getStoredTime() + sessionTime);
+    }, 1000);
+
+    // Stop & Save on unload
+    const handleBeforeUnload = () => {
+      const endTime = Date.now();
+      const sessionTime = Math.floor((endTime - startTimeRef.current) / 1000);
+      const total = getStoredTime() + sessionTime;
+      saveStoredTime(total);
+      clearInterval(intervalRef.current);
+    };
+
+    window.addEventListener("beforeunload", handleBeforeUnload);
+
+    return () => {
+      handleBeforeUnload();
+      window.removeEventListener("beforeunload", handleBeforeUnload);
+    };
+  }, [courseId, userId])
   // Save progress to backend
   const saveProgress = async (newIdx, newAnswers, newPoints) => {
     try {
@@ -263,6 +302,14 @@ export const LearningPage = () => {
         <h2 className="p-4 text-lg font-bold border-b border-gray-700">
           Course Menu
         </h2>
+        {/* ⏱ Show Learning Time */}
+        <div className="flex items-center gap-2 p-4 text-sm text-gray-300 border-b border-gray-700">
+          <Clock className="w-4 h-4 text-green-400" />
+          Time Spent:{" "}
+          <span className="font-semibold text-white">
+            {Math.floor(learningTime / 60)}m {learningTime % 60}s
+          </span>
+        </div>
 
         {/* Lessons Dropdown */}
         <button
