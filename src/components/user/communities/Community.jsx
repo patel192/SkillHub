@@ -25,7 +25,7 @@ export const Community = () => {
     fetchPosts();
   }, []);
 
-  // ✅ Create a new post
+  //  Create a new post
   const handleAddPost = async () => {
     if (!newPost.trim()) return;
     try {
