@@ -70,35 +70,41 @@ export const Messages = () => {
     }
   };
 
-  const handleReaction = async (msgId, emoji) => {
-    try {
-      // Optimistic update
+ const handleReaction = async (msgId, emoji) => {
+  try {
+    // Optimistic update
+    setMessages((prev) =>
+      prev.map((m) =>
+        m._id === msgId
+          ? {
+              ...m,
+              reactions: [
+                ...(m.reactions || []),
+                { userId: { _id: currentUserId, fullname: "You" }, emoji },
+              ],
+            }
+          : m
+      )
+    );
+
+    // Send to backend
+    const res = await axios.patch(`http://localhost:8000/message/${msgId}/reaction`, {
+      userId: currentUserId,
+      emoji,
+    });
+
+    const updatedMessage = res.data?.data;
+    if (updatedMessage) {
+      // Replace only the updated message instead of refetching all
       setMessages((prev) =>
-        prev.map((m) =>
-          m._id === msgId
-            ? {
-                ...m,
-                reactions: [
-                  ...(m.reactions || []),
-                  { userId: { _id: currentUserId, fullname: "You" }, emoji },
-                ],
-              }
-            : m
-        )
+        prev.map((m) => (m._id === msgId ? updatedMessage : m))
       );
-
-      // Send to backend
-      await axios.patch(`http://localhost:8000/messages/${msgId}/react`, {
-        userId: currentUserId,
-        emoji,
-      });
-
-      // Re-fetch to sync
-      fetchMessages();
-    } catch (err) {
-      console.error("Error adding reaction:", err);
     }
-  };
+  } catch (err) {
+    console.error("Error adding reaction:", err);
+  }
+};
+
 
   const handleDelete = async (msgId) => {
     try {
