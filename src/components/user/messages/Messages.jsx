@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useRef } from "react";
 import axios from "axios";
 import { motion } from "framer-motion";
-import { Send, Smile, Trash2, Reply, X } from "lucide-react";
+import { Send, Smile, Trash2, Reply, X, Plus } from "lucide-react";
 
 export const Messages = () => {
   const [users, setUsers] = useState([]);
@@ -9,7 +9,8 @@ export const Messages = () => {
   const [messages, setMessages] = useState([]);
   const [message, setMessage] = useState("");
   const [replyTo, setReplyTo] = useState(null);
-  const [reactionTarget, setReactionTarget] = useState(null); // msgId for reactions popover
+  const [reactionTarget, setReactionTarget] = useState(null); 
+  const [showEmojiPicker, setShowEmojiPicker] = useState(null); // new
   const inputRef = useRef(null);
   const messagesEndRef = useRef(null);
 
@@ -20,7 +21,6 @@ export const Messages = () => {
     try {
       const res = await axios.get("http://localhost:8000/users");
       const list = res.data?.data?.users ?? res.data?.users ?? [];
-      // filter out self if present
       const listWithoutMe = list.filter((u) => String(u._id) !== String(currentUserId));
       setUsers(listWithoutMe);
       if (!selectedUserId && listWithoutMe.length > 0) {
@@ -57,54 +57,51 @@ export const Messages = () => {
       });
       const newMessage = res.data?.data || null;
       if (newMessage) {
-        // optimistic add then refresh to stay in sync
         setMessages((prev) => [...prev, newMessage]);
         fetchMessages();
       }
       setMessage("");
       setReplyTo(null);
       setReactionTarget(null);
+      setShowEmojiPicker(null);
       inputRef.current?.focus();
     } catch (err) {
       console.error("Error sending message:", err);
     }
   };
 
- const handleReaction = async (msgId, emoji) => {
-  try {
-    // Optimistic update
-    setMessages((prev) =>
-      prev.map((m) =>
-        m._id === msgId
-          ? {
-              ...m,
-              reactions: [
-                ...(m.reactions || []),
-                { userId: { _id: currentUserId, fullname: "You" }, emoji },
-              ],
-            }
-          : m
-      )
-    );
-
-    // Send to backend
-    const res = await axios.patch(`http://localhost:8000/message/${msgId}/reaction`, {
-      userId: currentUserId,
-      emoji,
-    });
-
-    const updatedMessage = res.data?.data;
-    if (updatedMessage) {
-      // Replace only the updated message instead of refetching all
+  const handleReaction = async (msgId, emoji) => {
+    try {
+      // Optimistic update
       setMessages((prev) =>
-        prev.map((m) => (m._id === msgId ? updatedMessage : m))
+        prev.map((m) =>
+          m._id === msgId
+            ? {
+                ...m,
+                reactions: [
+                  ...(m.reactions || []),
+                  { userId: { _id: currentUserId, fullname: "You" }, emoji },
+                ],
+              }
+            : m
+        )
       );
-    }
-  } catch (err) {
-    console.error("Error adding reaction:", err);
-  }
-};
 
+      const res = await axios.patch(`http://localhost:8000/message/${msgId}/reaction`, {
+        userId: currentUserId,
+        emoji,
+      });
+
+      const updatedMessage = res.data?.data;
+      if (updatedMessage) {
+        setMessages((prev) =>
+          prev.map((m) => (m._id === msgId ? updatedMessage : m))
+        );
+      }
+    } catch (err) {
+      console.error("Error adding reaction:", err);
+    }
+  };
 
   const handleDelete = async (msgId) => {
     try {
@@ -125,14 +122,12 @@ export const Messages = () => {
     inputRef.current?.focus();
   }, [selectedUserId]);
 
-  // Poll for new messages while a chat is open (basic realtime)
   useEffect(() => {
     if (!selectedUserId) return;
-    const id = setInterval(fetchMessages, 4000); // every 4s
+    const id = setInterval(fetchMessages, 4000);
     return () => clearInterval(id);
   }, [selectedUserId]);
 
-  // Auto-scroll on new messages
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
@@ -167,8 +162,7 @@ export const Messages = () => {
           >
             <img
               src={
-                user.avatar ||
-                `https://ui-avatars.com/api/?name=${encodeURIComponent(user.fullname || "User")}`
+                user.avatar 
               }
               alt={user.fullname}
               className="w-8 h-8 rounded-full"
@@ -186,7 +180,7 @@ export const Messages = () => {
         </div>
 
         {/* Messages */}
-        <div className="flex-1 space-y-2 overflow-y-auto pr-2 scroll-smooth">
+        <div className="flex-1 space-y-3 overflow-y-auto pr-2 scroll-smooth">
           {messages.length === 0 && (
             <p className="text-gray-400 text-center mt-10">No messages yet. Start the conversation!</p>
           )}
@@ -195,25 +189,24 @@ export const Messages = () => {
             const senderIdStr = String(msg?.senderId?._id || msg?.senderId || "");
             const isMe = senderIdStr === String(currentUserId);
 
-            // Group reactions by emoji
             const groupedReactions =
               msg.reactions?.reduce((acc, r) => {
                 if (!acc[r.emoji]) acc[r.emoji] = [];
-                acc[r.emoji].push(r.userId?.fullname || r.userId?.username || "User");
+                acc[r.emoji].push(r.userId?.fullname || "User");
                 return acc;
               }, {}) || {};
 
             return (
               <motion.div
                 key={msg._id}
-                initial={{ opacity: 0, y: 10 }}
+                initial={{ opacity: 0, y: 15 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.3 }}
+                transition={{ duration: 0.4, ease: "easeOut" }}
                 className={`group relative p-2 px-4 rounded-xl max-w-[70%] ${
                   isMe ? "bg-violet-600 self-end text-right ml-auto" : "bg-gray-700 self-start"
                 }`}
               >
-                {/* Hover action bar */}
+                {/* Hover menu */}
                 <div className="absolute top-1 right-1 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none group-hover:pointer-events-auto">
                   <div className="flex items-center gap-1 bg-black/30 backdrop-blur px-1 py-0.5 rounded-md">
                     <button
@@ -259,7 +252,7 @@ export const Messages = () => {
                       <div
                         key={emoji}
                         className="bg-black/30 px-2 py-0.5 rounded-full text-sm flex items-center gap-1 cursor-pointer hover:bg-black/50"
-                        title={users.join(", ")} // hover shows user list
+                        title={users.join(", ")}
                       >
                         <span>{emoji}</span>
                         <span className="text-xs">{users.length}</span>
@@ -271,8 +264,8 @@ export const Messages = () => {
                 {/* Reaction picker */}
                 {reactionTarget === msg._id && (
                   <div
-                    className={`absolute -top-10 ${isMe ? "right-0" : "left-0"} bg-gray-800 border border-gray-700 rounded-lg px-2 py-1 flex gap-2`}
-                    onMouseLeave={() => setReactionTarget(null)}
+                    className={`absolute -top-12 ${isMe ? "right-0" : "left-0"} 
+                      bg-gray-800 border border-gray-700 rounded-lg px-2 py-1 flex gap-2 z-10`}
                   >
                     {["❤️", "😂", "👍", "👏", "😮"].map((emo) => (
                       <button
@@ -284,9 +277,42 @@ export const Messages = () => {
                       </button>
                     ))}
                     <button
-                      className="text-xs text-gray-400 ml-1"
-                      onClick={() => setReactionTarget(null)}
-                      title="Close"
+                      className="text-sm text-gray-300 hover:text-white"
+                      onClick={() =>
+                        setShowEmojiPicker((prev) => (prev === msg._id ? null : msg._id))
+                      }
+                    >
+                      <Plus size={16} />
+                    </button>
+                  </div>
+                )}
+
+                {/* Custom Emoji Grid */}
+                {showEmojiPicker === msg._id && (
+                  <div
+                    className={`absolute -top-40 ${isMe ? "right-0" : "left-0"} 
+                      bg-gray-900 border border-gray-700 rounded-xl p-3 grid grid-cols-6 gap-2 z-20`}
+                  >
+                    {[
+                      "🔥","😎","🥳","😢","🤔","🙌",
+                      "🤯","✨","💯","🤩","😡","🥶",
+                      "👀","🙏","😴","🎉","🤝","🫶"
+                    ].map((emo) => (
+                      <button
+                        key={emo}
+                        className="text-xl hover:scale-125 transition"
+                        onClick={() => {
+                          handleReaction(msg._id, emo);
+                          setShowEmojiPicker(null);
+                          setReactionTarget(null);
+                        }}
+                      >
+                        {emo}
+                      </button>
+                    ))}
+                    <button
+                      className="absolute top-1 right-1 text-gray-400 hover:text-white"
+                      onClick={() => setShowEmojiPicker(null)}
                     >
                       <X size={14} />
                     </button>
