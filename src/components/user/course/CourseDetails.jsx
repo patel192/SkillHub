@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { useParams } from "react-router-dom";
 import axios from "axios";
@@ -26,6 +26,7 @@ export const CourseDetails = () => {
     checkIfEnrolled();
   }, [courseId]);
 
+  // ✅ Fetch course details
   const fetchCourseDetails = async () => {
     try {
       const res = await axios.get(`http://localhost:8000/course/${courseId}`);
@@ -35,12 +36,13 @@ export const CourseDetails = () => {
     }
   };
 
+  // ✅ Fetch course overview
   const fetchCourseOverview = async () => {
     try {
       const res = await axios.get(`http://localhost:8000/overview/${courseId}`);
       let data = res.data.data?.overview || [];
       if (typeof data === "string") {
-        data = data.split("\n").filter(Boolean); // convert to array
+        data = data.split("\n").filter(Boolean);
       }
       setOverview(data);
     } catch (error) {
@@ -48,11 +50,14 @@ export const CourseDetails = () => {
     }
   };
 
+  // ✅ Check enrollment properly
   const checkIfEnrolled = async () => {
     try {
       const res = await axios.get(`http://localhost:8000/enrollment/${userId}`);
-      const isAlreadyEnrolled = res.data.data.some(
-        (enroll) => enroll.courseId?.toString?.() === courseId.toString()
+      const enrollments = res.data.data || [];
+      const isAlreadyEnrolled = enrollments.some(
+        (enroll) =>
+          String(enroll.courseId?._id || enroll.courseId) === String(courseId)
       );
       setEnrolled(isAlreadyEnrolled);
     } catch (error) {
@@ -60,21 +65,20 @@ export const CourseDetails = () => {
     }
   };
 
+  // ✅ Enroll user in course
   const handleEnroll = async () => {
-  try {
-    await axios.post("http://localhost:8000/enrollment", {
-      userId,
-      courseId,
-      status: "Registered",
-      progress: 0,
-    });
-
-    setEnrolled(true); // instantly update UI
-  } catch (error) {
-    console.error("Failed to enroll", error);
-  }
-};
-
+    try {
+      await axios.post("http://localhost:8000/enrollment", {
+        userId,
+        courseId,
+        status: "Registered",
+        progress: 0,
+      });
+      setEnrolled(true); // update UI instantly
+    } catch (error) {
+      console.error("Failed to enroll", error);
+    }
+  };
 
   if (!course) {
     return (
@@ -179,6 +183,7 @@ export const CourseDetails = () => {
           <p className="text-gray-400 italic">No overview available.</p>
         )}
       </div>
+
       {enrolled && (
         <div className="mt-8 flex justify-center">
           <button

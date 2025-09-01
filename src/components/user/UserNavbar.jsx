@@ -1,17 +1,49 @@
 import React, { useEffect, useState } from "react";
 import { Menu, X, Bell } from "lucide-react";
 import { motion } from "framer-motion";
+import axios from "axios";
 
 export const UserNavbar = ({ toggleSidebar, isSidebarOpen }) => {
   const [time, setTime] = useState(new Date());
   const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [notifOpen, setNotifOpen] = useState(false);
+  const [notifications, setNotifications] = useState([]);
+  const userId = localStorage.getItem("userId");
 
   useEffect(() => {
-    const timer = setInterval(() => setTime(new Date()), 60000); // update every minute
+    const timer = setInterval(() => setTime(new Date()), 60000);
     return () => clearInterval(timer);
   }, []);
 
   const formattedTime = time.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+
+  // ✅ Fetch Notifications
+  const fetchNotifications = async () => {
+    try {
+      const res = await axios.get(`http://localhost:8000/notifications/${userId}`);
+      setNotifications(res.data.data || []);
+    } catch (err) {
+      console.error("❌ Error fetching notifications:", err);
+    }
+  };
+
+  useEffect(() => {
+    if (notifOpen) {
+      fetchNotifications();
+    }
+  }, [notifOpen]);
+
+  // ✅ Mark as read
+  const markAsRead = async (id) => {
+    try {
+      await axios.patch(`http://localhost:8000/notifications/${id}/read`);
+      setNotifications((prev) =>
+        prev.map((n) => (n._id === id ? { ...n, read: true } : n))
+      );
+    } catch (err) {
+      console.error("❌ Error marking as read:", err);
+    }
+  };
 
   return (
     <motion.header
@@ -36,9 +68,46 @@ export const UserNavbar = ({ toggleSidebar, isSidebarOpen }) => {
         <span className="text-sm text-gray-300">{formattedTime}</span>
 
         {/* Notification Icon */}
-        <div className="relative cursor-pointer">
-          <Bell size={20} />
-          <span className="absolute top-0 right-0 h-2 w-2 rounded-full bg-red-500 animate-ping" />
+        <div className="relative">
+          <button
+            onClick={() => setNotifOpen((prev) => !prev)}
+            className="relative p-2 rounded-full bg-gray-800 hover:bg-gray-700"
+          >
+            <Bell size={20} />
+            {notifications.some((n) => !n.read) && (
+              <span className="absolute top-1 right-1 h-2 w-2 bg-red-500 rounded-full"></span>
+            )}
+          </button>
+
+          {/* Dropdown */}
+          {notifOpen && (
+            <motion.div
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0 }}
+              className="absolute right-0 mt-2 w-80 bg-[#1E293B] border border-blue-600 rounded-lg shadow-md p-3 max-h-96 overflow-y-auto z-50"
+            >
+              <h3 className="text-lg font-semibold mb-2">Notifications</h3>
+              {notifications.length > 0 ? (
+                notifications.map((n) => (
+                  <div
+                    key={n._id}
+                    onClick={() => markAsRead(n._id)}
+                    className={`p-3 rounded-lg mb-2 cursor-pointer ${
+                      n.read ? "bg-gray-700" : "bg-indigo-600"
+                    }`}
+                  >
+                    {n.message}
+                    <p className="text-xs text-gray-400 mt-1">
+                      {new Date(n.createdAt).toLocaleString()}
+                    </p>
+                  </div>
+                ))
+              ) : (
+                <p className="text-gray-400">No notifications yet.</p>
+              )}
+            </motion.div>
+          )}
         </div>
 
         {/* Profile Dropdown */}
