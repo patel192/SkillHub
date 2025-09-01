@@ -277,7 +277,7 @@ export const CommunityDetails = () => {
                 community.members.map((m) => {
                   const memberObj = m.userId || m; // either populated object or id
                   const memberId = idToStr(memberObj._id ?? memberObj);
-                  const memberName = memberObj?.fullname ?? memberObj?.name ?? memberId;
+                  const memberName = memberObj?.fullname ?? memberObj?.fullname ?? memberId;
                   return (
                     <div
                       key={memberId}

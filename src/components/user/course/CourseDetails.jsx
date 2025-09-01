@@ -61,18 +61,20 @@ export const CourseDetails = () => {
   };
 
   const handleEnroll = async () => {
-    try {
-      await axios.post("http://localhost:8000/enrollment", {
-        userId,
-        courseId,
-        status: "Registered",
-        progress: 0,
-      });
-      await checkIfEnrolled(); // ✅ ensure state updates from DB
-    } catch (error) {
-      console.error("Failed to enroll", error);
-    }
-  };
+  try {
+    await axios.post("http://localhost:8000/enrollment", {
+      userId,
+      courseId,
+      status: "Registered",
+      progress: 0,
+    });
+
+    setEnrolled(true); // instantly update UI
+  } catch (error) {
+    console.error("Failed to enroll", error);
+  }
+};
+
 
   if (!course) {
     return (

@@ -12,13 +12,8 @@ export const MyCourses = () => {
 
   useEffect(() => {
     fetchDiscoverCourses();
+    fetchMyCourses();
   }, []);
-
-  useEffect(() => {
-    if (discoverCourses.length > 0) {
-      fetchMyCourses();
-    }
-  }, [discoverCourses]);
 
   const fetchDiscoverCourses = async () => {
     try {
@@ -34,21 +29,14 @@ export const MyCourses = () => {
       const res = await axios.get(`http://localhost:8000/enrollment/${userId}`);
       const enrollments = res.data.data || [];
 
-      // Merge enrollment data with course details
-      const merged = enrollments.map((enrollment) => {
-        const course = discoverCourses.find(
-          (c) => c._id === enrollment.courseId
-        );
-        return course
-          ? {
-              ...course,
-              progress: enrollment.progress,
-              status: enrollment.status,
-            }
-          : null;
-      }).filter(Boolean);
+      // Use populated courseId directly
+      const mapped = enrollments.map((enrollment) => ({
+        ...enrollment.courseId, // course details
+        progress: enrollment.progress,
+        status: enrollment.status,
+      }));
 
-      setMyCourses(merged);
+      setMyCourses(mapped);
     } catch (error) {
       console.error("Error fetching my courses:", error.message);
     }
