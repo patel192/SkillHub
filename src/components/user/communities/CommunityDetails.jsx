@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import { motion } from "framer-motion";
+import { AnimatePresence, motion } from "framer-motion";
 import toast from "react-hot-toast"; // ✅ add toast
 import {
   FaHeart,
@@ -485,7 +485,7 @@ export const CommunityDetails = () => {
                 key={post._id}
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.25, delay: idx * 0.03 }}
+                transition={{ duration: 0.9, delay: idx * 0.03 }}
                 className={`p-4 rounded-2xl shadow-md ${
                   pinned
                     ? "bg-yellow-900/10 border border-yellow-600"
@@ -557,8 +557,9 @@ export const CommunityDetails = () => {
                     </div>
 
                     {/* Comments area */}
+                    <AnimatePresence>
                     {showComments[post._id] && (
-                      <div className="bg-[#1e293b] p-3 rounded-lg mt-3 space-y-3">
+                      <motion.div transition={{duration:2}} className="bg-[#1e293b] p-3 rounded-lg mt-3 space-y-3">
                         {Array.isArray(post.comments) &&
                         post.comments.length > 0 ? (
                           post.comments.map((c, i) => (
@@ -644,8 +645,10 @@ export const CommunityDetails = () => {
                             Send
                           </button>
                         </div>
-                      </div>
+                      </motion.div>
                     )}
+
+                    </AnimatePresence>
                   </div>
                 </div>
               </motion.div>
