@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { motion } from "framer-motion";
+import toast from "react-hot-toast"; // ✅ add toast
 import {
   FaHeart,
   FaCommentAlt,
@@ -13,19 +14,29 @@ import {
 } from "react-icons/fa";
 import axios from "axios";
 export const CommunityDetails = () => {
-    const { id } = useParams(); // community id
-  const [community, setCommunity] = useState(null); // full community (members populated)
-  const [posts, setPosts] = useState([]); // posts list (shaped)
+  const { id } = useParams();
+  const [community, setCommunity] = useState(null);
+  const [posts, setPosts] = useState([]);
   const [newPost, setNewPost] = useState("");
   const [commentText, setCommentText] = useState({});
   const [showComments, setShowComments] = useState({});
   const [editMode, setEditMode] = useState(false);
-  const [editData, setEditData] = useState({ name: "", description: "", coverImage: "" });
+  const [editData, setEditData] = useState({
+    name: "",
+    description: "",
+    coverImage: "",
+  });
   const [newMemberId, setNewMemberId] = useState("");
   const [loading, setLoading] = useState(false);
 
   const userId = localStorage.getItem("userId");
   const userName = "You";
+
+  // ✅ helper: show notifications
+  const showNotification = (msg, type = "success") => {
+    if (type === "error") toast.error(msg);
+    else toast.success(msg);
+  };
 
   // --- helpers to normalize id / populated object ---
   const idToStr = (x) => {
@@ -36,15 +47,20 @@ export const CommunityDetails = () => {
   };
 
   const isMemberOf = (comm, uid) =>
-    Array.isArray(comm?.members) && comm.members.some((m) => idToStr(m.userId) === idToStr(uid));
+    Array.isArray(comm?.members) &&
+    comm.members.some((m) => idToStr(m.userId) === idToStr(uid));
 
   const isAdminOf = (comm, uid) =>
     Array.isArray(comm?.members) &&
-    comm.members.some((m) => idToStr(m.userId) === idToStr(uid) && m.role === "admin");
+    comm.members.some(
+      (m) => idToStr(m.userId) === idToStr(uid) && m.role === "admin"
+    );
 
   const userLikedPost = (post, uid) => {
     if (!post?.likes) return false;
-    return post.likes.some((l) => idToStr(l) === idToStr(uid) || idToStr(l._id) === idToStr(uid));
+    return post.likes.some(
+      (l) => idToStr(l) === idToStr(uid) || idToStr(l._id) === idToStr(uid)
+    );
   };
 
   // Fetch both community (full) and posts (shaped)
@@ -53,11 +69,14 @@ export const CommunityDetails = () => {
     try {
       const [resCommunity, resPosts] = await Promise.all([
         axios.get(`http://localhost:8000/communities/${id}`), // full community (populated)
-        axios.get(`http://localhost:8000/communities/${id}/posts?sort=new&limit=50`), // posts shaped
+        axios.get(
+          `http://localhost:8000/communities/${id}/posts?sort=new&limit=50`
+        ), // posts shaped
       ]);
 
       const communityData = resCommunity?.data?.data ?? resCommunity?.data;
-      const postsData = resPosts?.data?.data?.posts ?? resPosts?.data?.posts ?? [];
+      const postsData =
+        resPosts?.data?.data?.posts ?? resPosts?.data?.posts ?? [];
 
       setCommunity(communityData);
       setPosts(postsData);
@@ -71,7 +90,10 @@ export const CommunityDetails = () => {
         });
       }
     } catch (err) {
-      console.error("Error fetching community or posts:", err?.response?.data ?? err.message);
+      console.error(
+        "Error fetching community or posts:",
+        err?.response?.data ?? err.message
+      );
     } finally {
       setLoading(false);
     }
@@ -87,7 +109,9 @@ export const CommunityDetails = () => {
     if (!userId) return alert("Please login first");
     try {
       // PATCH /communities/:id/join or /leave
-      await axios.patch(`http://localhost:8000/communities/${id}/${action}`, { userId });
+      await axios.patch(`http://localhost:8000/communities/${id}/${action}`, {
+        userId,
+      });
       await fetchCommunityAndPosts();
     } catch (err) {
       console.error(`Error ${action}:`, err?.response?.data ?? err.message);
@@ -104,19 +128,25 @@ export const CommunityDetails = () => {
         communityId: id,
       });
       setNewPost("");
+      showNotification("Post created ✨");
       await fetchCommunityAndPosts();
     } catch (err) {
-      console.error("Error creating post:", err?.response?.data ?? err.message);
+      console.error(err);
+      showNotification("Error creating post", "error");
     }
   };
 
   const handleLike = async (postId) => {
     if (!userId) return alert("Please login first");
     try {
-      await axios.post(`http://localhost:8000/posts/${postId}/like`, { userId });
+      await axios.post(`http://localhost:8000/posts/${postId}/like`, {
+        userId,
+      });
+      showNotification("You liked a Post ❤️");
       await fetchCommunityAndPosts();
     } catch (err) {
-      console.error("Error liking post:", err?.response?.data ?? err.message);
+      console.error(err);
+      showNotification("Error liking post", "error");
     }
   };
 
@@ -129,9 +159,11 @@ export const CommunityDetails = () => {
         content: txt,
       });
       setCommentText((p) => ({ ...p, [postId]: "" }));
+      showNotification("Comment added 💬");
       await fetchCommunityAndPosts();
     } catch (err) {
-      console.error("Error adding comment:", err?.response?.data ?? err.message);
+      console.error(err);
+      showNotification("Error adding comment", "error");
     }
   };
 
@@ -139,7 +171,9 @@ export const CommunityDetails = () => {
   const handlePinToggle = async (postId, currentlyPinned) => {
     try {
       const action = currentlyPinned ? "unpin" : "pin"; // PATCH /communities/:id/pin
-      await axios.patch(`http://localhost:8000/communities/${id}/${action}`, { postId });
+      await axios.patch(`http://localhost:8000/communities/${id}/${action}`, {
+        postId,
+      });
       await fetchCommunityAndPosts();
     } catch (err) {
       console.error("Error pin/unpin:", err?.response?.data ?? err.message);
@@ -157,7 +191,10 @@ export const CommunityDetails = () => {
       setEditMode(false);
       await fetchCommunityAndPosts();
     } catch (err) {
-      console.error("Error updating community:", err?.response?.data ?? err.message);
+      console.error(
+        "Error updating community:",
+        err?.response?.data ?? err.message
+      );
     }
   };
 
@@ -165,17 +202,24 @@ export const CommunityDetails = () => {
   const handleRemoveMember = async (memberId) => {
     if (!memberId) return;
     try {
-      await axios.patch(`http://localhost:8000/communities/${id}/leave`, { userId: memberId });
+      await axios.patch(`http://localhost:8000/communities/${id}/leave`, {
+        userId: memberId,
+      });
       await fetchCommunityAndPosts();
     } catch (err) {
-      console.error("Error removing member:", err?.response?.data ?? err.message);
+      console.error(
+        "Error removing member:",
+        err?.response?.data ?? err.message
+      );
     }
   };
 
   const handleAddMember = async () => {
     if (!newMemberId?.trim()) return alert("Enter a userId");
     try {
-      await axios.patch(`http://localhost:8000/communities/${id}/join`, { userId: newMemberId });
+      await axios.patch(`http://localhost:8000/communities/${id}/join`, {
+        userId: newMemberId,
+      });
       setNewMemberId("");
       await fetchCommunityAndPosts();
     } catch (err) {
@@ -186,10 +230,15 @@ export const CommunityDetails = () => {
   const handlePromoteMember = async (memberId) => {
     if (!memberId) return;
     try {
-      await axios.patch(`http://localhost:8000/communities/${id}/promote`, { userId: memberId });
+      await axios.patch(`http://localhost:8000/communities/${id}/promote`, {
+        userId: memberId,
+      });
       await fetchCommunityAndPosts();
     } catch (err) {
-      console.error("Error promoting member:", err?.response?.data ?? err.message);
+      console.error(
+        "Error promoting member:",
+        err?.response?.data ?? err.message
+      );
     }
   };
 
@@ -206,7 +255,9 @@ export const CommunityDetails = () => {
         <div className="flex-1">
           <h1 className="text-3xl font-bold">{community.name}</h1>
           <p className="text-gray-400 mt-1">{community.description}</p>
-          <p className="text-xs text-gray-500 mt-2">{community.members?.length ?? 0} members</p>
+          <p className="text-xs text-gray-500 mt-2">
+            {community.members?.length ?? 0} members
+          </p>
         </div>
 
         <div className="flex items-center gap-3">
@@ -246,24 +297,33 @@ export const CommunityDetails = () => {
           <div className="grid md:grid-cols-3 gap-3">
             <input
               value={editData.name}
-              onChange={(e) => setEditData((p) => ({ ...p, name: e.target.value }))}
+              onChange={(e) =>
+                setEditData((p) => ({ ...p, name: e.target.value }))
+              }
               className="p-2 rounded bg-gray-800"
               placeholder="Name"
             />
             <input
               value={editData.coverImage}
-              onChange={(e) => setEditData((p) => ({ ...p, coverImage: e.target.value }))}
+              onChange={(e) =>
+                setEditData((p) => ({ ...p, coverImage: e.target.value }))
+              }
               className="p-2 rounded bg-gray-800"
               placeholder="Cover image URL"
             />
-            <button onClick={handleUpdateCommunity} className="px-3 py-2 bg-green-600 rounded">
+            <button
+              onClick={handleUpdateCommunity}
+              className="px-3 py-2 bg-green-600 rounded"
+            >
               Save changes
             </button>
           </div>
 
           <textarea
             value={editData.description}
-            onChange={(e) => setEditData((p) => ({ ...p, description: e.target.value }))}
+            onChange={(e) =>
+              setEditData((p) => ({ ...p, description: e.target.value }))
+            }
             className="w-full p-2 rounded bg-gray-800"
             placeholder="Description"
             rows={2}
@@ -273,11 +333,13 @@ export const CommunityDetails = () => {
           <div>
             <h3 className="font-semibold mb-2">Members</h3>
             <div className="grid gap-2 max-h-44 overflow-y-auto">
-              {Array.isArray(community.members) && community.members.length > 0 ? (
+              {Array.isArray(community.members) &&
+              community.members.length > 0 ? (
                 community.members.map((m) => {
                   const memberObj = m.userId || m; // either populated object or id
                   const memberId = idToStr(memberObj._id ?? memberObj);
-                  const memberName = memberObj?.fullname ?? memberObj?.fullname ?? memberId;
+                  const memberName =
+                    memberObj?.fullname ?? memberObj?.fullname ?? memberId;
                   return (
                     <div
                       key={memberId}
@@ -319,7 +381,10 @@ export const CommunityDetails = () => {
                 className="flex-1 p-2 rounded bg-gray-800"
                 placeholder="Add member by User ID"
               />
-              <button onClick={handleAddMember} className="px-3 py-2 bg-indigo-600 rounded hover:bg-indigo-700">
+              <button
+                onClick={handleAddMember}
+                className="px-3 py-2 bg-indigo-600 rounded hover:bg-indigo-700"
+              >
                 Add
               </button>
             </div>
@@ -336,7 +401,8 @@ export const CommunityDetails = () => {
             const pinned = !!post.isPinned;
             const liked = userLikedPost(post, userId);
             const likeCount = post.likeCount ?? post.likes?.length ?? 0;
-            const commentCount = post.commentCount ?? post.comments?.length ?? 0;
+            const commentCount =
+              post.commentCount ?? post.comments?.length ?? 0;
 
             return (
               <motion.div
@@ -344,7 +410,11 @@ export const CommunityDetails = () => {
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.25, delay: idx * 0.03 }}
-                className={`p-4 rounded-2xl shadow-md ${pinned ? "bg-yellow-900/10 border border-yellow-600" : "bg-[#334155]"}`}
+                className={`p-4 rounded-2xl shadow-md ${
+                  pinned
+                    ? "bg-yellow-900/10 border border-yellow-600"
+                    : "bg-[#334155]"
+                }`}
               >
                 <div className="flex items-start gap-3 mb-2">
                   <img
@@ -356,10 +426,18 @@ export const CommunityDetails = () => {
                     <div className="flex items-center justify-between">
                       <div>
                         <div className="flex items-center gap-2">
-                          <div className="font-semibold">{post.userId?.fullname || userName}</div>
-                          {pinned && <span className="text-xs text-yellow-300">Pinned</span>}
+                          <div className="font-semibold">
+                            {post.userId?.fullname || userName}
+                          </div>
+                          {pinned && (
+                            <span className="text-xs text-yellow-300">
+                              Pinned
+                            </span>
+                          )}
                         </div>
-                        <div className="text-xs text-gray-400">{new Date(post.createdAt).toLocaleString()}</div>
+                        <div className="text-xs text-gray-400">
+                          {new Date(post.createdAt).toLocaleString()}
+                        </div>
                       </div>
                     </div>
 
@@ -368,7 +446,9 @@ export const CommunityDetails = () => {
                     <div className="flex items-center gap-6 mt-4 text-gray-300">
                       <button
                         onClick={() => handleLike(post._id)}
-                        className={`flex items-center gap-2 ${liked ? "text-red-400" : "hover:text-red-400"}`}
+                        className={`flex items-center gap-2 ${
+                          liked ? "text-red-400" : "hover:text-red-400"
+                        }`}
                         aria-pressed={liked}
                       >
                         <FaHeart />
@@ -376,7 +456,12 @@ export const CommunityDetails = () => {
                       </button>
 
                       <button
-                        onClick={() => setShowComments((s) => ({ ...s, [post._id]: !s[post._id] }))}
+                        onClick={() =>
+                          setShowComments((s) => ({
+                            ...s,
+                            [post._id]: !s[post._id],
+                          }))
+                        }
                         className="flex items-center gap-2 hover:text-blue-400"
                       >
                         <FaCommentAlt />
@@ -398,7 +483,8 @@ export const CommunityDetails = () => {
                     {/* Comments area */}
                     {showComments[post._id] && (
                       <div className="bg-[#1e293b] p-3 rounded-lg mt-3 space-y-3">
-                        {Array.isArray(post.comments) && post.comments.length > 0 ? (
+                        {Array.isArray(post.comments) &&
+                        post.comments.length > 0 ? (
                           post.comments.map((c, i) => (
                             <div key={i} className="text-sm text-gray-300">
                               <span className="font-semibold text-cyan-400">
@@ -408,17 +494,27 @@ export const CommunityDetails = () => {
                             </div>
                           ))
                         ) : (
-                          <div className="text-gray-500 text-sm">No comments yet.</div>
+                          <div className="text-gray-500 text-sm">
+                            No comments yet.
+                          </div>
                         )}
 
                         <div className="flex gap-2">
                           <input
                             value={commentText[post._id] || ""}
-                            onChange={(e) => setCommentText((p) => ({ ...p, [post._id]: e.target.value }))}
+                            onChange={(e) =>
+                              setCommentText((p) => ({
+                                ...p,
+                                [post._id]: e.target.value,
+                              }))
+                            }
                             className="flex-1 p-2 rounded bg-gray-800"
                             placeholder="Write a comment..."
                           />
-                          <button onClick={() => handleAddComment(post._id)} className="px-3 py-2 bg-blue-600 rounded">
+                          <button
+                            onClick={() => handleAddComment(post._id)}
+                            className="px-3 py-2 bg-blue-600 rounded"
+                          >
                             Send
                           </button>
                         </div>
@@ -434,7 +530,11 @@ export const CommunityDetails = () => {
 
       {/* New post only for members */}
       {joined && (
-        <motion.div className="bg-[#334155] p-4 rounded-2xl shadow-md" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
+        <motion.div
+          className="bg-[#334155] p-4 rounded-2xl shadow-md"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+        >
           <textarea
             className="w-full p-3 rounded-lg bg-[#1e293b] text-white focus:outline-none"
             rows={3}
@@ -443,12 +543,15 @@ export const CommunityDetails = () => {
             onChange={(e) => setNewPost(e.target.value)}
           />
           <div className="flex justify-end mt-3">
-            <button onClick={handleAddPost} className="px-4 py-2 bg-cyan-600 rounded-lg hover:bg-cyan-700">
+            <button
+              onClick={handleAddPost}
+              className="px-4 py-2 bg-cyan-600 rounded-lg hover:bg-cyan-700"
+            >
               Post
             </button>
           </div>
         </motion.div>
       )}
     </div>
-  )
-}
+  );
+};
