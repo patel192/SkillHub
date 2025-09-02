@@ -21,7 +21,11 @@ export const CommunityDetails = () => {
   const [commentText, setCommentText] = useState({});
   const [showComments, setShowComments] = useState({});
   const [editMode, setEditMode] = useState(false);
-  const [editData, setEditData] = useState({ name: "", description: "", coverImage: "" });
+  const [editData, setEditData] = useState({
+    name: "",
+    description: "",
+    coverImage: "",
+  });
   const [newMemberId, setNewMemberId] = useState("");
   const [loading, setLoading] = useState(false);
   const [notifications, setNotifications] = useState([]);
@@ -29,6 +33,38 @@ export const CommunityDetails = () => {
 
   const userId = localStorage.getItem("userId");
   const userName = "You";
+  // --- extra states ---
+  const [replyText, setReplyText] = useState({}); // store reply text per comment
+  const [showReplies, setShowReplies] = useState({}); // toggle replies section
+
+  // --- handle add reply ---
+  const handleAddReply = async (postId, commentId) => {
+    const txt = (replyText[commentId] || "").trim();
+    if (!txt) return;
+    try {
+      await axios.post(
+        `http://localhost:8000/posts/${postId}/comment/${commentId}/reply`,
+        {
+          userId,
+          content: txt,
+        }
+      );
+      setReplyText((p) => ({ ...p, [commentId]: "" }));
+      showNotification("Reply added");
+      await fetchCommunityAndPosts();
+    } catch (err) {
+      console.error("Error adding reply:", err?.response?.data ?? err.message);
+      showNotification("Failed to add reply", "error");
+    }
+  };
+
+  // --- handle toggle replies ---
+  const toggleReplies = (commentId) => {
+    setShowReplies((prev) => ({
+      ...prev,
+      [commentId]: !prev[commentId],
+    }));
+  };
 
   // --- helpers ---
   const idToStr = (x) => {
@@ -39,15 +75,20 @@ export const CommunityDetails = () => {
   };
 
   const isMemberOf = (comm, uid) =>
-    Array.isArray(comm?.members) && comm.members.some((m) => idToStr(m.userId) === idToStr(uid));
+    Array.isArray(comm?.members) &&
+    comm.members.some((m) => idToStr(m.userId) === idToStr(uid));
 
   const isAdminOf = (comm, uid) =>
     Array.isArray(comm?.members) &&
-    comm.members.some((m) => idToStr(m.userId) === idToStr(uid) && m.role === "admin");
+    comm.members.some(
+      (m) => idToStr(m.userId) === idToStr(uid) && m.role === "admin"
+    );
 
   const userLikedPost = (post, uid) => {
     if (!post?.likes) return false;
-    return post.likes.some((l) => idToStr(l) === idToStr(uid) || idToStr(l._id) === idToStr(uid));
+    return post.likes.some(
+      (l) => idToStr(l) === idToStr(uid) || idToStr(l._id) === idToStr(uid)
+    );
   };
 
   // --- toast helper ---
@@ -62,11 +103,14 @@ export const CommunityDetails = () => {
     try {
       const [resCommunity, resPosts] = await Promise.all([
         axios.get(`http://localhost:8000/communities/${id}`),
-        axios.get(`http://localhost:8000/communities/${id}/posts?sort=new&limit=50`),
+        axios.get(
+          `http://localhost:8000/communities/${id}/posts?sort=new&limit=50`
+        ),
       ]);
 
       const communityData = resCommunity?.data?.data ?? resCommunity?.data;
-      const postsData = resPosts?.data?.data?.posts ?? resPosts?.data?.posts ?? [];
+      const postsData =
+        resPosts?.data?.data?.posts ?? resPosts?.data?.posts ?? [];
 
       setCommunity(communityData);
       setPosts(postsData);
@@ -79,7 +123,10 @@ export const CommunityDetails = () => {
         });
       }
     } catch (err) {
-      console.error("Error fetching community or posts:", err?.response?.data ?? err.message);
+      console.error(
+        "Error fetching community or posts:",
+        err?.response?.data ?? err.message
+      );
     } finally {
       setLoading(false);
     }
@@ -89,10 +136,14 @@ export const CommunityDetails = () => {
   const fetchNotifications = async () => {
     if (!userId) return;
     try {
-      const res = await axios.get(`http://localhost:8000/notifications/${userId}`);
+      const res = await axios.get(
+        `http://localhost:8000/notifications/${userId}`
+      );
       const data = res.data?.data ?? res.data ?? [];
 
-      const newOnes = data.filter((n) => new Date(n.createdAt).getTime() > lastSeen);
+      const newOnes = data.filter(
+        (n) => new Date(n.createdAt).getTime() > lastSeen
+      );
 
       if (newOnes.length > 0) {
         newOnes.forEach((n) => {
@@ -103,7 +154,10 @@ export const CommunityDetails = () => {
 
       setNotifications(data);
     } catch (err) {
-      console.error("Error fetching notifications:", err?.response?.data ?? err.message);
+      console.error(
+        "Error fetching notifications:",
+        err?.response?.data ?? err.message
+      );
     }
   };
 
@@ -119,7 +173,9 @@ export const CommunityDetails = () => {
   const handleMembership = async (action) => {
     if (!userId) return alert("Please login first");
     try {
-      await axios.patch(`http://localhost:8000/communities/${id}/${action}`, { userId });
+      await axios.patch(`http://localhost:8000/communities/${id}/${action}`, {
+        userId,
+      });
       showNotification(`Successfully ${action}ed community`);
       await fetchCommunityAndPosts();
     } catch (err) {
@@ -149,7 +205,9 @@ export const CommunityDetails = () => {
   const handleLike = async (postId) => {
     if (!userId) return alert("Please login first");
     try {
-      await axios.post(`http://localhost:8000/posts/${postId}/like`, { userId });
+      await axios.post(`http://localhost:8000/posts/${postId}/like`, {
+        userId,
+      });
       showNotification("You liked a post");
       await fetchCommunityAndPosts();
     } catch (err) {
@@ -170,7 +228,10 @@ export const CommunityDetails = () => {
       showNotification("Comment added");
       await fetchCommunityAndPosts();
     } catch (err) {
-      console.error("Error adding comment:", err?.response?.data ?? err.message);
+      console.error(
+        "Error adding comment:",
+        err?.response?.data ?? err.message
+      );
       showNotification("Failed to add comment", "error");
     }
   };
@@ -178,7 +239,9 @@ export const CommunityDetails = () => {
   const handlePinToggle = async (postId, currentlyPinned) => {
     try {
       const action = currentlyPinned ? "unpin" : "pin";
-      await axios.patch(`http://localhost:8000/communities/${id}/${action}`, { postId });
+      await axios.patch(`http://localhost:8000/communities/${id}/${action}`, {
+        postId,
+      });
       showNotification(`Post ${currentlyPinned ? "unpinned" : "pinned"}`);
       await fetchCommunityAndPosts();
     } catch (err) {
@@ -198,7 +261,10 @@ export const CommunityDetails = () => {
       showNotification("Community updated");
       await fetchCommunityAndPosts();
     } catch (err) {
-      console.error("Error updating community:", err?.response?.data ?? err.message);
+      console.error(
+        "Error updating community:",
+        err?.response?.data ?? err.message
+      );
       showNotification("Failed to update", "error");
     }
   };
@@ -206,11 +272,16 @@ export const CommunityDetails = () => {
   const handleRemoveMember = async (memberId) => {
     if (!memberId) return;
     try {
-      await axios.patch(`http://localhost:8000/communities/${id}/leave`, { userId: memberId });
+      await axios.patch(`http://localhost:8000/communities/${id}/leave`, {
+        userId: memberId,
+      });
       showNotification("Member removed");
       await fetchCommunityAndPosts();
     } catch (err) {
-      console.error("Error removing member:", err?.response?.data ?? err.message);
+      console.error(
+        "Error removing member:",
+        err?.response?.data ?? err.message
+      );
       showNotification("Failed to remove member", "error");
     }
   };
@@ -218,7 +289,9 @@ export const CommunityDetails = () => {
   const handleAddMember = async () => {
     if (!newMemberId?.trim()) return alert("Enter a userId");
     try {
-      await axios.patch(`http://localhost:8000/communities/${id}/join`, { userId: newMemberId });
+      await axios.patch(`http://localhost:8000/communities/${id}/join`, {
+        userId: newMemberId,
+      });
       setNewMemberId("");
       showNotification("Member added");
       await fetchCommunityAndPosts();
@@ -231,11 +304,16 @@ export const CommunityDetails = () => {
   const handlePromoteMember = async (memberId) => {
     if (!memberId) return;
     try {
-      await axios.patch(`http://localhost:8000/communities/${id}/promote`, { userId: memberId });
+      await axios.patch(`http://localhost:8000/communities/${id}/promote`, {
+        userId: memberId,
+      });
       showNotification("Member promoted to admin");
       await fetchCommunityAndPosts();
     } catch (err) {
-      console.error("Error promoting member:", err?.response?.data ?? err.message);
+      console.error(
+        "Error promoting member:",
+        err?.response?.data ?? err.message
+      );
       showNotification("Failed to promote", "error");
     }
   };
@@ -484,11 +562,60 @@ export const CommunityDetails = () => {
                         {Array.isArray(post.comments) &&
                         post.comments.length > 0 ? (
                           post.comments.map((c, i) => (
-                            <div key={i} className="text-sm text-gray-300">
-                              <span className="font-semibold text-cyan-400">
-                                {c.userId?.fullname ?? c.userId ?? "User"}:
-                              </span>{" "}
-                              {c.content}
+                            <div
+                              key={i}
+                              className="text-sm text-gray-300 space-y-2"
+                            >
+                              {/* Comment */}
+                              <div>
+                                <span className="font-semibold text-cyan-400">
+                                  {c.userId.fullname ?? "User"}:
+                                </span>{" "}
+                                {c.content}
+                              </div>
+
+                              {/* Show replies */}
+                              {c.replies && c.replies.length > 0 && (
+                                <div className="ml-6 space-y-2">
+                                  {c.replies.map((r, ri) => (
+                                    <div
+                                      key={ri}
+                                      className="text-xs text-gray-400"
+                                    >
+                                      <span className="font-semibold text-indigo-400">
+                                        {r.userId.fullname ??
+                                           
+                                          "User"}
+                                        :
+                                      </span>{" "}
+                                      {r.content}
+                                    </div>
+                                  ))}
+                                </div>
+                              )}
+
+                              {/* Reply input */}
+                              <div className="ml-6 flex gap-2">
+                                <input
+                                  value={replyText[c._id] || ""}
+                                  onChange={(e) =>
+                                    setReplyText((prev) => ({
+                                      ...prev,
+                                      [c._id]: e.target.value,
+                                    }))
+                                  }
+                                  className="flex-1 p-1 rounded bg-gray-800 text-xs"
+                                  placeholder="Write a reply..."
+                                />
+                                <button
+                                  onClick={() =>
+                                    handleAddReply(post._id, c._id)
+                                  }
+                                  className="px-2 py-1 bg-green-600 rounded text-xs"
+                                >
+                                  Reply
+                                </button>
+                              </div>
                             </div>
                           ))
                         ) : (
@@ -497,6 +624,7 @@ export const CommunityDetails = () => {
                           </div>
                         )}
 
+                        {/* Add new comment */}
                         <div className="flex gap-2">
                           <input
                             value={commentText[post._id] || ""}
