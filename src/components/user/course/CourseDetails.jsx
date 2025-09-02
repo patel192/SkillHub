@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { useParams } from "react-router-dom";
 import axios from "axios";
+import toast from "react-hot-toast";
 import {
   BadgeCheck,
   Clock,
@@ -26,7 +27,6 @@ export const CourseDetails = () => {
     checkIfEnrolled();
   }, [courseId]);
 
-  // ✅ Fetch course details
   const fetchCourseDetails = async () => {
     try {
       const res = await axios.get(`http://localhost:8000/course/${courseId}`);
@@ -36,7 +36,6 @@ export const CourseDetails = () => {
     }
   };
 
-  // ✅ Fetch course overview
   const fetchCourseOverview = async () => {
     try {
       const res = await axios.get(`http://localhost:8000/overview/${courseId}`);
@@ -50,7 +49,6 @@ export const CourseDetails = () => {
     }
   };
 
-  // ✅ Check enrollment properly
   const checkIfEnrolled = async () => {
     try {
       const res = await axios.get(`http://localhost:8000/enrollment/${userId}`);
@@ -65,7 +63,6 @@ export const CourseDetails = () => {
     }
   };
 
-  // ✅ Enroll user in course
   const handleEnroll = async () => {
     try {
       await axios.post("http://localhost:8000/enrollment", {
@@ -74,9 +71,11 @@ export const CourseDetails = () => {
         status: "Registered",
         progress: 0,
       });
-      setEnrolled(true); // update UI instantly
+      setEnrolled(true);
+      toast.success("🎉 Successfully enrolled in this course!");
     } catch (error) {
       console.error("Failed to enroll", error);
+      toast.error("❌ Enrollment failed. Please try again.");
     }
   };
 
@@ -128,31 +127,11 @@ export const CourseDetails = () => {
 
       {/* Metadata Badges */}
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 text-sm mb-8">
-        <CourseMeta
-          icon={<User size={18} />}
-          label="Instructor"
-          value={course.instructor}
-        />
-        <CourseMeta
-          icon={<BookOpen size={18} />}
-          label="Category"
-          value={course.category}
-        />
-        <CourseMeta
-          icon={<Clock size={18} />}
-          label="Duration"
-          value={course.duration}
-        />
-        <CourseMeta
-          icon={<BadgeCheck size={18} />}
-          label="Level"
-          value={course.level}
-        />
-        <CourseMeta
-          icon={<DollarSign size={18} />}
-          label="Price"
-          value={course.price > 0 ? `₹${course.price}` : "Free"}
-        />
+        <CourseMeta icon={<User size={18} />} label="Instructor" value={course.instructor} />
+        <CourseMeta icon={<BookOpen size={18} />} label="Category" value={course.category} />
+        <CourseMeta icon={<Clock size={18} />} label="Duration" value={course.duration} />
+        <CourseMeta icon={<BadgeCheck size={18} />} label="Level" value={course.level} />
+        <CourseMeta icon={<DollarSign size={18} />} label="Price" value={course.price > 0 ? `₹${course.price}` : "Free"} />
         <CourseMeta
           icon={<BadgeCheck size={18} />}
           label="Status"

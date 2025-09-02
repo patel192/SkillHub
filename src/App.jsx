@@ -23,6 +23,7 @@ import { Resources } from "./components/admin/resource/Resources";
 import { LearningPage } from "./components/user/course/LearningPage";
 import { Community } from "./components/user/communities/Community";
 import { CommunityDetails } from "./components/user/communities/CommunityDetails";
+import { Toaster } from "react-hot-toast";
 
 function App() {
   return (
@@ -56,6 +57,7 @@ function App() {
           <Route path="users/:id" element={<UserDetails />}></Route>
         </Route>
       </Routes>
+      <Toaster position="top-right"/>
     </>
   );
 }
