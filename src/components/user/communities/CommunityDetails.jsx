@@ -14,31 +14,23 @@ import {
 } from "react-icons/fa";
 import axios from "axios";
 export const CommunityDetails = () => {
-  const { id } = useParams();
+  const { id } = useParams(); // community id
   const [community, setCommunity] = useState(null);
   const [posts, setPosts] = useState([]);
   const [newPost, setNewPost] = useState("");
   const [commentText, setCommentText] = useState({});
   const [showComments, setShowComments] = useState({});
   const [editMode, setEditMode] = useState(false);
-  const [editData, setEditData] = useState({
-    name: "",
-    description: "",
-    coverImage: "",
-  });
+  const [editData, setEditData] = useState({ name: "", description: "", coverImage: "" });
   const [newMemberId, setNewMemberId] = useState("");
   const [loading, setLoading] = useState(false);
+  const [notifications, setNotifications] = useState([]);
+  const [lastSeen, setLastSeen] = useState(Date.now());
 
   const userId = localStorage.getItem("userId");
   const userName = "You";
 
-  // ✅ helper: show notifications
-  const showNotification = (msg, type = "success") => {
-    if (type === "error") toast.error(msg);
-    else toast.success(msg);
-  };
-
-  // --- helpers to normalize id / populated object ---
+  // --- helpers ---
   const idToStr = (x) => {
     if (!x) return "";
     if (typeof x === "string") return x;
@@ -47,41 +39,38 @@ export const CommunityDetails = () => {
   };
 
   const isMemberOf = (comm, uid) =>
-    Array.isArray(comm?.members) &&
-    comm.members.some((m) => idToStr(m.userId) === idToStr(uid));
+    Array.isArray(comm?.members) && comm.members.some((m) => idToStr(m.userId) === idToStr(uid));
 
   const isAdminOf = (comm, uid) =>
     Array.isArray(comm?.members) &&
-    comm.members.some(
-      (m) => idToStr(m.userId) === idToStr(uid) && m.role === "admin"
-    );
+    comm.members.some((m) => idToStr(m.userId) === idToStr(uid) && m.role === "admin");
 
   const userLikedPost = (post, uid) => {
     if (!post?.likes) return false;
-    return post.likes.some(
-      (l) => idToStr(l) === idToStr(uid) || idToStr(l._id) === idToStr(uid)
-    );
+    return post.likes.some((l) => idToStr(l) === idToStr(uid) || idToStr(l._id) === idToStr(uid));
   };
 
-  // Fetch both community (full) and posts (shaped)
+  // --- toast helper ---
+  const showNotification = (msg, type = "success") => {
+    if (type === "error") toast.error(msg);
+    else toast.success(msg, { duration: 4000 });
+  };
+
+  // --- Fetch community + posts ---
   const fetchCommunityAndPosts = async () => {
     setLoading(true);
     try {
       const [resCommunity, resPosts] = await Promise.all([
-        axios.get(`http://localhost:8000/communities/${id}`), // full community (populated)
-        axios.get(
-          `http://localhost:8000/communities/${id}/posts?sort=new&limit=50`
-        ), // posts shaped
+        axios.get(`http://localhost:8000/communities/${id}`),
+        axios.get(`http://localhost:8000/communities/${id}/posts?sort=new&limit=50`),
       ]);
 
       const communityData = resCommunity?.data?.data ?? resCommunity?.data;
-      const postsData =
-        resPosts?.data?.data?.posts ?? resPosts?.data?.posts ?? [];
+      const postsData = resPosts?.data?.data?.posts ?? resPosts?.data?.posts ?? [];
 
       setCommunity(communityData);
       setPosts(postsData);
 
-      // set edit fields
       if (communityData) {
         setEditData({
           name: communityData.name || "",
@@ -90,31 +79,52 @@ export const CommunityDetails = () => {
         });
       }
     } catch (err) {
-      console.error(
-        "Error fetching community or posts:",
-        err?.response?.data ?? err.message
-      );
+      console.error("Error fetching community or posts:", err?.response?.data ?? err.message);
     } finally {
       setLoading(false);
     }
   };
 
+  // --- Fetch notifications ---
+  const fetchNotifications = async () => {
+    if (!userId) return;
+    try {
+      const res = await axios.get(`http://localhost:8000/notifications/${userId}`);
+      const data = res.data?.data ?? res.data ?? [];
+
+      const newOnes = data.filter((n) => new Date(n.createdAt).getTime() > lastSeen);
+
+      if (newOnes.length > 0) {
+        newOnes.forEach((n) => {
+          showNotification(n.message ?? "You have a new notification");
+        });
+        setLastSeen(Date.now());
+      }
+
+      setNotifications(data);
+    } catch (err) {
+      console.error("Error fetching notifications:", err?.response?.data ?? err.message);
+    }
+  };
+
   useEffect(() => {
     fetchCommunityAndPosts();
+    fetchNotifications();
+    const interval = setInterval(fetchNotifications, 20000); // refresh every 20s
+    return () => clearInterval(interval);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [id]);
+  }, [id, userId]);
 
   // --- Membership ---
   const handleMembership = async (action) => {
     if (!userId) return alert("Please login first");
     try {
-      // PATCH /communities/:id/join or /leave
-      await axios.patch(`http://localhost:8000/communities/${id}/${action}`, {
-        userId,
-      });
+      await axios.patch(`http://localhost:8000/communities/${id}/${action}`, { userId });
+      showNotification(`Successfully ${action}ed community`);
       await fetchCommunityAndPosts();
     } catch (err) {
       console.error(`Error ${action}:`, err?.response?.data ?? err.message);
+      showNotification(`Failed to ${action}`, "error");
     }
   };
 
@@ -128,25 +138,23 @@ export const CommunityDetails = () => {
         communityId: id,
       });
       setNewPost("");
-      showNotification("Post created ✨");
+      showNotification("Post created successfully");
       await fetchCommunityAndPosts();
     } catch (err) {
-      console.error(err);
-      showNotification("Error creating post", "error");
+      console.error("Error creating post:", err?.response?.data ?? err.message);
+      showNotification("Failed to create post", "error");
     }
   };
 
   const handleLike = async (postId) => {
     if (!userId) return alert("Please login first");
     try {
-      await axios.post(`http://localhost:8000/posts/${postId}/like`, {
-        userId,
-      });
-      showNotification("You liked a Post ❤️");
+      await axios.post(`http://localhost:8000/posts/${postId}/like`, { userId });
+      showNotification("You liked a post");
       await fetchCommunityAndPosts();
     } catch (err) {
-      console.error(err);
-      showNotification("Error liking post", "error");
+      console.error("Error liking post:", err?.response?.data ?? err.message);
+      showNotification("Failed to like post", "error");
     }
   };
 
@@ -159,28 +167,26 @@ export const CommunityDetails = () => {
         content: txt,
       });
       setCommentText((p) => ({ ...p, [postId]: "" }));
-      showNotification("Comment added 💬");
+      showNotification("Comment added");
       await fetchCommunityAndPosts();
     } catch (err) {
-      console.error(err);
-      showNotification("Error adding comment", "error");
+      console.error("Error adding comment:", err?.response?.data ?? err.message);
+      showNotification("Failed to add comment", "error");
     }
   };
 
-  // --- Pin / Unpin (admin) ---
   const handlePinToggle = async (postId, currentlyPinned) => {
     try {
-      const action = currentlyPinned ? "unpin" : "pin"; // PATCH /communities/:id/pin
-      await axios.patch(`http://localhost:8000/communities/${id}/${action}`, {
-        postId,
-      });
+      const action = currentlyPinned ? "unpin" : "pin";
+      await axios.patch(`http://localhost:8000/communities/${id}/${action}`, { postId });
+      showNotification(`Post ${currentlyPinned ? "unpinned" : "pinned"}`);
       await fetchCommunityAndPosts();
     } catch (err) {
       console.error("Error pin/unpin:", err?.response?.data ?? err.message);
+      showNotification("Failed to pin/unpin", "error");
     }
   };
 
-  // --- Admin: update community --- (PUT expects userId in body for admin check)
   const handleUpdateCommunity = async () => {
     if (!editData.name.trim() || !userId) return alert("Name is required");
     try {
@@ -189,56 +195,48 @@ export const CommunityDetails = () => {
         userId,
       });
       setEditMode(false);
+      showNotification("Community updated");
       await fetchCommunityAndPosts();
     } catch (err) {
-      console.error(
-        "Error updating community:",
-        err?.response?.data ?? err.message
-      );
+      console.error("Error updating community:", err?.response?.data ?? err.message);
+      showNotification("Failed to update", "error");
     }
   };
 
-  // --- Admin: member management ---
   const handleRemoveMember = async (memberId) => {
     if (!memberId) return;
     try {
-      await axios.patch(`http://localhost:8000/communities/${id}/leave`, {
-        userId: memberId,
-      });
+      await axios.patch(`http://localhost:8000/communities/${id}/leave`, { userId: memberId });
+      showNotification("Member removed");
       await fetchCommunityAndPosts();
     } catch (err) {
-      console.error(
-        "Error removing member:",
-        err?.response?.data ?? err.message
-      );
+      console.error("Error removing member:", err?.response?.data ?? err.message);
+      showNotification("Failed to remove member", "error");
     }
   };
 
   const handleAddMember = async () => {
     if (!newMemberId?.trim()) return alert("Enter a userId");
     try {
-      await axios.patch(`http://localhost:8000/communities/${id}/join`, {
-        userId: newMemberId,
-      });
+      await axios.patch(`http://localhost:8000/communities/${id}/join`, { userId: newMemberId });
       setNewMemberId("");
+      showNotification("Member added");
       await fetchCommunityAndPosts();
     } catch (err) {
       console.error("Error adding member:", err?.response?.data ?? err.message);
+      showNotification("Failed to add member", "error");
     }
   };
 
   const handlePromoteMember = async (memberId) => {
     if (!memberId) return;
     try {
-      await axios.patch(`http://localhost:8000/communities/${id}/promote`, {
-        userId: memberId,
-      });
+      await axios.patch(`http://localhost:8000/communities/${id}/promote`, { userId: memberId });
+      showNotification("Member promoted to admin");
       await fetchCommunityAndPosts();
     } catch (err) {
-      console.error(
-        "Error promoting member:",
-        err?.response?.data ?? err.message
-      );
+      console.error("Error promoting member:", err?.response?.data ?? err.message);
+      showNotification("Failed to promote", "error");
     }
   };
 
