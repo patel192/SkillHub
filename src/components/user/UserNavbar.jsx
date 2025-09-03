@@ -9,6 +9,7 @@ export const UserNavbar = ({ toggleSidebar, isSidebarOpen }) => {
   const [notifOpen, setNotifOpen] = useState(false);
   const [notifications, setNotifications] = useState([]);
   const userId = localStorage.getItem("userId");
+  const [avatar, setavatar] = useState("")
 
   useEffect(() => {
     const timer = setInterval(() => setTime(new Date()), 60000);
@@ -26,7 +27,18 @@ export const UserNavbar = ({ toggleSidebar, isSidebarOpen }) => {
       console.error("❌ Error fetching notifications:", err);
     }
   };
-
+  const fetchUser = async () => {
+    try{
+    const user = await axios.get(`http://localhost:8000/user/${userId}`);
+    console.log(user.data.data.avatar)
+    setavatar(user.data.data.avatar)
+    }catch(err){
+    console.error(err)
+    }
+  }
+useEffect(() => {
+  fetchUser()
+})
   useEffect(() => {
     if (notifOpen) {
       fetchNotifications();
@@ -114,7 +126,7 @@ export const UserNavbar = ({ toggleSidebar, isSidebarOpen }) => {
         <div className="relative">
           <img
             onClick={() => setDropdownOpen(!dropdownOpen)}
-            src="https://i.pravatar.cc/30"
+            src={avatar}
             alt="Avatar"
             className="w-8 h-8 rounded-full cursor-pointer border border-blue-500"
           />
