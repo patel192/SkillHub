@@ -25,9 +25,11 @@ export const LearningPage = () => {
   const [quizAnswers, setQuizAnswers] = useState({}); // { [questionId]: "optionText" }
   const [quizResults, setQuizResults] = useState(null);
   const [points, setPoints] = useState(0);
+  const [enrollmentId, setEnrollmentId] = useState(null);
+  const [completedLessons, setCompletedLessons] = useState([]);
 
   // learning time
- const [learningTime, setLearningTime] = useState(0);
+  const [learningTime, setLearningTime] = useState(0);
   const startTimeRef = useRef(null);
   const intervalRef = useRef(null);
 
@@ -35,7 +37,7 @@ export const LearningPage = () => {
   const handleClosePopup = () => {
     setUnlockedAchievement(null); // hide the popup
   };
-const getStoredTime = () => {
+  const getStoredTime = () => {
     const key = `learningTime_${userId}_${courseId}`;
     return parseInt(localStorage.getItem(key) || "0", 10);
   };
@@ -100,6 +102,47 @@ const getStoredTime = () => {
     };
     fetchLessons();
   }, [courseId]);
+  useEffect(() => {
+    const fetchEnrollment = async () => {
+      try {
+        const res = await fetch(`http://localhost:8000/enrollment/${userId}`);
+        const data = await res.json();
+
+        if (data.data && Array.isArray(data.data)) {
+          const enrollment = data.data.find((e) => e.courseId._id === courseId);
+          if (enrollment) {
+            setEnrollmentId(enrollment._id);
+            setCompletedLessons(enrollment.completedLessons || []);
+          }
+        }
+      } catch (err) {
+        console.error("❌ Error fetching enrollment:", err);
+      }
+    };
+
+    fetchEnrollment();
+  }, [courseId, userId]);
+  const handleMarkComplete = async (lessonId) => {
+    try {
+      if (!enrollmentId) {
+        console.warn("⚠️ No enrollment found for this course");
+        return;
+      }
+
+      const res = await fetch(
+        `http://localhost:8000/enrollment/mark-complete/${enrollmentId}/${lessonId}`,
+        { method: "PATCH" }
+      );
+
+      const data = await res.json();
+      console.log("✅ Lesson Completed:", data);
+
+      // Update completed lessons locally
+      setCompletedLessons(data.completedLessons || []);
+    } catch (err) {
+      console.error("❌ Error marking lesson complete:", err);
+    }
+  };
 
   // Fetch quiz + progress
   useEffect(() => {
@@ -135,14 +178,16 @@ const getStoredTime = () => {
     };
     fetchQuizAndProgress();
   }, [courseId, userId]);
- useEffect(() => {
+  useEffect(() => {
     // Load saved time
     setLearningTime(getStoredTime());
 
     // Start
     startTimeRef.current = Date.now();
     intervalRef.current = setInterval(() => {
-      const sessionTime = Math.floor((Date.now() - startTimeRef.current) / 1000);
+      const sessionTime = Math.floor(
+        (Date.now() - startTimeRef.current) / 1000
+      );
       setLearningTime(getStoredTime() + sessionTime);
     }, 1000);
 
@@ -161,7 +206,7 @@ const getStoredTime = () => {
       handleBeforeUnload();
       window.removeEventListener("beforeunload", handleBeforeUnload);
     };
-  }, [courseId, userId])
+  }, [courseId, userId]);
   // Save progress to backend
   const saveProgress = async (newIdx, newAnswers, newPoints) => {
     try {
@@ -327,7 +372,6 @@ const getStoredTime = () => {
               <button
                 key={lesson._id}
                 onClick={() => {
-                  console.log("🔹 Switching to Lesson:", lesson._id);
                   setSelectedLesson(lesson);
                   setQuizOpen(false);
                   setQuizResults(null);
@@ -337,6 +381,9 @@ const getStoredTime = () => {
                 }`}
               >
                 {lesson.title}
+                {completedLessons.includes(lesson._id) && (
+                  <span className="ml-2 text-green-400">✔</span>
+                )}
               </button>
             ))}
           </div>
@@ -403,6 +450,14 @@ const getStoredTime = () => {
             )}
           </motion.div>
         )}
+        <motion.button
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
+          onClick={() => handleMarkComplete(selectedLesson._id)}
+          className="mt-6 px-6 py-3 rounded-lg bg-gradient-to-r from-green-500 to-green-700 text-white font-bold shadow-md"
+        >
+          ✅ Mark as Completed
+        </motion.button>
 
         {/* Quiz Content */}
         {quizOpen && quizQuestions[currentQuestionIdx] && (
