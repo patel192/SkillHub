@@ -15,34 +15,50 @@ import axios from "axios";
 
 export const UserDashboard = () => {
   const [userData, setUserData] = useState(null);
+  const [activities, setActivities] = useState([]);
+  const [courseName, setCourseName] = useState("");
+  const [notifications, setNotifications] = useState([]);
+
   const userId = localStorage.getItem("userId");
   const navigate = useNavigate();
-const [courseName, setcourseName] = useState("")
+
+  // 4. Notifications
+  const fetchNotifications = async () => {
+    const resNotifications = await axios.get(
+      `http://localhost:8000/notifications/${userId}`
+    );
+    const dataNotifications = resNotifications.data.data || [];
+    setNotifications(dataNotifications);
+  };
+useEffect(() => {
+  fetchNotifications()
+})
   useEffect(() => {
     const fetchUserDashboard = async () => {
       try {
         // 1. Courses
-        const resCourses = await axios.get(`http://localhost:8000/enrollment/${userId}`);
+        const resCourses = await axios.get(
+          `http://localhost:8000/enrollment/${userId}`
+        );
         const dataCourses = resCourses.data;
 
         // 2. Certificates
-        const resCerts = await axios.get(`http://localhost:8000/certificates/${userId}`);
+        const resCerts = await axios.get(
+          `http://localhost:8000/certificates/${userId}`
+        );
         const dataCerts = resCerts.data;
 
         // 3. Learning Time from localStorage
         let totalSeconds = 0;
         let courseTimes = [];
-
         Object.keys(localStorage).forEach((key) => {
           if (key.startsWith(`learningTime_${userId}_`)) {
             const seconds = parseInt(localStorage.getItem(key), 10) || 0;
             totalSeconds += seconds;
-
             const courseId = key.split("_")[2]; // extract courseId
             courseTimes.push({ courseId, seconds });
           }
         });
-
         const totalMinutes = Math.floor(totalSeconds / 60);
 
         // find most learned course
@@ -50,12 +66,20 @@ const [courseName, setcourseName] = useState("")
         if (courseTimes.length > 0) {
           const sorted = [...courseTimes].sort((a, b) => b.seconds - a.seconds);
           mostLearnedCourse = sorted[0];
-          const Coursename = await axios.get(`http://localhost:8000/course/${mostLearnedCourse.courseId}`);
-          setcourseName(Coursename.data.data.title)
-
+          const Coursename = await axios.get(
+            `http://localhost:8000/course/${mostLearnedCourse.courseId}`
+          );
+          setCourseName(Coursename.data.data.title);
         }
 
-        // 4. Leaderboard Rank from localStorage
+        // 4. Activities
+        const resActivities = await axios.get(
+          `http://localhost:8000/activities/${userId}`
+        );
+        const dataActivities = resActivities.data.data || [];
+        setActivities(dataActivities);
+
+        // 5. Leaderboard Rank
         const storedRank = localStorage.getItem("userRank");
 
         // Build user data object
@@ -70,13 +94,8 @@ const [courseName, setcourseName] = useState("")
             { title: "React Hooks Mastery", image: "/assets/react-course.jpg" },
             { title: "Node.js Crash Course", image: "/assets/node-course.jpg" },
           ],
-          recentActivity: [
-            { type: "quiz", detail: "Completed: JavaScript Quiz 2" },
-            { type: "certificate", detail: "Earned Certificate: HTML Basics" },
-            { type: "video", detail: "Watched: React Components - Part 1" },
-          ],
+          recentActivity: dataActivities.slice(0, 3), // only 3 activities
           leaderboardRank: storedRank ? parseInt(storedRank, 10) : 0,
-          
         });
       } catch (err) {
         console.error("❌ Error fetching dashboard data:", err);
@@ -122,13 +141,27 @@ const [courseName, setcourseName] = useState("")
       </motion.div>
 
       {/* Stat Cards */}
-      <StatCard icon={FaBook} title="Courses Enrolled" value={userData.courses} />
-      <StatCard icon={FaTasks} title="Challenges Completed" value={userData.challenges} />
-      <StatCard icon={FaCertificate} title="Certificates Earned" value={userData.certificates} />
+      <StatCard
+        icon={FaBook}
+        title="Courses Enrolled"
+        value={userData.courses}
+      />
+      <StatCard
+        icon={FaTasks}
+        title="Challenges Completed"
+        value={userData.challenges}
+      />
+      <StatCard
+        icon={FaCertificate}
+        title="Certificates Earned"
+        value={userData.certificates}
+      />
       <StatCard
         icon={FaClock}
         title="Total Learning Time"
-        value={`${Math.floor(userData.totalMinutes / 60)}h ${userData.totalMinutes % 60}m`}
+        value={`${Math.floor(userData.totalMinutes / 60)}h ${
+          userData.totalMinutes % 60
+        }m`}
       />
 
       {/* Resume Section */}
@@ -141,14 +174,14 @@ const [courseName, setcourseName] = useState("")
             <FaPlayCircle size={30} className="text-green-400" />
             <div>
               <p className="text-sm text-gray-400">Continue Course</p>
-              <h2 className="font-semibold">
-                {courseName}
-              </h2>
+              <h2 className="font-semibold">{courseName}</h2>
             </div>
           </div>
           <button
             className="mt-4 bg-green-600 px-4 py-2 rounded-lg hover:bg-green-700 transition"
-            onClick={() => navigate(`/learning/${userData.mostLearnedCourse.courseId}`)}
+            onClick={() =>
+              navigate(`/learning/${userData.mostLearnedCourse.courseId}`)
+            }
           >
             Resume
           </button>
@@ -181,34 +214,50 @@ const [courseName, setcourseName] = useState("")
         </div>
       </motion.div>
 
+      
       {/* Notifications */}
-      <motion.div
-        whileHover={{ scale: 1.02 }}
-        className="bg-[#334155] p-5 rounded-2xl shadow-lg col-span-1"
-      >
-        <div className="flex items-center gap-2 font-semibold text-lg mb-3">
-          <FaBell /> Notifications
-        </div>
-        <ul className="list-disc pl-5 text-sm text-gray-300 space-y-1">
-          <li>New Course: React Native Launched!</li>
-          <li>Challenge Week starts Monday!</li>
-          <li>Server maintenance on Saturday</li>
-        </ul>
-      </motion.div>
+<motion.div
+  whileHover={{ scale: 1.02 }}
+  className="bg-[#334155] p-5 rounded-2xl shadow-lg col-span-1 cursor-pointer"
+  onClick={() => navigate("/user/notifications")}
+>
+  <div className="flex items-center gap-2 font-semibold text-lg mb-3">
+    <FaBell /> Notifications
+  </div>
+  <ul className="text-sm text-gray-300 space-y-2">
+    {notifications.length > 0 ? (
+      notifications.slice(0, 3).map((n) => (
+        <li key={n._id} className={n.read ? "text-gray-400" : "text-white"}>
+          • {n.message}
+        </li>
+      ))
+    ) : (
+      <li className="text-gray-400">No notifications yet</li>
+    )}
+  </ul>
+  <p className="mt-3 text-blue-400 text-sm">View All →</p>
+</motion.div>
+
 
       {/* Activity Feed */}
       <motion.div
         whileHover={{ scale: 1.02 }}
-        className="bg-[#334155] p-5 rounded-2xl shadow-lg col-span-1"
+        className="bg-[#334155] p-5 rounded-2xl shadow-lg col-span-1 cursor-pointer"
+        onClick={() => navigate("/user/activities")}
       >
         <div className="font-semibold mb-3 text-lg">Recent Activity</div>
         <ul className="text-sm space-y-2">
-          {userData.recentActivity.map((activity, index) => (
-            <li key={index} className="text-gray-300">
-              • {activity.detail}
-            </li>
-          ))}
+          {userData.recentActivity.length > 0 ? (
+            userData.recentActivity.map((activity) => (
+              <li key={activity._id} className="text-gray-300">
+                • {activity.message}
+              </li>
+            ))
+          ) : (
+            <li className="text-gray-400">No recent activity</li>
+          )}
         </ul>
+        <p className="mt-3 text-blue-400 text-sm">View All →</p>
       </motion.div>
 
       {/* Leaderboard Rank */}
