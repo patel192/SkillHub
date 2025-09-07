@@ -1,7 +1,18 @@
 import React, { useEffect, useState, useRef } from "react";
 import axios from "axios";
 import { motion } from "framer-motion";
-import { Send, Search, UserPlus, X, Check, Menu,Smile,Reply,Edit,Trash2 } from "lucide-react";
+import {
+  Send,
+  Search,
+  UserPlus,
+  X,
+  Check,
+  Menu,
+  Smile,
+  Reply,
+  Edit,
+  Trash2,
+} from "lucide-react";
 
 export const Messages = () => {
   const currentUserId = localStorage.getItem("userId");
@@ -12,6 +23,7 @@ export const Messages = () => {
   const [outgoing, setOutgoing] = useState([]);
   const [selectedUserId, setSelectedUserId] = useState(null);
   const [messages, setMessages] = useState([]);
+  const [activeMessage, setActiveMessage] = useState(null);
 
   const [activeSidebarTab, setActiveSidebarTab] = useState("friends");
   const [sidebarOpen, setSidebarOpen] = useState(true);
@@ -523,7 +535,6 @@ export const Messages = () => {
 
             const isMine = String(senderId) === String(currentUserId);
 
-            // format time
             const time = msg.createdAt
               ? new Date(msg.createdAt).toLocaleTimeString([], {
                   hour: "2-digit",
@@ -534,9 +545,17 @@ export const Messages = () => {
             return (
               <div
                 key={msg._id}
-                className={`relative group p-3 rounded-lg max-w-md mb-6 ${
+                className={`relative group p-3 rounded-lg max-w-md mb-8 cursor-pointer ${
                   isMine ? "bg-gray-800 ml-auto" : "bg-violet-600"
                 }`}
+                onClick={() => {
+                  setActiveMessage(msg._id);
+                  // Auto-hide after 2s if no hover
+                  clearTimeout(window.actionTimeout);
+                  window.actionTimeout = setTimeout(() => {
+                    setActiveMessage(null);
+                  }, 2000);
+                }}
               >
                 {/* Reply preview */}
                 {msg.replyTo && (
@@ -553,54 +572,65 @@ export const Messages = () => {
                   {time}
                 </div>
 
-                {/* Hover actions */}
-                <div className="absolute -top-7 right-0 hidden group-hover:flex gap-2 text-xs bg-gray-900 px-2 py-1 rounded-lg shadow-lg">
-                  <button
-                    onClick={() =>
-                      setShowReactions(
-                        showReactions === msg._id ? null : msg._id
-                      )
-                    }
-                    className="hover:scale-110 transition"
-                    title="React"
+                {/* Actions menu (click + auto-hide) */}
+                {activeMessage === msg._id && (
+                  <div
+                    className="absolute -top-7 right-0 flex gap-2 text-xs bg-gray-900 px-2 py-1 rounded-lg shadow-lg"
+                    onMouseEnter={() => clearTimeout(window.actionTimeout)}
+                    onMouseLeave={() => {
+                      clearTimeout(window.actionTimeout);
+                      window.actionTimeout = setTimeout(() => {
+                        setActiveMessage(null);
+                      }, 2000);
+                    }}
                   >
-                    <Smile size={14} />
-                  </button>
-                  <button
-                    onClick={() => handleReply(msg)}
-                    className="hover:scale-110 transition"
-                    title="Reply"
-                  >
-                    <Reply size={14} />
-                  </button>
+                    <button
+                      onClick={() =>
+                        setShowReactions(
+                          showReactions === msg._id ? null : msg._id
+                        )
+                      }
+                      className="hover:scale-110 transition"
+                      title="React"
+                    >
+                      <Smile size={14} />
+                    </button>
+                    <button
+                      onClick={() => handleReply(msg)}
+                      className="hover:scale-110 transition"
+                      title="Reply"
+                    >
+                      <Reply size={14} />
+                    </button>
 
-                  {isMine && (
-                    <>
-                      <button
-                        onClick={() => handleEdit(msg)}
-                        className="hover:scale-110 transition"
-                        title="Edit"
-                      >
-                        <Edit size={14} />
-                      </button>
-                      <button
-                        onClick={() => handleDelete(msg._id)}
-                        className="hover:scale-110 transition"
-                        title="Delete"
-                      >
-                        <Trash2 size={14} />
-                      </button>
-                    </>
-                  )}
+                    {isMine && (
+                      <>
+                        <button
+                          onClick={() => handleEdit(msg)}
+                          className="hover:scale-110 transition"
+                          title="Edit"
+                        >
+                          <Edit size={14} />
+                        </button>
+                        <button
+                          onClick={() => handleDelete(msg._id)}
+                          className="hover:scale-110 transition"
+                          title="Delete"
+                        >
+                          <Trash2 size={14} />
+                        </button>
+                      </>
+                    )}
 
-                  <button
-                    onClick={() => handleForward(msg)}
-                    className="hover:scale-110 transition"
-                    title="Forward"
-                  >
-                    <Send size={14} />
-                  </button>
-                </div>
+                    <button
+                      onClick={() => handleForward(msg)}
+                      className="hover:scale-110 transition"
+                      title="Forward"
+                    >
+                      <Send size={14} />
+                    </button>
+                  </div>
+                )}
 
                 {/* Reaction picker */}
                 {showReactions === msg._id && (
@@ -620,7 +650,7 @@ export const Messages = () => {
                   </div>
                 )}
 
-                {/* Reactions bubble (bottom) */}
+                {/* Reactions bubble under message */}
                 {msg.reactions?.length > 0 && (
                   <div className="absolute -bottom-4 left-2 flex gap-1 bg-gray-700 px-2 py-0.5 rounded-full shadow">
                     {msg.reactions.map((r, i) => (
@@ -633,7 +663,6 @@ export const Messages = () => {
               </div>
             );
           })}
-
           <div ref={messagesEndRef} />
         </div>
 
