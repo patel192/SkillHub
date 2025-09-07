@@ -15,19 +15,35 @@ export const Login = () => {
   };
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
-    console.log(form);
+  e.preventDefault();
+  try {
     const res = await axios.post("http://localhost:8000/loginuser", form);
+
     if (res.status === 200) {
-      localStorage.setItem("userId", res.data.data._id);
-      localStorage.setItem("fullname", res.data.data.fullname);
+      const user = res.data.data;
+
+      // Save details in localStorage
+      localStorage.setItem("userId", user._id);
+      localStorage.setItem("fullname", user.fullname);
+      localStorage.setItem("role", user.role); // assuming backend sends role
+
       alert("Login successful!");
-      navigate("/user/dashboard"); // Redirect to dashboard or home page
-      // Redirect or perform further actions
+
+      // Redirect based on role
+      if (user.role === "admin") {
+        navigate("/admin/admindashboard");
+      } else {
+        navigate("/user/dashboard");
+      }
     } else {
       alert("Login failed. Please check your credentials.");
     }
-  };
+  } catch (err) {
+    console.error(err);
+    alert("Something went wrong. Please try again later.");
+  }
+};
+
   return (
     <div className="min-h-screen bg-zinc-800 flex items-center justify-center relative">
       {/* Soft blur background layer */}
