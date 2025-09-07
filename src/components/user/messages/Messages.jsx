@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useRef } from "react";
 import axios from "axios";
 import { motion } from "framer-motion";
-import { Send, Search, UserPlus, X, Check, Menu } from "lucide-react";
+import { Send, Search, UserPlus, X, Check, Menu,Smile,Reply,Edit,Trash2 } from "lucide-react";
 
 export const Messages = () => {
   const currentUserId = localStorage.getItem("userId");
@@ -33,7 +33,9 @@ export const Messages = () => {
   // --- Fetch Functions (unchanged endpoints used) ---
   const fetchFriends = async () => {
     try {
-      const res = await axios.get(`http://localhost:8000/friends/${currentUserId}`);
+      const res = await axios.get(
+        `http://localhost:8000/friends/${currentUserId}`
+      );
       const list = res.data?.data ?? [];
       setFriends(list);
       if (!selectedUserId && list.length > 0) setSelectedUserId(list[0]._id);
@@ -44,7 +46,9 @@ export const Messages = () => {
 
   const fetchIncoming = async () => {
     try {
-      const res = await axios.get(`http://localhost:8000/friends/requests/${currentUserId}`);
+      const res = await axios.get(
+        `http://localhost:8000/friends/requests/${currentUserId}`
+      );
       setIncoming(res.data?.data ?? []);
     } catch {
       setIncoming([]);
@@ -53,7 +57,9 @@ export const Messages = () => {
 
   const fetchOutgoing = async () => {
     try {
-      const res = await axios.get(`http://localhost:8000/friends/requests/sent/${currentUserId}`);
+      const res = await axios.get(
+        `http://localhost:8000/friends/requests/sent/${currentUserId}`
+      );
       setOutgoing(res.data?.data ?? []);
     } catch {
       setOutgoing([]);
@@ -63,7 +69,9 @@ export const Messages = () => {
   const fetchMessages = async (friendId) => {
     if (!friendId) return setMessages([]);
     try {
-      const res = await axios.get(`http://localhost:8000/messages/${currentUserId}/${friendId}`);
+      const res = await axios.get(
+        `http://localhost:8000/messages/${currentUserId}/${friendId}`
+      );
       // controller returns { success, messages } so try both shapes
       setMessages(res.data?.messages ?? res.data?.data ?? []);
     } catch {
@@ -72,7 +80,9 @@ export const Messages = () => {
   };
 
   // --- Utility sets ---
-  const requestedSet = new Set((outgoing || []).map((r) => String(r.recipient?._id ?? r.recipient ?? "")));
+  const requestedSet = new Set(
+    (outgoing || []).map((r) => String(r.recipient?._id ?? r.recipient ?? ""))
+  );
   const friendIdsSet = new Set((friends || []).map((f) => String(f._id)));
 
   // --- Message Handlers ---
@@ -82,12 +92,19 @@ export const Messages = () => {
     // If editing an existing message
     if (editMsg) {
       try {
-        const res = await axios.patch(`http://localhost:8000/message/${editMsg._id}`, {
-          text: newMessage,
-        });
+        const res = await axios.patch(
+          `http://localhost:8000/message/${editMsg._id}`,
+          {
+            text: newMessage,
+          }
+        );
         const updated = res.data?.message ?? res.data ?? null;
         if (updated) {
-          setMessages((prev) => prev.map((m) => (String(m._id) === String(editMsg._id) ? updated : m)));
+          setMessages((prev) =>
+            prev.map((m) =>
+              String(m._id) === String(editMsg._id) ? updated : m
+            )
+          );
         }
       } catch (err) {
         console.error("edit error", err);
@@ -121,7 +138,8 @@ export const Messages = () => {
         text: newMessage,
         replyTo: replyTo?._id ?? null,
       });
-      const newMsg = res.data?.message ?? res.data?.message ?? res.data?.data ?? null;
+      const newMsg =
+        res.data?.message ?? res.data?.message ?? res.data?.data ?? null;
       if (newMsg) {
         setMessages((prev) => prev.map((m) => (m._id === tempId ? newMsg : m)));
       }
@@ -138,13 +156,18 @@ export const Messages = () => {
 
   const handleReaction = async (msgId, emoji) => {
     try {
-      const res = await axios.patch(`http://localhost:8000/message/${msgId}/reaction`, {
-        userId: currentUserId,
-        emoji,
-      });
+      const res = await axios.patch(
+        `http://localhost:8000/message/${msgId}/reaction`,
+        {
+          userId: currentUserId,
+          emoji,
+        }
+      );
       const updated = res.data?.message ?? res.data?.data ?? res.data ?? null;
       if (updated) {
-        setMessages((prev) => prev.map((m) => (String(m._id) === String(msgId) ? updated : m)));
+        setMessages((prev) =>
+          prev.map((m) => (String(m._id) === String(msgId) ? updated : m))
+        );
       }
     } catch (err) {
       console.error("reaction error", err);
@@ -169,7 +192,9 @@ export const Messages = () => {
   const handleDelete = async (messageId) => {
     try {
       await axios.delete(`http://localhost:8000/message/${messageId}`);
-      setMessages((prev) => prev.filter((m) => String(m._id) !== String(messageId)));
+      setMessages((prev) =>
+        prev.filter((m) => String(m._id) !== String(messageId))
+      );
     } catch (err) {
       console.error("delete error", err);
       alert("Failed to delete message");
@@ -177,14 +202,21 @@ export const Messages = () => {
   };
 
   const handleForward = (msg) => {
-    alert(`Forwarding is not implemented yet. (Would open friend picker for: "${msg.text?.slice(0, 60)}...")`);
+    alert(
+      `Forwarding is not implemented yet. (Would open friend picker for: "${msg.text?.slice(
+        0,
+        60
+      )}...")`
+    );
   };
 
   // --- Friends / Requests Handlers ---
   const handleIncomingAction = async (requestId, action) => {
     try {
       // keeping your existing route shape
-      await axios.patch(`http://localhost:8000/friends/request/${requestId}`, { status: action });
+      await axios.patch(`http://localhost:8000/friends/request/${requestId}`, {
+        status: action,
+      });
       await fetchIncoming();
       await fetchFriends();
       await fetchOutgoing();
@@ -228,7 +260,9 @@ export const Messages = () => {
         setSearchLoading(true);
         try {
           // backend user search endpoint — adjust if your route differs
-          const res = await axios.get(`http://localhost:8000/users/search?q=${encodeURIComponent(q)}`);
+          const res = await axios.get(
+            `http://localhost:8000/users/search?q=${encodeURIComponent(q)}`
+          );
           setSearchResults(res.data?.data ?? res.data ?? []);
         } catch (err) {
           setSearchResults([]);
@@ -256,7 +290,7 @@ export const Messages = () => {
   }, [messages]);
 
   // small helper for display name
-  const nameOf = (u) => (u?.fullname || u?.name || u?.email || "Unknown");
+  const nameOf = (u) => u?.fullname || u?.name || u?.email || "Unknown";
 
   // emojis for picker
   const emojis = ["👍", "❤️", "😂", "😮", "😢", "🔥"];
@@ -266,7 +300,10 @@ export const Messages = () => {
       {/* Sidebar animated with framer-motion */}
       <motion.div
         initial={false}
-        animate={{ width: sidebarOpen ? "33.333%" : "0px", opacity: sidebarOpen ? 1 : 0 }}
+        animate={{
+          width: sidebarOpen ? "33.333%" : "0px",
+          opacity: sidebarOpen ? 1 : 0,
+        }}
         transition={{ duration: 0.24 }}
         style={{ overflow: "hidden" }}
         className="bg-gray-900 flex flex-col border-r border-gray-800"
@@ -285,12 +322,16 @@ export const Messages = () => {
             <button
               onClick={() => setActiveSidebarTab("requests")}
               className={`flex-1 p-3 text-center ${
-                activeSidebarTab === "requests" ? "bg-violet-700" : "bg-gray-800"
+                activeSidebarTab === "requests"
+                  ? "bg-violet-700"
+                  : "bg-gray-800"
               }`}
             >
               Requests
               {incoming.length > 0 && (
-                <span className="ml-1 bg-red-500 text-xs px-2 py-0.5 rounded-full">{incoming.length}</span>
+                <span className="ml-1 bg-red-500 text-xs px-2 py-0.5 rounded-full">
+                  {incoming.length}
+                </span>
               )}
             </button>
           </div>
@@ -335,18 +376,29 @@ export const Messages = () => {
                       const isSelf = String(id) === String(currentUserId);
 
                       return (
-                        <div key={id} className="flex items-center justify-between p-2 bg-gray-800 rounded-lg">
+                        <div
+                          key={id}
+                          className="flex items-center justify-between p-2 bg-gray-800 rounded-lg"
+                        >
                           <div className="flex items-center gap-2">
-                            <img src={u.avatar || "/default-avatar.png"} className="w-8 h-8 rounded-full" alt={nameOf(u)} />
+                            <img
+                              src={u.avatar || "/default-avatar.png"}
+                              className="w-8 h-8 rounded-full"
+                              alt={nameOf(u)}
+                            />
                             <div className="text-sm">{nameOf(u)}</div>
                           </div>
                           <div>
                             {isSelf ? (
                               <div className="text-xs text-gray-500">You</div>
                             ) : alreadyFriend ? (
-                              <div className="text-xs text-green-400">Friend</div>
+                              <div className="text-xs text-green-400">
+                                Friend
+                              </div>
                             ) : alreadyRequested ? (
-                              <div className="text-xs text-yellow-300">Requested</div>
+                              <div className="text-xs text-yellow-300">
+                                Requested
+                              </div>
                             ) : (
                               <button
                                 disabled={adding}
@@ -370,7 +422,9 @@ export const Messages = () => {
           {activeSidebarTab === "friends" && (
             <div className="flex-1 overflow-y-auto p-3">
               {friends.length === 0 ? (
-                <div className="text-center text-gray-400 mt-10">No friends yet. Add some to start chatting.</div>
+                <div className="text-center text-gray-400 mt-10">
+                  No friends yet. Add some to start chatting.
+                </div>
               ) : (
                 friends.map((f) => (
                   <motion.div
@@ -383,7 +437,11 @@ export const Messages = () => {
                         : "bg-gray-800 hover:bg-gray-700"
                     }`}
                   >
-                    <img src={f.avatar || "/default-avatar.png"} alt={nameOf(f)} className="w-10 h-10 rounded-full" />
+                    <img
+                      src={f.avatar || "/default-avatar.png"}
+                      alt={nameOf(f)}
+                      className="w-10 h-10 rounded-full"
+                    />
                     <div>
                       <div className="font-medium">{nameOf(f)}</div>
                       <div className="text-xs text-gray-400">Tap to chat</div>
@@ -399,7 +457,10 @@ export const Messages = () => {
             <div className="flex-1 overflow-y-auto p-3 space-y-3">
               <h3 className="font-semibold">Incoming</h3>
               {incoming.map((r) => (
-                <div key={r._id} className="flex items-center justify-between p-2 bg-gray-800 rounded-lg">
+                <div
+                  key={r._id}
+                  className="flex items-center justify-between p-2 bg-gray-800 rounded-lg"
+                >
                   <span>{nameOf(r.requester)}</span>
                   <div className="flex gap-2">
                     <button
@@ -440,9 +501,13 @@ export const Messages = () => {
           </button>
           <div className="flex-1 text-center">
             {selectedUserId ? (
-              <span className="font-semibold">{`Chat with ${nameOf(friends.find((f) => String(f._id) === String(selectedUserId)))}`}</span>
+              <span className="font-semibold">{`Chat with ${nameOf(
+                friends.find((f) => String(f._id) === String(selectedUserId))
+              )}`}</span>
             ) : (
-              <span className="text-gray-400">Select a friend to start chatting</span>
+              <span className="text-gray-400">
+                Select a friend to start chatting
+              </span>
             )}
           </div>
           <div style={{ width: 36 }} /> {/* spacer */}
@@ -451,109 +516,140 @@ export const Messages = () => {
         {/* Messages */}
         <div className="flex-1 overflow-y-auto p-4 space-y-2">
           {messages.map((msg) => {
-  const senderId =
-    typeof msg.senderId === "string"
-      ? msg.senderId
-      : msg.senderId?._id ?? String(msg.senderId);
+            const senderId =
+              typeof msg.senderId === "string"
+                ? msg.senderId
+                : msg.senderId?._id ?? String(msg.senderId);
 
-  const isMine = String(senderId) === String(currentUserId);
+            const isMine = String(senderId) === String(currentUserId);
 
-  // format time
-  const time = msg.createdAt
-    ? new Date(msg.createdAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })
-    : "";
+            // format time
+            const time = msg.createdAt
+              ? new Date(msg.createdAt).toLocaleTimeString([], {
+                  hour: "2-digit",
+                  minute: "2-digit",
+                })
+              : "";
 
-  return (
-    <div
-      key={msg._id}
-      className={`relative group p-3 rounded-lg max-w-md ${
-        isMine ? "bg-gray-800 ml-auto" : "bg-violet-600"
-      }`}
-    >
-      {msg.replyTo && (
-        <div className="text-xs text-gray-300 border-l-2 border-gray-400 pl-2 mb-1">
-          Replying to: {msg.replyTo.text}
-        </div>
-      )}
+            return (
+              <div
+                key={msg._id}
+                className={`relative group p-3 rounded-lg max-w-md mb-6 ${
+                  isMine ? "bg-gray-800 ml-auto" : "bg-violet-600"
+                }`}
+              >
+                {/* Reply preview */}
+                {msg.replyTo && (
+                  <div className="text-xs text-gray-300 border-l-2 border-gray-400 pl-2 mb-1">
+                    Replying to: {msg.replyTo.text}
+                  </div>
+                )}
 
-      <div>{msg.text}</div>
+                {/* Message text */}
+                <div>{msg.text}</div>
 
-      {/* Timestamp */}
-      <div className="text-[10px] text-gray-400 mt-1 text-right">{time}</div>
+                {/* Timestamp */}
+                <div className="text-[10px] text-gray-400 mt-1 text-right">
+                  {time}
+                </div>
 
-      {/* Reactions */}
-      {msg.reactions?.length > 0 && (
-        <div className="flex gap-1 mt-1">
-          {msg.reactions.map((r, i) => (
-            <span key={i} className="text-sm">
-              {r.emoji}
-            </span>
-          ))}
-        </div>
-      )}
+                {/* Hover actions */}
+                <div className="absolute -top-7 right-0 hidden group-hover:flex gap-2 text-xs bg-gray-900 px-2 py-1 rounded-lg shadow-lg">
+                  <button
+                    onClick={() =>
+                      setShowReactions(
+                        showReactions === msg._id ? null : msg._id
+                      )
+                    }
+                    className="hover:scale-110 transition"
+                    title="React"
+                  >
+                    <Smile size={14} />
+                  </button>
+                  <button
+                    onClick={() => handleReply(msg)}
+                    className="hover:scale-110 transition"
+                    title="Reply"
+                  >
+                    <Reply size={14} />
+                  </button>
 
-      {/* Hover actions */}
-      <div className="absolute -top-7 right-0 hidden group-hover:flex gap-2 text-xs bg-gray-900 px-2 py-1 rounded-lg shadow-lg">
-        <button
-          onClick={() => setShowReactions(showReactions === msg._id ? null : msg._id)}
-          className="hover:scale-110 transition"
-          title="React"
-        >
-          😀
-        </button>
-        <button
-          onClick={() => handleReply(msg)}
-          className="hover:scale-110 transition"
-          title="Reply"
-        >
-          ↩️
-        </button>
+                  {isMine && (
+                    <>
+                      <button
+                        onClick={() => handleEdit(msg)}
+                        className="hover:scale-110 transition"
+                        title="Edit"
+                      >
+                        <Edit size={14} />
+                      </button>
+                      <button
+                        onClick={() => handleDelete(msg._id)}
+                        className="hover:scale-110 transition"
+                        title="Delete"
+                      >
+                        <Trash2 size={14} />
+                      </button>
+                    </>
+                  )}
 
-        {isMine && (
-          <>
-            <button onClick={() => handleEdit(msg)} className="hover:scale-110 transition" title="Edit">
-              ✏️
-            </button>
-            <button onClick={() => handleDelete(msg._id)} className="hover:scale-110 transition" title="Delete">
-              🗑️
-            </button>
-          </>
-        )}
+                  <button
+                    onClick={() => handleForward(msg)}
+                    className="hover:scale-110 transition"
+                    title="Forward"
+                  >
+                    <Send size={14} />
+                  </button>
+                </div>
 
-        <button onClick={() => handleForward(msg)} className="hover:scale-110 transition" title="Forward">
-          📤
-        </button>
-      </div>
+                {/* Reaction picker */}
+                {showReactions === msg._id && (
+                  <div
+                    className="absolute bottom-full right-0 mb-1 flex gap-2 bg-gray-700 p-2 rounded-lg shadow-lg"
+                    onMouseEnter={() => setShowReactions(msg._id)}
+                    onMouseLeave={() => setShowReactions(null)}
+                  >
+                    {["👍", "❤️", "😂", "😮", "😢", "🔥"].map((e) => (
+                      <button
+                        key={e}
+                        onClick={() => handleReaction(msg._id, e)}
+                      >
+                        {e}
+                      </button>
+                    ))}
+                  </div>
+                )}
 
-      {/* Reaction picker */}
-      {showReactions === msg._id && (
-        <div
-          className="absolute bottom-full right-0 mb-1 flex gap-2 bg-gray-700 p-2 rounded-lg shadow-lg"
-          onMouseEnter={() => setShowReactions(msg._id)}
-          onMouseLeave={() => setShowReactions(null)}
-        >
-          {["👍", "❤️", "😂", "😮", "😢", "🔥"].map((e) => (
-            <button key={e} onClick={() => handleReaction(msg._id, e)}>
-              {e}
-            </button>
-          ))}
-        </div>
-      )}
-    </div>
-  );
-})}
-
+                {/* Reactions bubble (bottom) */}
+                {msg.reactions?.length > 0 && (
+                  <div className="absolute -bottom-4 left-2 flex gap-1 bg-gray-700 px-2 py-0.5 rounded-full shadow">
+                    {msg.reactions.map((r, i) => (
+                      <span key={i} className="text-sm">
+                        {r.emoji}
+                      </span>
+                    ))}
+                  </div>
+                )}
+              </div>
+            );
+          })}
 
           <div ref={messagesEndRef} />
         </div>
 
         {/* Reply/Edit indicator (stylized) */}
         {(replyTo || editMsg) && (
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="px-3 pb-2">
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            className="px-3 pb-2"
+          >
             <div className="flex items-center justify-between bg-gray-800 p-2 rounded">
               <div className="flex items-center gap-3">
                 <div className="w-8 h-8 rounded-full bg-gray-700 flex items-center justify-center text-xs">
-                  {replyTo ? String((replyTo.text || "").slice(0, 1)).toUpperCase() : "E"}
+                  {replyTo
+                    ? String((replyTo.text || "").slice(0, 1)).toUpperCase()
+                    : "E"}
                 </div>
                 <div className="text-sm">
                   {replyTo ? (
@@ -585,14 +681,14 @@ export const Messages = () => {
         )}
 
         {/* Input */}
-        {selectedUserId ? (
-          <div className="p-3 border-t border-gray-800 flex gap-2 items-end">
+        {selectedUserId && (
+          <div className="p-3 border-t border-gray-800 flex gap-2">
             <input
               ref={inputRef}
               value={newMessage}
               onChange={(e) => setNewMessage(e.target.value)}
               onKeyDown={(e) => e.key === "Enter" && handleSend()}
-              placeholder={editMsg ? "Edit message..." : "Type a message..."}
+              placeholder="Type a message..."
               className="flex-1 bg-gray-800 p-2 rounded-md outline-none"
             />
             <button
@@ -603,8 +699,6 @@ export const Messages = () => {
               <Send size={18} />
             </button>
           </div>
-        ) : (
-          <div className="p-3 text-center text-gray-400">Select a friend to start chatting</div>
         )}
       </div>
     </div>
