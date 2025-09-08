@@ -3,6 +3,7 @@ import { motion } from "framer-motion";
 import { useParams } from "react-router-dom";
 import axios from "axios";
 import toast from "react-hot-toast";
+import { ReportModal } from "../report/ReportModal";
 import {
   BadgeCheck,
   Clock,
@@ -11,6 +12,7 @@ import {
   User,
   Sparkles,
   Book,
+  Flag
 } from "lucide-react";
 
 export const CourseDetails = () => {
@@ -18,6 +20,7 @@ export const CourseDetails = () => {
   const [course, setCourse] = useState(null);
   const [overview, setOverview] = useState([]);
   const [enrolled, setEnrolled] = useState(false);
+  const [reportOpen, setReportOpen] = useState(false);
 
   const userId = localStorage.getItem("userId");
 
@@ -103,7 +106,7 @@ export const CourseDetails = () => {
         />
       </div>
 
-      {/* Title + Enroll */}
+      {/* Title + Enroll + Report */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
         <div>
           <h1 className="text-4xl font-bold mb-2 flex items-center gap-2">
@@ -112,17 +115,28 @@ export const CourseDetails = () => {
           </h1>
           <p className="text-gray-400 max-w-2xl">{course.description}</p>
         </div>
-        <button
-          onClick={handleEnroll}
-          disabled={enrolled}
-          className={`px-6 py-2 rounded-full text-white font-semibold transition duration-300 shadow-lg ${
-            enrolled
-              ? "bg-green-600 cursor-not-allowed"
-              : "bg-gradient-to-r from-indigo-500 to-purple-600 hover:opacity-90"
-          }`}
-        >
-          {enrolled ? "🎓 Enrolled" : "🚀 Enroll Now"}
-        </button>
+
+        <div className="flex gap-3">
+          <button
+            onClick={handleEnroll}
+            disabled={enrolled}
+            className={`px-6 py-2 rounded-full text-white font-semibold transition duration-300 shadow-lg ${
+              enrolled
+                ? "bg-green-600 cursor-not-allowed"
+                : "bg-gradient-to-r from-indigo-500 to-purple-600 hover:opacity-90"
+            }`}
+          >
+            {enrolled ? "🎓 Enrolled" : "🚀 Enroll Now"}
+          </button>
+
+          {/* Report Button */}
+          <button
+            onClick={() => setReportOpen(true)}
+            className="px-6 py-2 rounded-full bg-red-600 hover:bg-red-700 transition duration-300 flex items-center gap-2 shadow-lg"
+          >
+            <Flag size={18} /> Report
+          </button>
+        </div>
       </div>
 
       {/* Metadata Badges */}
@@ -177,6 +191,14 @@ export const CourseDetails = () => {
           </button>
         </div>
       )}
+
+      {/* Report Modal */}
+      <ReportModal
+        isOpen={reportOpen}
+        onClose={() => setReportOpen(false)}
+        targetType="Course"
+        targetId={courseId}
+      />
     </motion.div>
   );
 };

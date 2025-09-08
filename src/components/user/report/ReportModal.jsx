@@ -27,7 +27,7 @@ export const ReportModal = ({ isOpen, onClose, targetType, targetId }) => {
             </button>
 
             {/* Report Form */}
-            <ReportForm targetType={targetType} targetId={targetId} />
+            <Report targetType={targetType} targetId={targetId} />
           </motion.div>
         </motion.div>
       )}

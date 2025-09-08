@@ -14,7 +14,7 @@ import {
 } from "lucide-react";
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
-import { MdPeople,MdDescription  } from "react-icons/md";
+import { MdPeople  } from "react-icons/md";
 export const UserSidebar = ({ isOpen }) => {
   const navigate = useNavigate();
   return (
@@ -81,12 +81,7 @@ export const UserSidebar = ({ isOpen }) => {
         >
           <Trophy size={18} /> LeaderBoard
         </Link>
-        <Link
-          to="/user/report"
-          className="flex items-center gap-3 hover:text-blue-400"
-        >
-          <MdDescription  size={18} /> Report
-        </Link>
+      
 
         <div className="mt-auto">
           <button
