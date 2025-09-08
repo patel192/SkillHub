@@ -3,7 +3,6 @@ import { motion } from "framer-motion";
 import { useParams } from "react-router-dom";
 import axios from "axios";
 import toast from "react-hot-toast";
-import { ReportModal } from "../report/ReportModal";
 import {
   BadgeCheck,
   Clock,
@@ -12,15 +11,15 @@ import {
   User,
   Sparkles,
   Book,
-  Flag
 } from "lucide-react";
+import { ReportModal } from "../report/ReportModal";
 
 export const CourseDetails = () => {
-  const { courseId } = useParams();
+ const { courseId } = useParams();
   const [course, setCourse] = useState(null);
   const [overview, setOverview] = useState([]);
   const [enrolled, setEnrolled] = useState(false);
-  const [reportOpen, setReportOpen] = useState(false);
+  const [showReportModal, setShowReportModal] = useState(false);
 
   const userId = localStorage.getItem("userId");
 
@@ -106,7 +105,7 @@ export const CourseDetails = () => {
         />
       </div>
 
-      {/* Title + Enroll + Report */}
+      {/* Title + Actions */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
         <div>
           <h1 className="text-4xl font-bold mb-2 flex items-center gap-2">
@@ -115,7 +114,6 @@ export const CourseDetails = () => {
           </h1>
           <p className="text-gray-400 max-w-2xl">{course.description}</p>
         </div>
-
         <div className="flex gap-3">
           <button
             onClick={handleEnroll}
@@ -129,23 +127,45 @@ export const CourseDetails = () => {
             {enrolled ? "🎓 Enrolled" : "🚀 Enroll Now"}
           </button>
 
-          {/* Report Button */}
+          {/* Report button */}
           <button
-            onClick={() => setReportOpen(true)}
-            className="px-6 py-2 rounded-full bg-red-600 hover:bg-red-700 transition duration-300 flex items-center gap-2 shadow-lg"
+            onClick={() => setShowReportModal(true)}
+            className="px-6 py-2 rounded-full bg-red-600 hover:bg-red-700 text-white font-semibold shadow-lg"
           >
-            <Flag size={18} /> Report
+            🚩 Report
           </button>
         </div>
       </div>
 
       {/* Metadata Badges */}
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 text-sm mb-8">
-        <CourseMeta icon={<User size={18} />} label="Instructor" value={course.instructor} />
-        <CourseMeta icon={<BookOpen size={18} />} label="Category" value={course.category} />
-        <CourseMeta icon={<Clock size={18} />} label="Duration" value={course.duration} />
-        <CourseMeta icon={<BadgeCheck size={18} />} label="Level" value={course.level} />
-        <CourseMeta icon={<DollarSign size={18} />} label="Price" value={course.price > 0 ? `₹${course.price}` : "Free"} />
+        <CourseMeta
+          icon={<User size={18} />}
+          label="Instructor"
+          value={course.instructor}
+        />
+        <CourseMeta
+          icon={<BookOpen size={18} />}
+          label="Category"
+          value={course.category}
+        />
+        <CourseMeta
+          icon={<Clock size={18} />}
+          label="Duration"
+          value={course.duration}
+        />
+        <CourseMeta
+          icon={<BadgeCheck size={18} />}
+          label="Level"
+          value={course.level}
+        />
+        <CourseMeta
+          icon={<DollarSign size={18} />}
+          label="Price"
+          value={
+            course.price > 0 ? `₹${course.price}` : "Free"
+          }
+        />
         <CourseMeta
           icon={<BadgeCheck size={18} />}
           label="Status"
@@ -193,12 +213,12 @@ export const CourseDetails = () => {
       )}
 
       {/* Report Modal */}
-      <ReportModal
-        isOpen={reportOpen}
-        onClose={() => setReportOpen(false)}
-        targetType="Course"
-        targetId={courseId}
-      />
+      {showReportModal && (
+        <ReportModal
+          courseId={courseId}
+          onClose={() => setShowReportModal(false)}
+        />
+      )}
     </motion.div>
   );
 };

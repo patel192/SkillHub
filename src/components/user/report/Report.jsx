@@ -19,12 +19,12 @@ export const Report = ({ targetType = "General", targetId = null }) => {
     setSuccess(false);
 
     try {
-      await axios.post("http://localhost:8000/reports/add", {
+      await axios.post("http://localhost:8000/report", {
         type,
         description,
         targetType,
         targetId,
-        // reporter will be set in backend from auth middleware
+        
       });
       setSuccess(true);
       setDescription("");
