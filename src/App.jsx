@@ -26,6 +26,7 @@ import { CommunityDetails } from "./components/user/communities/CommunityDetails
 import { Toaster } from "react-hot-toast";
 import { Activities } from "./components/user/activity/Activities";
 import { Notifications } from "./components/user/notification/Notifications";
+import { Report } from "./components/user/report/Report";
 
 function App() {
   return (
@@ -49,6 +50,7 @@ function App() {
           <Route path="learn/:courseId" element={<LearningPage />}></Route>
           <Route path="activities" element={<Activities />}></Route>
           <Route path="notifications" element={<Notifications />}></Route>
+          <Route path="report" element={<Report />}></Route>
           
 
         </Route>

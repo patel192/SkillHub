@@ -9,10 +9,9 @@ import {
   FileText,
   Layers,
   Activity,
-  MessageSquare,
   Bug,
-  Shield,
-  ClipboardList,
+  TrendingUp,
+  DollarSign,
 } from "lucide-react";
 import axios from "axios";
 import {
@@ -30,10 +29,8 @@ export const AdminDashboard = () => {
   const [latestUsers, setLatestUsers] = useState([]);
   const [latestCourses, setLatestCourses] = useState([]);
   const [enrollmentTrends, setEnrollmentTrends] = useState([]);
-  const [feedback, setFeedback] = useState([]);
   const [reports, setReports] = useState([]);
-  const [adminLogs, setAdminLogs] = useState([]);
-  const [analytics, setAnalytics] = useState([]);
+  const [topCourses, setTopCourses] = useState([]);
 
   useEffect(() => {
     fetchOverview();
@@ -46,10 +43,8 @@ export const AdminDashboard = () => {
       setLatestUsers(res.data.latestUsers || []);
       setLatestCourses(res.data.latestCourses || []);
       setEnrollmentTrends(res.data.enrollmentTrends || []);
-      setFeedback(res.data.feedback || []);
-      setReports(res.data.reports || []);
-      setAdminLogs(res.data.adminLogs || []);
-      setAnalytics(res.data.analytics || []);
+      setReports(res.data.latestReports || []);
+      setTopCourses(res.data.topCourses || []);
     } catch (error) {
       console.error("Error fetching admin overview:", error.message);
     }
@@ -75,6 +70,8 @@ export const AdminDashboard = () => {
         <StatCard icon={<Award size={28} />} label="Certificates" value={stats.totalCertificates} gradient="from-teal-500 to-cyan-500" />
         <StatCard icon={<FileText size={28} />} label="Posts" value={stats.totalPosts} gradient="from-pink-500 to-rose-500" />
         <StatCard icon={<Layers size={28} />} label="Communities" value={stats.totalCommunities} gradient="from-sky-500 to-indigo-500" />
+        <StatCard icon={<DollarSign size={28} />} label="Revenue" value={`$${stats.totalRevenue}`} gradient="from-emerald-500 to-green-500" />
+        <StatCard icon={<TrendingUp size={28} />} label="Active Users (7d)" value={stats.activeUsers} gradient="from-orange-500 to-red-500" />
       </div>
 
       {/* Enrollment Trends */}
@@ -106,26 +103,8 @@ export const AdminDashboard = () => {
         <LatestCourses courses={latestCourses} />
       </div>
 
-      {/* Feedback & Reports */}
+      {/* Reports & Top Courses */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        <Section title="Latest Feedback" icon={<MessageSquare size={20} className="text-green-400" />}>
-          {feedback.length === 0 ? (
-            <p className="text-gray-400">No feedback yet.</p>
-          ) : (
-            <ul className="space-y-3">
-              {feedback.map((f) => (
-                <motion.li key={f._id} whileHover={{ scale: 1.01 }} className="bg-[#1E293B]/60 p-4 rounded-xl shadow border border-white/10">
-                  <p className="text-sm">
-                    <span className="font-semibold">{f.userId?.fullname || "User"}</span> rated{" "}
-                    <span className="font-bold">{f.rating}/5</span>
-                  </p>
-                  {f.comment && <p className="text-gray-400 text-sm mt-1">{f.comment}</p>}
-                </motion.li>
-              ))}
-            </ul>
-          )}
-        </Section>
-
         <Section title="Latest Reports" icon={<Bug size={20} className="text-red-400" />}>
           {reports.length === 0 ? (
             <p className="text-gray-400">No reports submitted.</p>
@@ -157,40 +136,36 @@ export const AdminDashboard = () => {
             </ul>
           )}
         </Section>
-      </div>
 
-      {/* Admin Logs & Analytics */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        <Section title="Admin Logs" icon={<ClipboardList size={20} className="text-purple-400" />}>
-          {adminLogs.length === 0 ? (
-            <p className="text-gray-400">No admin logs yet.</p>
+        <Section title="Top Courses" icon={<TrendingUp size={20} className="text-green-400" />}>
+          {topCourses.length === 0 ? (
+            <p className="text-gray-400">No course data yet.</p>
           ) : (
-            <ul className="space-y-3">
-              {adminLogs.map((log) => (
-                <motion.li key={log._id} whileHover={{ scale: 1.01 }} className="bg-[#1E293B]/60 p-4 rounded-xl shadow border border-white/10">
-                  <p className="text-sm">
-                    <span className="font-semibold">{log.adminId?.fullname || "Admin"}</span> {log.action}
-                  </p>
-                  <p className="text-gray-400 text-xs">{log.details}</p>
-                </motion.li>
-              ))}
-            </ul>
-          )}
-        </Section>
-
-        <Section title="Analytics" icon={<Shield size={20} className="text-cyan-400" />}>
-          {analytics.length === 0 ? (
-            <p className="text-gray-400">No analytics data.</p>
-          ) : (
-            <div className="grid grid-cols-2 gap-4">
-              {analytics.map((a) => (
-                <div key={a._id} className="bg-[#1E293B]/60 p-4 rounded-xl shadow border border-white/10">
-                  <p className="font-medium">{a.metric}</p>
-                  <p className="text-2xl font-bold">{a.value}</p>
-                  <p className="text-gray-400 text-xs">{new Date(a.date).toLocaleDateString()}</p>
-                </div>
-              ))}
-            </div>
+            <table className="w-full text-left border-collapse">
+              <thead>
+                <tr className="text-sm text-gray-400 border-b border-gray-700">
+                  <th className="py-2">Course</th>
+                  <th className="py-2">Category</th>
+                  <th className="py-2">Enrollments</th>
+                </tr>
+              </thead>
+              <tbody>
+                {topCourses.map((c, i) => (
+                  <motion.tr
+                    key={i}
+                    whileHover={{
+                      scale: 1.01,
+                      backgroundColor: "rgba(255,255,255,0.05)",
+                    }}
+                    className="transition cursor-pointer"
+                  >
+                    <td className="py-3 font-medium">{c.title}</td>
+                    <td className="py-3">{c.category}</td>
+                    <td className="py-3 text-indigo-400 font-semibold">{c.count}</td>
+                  </motion.tr>
+                ))}
+              </tbody>
+            </table>
           )}
         </Section>
       </div>
@@ -299,13 +274,17 @@ const LatestCourses = ({ courses }) => (
               >
                 <td className="py-3 font-medium">{course.title}</td>
                 <td className="py-3">
-                  <span className="bg-indigo-500/60 text-xs px-2 py-1 rounded-md">{course.category}</span>
+                  <span className="bg-indigo-500/60 text-xs px-2 py-1 rounded-md">
+                    {course.category}
+                  </span>
                 </td>
                 <td className="py-3 text-gray-300">{course.level}</td>
                 <td className="py-3">
                   <span
                     className={`px-2 py-1 rounded-full text-xs font-semibold ${
-                      course.isPublished ? "bg-green-600/70 text-white" : "bg-yellow-600/70 text-white"
+                      course.isPublished
+                        ? "bg-green-600/70 text-white"
+                        : "bg-yellow-600/70 text-white"
                     }`}
                   >
                     {course.isPublished ? "Published" : "Unpublished"}
