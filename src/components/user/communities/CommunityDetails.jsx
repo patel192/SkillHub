@@ -13,6 +13,8 @@ import {
   FaUserShield,
 } from "react-icons/fa";
 import axios from "axios";
+import { FaEllipsisV } from "react-icons/fa";
+import { X } from "lucide-react";
 export const CommunityDetails = () => {
   const { id } = useParams(); // community id
   const [community, setCommunity] = useState(null);
@@ -30,13 +32,39 @@ export const CommunityDetails = () => {
   const [loading, setLoading] = useState(false);
   const [notifications, setNotifications] = useState([]);
   const [lastSeen, setLastSeen] = useState(Date.now());
+  const [isReportOpen, setIsReportOpen] = useState(false);
+  const [reportTarget, setReportTarget] = useState(null); // { type: "Post"|"Comment"|"User", id }
+  const [reportType, setReportType] = useState("");
+  const [reportMessage, setReportMessage] = useState("");
 
   const userId = localStorage.getItem("userId");
   const userName = "You";
   // --- extra states ---
   const [replyText, setReplyText] = useState({}); // store reply text per comment
   const [showReplies, setShowReplies] = useState({}); // toggle replies section
+  const handleReportSubmit = async (e) => {
+    e.preventDefault();
+    if (!reportTarget) return;
 
+    try {
+      await axios.post("http://localhost:8000/report", {
+        reporter: userId,
+        type: reportType,
+        description: reportMessage,
+        targetType: reportTarget.type,
+        targetId: reportTarget.id,
+      });
+
+      toast.success(`${reportTarget.type} reported successfully ✅`);
+      setReportType("");
+      setReportMessage("");
+      setReportTarget(null);
+      setIsReportOpen(false);
+    } catch (err) {
+      console.error("❌ Error submitting report:", err);
+      toast.error("Failed to submit report ❌");
+    }
+  };
   // --- handle add reply ---
   const handleAddReply = async (postId, commentId) => {
     const txt = (replyText[commentId] || "").trim();
@@ -515,6 +543,15 @@ export const CommunityDetails = () => {
                           {new Date(post.createdAt).toLocaleString()}
                         </div>
                       </div>
+                    <button
+                      onClick={() => {
+                        setReportTarget({ type: "Post", id: post._id });
+                        setIsReportOpen(true);
+                      }}
+                      className="p-2 rounded hover:bg-gray-700"
+                    >
+                      <FaEllipsisV />
+                    </button>
                     </div>
 
                     <p className="mt-3">{post.content}</p>
@@ -558,96 +595,95 @@ export const CommunityDetails = () => {
 
                     {/* Comments area */}
                     <AnimatePresence>
-                    {showComments[post._id] && (
-                      <motion.div transition={{duration:2}} className="bg-[#1e293b] p-3 rounded-lg mt-3 space-y-3">
-                        {Array.isArray(post.comments) &&
-                        post.comments.length > 0 ? (
-                          post.comments.map((c, i) => (
-                            <div
-                              key={i}
-                              className="text-sm text-gray-300 space-y-2"
-                            >
-                              {/* Comment */}
-                              <div>
-                                <span className="font-semibold text-cyan-400">
-                                  {c.userId.fullname ?? "User"}:
-                                </span>{" "}
-                                {c.content}
-                              </div>
-
-                              {/* Show replies */}
-                              {c.replies && c.replies.length > 0 && (
-                                <div className="ml-6 space-y-2">
-                                  {c.replies.map((r, ri) => (
-                                    <div
-                                      key={ri}
-                                      className="text-xs text-gray-400"
-                                    >
-                                      <span className="font-semibold text-indigo-400">
-                                        {r.userId.fullname ??
-                                           
-                                          "User"}
-                                        :
-                                      </span>{" "}
-                                      {r.content}
-                                    </div>
-                                  ))}
+                      {showComments[post._id] && (
+                        <motion.div
+                          transition={{ duration: 2 }}
+                          className="bg-[#1e293b] p-3 rounded-lg mt-3 space-y-3"
+                        >
+                          {Array.isArray(post.comments) &&
+                          post.comments.length > 0 ? (
+                            post.comments.map((c, i) => (
+                              <div
+                                key={i}
+                                className="text-sm text-gray-300 space-y-2"
+                              >
+                                {/* Comment */}
+                                <div>
+                                  <span className="font-semibold text-cyan-400">
+                                    {c.userId.fullname ?? "User"}:
+                                  </span>{" "}
+                                  {c.content}
                                 </div>
-                              )}
 
-                              {/* Reply input */}
-                              <div className="ml-6 flex gap-2">
-                                <input
-                                  value={replyText[c._id] || ""}
-                                  onChange={(e) =>
-                                    setReplyText((prev) => ({
-                                      ...prev,
-                                      [c._id]: e.target.value,
-                                    }))
-                                  }
-                                  className="flex-1 p-1 rounded bg-gray-800 text-xs"
-                                  placeholder="Write a reply..."
-                                />
-                                <button
-                                  onClick={() =>
-                                    handleAddReply(post._id, c._id)
-                                  }
-                                  className="px-2 py-1 bg-green-600 rounded text-xs"
-                                >
-                                  Reply
-                                </button>
+                                {/* Show replies */}
+                                {c.replies && c.replies.length > 0 && (
+                                  <div className="ml-6 space-y-2">
+                                    {c.replies.map((r, ri) => (
+                                      <div
+                                        key={ri}
+                                        className="text-xs text-gray-400"
+                                      >
+                                        <span className="font-semibold text-indigo-400">
+                                          {r.userId.fullname ?? "User"}:
+                                        </span>{" "}
+                                        {r.content}
+                                      </div>
+                                    ))}
+                                  </div>
+                                )}
+
+                                {/* Reply input */}
+                                <div className="ml-6 flex gap-2">
+                                  <input
+                                    value={replyText[c._id] || ""}
+                                    onChange={(e) =>
+                                      setReplyText((prev) => ({
+                                        ...prev,
+                                        [c._id]: e.target.value,
+                                      }))
+                                    }
+                                    className="flex-1 p-1 rounded bg-gray-800 text-xs"
+                                    placeholder="Write a reply..."
+                                  />
+                                  <button
+                                    onClick={() =>
+                                      handleAddReply(post._id, c._id)
+                                    }
+                                    className="px-2 py-1 bg-green-600 rounded text-xs"
+                                  >
+                                    Reply
+                                  </button>
+                                </div>
                               </div>
+                            ))
+                          ) : (
+                            <div className="text-gray-500 text-sm">
+                              No comments yet.
                             </div>
-                          ))
-                        ) : (
-                          <div className="text-gray-500 text-sm">
-                            No comments yet.
+                          )}
+
+                          {/* Add new comment */}
+                          <div className="flex gap-2">
+                            <input
+                              value={commentText[post._id] || ""}
+                              onChange={(e) =>
+                                setCommentText((p) => ({
+                                  ...p,
+                                  [post._id]: e.target.value,
+                                }))
+                              }
+                              className="flex-1 p-2 rounded bg-gray-800"
+                              placeholder="Write a comment..."
+                            />
+                            <button
+                              onClick={() => handleAddComment(post._id)}
+                              className="px-3 py-2 bg-blue-600 rounded"
+                            >
+                              Send
+                            </button>
                           </div>
-                        )}
-
-                        {/* Add new comment */}
-                        <div className="flex gap-2">
-                          <input
-                            value={commentText[post._id] || ""}
-                            onChange={(e) =>
-                              setCommentText((p) => ({
-                                ...p,
-                                [post._id]: e.target.value,
-                              }))
-                            }
-                            className="flex-1 p-2 rounded bg-gray-800"
-                            placeholder="Write a comment..."
-                          />
-                          <button
-                            onClick={() => handleAddComment(post._id)}
-                            className="px-3 py-2 bg-blue-600 rounded"
-                          >
-                            Send
-                          </button>
-                        </div>
-                      </motion.div>
-                    )}
-
+                        </motion.div>
+                      )}
                     </AnimatePresence>
                   </div>
                 </div>
@@ -680,6 +716,63 @@ export const CommunityDetails = () => {
             </button>
           </div>
         </motion.div>
+      )}
+      {isReportOpen && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <motion.div
+            initial={{ scale: 0.8, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-lg w-full max-w-md relative"
+          >
+            <button
+              onClick={() => setIsReportOpen(false)}
+              className="absolute top-3 right-3 text-gray-500 hover:text-gray-800 dark:hover:text-white"
+            >
+              <X size={20} />
+            </button>
+
+            <h2 className="text-xl font-semibold mb-4">
+              Report {reportTarget?.type}
+            </h2>
+            <form onSubmit={handleReportSubmit} className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium mb-1">
+                  Report Type
+                </label>
+                <select
+                  value={reportType}
+                  onChange={(e) => setReportType(e.target.value)}
+                  required
+                  className="w-full p-2 rounded-md border bg-gray-100 dark:bg-gray-700"
+                >
+                  <option value="">-- Select an issue --</option>
+                  <option value="abuse">🚨 Abuse</option>
+                  <option value="inappropriate">⚠️ Inappropriate</option>
+                  <option value="bug">🐞 Bug</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium mb-1">Details</label>
+                <textarea
+                  value={reportMessage}
+                  onChange={(e) => setReportMessage(e.target.value)}
+                  required
+                  rows="3"
+                  className="w-full p-2 rounded-md border bg-gray-100 dark:bg-gray-700"
+                  placeholder="Describe the issue..."
+                />
+              </div>
+
+              <button
+                type="submit"
+                className="w-full bg-gradient-to-r from-red-500 to-pink-600 text-white py-2 rounded-lg shadow hover:scale-105 transition"
+              >
+                Submit Report
+              </button>
+            </form>
+          </motion.div>
+        </div>
       )}
     </div>
   );
