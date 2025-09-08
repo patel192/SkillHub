@@ -13,10 +13,15 @@ import {
   Edit,
   Trash2,
 } from "lucide-react";
-
+import toast from "react-hot-toast";
+import { MoreVertical } from "lucide-react";
 export const Messages = () => {
   const currentUserId = localStorage.getItem("userId");
-
+  const [isReportOpen, setIsReportOpen] = useState(false);
+  const [reportTarget, setReportTarget] = useState(null); // { type, id }
+  const [reportType, setReportType] = useState("");
+  const [reportMessage, setReportMessage] = useState("");
+  const [menuOpen, setMenuOpen] = useState(null);
   // existing state (kept)
   const [friends, setFriends] = useState([]);
   const [incoming, setIncoming] = useState([]);
@@ -41,6 +46,28 @@ export const Messages = () => {
   const [searchResults, setSearchResults] = useState([]);
   const [searchLoading, setSearchLoading] = useState(false);
   const [addingRequestIds, setAddingRequestIds] = useState(new Set());
+  const handleReportSubmit = async (e) => {
+    e.preventDefault();
+    if (!reportTarget) return;
+    try {
+      await axios.post("http://localhost:8000/report", {
+        reporter: currentUserId,
+        type: reportType,
+        description: reportMessage,
+        targetType: reportTarget.type,
+        targetId: reportTarget.id,
+      });
+
+      toast.success(`${reportTarget.type} reported successfully ✅`);
+      setReportType("");
+      setReportMessage("");
+      setReportTarget(null);
+      setIsReportOpen(false);
+    } catch (err) {
+      console.error("report error", err);
+      toast.error("Failed to report ❌");
+    }
+  };
 
   // --- Fetch Functions (unchanged endpoints used) ---
   const fetchFriends = async () => {
@@ -441,22 +468,54 @@ export const Messages = () => {
                 friends.map((f) => (
                   <motion.div
                     key={f._id}
-                    onClick={() => setSelectedUserId(f._id)}
                     whileHover={{ scale: 1.02 }}
-                    className={`flex items-center gap-3 p-3 mb-2 rounded-xl cursor-pointer ${
+                    className={`relative flex items-center justify-between p-3 mb-2 rounded-xl cursor-pointer ${
                       String(selectedUserId) === String(f._id)
                         ? "bg-violet-700"
                         : "bg-gray-800 hover:bg-gray-700"
                     }`}
                   >
-                    <img
-                      src={f.avatar || "/default-avatar.png"}
-                      alt={nameOf(f)}
-                      className="w-10 h-10 rounded-full"
-                    />
-                    <div>
-                      <div className="font-medium">{nameOf(f)}</div>
-                      <div className="text-xs text-gray-400">Tap to chat</div>
+                    {/* Avatar + Name */}
+                    <div
+                      className="flex items-center gap-3 flex-1"
+                      onClick={() => setSelectedUserId(f._id)}
+                    >
+                      <img
+                        src={f.avatar || "/default-avatar.png"}
+                        alt={nameOf(f)}
+                        className="w-10 h-10 rounded-full"
+                      />
+                      <div>
+                        <div className="font-medium">{nameOf(f)}</div>
+                        <div className="text-xs text-gray-400">Tap to chat</div>
+                      </div>
+                    </div>
+
+                    {/* 3 Dots Menu */}
+                    <div className="relative">
+                      <button
+                        onClick={() =>
+                          setMenuOpen(menuOpen === f._id ? null : f._id)
+                        }
+                        className="p-2 text-gray-400 hover:text-white"
+                      >
+                        <MoreVertical size={18} />
+                      </button>
+
+                      {menuOpen === f._id && (
+                        <div className="absolute right-0 mt-2 w-32 bg-gray-900 border border-gray-700 rounded-lg shadow-lg z-20">
+                          <button
+                            onClick={() => {
+                              setReportTarget({ type: "User", id: f._id });
+                              setIsReportOpen(true);
+                              setMenuOpen(null);
+                            }}
+                            className="block w-full text-left px-4 py-2 text-sm hover:bg-gray-700 text-red-400"
+                          >
+                            Report User
+                          </button>
+                        </div>
+                      )}
                     </div>
                   </motion.div>
                 ))
@@ -730,6 +789,65 @@ export const Messages = () => {
           </div>
         )}
       </div>
+      {isReportOpen && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <motion.div
+            initial={{ scale: 0.8, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-lg w-full max-w-md relative"
+          >
+            <button
+              onClick={() => setIsReportOpen(false)}
+              className="absolute top-3 right-3 text-gray-500 hover:text-gray-800 dark:hover:text-white"
+            >
+              <X size={20} />
+            </button>
+
+            <h2 className="text-xl font-semibold mb-4">
+              Report {reportTarget?.type}
+            </h2>
+            <form onSubmit={handleReportSubmit} className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium mb-1">
+                  Report Type
+                </label>
+                <select
+                  value={reportType}
+                  onChange={(e) => setReportType(e.target.value)}
+                  required
+                  className="w-full p-2 rounded-md border bg-gray-100 dark:bg-gray-700"
+                >
+                  <option value="">-- Select an issue --</option>
+                  <option value="abuse">🚨 Abuse</option>
+                  <option value="inappropriate">⚠️ Inappropriate</option>
+                  <option value="bug">🐞 Bug</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium mb-1">
+                  Details
+                </label>
+                <textarea
+                  value={reportMessage}
+                  onChange={(e) => setReportMessage(e.target.value)}
+                  required
+                  rows="3"
+                  className="w-full p-2 rounded-md border bg-gray-100 dark:bg-gray-700"
+                  placeholder="Describe the issue..."
+                />
+              </div>
+
+              <button
+                type="submit"
+                className="w-full bg-gradient-to-r from-red-500 to-pink-600 text-white py-2 rounded-lg shadow hover:scale-105 transition"
+              >
+                Submit Report
+              </button>
+            </form>
+          </motion.div>
+        </div>
+      )}
     </div>
   );
 };
