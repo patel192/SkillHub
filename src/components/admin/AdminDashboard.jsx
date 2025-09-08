@@ -8,7 +8,11 @@ import {
   Award,
   FileText,
   Layers,
-  UserCircle,
+  Activity,
+  MessageSquare,
+  Bug,
+  Shield,
+  ClipboardList,
 } from "lucide-react";
 import axios from "axios";
 import {
@@ -26,6 +30,10 @@ export const AdminDashboard = () => {
   const [latestUsers, setLatestUsers] = useState([]);
   const [latestCourses, setLatestCourses] = useState([]);
   const [enrollmentTrends, setEnrollmentTrends] = useState([]);
+  const [feedback, setFeedback] = useState([]);
+  const [reports, setReports] = useState([]);
+  const [adminLogs, setAdminLogs] = useState([]);
+  const [analytics, setAnalytics] = useState([]);
 
   useEffect(() => {
     fetchOverview();
@@ -34,10 +42,14 @@ export const AdminDashboard = () => {
   const fetchOverview = async () => {
     try {
       const res = await axios.get("http://localhost:8000/admin/overview");
-      setStats(res.data.stats);
-      setLatestUsers(res.data.latestUsers);
-      setLatestCourses(res.data.latestCourses);
-      setEnrollmentTrends(res.data.enrollmentTrends);
+      setStats(res.data.stats || {});
+      setLatestUsers(res.data.latestUsers || []);
+      setLatestCourses(res.data.latestCourses || []);
+      setEnrollmentTrends(res.data.enrollmentTrends || []);
+      setFeedback(res.data.feedback || []);
+      setReports(res.data.reports || []);
+      setAdminLogs(res.data.adminLogs || []);
+      setAnalytics(res.data.analytics || []);
     } catch (error) {
       console.error("Error fetching admin overview:", error.message);
     }
@@ -56,55 +68,17 @@ export const AdminDashboard = () => {
 
       {/* Stat Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
-        <StatCard
-          icon={<Users size={28} />}
-          label="Total Users"
-          value={stats.totalUsers}
-          gradient="from-indigo-500 to-blue-500"
-        />
-        <StatCard
-          icon={<Book size={28} />}
-          label="Total Courses"
-          value={stats.totalCourses}
-          gradient="from-purple-500 to-pink-500"
-        />
-        <StatCard
-          icon={<CheckCircle size={28} />}
-          label="Published"
-          value={stats.totalPublished}
-          gradient="from-green-500 to-emerald-500"
-        />
-        <StatCard
-          icon={<Clock size={28} />}
-          label="Unpublished"
-          value={stats.totalUnpublished}
-          gradient="from-yellow-500 to-orange-500"
-        />
-        <StatCard
-          icon={<Award size={28} />}
-          label="Certificates"
-          value={stats.totalCertificates}
-          gradient="from-teal-500 to-cyan-500"
-        />
-        <StatCard
-          icon={<FileText size={28} />}
-          label="Posts"
-          value={stats.totalPosts}
-          gradient="from-pink-500 to-rose-500"
-        />
-        <StatCard
-          icon={<Layers size={28} />}
-          label="Communities"
-          value={stats.totalCommunities}
-          gradient="from-sky-500 to-indigo-500"
-        />
+        <StatCard icon={<Users size={28} />} label="Total Users" value={stats.totalUsers} gradient="from-indigo-500 to-blue-500" />
+        <StatCard icon={<Book size={28} />} label="Total Courses" value={stats.totalCourses} gradient="from-purple-500 to-pink-500" />
+        <StatCard icon={<CheckCircle size={28} />} label="Published" value={stats.totalPublished} gradient="from-green-500 to-emerald-500" />
+        <StatCard icon={<Clock size={28} />} label="Unpublished" value={stats.totalUnpublished} gradient="from-yellow-500 to-orange-500" />
+        <StatCard icon={<Award size={28} />} label="Certificates" value={stats.totalCertificates} gradient="from-teal-500 to-cyan-500" />
+        <StatCard icon={<FileText size={28} />} label="Posts" value={stats.totalPosts} gradient="from-pink-500 to-rose-500" />
+        <StatCard icon={<Layers size={28} />} label="Communities" value={stats.totalCommunities} gradient="from-sky-500 to-indigo-500" />
       </div>
 
       {/* Enrollment Trends */}
-      <div className="bg-[#1E293B]/60 backdrop-blur-md rounded-2xl p-6 shadow-lg border border-white/10">
-        <h3 className="text-2xl font-semibold mb-4 flex items-center gap-2">
-          <ChartIcon /> Enrollment Trends
-        </h3>
+      <Section title="Enrollment Trends" icon={<Activity size={22} className="text-indigo-400" />}>
         {enrollmentTrends.length === 0 ? (
           <p className="text-gray-400">No data available.</p>
         ) : (
@@ -120,132 +94,111 @@ export const AdminDashboard = () => {
                   borderRadius: "8px",
                 }}
               />
-              <Line
-                type="monotone"
-                dataKey="count"
-                stroke="#6366f1"
-                strokeWidth={3}
-                dot={{ r: 4 }}
-              />
+              <Line type="monotone" dataKey="count" stroke="#6366f1" strokeWidth={3} dot={{ r: 4 }} />
             </LineChart>
           </ResponsiveContainer>
         )}
-      </div>
+      </Section>
 
-      {/* Latest Users & Courses */}
       {/* Latest Users & Courses */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        {/* Latest Users */}
-        <div className="bg-[#1E293B]/60 backdrop-blur-md rounded-2xl p-6 shadow-lg border border-white/10">
-          <h3 className="text-2xl font-semibold mb-6 flex items-center gap-2">
-            <Users size={22} /> Latest Users
-          </h3>
-          {latestUsers.length === 0 ? (
-            <p className="text-gray-400">No users found.</p>
-          ) : (
-            <div className="overflow-hidden">
-              <table className="w-full text-left border-collapse">
-                <thead>
-                  <tr className="text-sm text-gray-400 border-b border-gray-700">
-                    <th className="py-2">Name</th>
-                    <th className="py-2">Email</th>
-                    <th className="py-2">Role</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {latestUsers.map((user) => (
-                    <motion.tr
-                      key={user._id}
-                      whileHover={{
-                        scale: 1.01,
-                        backgroundColor: "rgba(255,255,255,0.05)",
-                      }}
-                      className="transition cursor-pointer"
-                    >
-                      <td className="py-3 flex items-center gap-3">
-                        <div className="w-8 h-8 rounded-full bg-indigo-600 flex items-center justify-center font-bold text-white">
-                          {user.fullname?.[0] || "U"}
-                        </div>
-                        <span className="font-medium">{user.fullname}</span>
-                      </td>
-                      <td className="py-3 text-gray-300">{user.email}</td>
-                      <td className="py-3">
-                        <span
-                          className={`px-2 py-1 rounded-full text-xs font-semibold ${
-                            user.role === "admin"
-                              ? "bg-red-600/70 text-white"
-                              : "bg-indigo-600/70 text-white"
-                          }`}
-                        >
-                          {user.role}
-                        </span>
-                      </td>
-                    </motion.tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          )}
-        </div>
+        <LatestUsers users={latestUsers} />
+        <LatestCourses courses={latestCourses} />
+      </div>
 
-        {/* Latest Courses */}
-        <div className="bg-[#1E293B]/60 backdrop-blur-md rounded-2xl p-6 shadow-lg border border-white/10">
-          <h3 className="text-2xl font-semibold mb-6 flex items-center gap-2">
-            <Book size={22} /> Latest Courses
-          </h3>
-          {latestCourses.length === 0 ? (
-            <p className="text-gray-400">No courses found.</p>
+      {/* Feedback & Reports */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <Section title="Latest Feedback" icon={<MessageSquare size={20} className="text-green-400" />}>
+          {feedback.length === 0 ? (
+            <p className="text-gray-400">No feedback yet.</p>
           ) : (
-            <div className="overflow-hidden">
-              <table className="w-full text-left border-collapse">
-                <thead>
-                  <tr className="text-sm text-gray-400 border-b border-gray-700">
-                    <th className="py-2">Title</th>
-                    <th className="py-2">Category</th>
-                    <th className="py-2">Level</th>
-                    <th className="py-2">Status</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {latestCourses.map((course) => (
-                    <motion.tr
-                      key={course._id}
-                      whileHover={{
-                        scale: 1.01,
-                        backgroundColor: "rgba(255,255,255,0.05)",
-                      }}
-                      className="transition cursor-pointer"
-                    >
-                      <td className="py-3 font-medium">{course.title}</td>
-                      <td className="py-3">
-                        <span className="bg-indigo-500/60 text-xs px-2 py-1 rounded-md">
-                          {course.category}
-                        </span>
-                      </td>
-                      <td className="py-3 text-gray-300">{course.level}</td>
-                      <td className="py-3">
-                        <span
-                          className={`px-2 py-1 rounded-full text-xs font-semibold ${
-                            course.isPublished
-                              ? "bg-green-600/70 text-white"
-                              : "bg-yellow-600/70 text-white"
-                          }`}
-                        >
-                          {course.isPublished ? "Published" : "Unpublished"}
-                        </span>
-                      </td>
-                    </motion.tr>
-                  ))}
-                </tbody>
-              </table>
+            <ul className="space-y-3">
+              {feedback.map((f) => (
+                <motion.li key={f._id} whileHover={{ scale: 1.01 }} className="bg-[#1E293B]/60 p-4 rounded-xl shadow border border-white/10">
+                  <p className="text-sm">
+                    <span className="font-semibold">{f.userId?.fullname || "User"}</span> rated{" "}
+                    <span className="font-bold">{f.rating}/5</span>
+                  </p>
+                  {f.comment && <p className="text-gray-400 text-sm mt-1">{f.comment}</p>}
+                </motion.li>
+              ))}
+            </ul>
+          )}
+        </Section>
+
+        <Section title="Latest Reports" icon={<Bug size={20} className="text-red-400" />}>
+          {reports.length === 0 ? (
+            <p className="text-gray-400">No reports submitted.</p>
+          ) : (
+            <ul className="space-y-3">
+              {reports.map((r) => (
+                <motion.li
+                  key={r._id}
+                  whileHover={{ scale: 1.01 }}
+                  className="bg-[#1E293B]/60 p-4 rounded-xl shadow border border-white/10 flex justify-between items-center"
+                >
+                  <div>
+                    <p className="font-semibold capitalize">{r.type}</p>
+                    <p className="text-gray-400 text-sm">{r.description}</p>
+                  </div>
+                  <span
+                    className={`px-3 py-1 text-xs rounded-full ${
+                      r.status === "open"
+                        ? "bg-red-600/70 text-white"
+                        : r.status === "reviewing"
+                        ? "bg-yellow-600/70 text-white"
+                        : "bg-green-600/70 text-white"
+                    }`}
+                  >
+                    {r.status}
+                  </span>
+                </motion.li>
+              ))}
+            </ul>
+          )}
+        </Section>
+      </div>
+
+      {/* Admin Logs & Analytics */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <Section title="Admin Logs" icon={<ClipboardList size={20} className="text-purple-400" />}>
+          {adminLogs.length === 0 ? (
+            <p className="text-gray-400">No admin logs yet.</p>
+          ) : (
+            <ul className="space-y-3">
+              {adminLogs.map((log) => (
+                <motion.li key={log._id} whileHover={{ scale: 1.01 }} className="bg-[#1E293B]/60 p-4 rounded-xl shadow border border-white/10">
+                  <p className="text-sm">
+                    <span className="font-semibold">{log.adminId?.fullname || "Admin"}</span> {log.action}
+                  </p>
+                  <p className="text-gray-400 text-xs">{log.details}</p>
+                </motion.li>
+              ))}
+            </ul>
+          )}
+        </Section>
+
+        <Section title="Analytics" icon={<Shield size={20} className="text-cyan-400" />}>
+          {analytics.length === 0 ? (
+            <p className="text-gray-400">No analytics data.</p>
+          ) : (
+            <div className="grid grid-cols-2 gap-4">
+              {analytics.map((a) => (
+                <div key={a._id} className="bg-[#1E293B]/60 p-4 rounded-xl shadow border border-white/10">
+                  <p className="font-medium">{a.metric}</p>
+                  <p className="text-2xl font-bold">{a.value}</p>
+                  <p className="text-gray-400 text-xs">{new Date(a.date).toLocaleDateString()}</p>
+                </div>
+              ))}
             </div>
           )}
-        </div>
+        </Section>
       </div>
     </motion.div>
   );
 };
 
+/* --- Components --- */
 const StatCard = ({ icon, label, value, gradient }) => (
   <motion.div
     whileHover={{ scale: 1.05 }}
@@ -259,19 +212,110 @@ const StatCard = ({ icon, label, value, gradient }) => (
   </motion.div>
 );
 
-const ChartIcon = () => (
-  <svg
-    xmlns="http://www.w3.org/2000/svg"
-    className="h-5 w-5 text-indigo-400"
-    fill="none"
-    viewBox="0 0 24 24"
-    stroke="currentColor"
-  >
-    <path
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      strokeWidth={2}
-      d="M4 19h16M4 15h8m-8-4h16m-8-4h8m-16-4h16"
-    />
-  </svg>
+const Section = ({ title, icon, children }) => (
+  <div className="bg-[#1E293B]/60 backdrop-blur-md rounded-2xl p-6 shadow-lg border border-white/10 space-y-4">
+    <h3 className="text-2xl font-semibold flex items-center gap-2">
+      {icon} {title}
+    </h3>
+    {children}
+  </div>
+);
+
+const LatestUsers = ({ users }) => (
+  <Section title="Latest Users" icon={<Users size={22} className="text-indigo-400" />}>
+    {users.length === 0 ? (
+      <p className="text-gray-400">No users found.</p>
+    ) : (
+      <div className="overflow-hidden">
+        <table className="w-full text-left border-collapse">
+          <thead>
+            <tr className="text-sm text-gray-400 border-b border-gray-700">
+              <th className="py-2">Name</th>
+              <th className="py-2">Email</th>
+              <th className="py-2">Role</th>
+            </tr>
+          </thead>
+          <tbody>
+            {users.map((user) => (
+              <motion.tr
+                key={user._id}
+                whileHover={{
+                  scale: 1.01,
+                  backgroundColor: "rgba(255,255,255,0.05)",
+                }}
+                className="transition cursor-pointer"
+              >
+                <td className="py-3 flex items-center gap-3">
+                  <div className="w-8 h-8 rounded-full bg-indigo-600 flex items-center justify-center font-bold text-white">
+                    {user.fullname?.[0] || "U"}
+                  </div>
+                  <span className="font-medium">{user.fullname}</span>
+                </td>
+                <td className="py-3 text-gray-300">{user.email}</td>
+                <td className="py-3">
+                  <span
+                    className={`px-2 py-1 rounded-full text-xs font-semibold ${
+                      user.role === "admin"
+                        ? "bg-red-600/70 text-white"
+                        : "bg-indigo-600/70 text-white"
+                    }`}
+                  >
+                    {user.role}
+                  </span>
+                </td>
+              </motion.tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    )}
+  </Section>
+);
+
+const LatestCourses = ({ courses }) => (
+  <Section title="Latest Courses" icon={<Book size={22} className="text-purple-400" />}>
+    {courses.length === 0 ? (
+      <p className="text-gray-400">No courses found.</p>
+    ) : (
+      <div className="overflow-hidden">
+        <table className="w-full text-left border-collapse">
+          <thead>
+            <tr className="text-sm text-gray-400 border-b border-gray-700">
+              <th className="py-2">Title</th>
+              <th className="py-2">Category</th>
+              <th className="py-2">Level</th>
+              <th className="py-2">Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            {courses.map((course) => (
+              <motion.tr
+                key={course._id}
+                whileHover={{
+                  scale: 1.01,
+                  backgroundColor: "rgba(255,255,255,0.05)",
+                }}
+                className="transition cursor-pointer"
+              >
+                <td className="py-3 font-medium">{course.title}</td>
+                <td className="py-3">
+                  <span className="bg-indigo-500/60 text-xs px-2 py-1 rounded-md">{course.category}</span>
+                </td>
+                <td className="py-3 text-gray-300">{course.level}</td>
+                <td className="py-3">
+                  <span
+                    className={`px-2 py-1 rounded-full text-xs font-semibold ${
+                      course.isPublished ? "bg-green-600/70 text-white" : "bg-yellow-600/70 text-white"
+                    }`}
+                  >
+                    {course.isPublished ? "Published" : "Unpublished"}
+                  </span>
+                </td>
+              </motion.tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    )}
+  </Section>
 );
