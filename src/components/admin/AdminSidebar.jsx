@@ -14,6 +14,8 @@ export const AdminSidebar = ({ isOpen }) => {
     { label: "Users", icon: <Users size={18} />, path: "/admin/users" },
     { label: "Resources", icon: <FileText size={18} />, path: "/admin/resources" },
     { label: "Reports", icon: <FileArchiveIcon size={18} />, path: "/admin/reports" },
+    { label: "Communities", icon: <Users size={18} />, path: "/admin/communities" },
+
   ];
   const navigate = useNavigate();
   return (

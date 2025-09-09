@@ -29,6 +29,7 @@ import { Notifications } from "./components/user/notification/Notifications";
 import { Report } from "./components/user/report/Report";
 import { Reports } from "./components/admin/report/Reports";
 import { ReportsDetail } from "./components/admin/report/ReportsDetail";
+import { AdminCommunityDetails } from "./components/admin/community/AdminCommunityDetails";
 
 function App() {
   return (
@@ -39,7 +40,7 @@ function App() {
         <Route path="login" element={<Login />}></Route>
         <Route path="user" element={<UserLayout />}>
           <Route path="dashboard" element={<UserDashboard />}></Route>
-          <Route path="communities" element={<Community />}></Route>
+          <Route path="communities" element={<Community basePath="user" />}></Route>
           <Route path="community/:id" element={<CommunityDetails />}></Route>
           <Route path="mycourses" element={<MyCourses />}></Route>
           <Route path="certificates" element={<Certificates />}></Route>
@@ -65,6 +66,8 @@ function App() {
           <Route path="users/:id" element={<UserDetails />}></Route>
           <Route path="reports" element={<Reports />}></Route>
           <Route path="reports/:id" element={<ReportsDetail />}></Route>
+          <Route path="communities" element={<Community basePath="admin"/>}></Route>
+          <Route path="community/:id" element={<AdminCommunityDetails basePath="admin"/>}></Route>
         </Route>
       </Routes>
       <Toaster position="top-right"/>

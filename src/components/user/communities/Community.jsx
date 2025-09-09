@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 
-export const Community = () => {
+export const Community = ({basePath}) => {
   const [communities, setCommunities] = useState([]);
   const navigate = useNavigate();
 
@@ -26,7 +26,7 @@ export const Community = () => {
           communities.map((c) => (
             <div
               key={c._id}
-              onClick={() => navigate(`/user/community/${c._id}`)}
+              onClick={() => navigate(`/${basePath}/community/${c._id}`)}
               className="cursor-pointer bg-[#1e293b] rounded-xl p-4 hover:bg-[#334155] transition"
             >
               <img
