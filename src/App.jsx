@@ -28,6 +28,7 @@ import { Activities } from "./components/user/activity/Activities";
 import { Notifications } from "./components/user/notification/Notifications";
 import { Report } from "./components/user/report/Report";
 import { Reports } from "./components/admin/report/Reports";
+import { ReportsDetail } from "./components/admin/report/ReportsDetail";
 
 function App() {
   return (
@@ -63,6 +64,7 @@ function App() {
           <Route path="users" element={<Users />}></Route>
           <Route path="users/:id" element={<UserDetails />}></Route>
           <Route path="reports" element={<Reports />}></Route>
+          <Route path="reports/:id" element={<ReportsDetail />}></Route>
         </Route>
       </Routes>
       <Toaster position="top-right"/>

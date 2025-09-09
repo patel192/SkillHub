@@ -2,11 +2,12 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { motion } from "framer-motion";
 import { AlertTriangle } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 export const Reports = () => {
   const [reports, setReports] = useState([]);
   const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
 
-  // ✅ Fetch reports from backend
   useEffect(() => {
     const fetchReports = async () => {
       try {
@@ -34,7 +35,6 @@ export const Reports = () => {
     );
   }
 
-  // Helper to display target
   const renderTarget = (r) => {
     if (!r.targetId) return "Unknown";
     if (r.targetType === "User") return r.targetId.fullname || "Unknown User";
@@ -70,28 +70,16 @@ export const Reports = () => {
             {reports.map((r) => (
               <tr
                 key={r._id}
-                className="border-b border-gray-300 dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-gray-800"
+                onClick={() => navigate(`/admin/reports/${r._id}`)}
+                className="border-b border-gray-300 dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-gray-800 cursor-pointer transition-colors"
               >
-                {/* Reporter */}
                 <td className="p-3">{r.reporter?.fullname || "Anonymous"}</td>
-
-                {/* Target */}
-                <td className="p-3">
-                  {r.targetType} → {renderTarget(r)}
-                </td>
-
-                {/* Type */}
+                <td className="p-3">{r.targetType} → {renderTarget(r)}</td>
                 <td className="p-3 capitalize">{r.type}</td>
-
-                {/* Description */}
                 <td className="p-3">{r.description}</td>
-
-                {/* Date */}
                 <td className="p-3">
                   {new Date(r.createdAt).toLocaleString()}
                 </td>
-
-                {/* Status */}
                 <td className="p-3">
                   <span
                     className={`px-3 py-1 rounded-lg text-sm font-medium ${
