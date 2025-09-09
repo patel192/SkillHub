@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { LayoutDashboard, LogOut,FileText,Users,Book} from "lucide-react";
 import { useLocation } from "react-router-dom";
 import { motion } from "framer-motion";
+import { FileArchiveIcon } from "lucide-react";
 export const AdminSidebar = ({ isOpen }) => {
    const { pathname } = useLocation();
 
@@ -12,6 +13,7 @@ export const AdminSidebar = ({ isOpen }) => {
     { label: "Courses", icon: <Book size={18} />, path: "/admin/courses" },
     { label: "Users", icon: <Users size={18} />, path: "/admin/users" },
     { label: "Resources", icon: <FileText size={18} />, path: "/admin/resources" },
+    { label: "Reports", icon: <FileArchiveIcon size={18} />, path: "/admin/reports" },
   ];
   const navigate = useNavigate();
   return (
