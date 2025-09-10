@@ -15,9 +15,8 @@ import {
 import axios from "axios";
 import { FaEllipsisV } from "react-icons/fa";
 import { X } from "lucide-react";
-
 export const AdminCommunityDetails = () => {
-    const { id } = useParams(); // community id
+  const { id } = useParams(); // community id
   const [community, setCommunity] = useState(null);
   const [posts, setPosts] = useState([]);
   const [newPost, setNewPost] = useState("");
@@ -355,426 +354,426 @@ export const AdminCommunityDetails = () => {
   const admin = isAdminOf(community, userId);
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#0f172a] to-[#1e293b] text-white p-6 flex flex-col gap-6">
-          {/* Header */}
-          <div className="flex flex-col md:flex-row justify-between items-start gap-4">
-            <div className="flex-1">
-              <h1 className="text-3xl font-bold">{community.name}</h1>
-              <p className="text-gray-400 mt-1">{community.description}</p>
-              <p className="text-xs text-gray-500 mt-2">
-                {community.members?.length ?? 0} members
-              </p>
-            </div>
-    
-            <div className="flex items-center gap-3">
-              {!joined ? (
-                <button
-                  onClick={() => handleMembership("join")}
-                  className="flex items-center gap-2 px-4 py-2 bg-cyan-600 rounded-lg hover:bg-cyan-700"
-                >
-                  <FaUserPlus /> Join
-                </button>
-              ) : (
-                <button
-                  onClick={() => handleMembership("leave")}
-                  className="flex items-center gap-2 px-4 py-2 bg-red-600 rounded-lg hover:bg-red-700"
-                >
-                  <FaUserMinus /> Leave
-                </button>
-              )}
-    
-              {admin && (
-                <button
-                  onClick={() => setEditMode((v) => !v)}
-                  className="flex items-center gap-2 px-4 py-2 bg-yellow-600 rounded-lg hover:bg-yellow-700"
-                >
-                  <FaEdit /> {editMode ? "Close Admin" : "Admin"}
-                </button>
-              )}
-            </div>
-          </div>
-    
-          {/* Admin Panel */}
-          {admin && editMode && (
-            <section className="bg-[#142027] p-4 rounded-lg space-y-4 border border-gray-700">
-              <h2 className="text-lg font-semibold">Admin Controls</h2>
-    
-              {/* Edit info */}
-              <div className="grid md:grid-cols-3 gap-3">
-                <input
-                  value={editData.name}
-                  onChange={(e) =>
-                    setEditData((p) => ({ ...p, name: e.target.value }))
-                  }
-                  className="p-2 rounded bg-gray-800"
-                  placeholder="Name"
-                />
-                <input
-                  value={editData.coverImage}
-                  onChange={(e) =>
-                    setEditData((p) => ({ ...p, coverImage: e.target.value }))
-                  }
-                  className="p-2 rounded bg-gray-800"
-                  placeholder="Cover image URL"
-                />
-                <button
-                  onClick={handleUpdateCommunity}
-                  className="px-3 py-2 bg-green-600 rounded"
-                >
-                  Save changes
-                </button>
-              </div>
-    
-              <textarea
-                value={editData.description}
-                onChange={(e) =>
-                  setEditData((p) => ({ ...p, description: e.target.value }))
-                }
-                className="w-full p-2 rounded bg-gray-800"
-                placeholder="Description"
-                rows={2}
-              />
-    
-              {/* Members management */}
-              <div>
-                <h3 className="font-semibold mb-2">Members</h3>
-                <div className="grid gap-2 max-h-44 overflow-y-auto">
-                  {Array.isArray(community.members) &&
-                  community.members.length > 0 ? (
-                    community.members.map((m) => {
-                      const memberObj = m.userId || m; // either populated object or id
-                      const memberId = idToStr(memberObj._id ?? memberObj);
-                      const memberName =
-                        memberObj?.fullname ?? memberObj?.fullname ?? memberId;
-                      return (
-                        <div
-                          key={memberId}
-                          className="flex items-center justify-between bg-[#1f2a2e] p-2 rounded"
-                        >
-                          <div>
-                            <div className="font-medium">{memberName}</div>
-                            <div className="text-xs text-gray-400">{m.role}</div>
-                          </div>
-                          <div className="flex items-center gap-2">
-                            {m.role !== "admin" && (
-                              <button
-                                onClick={() => handlePromoteMember(memberId)}
-                                className="px-2 py-1 bg-blue-600 rounded hover:bg-blue-700 text-sm"
-                                title="Promote to admin"
-                              >
-                                <FaUserShield />
-                              </button>
-                            )}
-                            <button
-                              onClick={() => handleRemoveMember(memberId)}
-                              className="px-2 py-1 bg-red-600 rounded hover:bg-red-700 text-sm"
-                            >
-                              <FaTrash />
-                            </button>
-                          </div>
-                        </div>
-                      );
-                    })
-                  ) : (
-                    <div className="text-gray-400">No members yet.</div>
-                  )}
-                </div>
-    
-                <div className="flex gap-2 mt-3">
-                  <input
-                    value={newMemberId}
-                    onChange={(e) => setNewMemberId(e.target.value)}
-                    className="flex-1 p-2 rounded bg-gray-800"
-                    placeholder="Add member by User ID"
-                  />
-                  <button
-                    onClick={handleAddMember}
-                    className="px-3 py-2 bg-indigo-600 rounded hover:bg-indigo-700"
-                  >
-                    Add
-                  </button>
-                </div>
-              </div>
-            </section>
-          )}
-    
-          {/* Posts list */}
-          <div className="space-y-4 flex-1 overflow-y-auto">
-            {posts.length === 0 ? (
-              <p className="text-center text-gray-400">No posts yet.</p>
-            ) : (
-              posts.map((post, idx) => {
-                const pinned = !!post.isPinned;
-                const liked = userLikedPost(post, userId);
-                const likeCount = post.likeCount ?? post.likes?.length ?? 0;
-                const commentCount =
-                  post.commentCount ?? post.comments?.length ?? 0;
-    
-                return (
-                  <motion.div
-                    key={post._id}
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.9, delay: idx * 0.03 }}
-                    className={`p-4 rounded-2xl shadow-md ${
-                      pinned
-                        ? "bg-yellow-900/10 border border-yellow-600"
-                        : "bg-[#334155]"
-                    }`}
-                  >
-                    <div className="flex items-start gap-3 mb-2">
-                      <img
-                        src={post.userId?.avatar || "/avatars/default.png"}
-                        alt={post.userId?.fullname || userName}
-                        className="w-10 h-10 rounded-full border-2 border-cyan-500"
-                      />
-                      <div className="flex-1">
-                        <div className="flex items-center justify-between">
-                          <div>
-                            <div className="flex items-center gap-2">
-                              <div className="font-semibold">
-                                {post.userId?.fullname || userName}
-                              </div>
-                              {pinned && (
-                                <span className="text-xs text-yellow-300">
-                                  Pinned
-                                </span>
-                              )}
-                            </div>
-                            <div className="text-xs text-gray-400">
-                              {new Date(post.createdAt).toLocaleString()}
-                            </div>
-                          </div>
-                        <button
-                          onClick={() => {
-                            setReportTarget({ type: "Post", id: post._id });
-                            setIsReportOpen(true);
-                          }}
-                          className="p-2 rounded hover:bg-gray-700"
-                        >
-                          <FaEllipsisV />
-                        </button>
-                        </div>
-    
-                        <p className="mt-3">{post.content}</p>
-    
-                        <div className="flex items-center gap-6 mt-4 text-gray-300">
-                          <button
-                            onClick={() => handleLike(post._id)}
-                            className={`flex items-center gap-2 ${
-                              liked ? "text-red-400" : "hover:text-red-400"
-                            }`}
-                            aria-pressed={liked}
-                          >
-                            <FaHeart />
-                            <span>{likeCount}</span>
-                          </button>
-    
-                          <button
-                            onClick={() =>
-                              setShowComments((s) => ({
-                                ...s,
-                                [post._id]: !s[post._id],
-                              }))
-                            }
-                            className="flex items-center gap-2 hover:text-blue-400"
-                          >
-                            <FaCommentAlt />
-                            <span>{commentCount}</span>
-                          </button>
-    
-                          {/* Admin pin toggle */}
-                          {admin && (
-                            <button
-                              onClick={() => handlePinToggle(post._id, pinned)}
-                              className="flex items-center gap-2 hover:text-yellow-300"
-                            >
-                              <FaThumbsUp />
-                              <span>{pinned ? "Unpin" : "Pin"}</span>
-                            </button>
-                          )}
-                        </div>
-    
-                        {/* Comments area */}
-                        <AnimatePresence>
-                          {showComments[post._id] && (
-                            <motion.div
-                              transition={{ duration: 2 }}
-                              className="bg-[#1e293b] p-3 rounded-lg mt-3 space-y-3"
-                            >
-                              {Array.isArray(post.comments) &&
-                              post.comments.length > 0 ? (
-                                post.comments.map((c, i) => (
-                                  <div
-                                    key={i}
-                                    className="text-sm text-gray-300 space-y-2"
-                                  >
-                                    {/* Comment */}
-                                    <div>
-                                      <span className="font-semibold text-cyan-400">
-                                        {c.userId.fullname ?? "User"}:
-                                      </span>{" "}
-                                      {c.content}
-                                    </div>
-    
-                                    {/* Show replies */}
-                                    {c.replies && c.replies.length > 0 && (
-                                      <div className="ml-6 space-y-2">
-                                        {c.replies.map((r, ri) => (
-                                          <div
-                                            key={ri}
-                                            className="text-xs text-gray-400"
-                                          >
-                                            <span className="font-semibold text-indigo-400">
-                                              {r.userId.fullname ?? "User"}:
-                                            </span>{" "}
-                                            {r.content}
-                                          </div>
-                                        ))}
-                                      </div>
-                                    )}
-    
-                                    {/* Reply input */}
-                                    <div className="ml-6 flex gap-2">
-                                      <input
-                                        value={replyText[c._id] || ""}
-                                        onChange={(e) =>
-                                          setReplyText((prev) => ({
-                                            ...prev,
-                                            [c._id]: e.target.value,
-                                          }))
-                                        }
-                                        className="flex-1 p-1 rounded bg-gray-800 text-xs"
-                                        placeholder="Write a reply..."
-                                      />
-                                      <button
-                                        onClick={() =>
-                                          handleAddReply(post._id, c._id)
-                                        }
-                                        className="px-2 py-1 bg-green-600 rounded text-xs"
-                                      >
-                                        Reply
-                                      </button>
-                                    </div>
-                                  </div>
-                                ))
-                              ) : (
-                                <div className="text-gray-500 text-sm">
-                                  No comments yet.
-                                </div>
-                              )}
-    
-                              {/* Add new comment */}
-                              <div className="flex gap-2">
-                                <input
-                                  value={commentText[post._id] || ""}
-                                  onChange={(e) =>
-                                    setCommentText((p) => ({
-                                      ...p,
-                                      [post._id]: e.target.value,
-                                    }))
-                                  }
-                                  className="flex-1 p-2 rounded bg-gray-800"
-                                  placeholder="Write a comment..."
-                                />
-                                <button
-                                  onClick={() => handleAddComment(post._id)}
-                                  className="px-3 py-2 bg-blue-600 rounded"
-                                >
-                                  Send
-                                </button>
-                              </div>
-                            </motion.div>
-                          )}
-                        </AnimatePresence>
-                      </div>
-                    </div>
-                  </motion.div>
-                );
-              })
-            )}
-          </div>
-    
-          {/* New post only for members */}
-          {joined && (
-            <motion.div
-              className="bg-[#334155] p-4 rounded-2xl shadow-md"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
+      {/* Header */}
+      <div className="flex flex-col md:flex-row justify-between items-start gap-4">
+        <div className="flex-1">
+          <h1 className="text-3xl font-bold">{community.name}</h1>
+          <p className="text-gray-400 mt-1">{community.description}</p>
+          <p className="text-xs text-gray-500 mt-2">
+            {community.members?.length ?? 0} members
+          </p>
+        </div>
+
+        <div className="flex items-center gap-3">
+          {!joined ? (
+            <button
+              onClick={() => handleMembership("join")}
+              className="flex items-center gap-2 px-4 py-2 bg-cyan-600 rounded-lg hover:bg-cyan-700"
             >
-              <textarea
-                className="w-full p-3 rounded-lg bg-[#1e293b] text-white focus:outline-none"
-                rows={3}
-                placeholder="Share an idea, ask a question..."
-                value={newPost}
-                onChange={(e) => setNewPost(e.target.value)}
-              />
-              <div className="flex justify-end mt-3">
-                <button
-                  onClick={handleAddPost}
-                  className="px-4 py-2 bg-cyan-600 rounded-lg hover:bg-cyan-700"
-                >
-                  Post
-                </button>
-              </div>
-            </motion.div>
+              <FaUserPlus /> Join
+            </button>
+          ) : (
+            <button
+              onClick={() => handleMembership("leave")}
+              className="flex items-center gap-2 px-4 py-2 bg-red-600 rounded-lg hover:bg-red-700"
+            >
+              <FaUserMinus /> Leave
+            </button>
           )}
-          {isReportOpen && (
-            <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-              <motion.div
-                initial={{ scale: 0.8, opacity: 0 }}
-                animate={{ scale: 1, opacity: 1 }}
-                className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-lg w-full max-w-md relative"
-              >
-                <button
-                  onClick={() => setIsReportOpen(false)}
-                  className="absolute top-3 right-3 text-gray-500 hover:text-gray-800 dark:hover:text-white"
-                >
-                  <X size={20} />
-                </button>
-    
-                <h2 className="text-xl font-semibold mb-4">
-                  Report {reportTarget?.type}
-                </h2>
-                <form onSubmit={handleReportSubmit} className="space-y-4">
-                  <div>
-                    <label className="block text-sm font-medium mb-1">
-                      Report Type
-                    </label>
-                    <select
-                      value={reportType}
-                      onChange={(e) => setReportType(e.target.value)}
-                      required
-                      className="w-full p-2 rounded-md border bg-gray-100 dark:bg-gray-700"
-                    >
-                      <option value="">-- Select an issue --</option>
-                      <option value="abuse">🚨 Abuse</option>
-                      <option value="inappropriate">⚠️ Inappropriate</option>
-                      <option value="bug">🐞 Bug</option>
-                    </select>
-                  </div>
-    
-                  <div>
-                    <label className="block text-sm font-medium mb-1">Details</label>
-                    <textarea
-                      value={reportMessage}
-                      onChange={(e) => setReportMessage(e.target.value)}
-                      required
-                      rows="3"
-                      className="w-full p-2 rounded-md border bg-gray-100 dark:bg-gray-700"
-                      placeholder="Describe the issue..."
-                    />
-                  </div>
-    
-                  <button
-                    type="submit"
-                    className="w-full bg-gradient-to-r from-red-500 to-pink-600 text-white py-2 rounded-lg shadow hover:scale-105 transition"
-                  >
-                    Submit Report
-                  </button>
-                </form>
-              </motion.div>
-            </div>
+
+          {admin && (
+            <button
+              onClick={() => setEditMode((v) => !v)}
+              className="flex items-center gap-2 px-4 py-2 bg-yellow-600 rounded-lg hover:bg-yellow-700"
+            >
+              <FaEdit /> {editMode ? "Close Admin" : "Admin"}
+            </button>
           )}
         </div>
-  )
-}
+      </div>
+
+      {/* Admin Panel */}
+      {admin && editMode && (
+        <section className="bg-[#142027] p-4 rounded-lg space-y-4 border border-gray-700">
+          <h2 className="text-lg font-semibold">Admin Controls</h2>
+
+          {/* Edit info */}
+          <div className="grid md:grid-cols-3 gap-3">
+            <input
+              value={editData.name}
+              onChange={(e) =>
+                setEditData((p) => ({ ...p, name: e.target.value }))
+              }
+              className="p-2 rounded bg-gray-800"
+              placeholder="Name"
+            />
+            <input
+              value={editData.coverImage}
+              onChange={(e) =>
+                setEditData((p) => ({ ...p, coverImage: e.target.value }))
+              }
+              className="p-2 rounded bg-gray-800"
+              placeholder="Cover image URL"
+            />
+            <button
+              onClick={handleUpdateCommunity}
+              className="px-3 py-2 bg-green-600 rounded"
+            >
+              Save changes
+            </button>
+          </div>
+
+          <textarea
+            value={editData.description}
+            onChange={(e) =>
+              setEditData((p) => ({ ...p, description: e.target.value }))
+            }
+            className="w-full p-2 rounded bg-gray-800"
+            placeholder="Description"
+            rows={2}
+          />
+
+          {/* Members management */}
+          <div>
+            <h3 className="font-semibold mb-2">Members</h3>
+            <div className="grid gap-2 max-h-44 overflow-y-auto">
+              {Array.isArray(community.members) &&
+              community.members.length > 0 ? (
+                community.members.map((m) => {
+                  const memberObj = m.userId || m; // either populated object or id
+                  const memberId = idToStr(memberObj._id ?? memberObj);
+                  const memberName =
+                    memberObj?.fullname ?? memberObj?.fullname ?? memberId;
+                  return (
+                    <div
+                      key={memberId}
+                      className="flex items-center justify-between bg-[#1f2a2e] p-2 rounded"
+                    >
+                      <div>
+                        <div className="font-medium">{memberName}</div>
+                        <div className="text-xs text-gray-400">{m.role}</div>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        {m.role !== "admin" && (
+                          <button
+                            onClick={() => handlePromoteMember(memberId)}
+                            className="px-2 py-1 bg-blue-600 rounded hover:bg-blue-700 text-sm"
+                            title="Promote to admin"
+                          >
+                            <FaUserShield />
+                          </button>
+                        )}
+                        <button
+                          onClick={() => handleRemoveMember(memberId)}
+                          className="px-2 py-1 bg-red-600 rounded hover:bg-red-700 text-sm"
+                        >
+                          <FaTrash />
+                        </button>
+                      </div>
+                    </div>
+                  );
+                })
+              ) : (
+                <div className="text-gray-400">No members yet.</div>
+              )}
+            </div>
+
+            <div className="flex gap-2 mt-3">
+              <input
+                value={newMemberId}
+                onChange={(e) => setNewMemberId(e.target.value)}
+                className="flex-1 p-2 rounded bg-gray-800"
+                placeholder="Add member by User ID"
+              />
+              <button
+                onClick={handleAddMember}
+                className="px-3 py-2 bg-indigo-600 rounded hover:bg-indigo-700"
+              >
+                Add
+              </button>
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* Posts list */}
+      <div className="space-y-4 flex-1 overflow-y-auto">
+        {posts.length === 0 ? (
+          <p className="text-center text-gray-400">No posts yet.</p>
+        ) : (
+          posts.map((post, idx) => {
+            const pinned = !!post.isPinned;
+            const liked = userLikedPost(post, userId);
+            const likeCount = post.likeCount ?? post.likes?.length ?? 0;
+            const commentCount =
+              post.commentCount ?? post.comments?.length ?? 0;
+
+            return (
+              <motion.div
+                key={post._id}
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.9, delay: idx * 0.03 }}
+                className={`p-4 rounded-2xl shadow-md ${
+                  pinned
+                    ? "bg-yellow-900/10 border border-yellow-600"
+                    : "bg-[#334155]"
+                }`}
+              >
+                <div className="flex items-start gap-3 mb-2">
+                  <img
+                    src={post.userId?.avatar || "/avatars/default.png"}
+                    alt={post.userId?.fullname || userName}
+                    className="w-10 h-10 rounded-full border-2 border-cyan-500"
+                  />
+                  <div className="flex-1">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <div className="flex items-center gap-2">
+                          <div className="font-semibold">
+                            {post.userId?.fullname || userName}
+                          </div>
+                          {pinned && (
+                            <span className="text-xs text-yellow-300">
+                              Pinned
+                            </span>
+                          )}
+                        </div>
+                        <div className="text-xs text-gray-400">
+                          {new Date(post.createdAt).toLocaleString()}
+                        </div>
+                      </div>
+                    <button
+                      onClick={() => {
+                        setReportTarget({ type: "Post", id: post._id });
+                        setIsReportOpen(true);
+                      }}
+                      className="p-2 rounded hover:bg-gray-700"
+                    >
+                      <FaEllipsisV />
+                    </button>
+                    </div>
+
+                    <p className="mt-3">{post.content}</p>
+
+                    <div className="flex items-center gap-6 mt-4 text-gray-300">
+                      <button
+                        onClick={() => handleLike(post._id)}
+                        className={`flex items-center gap-2 ${
+                          liked ? "text-red-400" : "hover:text-red-400"
+                        }`}
+                        aria-pressed={liked}
+                      >
+                        <FaHeart />
+                        <span>{likeCount}</span>
+                      </button>
+
+                      <button
+                        onClick={() =>
+                          setShowComments((s) => ({
+                            ...s,
+                            [post._id]: !s[post._id],
+                          }))
+                        }
+                        className="flex items-center gap-2 hover:text-blue-400"
+                      >
+                        <FaCommentAlt />
+                        <span>{commentCount}</span>
+                      </button>
+
+                      {/* Admin pin toggle */}
+                      {admin && (
+                        <button
+                          onClick={() => handlePinToggle(post._id, pinned)}
+                          className="flex items-center gap-2 hover:text-yellow-300"
+                        >
+                          <FaThumbsUp />
+                          <span>{pinned ? "Unpin" : "Pin"}</span>
+                        </button>
+                      )}
+                    </div>
+
+                    {/* Comments area */}
+                    <AnimatePresence>
+                      {showComments[post._id] && (
+                        <motion.div
+                          transition={{ duration: 2 }}
+                          className="bg-[#1e293b] p-3 rounded-lg mt-3 space-y-3"
+                        >
+                          {Array.isArray(post.comments) &&
+                          post.comments.length > 0 ? (
+                            post.comments.map((c, i) => (
+                              <div
+                                key={i}
+                                className="text-sm text-gray-300 space-y-2"
+                              >
+                                {/* Comment */}
+                                <div>
+                                  <span className="font-semibold text-cyan-400">
+                                    {c.userId.fullname ?? "User"}:
+                                  </span>{" "}
+                                  {c.content}
+                                </div>
+
+                                {/* Show replies */}
+                                {c.replies && c.replies.length > 0 && (
+                                  <div className="ml-6 space-y-2">
+                                    {c.replies.map((r, ri) => (
+                                      <div
+                                        key={ri}
+                                        className="text-xs text-gray-400"
+                                      >
+                                        <span className="font-semibold text-indigo-400">
+                                          {r.userId.fullname ?? "User"}:
+                                        </span>{" "}
+                                        {r.content}
+                                      </div>
+                                    ))}
+                                  </div>
+                                )}
+
+                                {/* Reply input */}
+                                <div className="ml-6 flex gap-2">
+                                  <input
+                                    value={replyText[c._id] || ""}
+                                    onChange={(e) =>
+                                      setReplyText((prev) => ({
+                                        ...prev,
+                                        [c._id]: e.target.value,
+                                      }))
+                                    }
+                                    className="flex-1 p-1 rounded bg-gray-800 text-xs"
+                                    placeholder="Write a reply..."
+                                  />
+                                  <button
+                                    onClick={() =>
+                                      handleAddReply(post._id, c._id)
+                                    }
+                                    className="px-2 py-1 bg-green-600 rounded text-xs"
+                                  >
+                                    Reply
+                                  </button>
+                                </div>
+                              </div>
+                            ))
+                          ) : (
+                            <div className="text-gray-500 text-sm">
+                              No comments yet.
+                            </div>
+                          )}
+
+                          {/* Add new comment */}
+                          <div className="flex gap-2">
+                            <input
+                              value={commentText[post._id] || ""}
+                              onChange={(e) =>
+                                setCommentText((p) => ({
+                                  ...p,
+                                  [post._id]: e.target.value,
+                                }))
+                              }
+                              className="flex-1 p-2 rounded bg-gray-800"
+                              placeholder="Write a comment..."
+                            />
+                            <button
+                              onClick={() => handleAddComment(post._id)}
+                              className="px-3 py-2 bg-blue-600 rounded"
+                            >
+                              Send
+                            </button>
+                          </div>
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
+                  </div>
+                </div>
+              </motion.div>
+            );
+          })
+        )}
+      </div>
+
+      {/* New post only for members */}
+      {joined && (
+        <motion.div
+          className="bg-[#334155] p-4 rounded-2xl shadow-md"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+        >
+          <textarea
+            className="w-full p-3 rounded-lg bg-[#1e293b] text-white focus:outline-none"
+            rows={3}
+            placeholder="Share an idea, ask a question..."
+            value={newPost}
+            onChange={(e) => setNewPost(e.target.value)}
+          />
+          <div className="flex justify-end mt-3">
+            <button
+              onClick={handleAddPost}
+              className="px-4 py-2 bg-cyan-600 rounded-lg hover:bg-cyan-700"
+            >
+              Post
+            </button>
+          </div>
+        </motion.div>
+      )}
+      {isReportOpen && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <motion.div
+            initial={{ scale: 0.8, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-lg w-full max-w-md relative"
+          >
+            <button
+              onClick={() => setIsReportOpen(false)}
+              className="absolute top-3 right-3 text-gray-500 hover:text-gray-800 dark:hover:text-white"
+            >
+              <X size={20} />
+            </button>
+
+            <h2 className="text-xl font-semibold mb-4">
+              Report {reportTarget?.type}
+            </h2>
+            <form onSubmit={handleReportSubmit} className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium mb-1">
+                  Report Type
+                </label>
+                <select
+                  value={reportType}
+                  onChange={(e) => setReportType(e.target.value)}
+                  required
+                  className="w-full p-2 rounded-md border bg-gray-100 dark:bg-gray-700"
+                >
+                  <option value="">-- Select an issue --</option>
+                  <option value="abuse">🚨 Abuse</option>
+                  <option value="inappropriate">⚠️ Inappropriate</option>
+                  <option value="bug">🐞 Bug</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium mb-1">Details</label>
+                <textarea
+                  value={reportMessage}
+                  onChange={(e) => setReportMessage(e.target.value)}
+                  required
+                  rows="3"
+                  className="w-full p-2 rounded-md border bg-gray-100 dark:bg-gray-700"
+                  placeholder="Describe the issue..."
+                />
+              </div>
+
+              <button
+                type="submit"
+                className="w-full bg-gradient-to-r from-red-500 to-pink-600 text-white py-2 rounded-lg shadow hover:scale-105 transition"
+              >
+                Submit Report
+              </button>
+            </form>
+          </motion.div>
+        </div>
+      )}
+    </div>
+  );
+};
