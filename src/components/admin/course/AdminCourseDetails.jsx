@@ -5,11 +5,14 @@ import { ArrowLeft, Loader2 } from "lucide-react";
 export const AdminCourseDetails = () => {
   const { id } = useParams();
   const navigate = useNavigate();
+
   const [course, setCourse] = useState(null);
+  const [overview, setOverview] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     fetchCourse();
+    fetchOverview();
   }, [id]);
 
   const fetchCourse = async () => {
@@ -21,6 +24,15 @@ export const AdminCourseDetails = () => {
       console.error("Failed to fetch course:", err.message);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchOverview = async () => {
+    try {
+      const res = await axios.get(`http://localhost:8000/overview/${id}`);
+      setOverview(res.data.data?.overview || []);
+    } catch (err) {
+      console.error("Failed to fetch overview:", err.message);
     }
   };
 
@@ -76,25 +88,26 @@ export const AdminCourseDetails = () => {
           </div>
         </div>
 
+        {/* Overview Section */}
+        <div className="mt-6">
+          <h2 className="text-xl font-semibold mb-2">📖 Course Overview</h2>
+          {overview.length > 0 ? (
+            <ul className="list-disc ml-6 text-gray-300 space-y-1">
+              {overview.map((point, idx) => (
+                <li key={idx}>{point}</li>
+              ))}
+            </ul>
+          ) : (
+            <p className="text-gray-400">No overview available for this course.</p>
+          )}
+        </div>
+
+        {/* Description Section */}
         <div className="mt-6">
           <h2 className="text-xl font-semibold mb-2">Description</h2>
           <p className="text-gray-300 leading-relaxed">
             {course.description || "No description available."}
           </p>
-        </div>
-
-        {/* Future sections like lessons, reviews, enrolled users */}
-        <div className="mt-6">
-          <h2 className="text-xl font-semibold mb-2">Lessons</h2>
-          <ul className="list-disc ml-6 text-gray-300">
-            {course.lessons && course.lessons.length > 0 ? (
-              course.lessons.map((lesson, idx) => (
-                <li key={idx}>{lesson.title}</li>
-              ))
-            ) : (
-              <li>No lessons available.</li>
-            )}
-          </ul>
         </div>
       </div>
     </div>
