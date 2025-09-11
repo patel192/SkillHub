@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import { Pencil, Trash, CheckCircle, XCircle, Plus } from "lucide-react";
-export const Courses = () => {
+import { useNavigate } from "react-router-dom";
+import { Pencil, Trash, CheckCircle, XCircle, Plus } from "lucide-react";export const Courses = () => {
      const [courses, setCourses] = useState([]);
+  const navigate = useNavigate();
 
   useEffect(() => {
     fetchCourses();
@@ -21,7 +22,7 @@ export const Courses = () => {
     if (!window.confirm("Are you sure you want to delete this course?")) return;
 
     try {
-      await axios.delete(`http://localhost:8000/courses`);
+      await axios.delete(`http://localhost:8000/courses/${id}`);
       setCourses((prev) => prev.filter((c) => c._id !== id));
     } catch (err) {
       console.error("Delete failed:", err.message);
@@ -30,7 +31,7 @@ export const Courses = () => {
 
   const togglePublish = async (id, currentStatus) => {
     try {
-      const res = await axios.patch(`http://localhost:8000/courses`, {
+      await axios.patch(`http://localhost:8000/courses/${id}`, {
         isPublished: !currentStatus,
       });
       setCourses((prev) =>
@@ -44,7 +45,10 @@ export const Courses = () => {
     <div className="p-6 text-white">
       <div className="flex justify-between items-center mb-6">
         <h2 className="text-3xl font-bold">Manage Courses</h2>
-        <button className="flex items-center gap-2 bg-green-600 px-4 py-2 rounded-md hover:bg-green-700">
+        <button
+          className="flex items-center gap-2 bg-green-600 px-4 py-2 rounded-md hover:bg-green-700"
+          onClick={() => navigate("/courses/new")}
+        >
           <Plus size={16} />
           Add Course
         </button>
@@ -69,7 +73,8 @@ export const Courses = () => {
               {courses.map((course) => (
                 <tr
                   key={course._id}
-                  className="border-t border-gray-700 hover:bg-gray-800 transition"
+                  className="border-t border-gray-700 hover:bg-gray-800 transition cursor-pointer"
+                  onClick={() => navigate(`/admin/courses/${course._id}`)} // ✅ navigate to details
                 >
                   <td className="p-3">
                     <img
@@ -90,7 +95,10 @@ export const Courses = () => {
                       {course.isPublished ? "Published" : "Unpublished"}
                     </span>
                   </td>
-                  <td className="p-3 flex gap-2">
+                  <td
+                    className="p-3 flex gap-2"
+                    onClick={(e) => e.stopPropagation()} // ✅ prevent row click
+                  >
                     <button
                       onClick={() => togglePublish(course._id, course.isPublished)}
                       className={`p-2 rounded hover:scale-105 transition ${
@@ -99,7 +107,10 @@ export const Courses = () => {
                     >
                       {course.isPublished ? <XCircle size={18} /> : <CheckCircle size={18} />}
                     </button>
-                    <button className="p-2 rounded bg-blue-500 hover:bg-blue-600">
+                    <button
+                      onClick={() => navigate(`/courses/edit/${course._id}`)}
+                      className="p-2 rounded bg-blue-500 hover:bg-blue-600"
+                    >
                       <Pencil size={18} />
                     </button>
                     <button

@@ -30,6 +30,7 @@ import { Report } from "./components/user/report/Report";
 import { Reports } from "./components/admin/report/Reports";
 import { ReportsDetail } from "./components/admin/report/ReportsDetail";
 import { AdminCommunityDetails } from "./components/admin/community/AdminCommunityDetails";
+import { AdminCourseDetails } from "./components/admin/course/AdminCourseDetails";
 
 function App() {
   return (
@@ -62,6 +63,7 @@ function App() {
           <Route path="resources" element={<Resources />}></Route>
 
           <Route path="courses" element={<Courses />}></Route>
+          <Route path="courses/:id" element={<AdminCourseDetails />}></Route>
           <Route path="users" element={<Users />}></Route>
           <Route path="users/:id" element={<UserDetails />}></Route>
           <Route path="reports" element={<Reports />}></Route>
