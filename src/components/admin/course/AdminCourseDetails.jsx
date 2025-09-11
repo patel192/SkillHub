@@ -1,8 +1,15 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
+import {
+  ArrowLeft,
+  Loader2,
+  Pencil,
+  Save,
+  X,
+  PlusCircle,
+} from "lucide-react";
 import { motion } from "framer-motion";
-import { ArrowLeft, Loader2, User, IndianRupee, BookOpen } from "lucide-react";
 
 export const AdminCourseDetails = () => {
   const { id } = useParams();
@@ -11,6 +18,14 @@ export const AdminCourseDetails = () => {
   const [course, setCourse] = useState(null);
   const [overview, setOverview] = useState([]);
   const [loading, setLoading] = useState(true);
+
+  const [isEditing, setIsEditing] = useState(false);
+  const [editData, setEditData] = useState({
+    instructor: "",
+    price: "",
+  });
+
+  const [newPoint, setNewPoint] = useState(""); // input for overview point
 
   useEffect(() => {
     fetchCourse();
@@ -22,6 +37,11 @@ export const AdminCourseDetails = () => {
       setLoading(true);
       const res = await axios.get(`http://localhost:8000/course/${id}`);
       setCourse(res.data.data);
+
+      setEditData({
+        instructor: res.data.data.instructor,
+        price: res.data.data.price,
+      });
     } catch (err) {
       console.error("Failed to fetch course:", err.message);
     } finally {
@@ -35,6 +55,32 @@ export const AdminCourseDetails = () => {
       setOverview(res.data.data?.overview || []);
     } catch (err) {
       console.error("Failed to fetch overview:", err.message);
+    }
+  };
+
+  const handleSave = async () => {
+    try {
+      const res = await axios.patch(`http://localhost:8000/course/${id}`, {
+        instructor: editData.instructor,
+        price: editData.price,
+      });
+      setCourse(res.data.data);
+      setIsEditing(false);
+    } catch (err) {
+      console.error("Update failed:", err.message);
+    }
+  };
+
+  const handleAddPoint = async () => {
+    if (!newPoint.trim()) return;
+    try {
+      const res = await axios.patch(`http://localhost:8000/overview/${id}`, {
+        point: newPoint,
+      });
+      setOverview(res.data.data.overview);
+      setNewPoint("");
+    } catch (err) {
+      console.error("Failed to add overview point:", err.message);
     }
   };
 
@@ -62,107 +108,128 @@ export const AdminCourseDetails = () => {
   }
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 30 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.6 }}
-      className="p-6 text-white min-h-screen bg-gradient-to-b from-[#0f172a] to-[#1e293b]"
-    >
+    <div className="p-6 text-white">
       <button
         onClick={() => navigate(-1)}
-        className="flex items-center gap-2 mb-6 text-gray-300 hover:text-white transition"
+        className="flex items-center gap-2 mb-6 text-gray-300 hover:text-white"
       >
         <ArrowLeft size={18} /> Back
       </button>
 
-      <div className="grid md:grid-cols-3 gap-8">
-        {/* Left: Course Card */}
-        <motion.div
-          initial={{ opacity: 0, x: -50 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.6 }}
-          className="bg-gray-900/60 backdrop-blur-xl rounded-2xl shadow-xl p-6 flex flex-col items-center"
-        >
+      <div className="bg-gray-900 p-6 rounded-xl shadow-md">
+        <div className="flex gap-6">
           <img
             src={course.imageUrl}
             alt={course.title}
-            className="w-48 h-48  rounded-xl shadow-lg mb-4"
+            className="w-40 h-40 object-cover rounded-lg"
           />
-          <h1 className="text-2xl font-bold text-center">{course.title}</h1>
-          <p className="flex items-center gap-2 text-gray-400 mt-2">
-            <User size={16} /> {course.instructor}
-          </p>
-          <p className="flex items-center gap-2 text-green-400 font-semibold mt-2">
-            <IndianRupee size={16} /> {course.price}
-          </p>
-          <span
-            className={`mt-4 px-4 py-1 rounded-full text-sm font-medium ${
-              course.isPublished
-                ? "bg-green-600/80 text-white"
-                : "bg-yellow-600/80 text-black"
-            }`}
-          >
-            {course.isPublished ? "Published" : "Unpublished"}
-          </span>
-        </motion.div>
+          <div className="flex-1">
+            <h1 className="text-3xl font-bold mb-2">{course.title}</h1>
 
-        {/* Right: Details */}
-        <div className="md:col-span-2 flex flex-col gap-6">
-          {/* Animated Overview Timeline */}
-          <motion.div
-            initial={{ opacity: 0, x: 50 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.6 }}
-            className="bg-gray-900/60 backdrop-blur-xl p-6 rounded-2xl shadow-lg"
-          >
-            <h2 className="text-xl font-semibold mb-4 flex items-center gap-2">
-              <BookOpen size={20} className="text-violet-400" /> Course Overview
-            </h2>
-            {overview.length > 0 ? (
-              <div className="relative border-l border-violet-600/50 pl-6 space-y-6">
-                {overview.map((point, idx) => (
-                  <motion.div
-                    key={idx}
-                    initial={{ opacity: 0, x: 20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: idx * 0.15 }}
-                    whileHover={{ scale: 1.02 }}
-                    className="relative group pl-8" // <-- shifted text right
-                  >
-                    {/* Gradient dot with hover glow */}
-                    <span
-                      className="absolute -left-2 top-1.5 w-4 h-4 rounded-full bg-gradient-to-r from-violet-500 to-indigo-500 shadow-lg 
-                         transition-transform transform group-hover:scale-125 group-hover:shadow-violet-500/80"
-                    ></span>
-
-                    {/* Overview text */}
-                    <p className="text-gray-300 transition-colors group-hover:text-violet-300">
-                      {point}
-                    </p>
-                  </motion.div>
-                ))}
-              </div>
+            {isEditing ? (
+              <input
+                type="text"
+                value={editData.instructor}
+                onChange={(e) =>
+                  setEditData((prev) => ({ ...prev, instructor: e.target.value }))
+                }
+                className="bg-gray-700 p-2 rounded w-full mb-2"
+              />
             ) : (
-              <p className="text-gray-400">
-                No overview available for this course.
-              </p>
+              <p className="text-gray-400 mb-2">By {course.instructor}</p>
             )}
-          </motion.div>
 
-          {/* Description */}
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.3 }}
-            className="bg-gray-900/60 backdrop-blur-xl p-6 rounded-2xl shadow-lg"
-          >
-            <h2 className="text-xl font-semibold mb-2">📝 Description</h2>
-            <p className="text-gray-300 leading-relaxed">
-              {course.description || "No description available."}
-            </p>
-          </motion.div>
+            {isEditing ? (
+              <input
+                type="number"
+                value={editData.price}
+                onChange={(e) =>
+                  setEditData((prev) => ({ ...prev, price: e.target.value }))
+                }
+                className="bg-gray-700 p-2 rounded w-full mb-2"
+              />
+            ) : (
+              <p className="text-xl font-semibold mb-4">₹{course.price}</p>
+            )}
+
+            <span
+              className={`px-4 py-1 rounded-full text-sm ${
+                course.isPublished ? "bg-green-600" : "bg-yellow-600"
+              }`}
+            >
+              {course.isPublished ? "Published" : "Unpublished"}
+            </span>
+          </div>
+        </div>
+
+        {/* Overview Section */}
+        <div className="mt-8">
+          <h2 className="text-xl font-semibold mb-4">📖 Course Overview</h2>
+
+          {/* Input for adding new points */}
+          <div className="flex gap-2 mb-4">
+            <input
+              type="text"
+              placeholder="Add new point..."
+              value={newPoint}
+              onChange={(e) => setNewPoint(e.target.value)}
+              className="flex-1 bg-gray-700 p-2 rounded"
+            />
+            <button
+              onClick={handleAddPoint}
+              className="flex items-center gap-1 bg-purple-600 px-3 py-2 rounded hover:bg-purple-700"
+            >
+              <PlusCircle size={18} /> Add
+            </button>
+          </div>
+
+          {overview.length > 0 ? (
+            <ul className="space-y-3">
+              {overview.map((point, idx) => (
+                <motion.li
+                  key={idx}
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ duration: 0.3, delay: idx * 0.05 }}
+                  className="flex items-start gap-3"
+                >
+                  <div className="w-3 h-3 mt-2 rounded-full bg-purple-500 shrink-0"></div>
+                  <span className="text-gray-300">{point}</span>
+                </motion.li>
+              ))}
+            </ul>
+          ) : (
+            <p className="text-gray-400">No overview available for this course.</p>
+          )}
+        </div>
+
+        {/* Edit / Save buttons */}
+        <div className="flex gap-3 mt-6">
+          {isEditing ? (
+            <>
+              <button
+                onClick={handleSave}
+                className="flex items-center gap-2 bg-green-600 px-4 py-2 rounded hover:bg-green-700"
+              >
+                <Save size={18} /> Save
+              </button>
+              <button
+                onClick={() => setIsEditing(false)}
+                className="flex items-center gap-2 bg-gray-600 px-4 py-2 rounded hover:bg-gray-700"
+              >
+                <X size={18} /> Cancel
+              </button>
+            </>
+          ) : (
+            <button
+              onClick={() => setIsEditing(true)}
+              className="flex items-center gap-2 bg-blue-600 px-4 py-2 rounded hover:bg-blue-700"
+            >
+              <Pencil size={18} /> Edit
+            </button>
+          )}
         </div>
       </div>
-    </motion.div>
+    </div>
   );
 };
