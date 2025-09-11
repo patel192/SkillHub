@@ -31,6 +31,7 @@ import { Reports } from "./components/admin/report/Reports";
 import { ReportsDetail } from "./components/admin/report/ReportsDetail";
 import { AdminCommunityDetails } from "./components/admin/community/AdminCommunityDetails";
 import { AdminCourseDetails } from "./components/admin/course/AdminCourseDetails";
+import { CourseLessons } from "./components/admin/resource/CourseLessons";
 
 function App() {
   return (
@@ -41,7 +42,10 @@ function App() {
         <Route path="login" element={<Login />}></Route>
         <Route path="user" element={<UserLayout />}>
           <Route path="dashboard" element={<UserDashboard />}></Route>
-          <Route path="communities" element={<Community basePath="user" />}></Route>
+          <Route
+            path="communities"
+            element={<Community basePath="user" />}
+          ></Route>
           <Route path="community/:id" element={<CommunityDetails />}></Route>
           <Route path="mycourses" element={<MyCourses />}></Route>
           <Route path="certificates" element={<Certificates />}></Route>
@@ -55,12 +59,11 @@ function App() {
           <Route path="activities" element={<Activities />}></Route>
           <Route path="notifications" element={<Notifications />}></Route>
           <Route path="report" element={<Report />}></Route>
-          
-
         </Route>
         <Route path="admin" element={<AdminLayout />}>
           <Route path="admindashboard" element={<AdminDashboard />}></Route>
           <Route path="resources" element={<Resources />}></Route>
+          <Route path="resources/:courseId" element={<CourseLessons />}></Route>
 
           <Route path="courses" element={<Courses />}></Route>
           <Route path="courses/:id" element={<AdminCourseDetails />}></Route>
@@ -68,11 +71,17 @@ function App() {
           <Route path="users/:id" element={<UserDetails />}></Route>
           <Route path="reports" element={<Reports />}></Route>
           <Route path="reports/:id" element={<ReportsDetail />}></Route>
-          <Route path="communities" element={<Community basePath="admin"/>}></Route>
-          <Route path="community/:id" element={<AdminCommunityDetails basePath="admin"/>}></Route>
+          <Route
+            path="communities"
+            element={<Community basePath="admin" />}
+          ></Route>
+          <Route
+            path="community/:id"
+            element={<AdminCommunityDetails basePath="admin" />}
+          ></Route>
         </Route>
       </Routes>
-      <Toaster position="top-right"/>
+      <Toaster position="top-right" />
     </>
   );
 }
