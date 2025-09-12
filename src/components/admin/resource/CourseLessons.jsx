@@ -5,10 +5,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import toast from "react-hot-toast";
 import {
   PlusCircle,
-  Circle,
-  Clock,
   Trash2,
-  Check,
   X,
   ChevronDown,
   ChevronUp,
@@ -16,25 +13,9 @@ import {
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import { vscDarkPlus } from "react-syntax-highlighter/dist/esm/styles/prism";
 
-/**
- * CourseLessons
- * - timeline sidebar
- * - lesson viewer with parsed notes/code
- * - add lesson modal
- * - delete lesson (admin)
- *
- * Endpoints used:
- * GET  /lessons/:courseId          -> list lessons
- * POST /lessons                    -> create lesson { courseId, title, content }
- * DELETE /lessons/:lessonId        -> delete lesson
- * PATCH /enrollment/mark-complete/:enrollmentId/:lessonId -> mark complete (optional)
- *
- * Adjust endpoints if your backend uses different paths.
- */
 export const CourseLessons = ({ courseId: propCourseId }) => {
   const params = useParams();
   const courseId = propCourseId || params.courseId;
-  const userId = localStorage.getItem("userId");
 
   const [lessons, setLessons] = useState([]);
   const [selected, setSelected] = useState(null);
@@ -44,14 +25,12 @@ export const CourseLessons = ({ courseId: propCourseId }) => {
   const [loading, setLoading] = useState(true);
   const [expandedList, setExpandedList] = useState(true);
   const [deletingId, setDeletingId] = useState(null);
-  const [completedLessons, setCompletedLessons] = useState([]);
 
   const listRef = useRef(null);
 
   useEffect(() => {
     fetchLessons();
-    fetchEnrollmentProgress();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [courseId]);
 
   const fetchLessons = async () => {
@@ -59,8 +38,9 @@ export const CourseLessons = ({ courseId: propCourseId }) => {
     try {
       const res = await axios.get(`http://localhost:8000/lessons/${courseId}`);
       const data = res.data?.data ?? [];
-      // ensure chronological order (optional)
-      const sorted = data.sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
+      const sorted = data.sort(
+        (a, b) => new Date(a.createdAt) - new Date(b.createdAt)
+      );
       setLessons(sorted);
       if (sorted.length > 0 && !selected) setSelected(sorted[0]);
     } catch (err) {
@@ -68,20 +48,6 @@ export const CourseLessons = ({ courseId: propCourseId }) => {
       toast.error("Failed to load lessons");
     } finally {
       setLoading(false);
-    }
-  };
-
-  const fetchEnrollmentProgress = async () => {
-    try {
-      if (!userId) return;
-      const res = await axios.get(`http://localhost:8000/enrollment/${userId}`);
-      const arr = res.data?.data ?? [];
-      const enrollment = arr.find((e) => String(e.courseId?._id ?? e.courseId) === String(courseId));
-      if (enrollment) {
-        setCompletedLessons(enrollment.completedLessons || []);
-      }
-    } catch (err) {
-      // not critical
     }
   };
 
@@ -108,7 +74,6 @@ export const CourseLessons = ({ courseId: propCourseId }) => {
 
   const handleSelect = (lesson) => {
     setSelected(lesson);
-    // scroll to top of viewer
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
@@ -130,7 +95,6 @@ export const CourseLessons = ({ courseId: propCourseId }) => {
       setNewLesson({ title: "", content: "" });
       setOpenAdd(false);
       toast.success("Lesson added");
-      // auto-select new lesson
       setTimeout(() => setSelected(added), 150);
     } catch (err) {
       console.error("Add lesson failed:", err);
@@ -208,32 +172,42 @@ export const CourseLessons = ({ courseId: propCourseId }) => {
                   >
                     <div
                       className={`absolute left-0 top-0 w-3 h-3 rounded-full border-2 ${
-                        isSel ? "bg-indigo-500 border-indigo-300" : "bg-gray-800 border-gray-600"
+                        isSel
+                          ? "bg-indigo-500 border-indigo-300"
+                          : "bg-gray-800 border-gray-600"
                       }`}
                     />
-                    <div className={`p-3 rounded-md ${isSel ? "bg-gradient-to-r from-indigo-700 to-purple-700" : "hover:bg-gray-800"}`}>
+                    <div
+                      className={`p-3 rounded-md ${
+                        isSel
+                          ? "bg-gradient-to-r from-indigo-700 to-purple-700"
+                          : "hover:bg-gray-800"
+                      }`}
+                    >
                       <div className="flex items-center justify-between">
                         <div className="flex-1">
-                          <div className={`font-semibold ${isSel ? "text-white" : "text-gray-200"}`}>
+                          <div
+                            className={`font-semibold ${
+                              isSel ? "text-white" : "text-gray-200"
+                            }`}
+                          >
                             {l.title}
                           </div>
                           <div className="text-xs mt-1 text-gray-400">
                             {new Date(l.createdAt).toLocaleString()}
                           </div>
                         </div>
-                        <div className="flex items-center gap-2">
-                          {completedLessons.includes(l._id) && (
-                            <div className="text-sm text-green-400 font-medium">✔</div>
-                          )}
-                          <button
-                            onClick={(e) => { e.stopPropagation(); handleDeleteLesson(l._id); }}
-                            disabled={deletingId === l._id}
-                            className="p-2 rounded bg-red-600 hover:bg-red-700"
-                            title="Delete lesson"
-                          >
-                            <Trash2 size={14} />
-                          </button>
-                        </div>
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleDeleteLesson(l._id);
+                          }}
+                          disabled={deletingId === l._id}
+                          className="p-2 rounded bg-red-600 hover:bg-red-700"
+                          title="Delete lesson"
+                        >
+                          <Trash2 size={14} />
+                        </button>
                       </div>
                     </div>
                   </motion.div>
@@ -242,7 +216,9 @@ export const CourseLessons = ({ courseId: propCourseId }) => {
           </AnimatePresence>
 
           {lessons.length === 0 && (
-            <div className="text-sm text-gray-400 mt-4">No lessons yet — add one using the Add button.</div>
+            <div className="text-sm text-gray-400 mt-4">
+              No lessons yet — add one using the Add button.
+            </div>
           )}
         </div>
       </aside>
@@ -251,9 +227,16 @@ export const CourseLessons = ({ courseId: propCourseId }) => {
       <main className="flex-1 p-8 overflow-y-auto">
         {!selected ? (
           <div className="h-full flex flex-col items-center justify-center gap-4">
-            <div className="text-3xl font-semibold text-gray-200">Select a lesson</div>
-            <div className="text-gray-400">or click Add to create your first lesson</div>
-            <button onClick={() => setOpenAdd(true)} className="mt-4 px-6 py-2 rounded bg-indigo-600 hover:bg-indigo-700 flex items-center gap-2">
+            <div className="text-3xl font-semibold text-gray-200">
+              Select a lesson
+            </div>
+            <div className="text-gray-400">
+              or click Add to create your first lesson
+            </div>
+            <button
+              onClick={() => setOpenAdd(true)}
+              className="mt-4 px-6 py-2 rounded bg-indigo-600 hover:bg-indigo-700 flex items-center gap-2"
+            >
               <PlusCircle /> Add Lesson
             </button>
           </div>
@@ -268,11 +251,12 @@ export const CourseLessons = ({ courseId: propCourseId }) => {
             <div className="flex items-start justify-between gap-4 mb-6">
               <div>
                 <h1 className="text-3xl font-bold">{selected.title}</h1>
-                <div className="text-sm text-gray-400 mt-1">Published {new Date(selected.createdAt).toLocaleString()}</div>
+                <div className="text-sm text-gray-400 mt-1">
+                  Published {new Date(selected.createdAt).toLocaleString()}
+                </div>
               </div>
             </div>
 
-            {/* Content: notes + code blocks separated */}
             <div className="space-y-6">
               {parseContent(selected.content).map((part, i) =>
                 part.type === "note" ? (
@@ -320,10 +304,18 @@ export const CourseLessons = ({ courseId: propCourseId }) => {
             exit={{ opacity: 0 }}
             className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4"
           >
-            <motion.div initial={{ scale: 0.95, y: 10 }} animate={{ scale: 1, y: 0 }} exit={{ scale: 0.95, y: 10 }} className="w-full max-w-2xl bg-gray-900 rounded-lg p-6">
+            <motion.div
+              initial={{ scale: 0.95, y: 10 }}
+              animate={{ scale: 1, y: 0 }}
+              exit={{ scale: 0.95, y: 10 }}
+              className="w-full max-w-2xl bg-gray-900 rounded-lg p-6"
+            >
               <div className="flex items-center justify-between mb-4">
                 <h3 className="text-xl font-semibold">Add Lesson</h3>
-                <button onClick={() => setOpenAdd(false)} className="p-2 rounded bg-gray-800">
+                <button
+                  onClick={() => setOpenAdd(false)}
+                  className="p-2 rounded bg-gray-800"
+                >
                   <X size={16} />
                 </button>
               </div>
@@ -331,20 +323,35 @@ export const CourseLessons = ({ courseId: propCourseId }) => {
               <div className="space-y-3">
                 <input
                   value={newLesson.title}
-                  onChange={(e) => setNewLesson((p) => ({ ...p, title: e.target.value }))}
+                  onChange={(e) =>
+                    setNewLesson((p) => ({ ...p, title: e.target.value }))
+                  }
                   placeholder="Lesson title"
                   className="w-full p-3 rounded bg-gray-800 text-white"
                 />
                 <textarea
                   value={newLesson.content}
-                  onChange={(e) => setNewLesson((p) => ({ ...p, content: e.target.value }))}
+                  onChange={(e) =>
+                    setNewLesson((p) => ({ ...p, content: e.target.value }))
+                  }
                   rows={10}
                   placeholder={`Notes text and code blocks using triple backticks. Example:\n\nThis is a note.\n\n\`\`\`html\n<p>Hello</p>\n\`\`\``}
                   className="w-full p-3 rounded bg-gray-800 text-white font-mono"
                 />
                 <div className="flex items-center gap-2 justify-end">
-                  <button onClick={() => { setNewLesson({ title: "", content: "" }); }} className="px-4 py-2 rounded bg-gray-700">Reset</button>
-                  <button onClick={handleAddLesson} disabled={adding} className="px-4 py-2 rounded bg-indigo-600 hover:bg-indigo-700">
+                  <button
+                    onClick={() => {
+                      setNewLesson({ title: "", content: "" });
+                    }}
+                    className="px-4 py-2 rounded bg-gray-700"
+                  >
+                    Reset
+                  </button>
+                  <button
+                    onClick={handleAddLesson}
+                    disabled={adding}
+                    className="px-4 py-2 rounded bg-indigo-600 hover:bg-indigo-700"
+                  >
                     {adding ? "Adding..." : "Add Lesson"}
                   </button>
                 </div>
