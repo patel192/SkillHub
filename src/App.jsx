@@ -32,6 +32,7 @@ import { ReportsDetail } from "./components/admin/report/ReportsDetail";
 import { AdminCommunityDetails } from "./components/admin/community/AdminCommunityDetails";
 import { AdminCourseDetails } from "./components/admin/course/AdminCourseDetails";
 import { CourseLessons } from "./components/admin/resource/CourseLessons";
+import { CourseQuiz } from "./components/admin/resource/CourseQuiz";
 
 function App() {
   return (
@@ -64,6 +65,7 @@ function App() {
           <Route path="admindashboard" element={<AdminDashboard />}></Route>
           <Route path="resources" element={<Resources />}></Route>
           <Route path="resources/:courseId" element={<CourseLessons />}></Route>
+          <Route path="quiz/:courseId" element={<CourseQuiz />}></Route>
 
           <Route path="courses" element={<Courses />}></Route>
           <Route path="courses/:id" element={<AdminCourseDetails />}></Route>

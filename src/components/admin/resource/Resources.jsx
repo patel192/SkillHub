@@ -51,13 +51,14 @@ export const Resources = () => {
       "https://via.placeholder.com/400x200?text=Course+Image";
     return (
       <div
-        onClick={() => navigate(`/admin/resources/${course._id}`)}
-        className="bg-gray-800 text-white rounded-lg shadow-lg overflow-hidden transition-all duration-300 hover:shadow-xl hover:scale-105 h-full flex flex-col cursor-pointer"
+        className="bg-gray-800 text-white rounded-lg shadow-lg overflow-hidden 
+        transition-all duration-300 transform hover:scale-105 hover:shadow-2xl 
+        hover:shadow-blue-500/30 flex flex-col"
       >
         <img
           src={course.imageUrl || defaultImageUrl}
           alt={course.title}
-          className="w-full h-48 object-cover"
+          className="w-full h-48"
         />
         <div className="p-6 flex flex-col flex-grow">
           <h3 className="text-xl font-bold mb-2 line-clamp-2">{course.title}</h3>
@@ -89,6 +90,28 @@ export const Resources = () => {
               <DollarSign size={16} />
               ${course.price.toFixed(2)}
             </div>
+          </div>
+
+          {/* Action Buttons */}
+          <div className="flex gap-3 mt-4">
+            <button
+              onClick={() => navigate(`/admin/resources/${course._id}`)}
+              className="flex-1 bg-blue-600 hover:bg-blue-700 
+              hover:shadow-lg hover:shadow-blue-500/50 hover:scale-105 
+              text-white py-2 px-4 rounded-lg text-sm font-medium 
+              transition transform duration-200"
+            >
+              Lessons
+            </button>
+            <button
+              onClick={() => navigate(`/admin/quiz/${course._id}`)}
+              className="flex-1 bg-purple-600 hover:bg-purple-700 
+              hover:shadow-lg hover:shadow-purple-500/50 hover:scale-105 
+              text-white py-2 px-4 rounded-lg text-sm font-medium 
+              transition transform duration-200"
+            >
+              Quiz
+            </button>
           </div>
         </div>
       </div>
