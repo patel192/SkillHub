@@ -112,7 +112,7 @@ export const Courses = () => {
                   <motion.button
                     onClick={(e) => {
                       e.stopPropagation();
-                      navigate(`/courses/edit/${course._id}`);
+                      navigate(`/admin/courses/edit/${course._id}`);
                     }}
                     whileHover={{ scale: 1.1, boxShadow: "0px 0px 10px rgba(59, 130, 246, 0.7)" }}
                     className="flex-1 p-2 rounded-md bg-blue-500 hover:bg-blue-600 text-white font-semibold flex justify-center items-center gap-1"

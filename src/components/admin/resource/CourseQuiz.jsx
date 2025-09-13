@@ -10,7 +10,7 @@ import {
   ChevronUp,
 } from "lucide-react";
 
-const CourseQuiz = () => {
+export const CourseQuiz = () => {
   const { courseId } = useParams();
   const [questions, setQuestions] = useState([]);
   const [selectedQuestion, setSelectedQuestion] = useState(null);
