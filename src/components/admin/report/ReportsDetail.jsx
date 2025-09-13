@@ -33,7 +33,6 @@ export const ReportsDetail = () => {
         setLoading(false);
       }
     };
-
     fetchReport();
   }, [id]);
 
@@ -61,10 +60,14 @@ export const ReportsDetail = () => {
   };
 
   if (loading)
-    return <p className="text-center text-gray-400">⏳ Loading report...</p>;
+    return (
+      <p className="text-center text-gray-400 text-lg mt-20">⏳ Loading report...</p>
+    );
 
   if (!report)
-    return <p className="text-center text-red-500">⚠️ Report not found</p>;
+    return (
+      <p className="text-center text-red-500 text-lg mt-20">⚠️ Report not found</p>
+    );
 
   const renderTarget = () => {
     if (!report.targetId) return "Unknown";
@@ -93,7 +96,7 @@ export const ReportsDetail = () => {
     return link ? (
       <Link
         to={link}
-        className="inline-flex items-center gap-1 text-violet-600 hover:text-violet-800 dark:text-violet-400"
+        className="inline-flex items-center gap-1 text-cyan-400 hover:text-cyan-300"
       >
         {label} <ExternalLink size={14} />
       </Link>
@@ -106,32 +109,35 @@ export const ReportsDetail = () => {
     <motion.div
       initial={{ opacity: 0, y: 30 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.4 }}
-      className="p-8 bg-gray-50 dark:bg-gray-900 min-h-screen"
+      transition={{ duration: 0.5 }}
+      className="p-8 bg-gradient-to-br from-[#0f172a] via-[#1e1b4b] to-[#0f172a] min-h-screen"
     >
       {/* Back button */}
       <button
         onClick={() => navigate(-1)}
-        className="flex items-center text-gray-600 dark:text-gray-300 mb-6 hover:text-violet-600"
+        className="flex items-center text-gray-300 mb-6 hover:text-cyan-400 transition-colors"
       >
         <ArrowLeft className="mr-2" /> Back to Reports
       </button>
 
       {/* Main Card */}
-      <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl overflow-hidden">
+      <motion.div
+        initial={{ opacity: 0, scale: 0.95 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ duration: 0.5 }}
+        className="bg-[#1b1b2a]/80 backdrop-blur-xl rounded-2xl shadow-2xl border border-purple-600/50 overflow-hidden"
+      >
         {/* Header */}
-        <div className="flex items-center justify-between px-6 py-5 border-b border-gray-200 dark:border-gray-700">
+        <div className="flex items-center justify-between px-6 py-5 border-b border-purple-700/30">
           <div className="flex items-center gap-3">
-            <AlertTriangle className="text-red-500 w-7 h-7" />
-            <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
-              Report Details
-            </h2>
+            <AlertTriangle className="text-cyan-400 w-7 h-7 drop-shadow-lg" />
+            <h2 className="text-2xl font-bold text-white">Report Details</h2>
           </div>
           <span
-            className={`px-4 py-1.5 rounded-full text-sm font-medium ${
+            className={`px-4 py-1.5 rounded-full text-sm font-medium shadow-md ${
               report.status === "resolved"
-                ? "bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300"
-                : "bg-yellow-100 text-yellow-700 dark:bg-yellow-900 dark:text-yellow-300"
+                ? "bg-cyan-500/20 text-cyan-300 border border-cyan-400/30"
+                : "bg-purple-500/20 text-purple-300 border border-purple-400/30"
             }`}
           >
             {report.status}
@@ -140,71 +146,62 @@ export const ReportsDetail = () => {
 
         {/* Body */}
         <div className="p-6 space-y-8">
-          {/* Reporter */}
+          {/* Reporter & Type */}
           <div className="flex flex-col md:flex-row gap-6">
-            <div className="flex-1 bg-gray-50 dark:bg-gray-700 p-5 rounded-xl">
+            <div className="flex-1 bg-[#0f172a]/50 p-5 rounded-xl border border-purple-600/40">
               <div className="flex items-center gap-2 mb-3">
-                <User className="w-5 h-5 text-violet-500" />
-                <span className="font-semibold text-gray-800 dark:text-gray-200">
-                  Reporter
-                </span>
+                <User className="w-5 h-5 text-cyan-400" />
+                <span className="font-semibold text-white">Reporter</span>
               </div>
-              <p className="text-lg font-medium text-gray-900 dark:text-gray-100">
+              <p className="text-lg font-medium text-white">
                 {report.reporter?.fullname || "Anonymous"}
               </p>
-              <div className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400 mt-1">
-                <Mail className="w-4 h-4" /> {report.reporter?.email || "N/A"}
+              <div className="flex items-center gap-2 text-sm text-gray-400 mt-1">
+                <Mail className="w-4 h-4 text-cyan-400" /> {report.reporter?.email || "N/A"}
               </div>
             </div>
 
-            <div className="flex-1 bg-gray-50 dark:bg-gray-700 p-5 rounded-xl">
+            <div className="flex-1 bg-[#0f172a]/50 p-5 rounded-xl border border-purple-600/40">
               <div className="flex items-center gap-2 mb-3">
-                <Tag className="w-5 h-5 text-violet-500" />
-                <span className="font-semibold text-gray-800 dark:text-gray-200">
-                  Report Type
-                </span>
+                <Tag className="w-5 h-5 text-cyan-400" />
+                <span className="font-semibold text-white">Report Type</span>
               </div>
-              <span className="inline-block px-4 py-1 rounded-full text-sm font-medium bg-violet-100 text-violet-700 dark:bg-violet-900 dark:text-violet-300">
+              <span className="inline-block px-4 py-1 rounded-full text-sm font-medium
+                               bg-purple-500/20 text-purple-300 border border-purple-400/30">
                 {report.type}
               </span>
             </div>
           </div>
 
           {/* Description */}
-          <div className="bg-gray-50 dark:bg-gray-700 p-5 rounded-xl">
+          <div className="bg-[#0f172a]/50 p-5 rounded-xl border border-purple-600/40">
             <div className="flex items-center gap-2 mb-3">
-              <FileText className="w-5 h-5 text-violet-500" />
-              <span className="font-semibold text-gray-800 dark:text-gray-200">
-                Description
-              </span>
+              <FileText className="w-5 h-5 text-cyan-400" />
+              <span className="font-semibold text-white">Description</span>
             </div>
-            <p className="text-gray-700 dark:text-gray-300 leading-relaxed whitespace-pre-line">
+            <p className="text-gray-300 leading-relaxed whitespace-pre-line">
               {report.description}
             </p>
           </div>
 
           {/* Target & Meta */}
           <div className="grid md:grid-cols-2 gap-6">
-            <div className="bg-gray-50 dark:bg-gray-700 p-5 rounded-xl">
+            <div className="bg-[#0f172a]/50 p-5 rounded-xl border border-purple-600/40">
               <div className="flex items-center gap-2 mb-3">
-                <Info className="w-5 h-5 text-violet-500" />
-                <span className="font-semibold text-gray-800 dark:text-gray-200">
-                  Target
-                </span>
+                <Info className="w-5 h-5 text-cyan-400" />
+                <span className="font-semibold text-white">Target</span>
               </div>
-              <p className="text-gray-700 dark:text-gray-300 text-lg font-medium">
-                {renderTarget()}
-              </p>
+              <p className="text-white text-lg font-medium">{renderTarget()}</p>
             </div>
 
-            <div className="bg-gray-50 dark:bg-gray-700 p-5 rounded-xl space-y-2">
-              <div className="flex items-center gap-2 text-gray-600 dark:text-gray-300">
-                <Clock className="w-4 h-4 text-violet-500" />
+            <div className="bg-[#0f172a]/50 p-5 rounded-xl border border-purple-600/40 space-y-2">
+              <div className="flex items-center gap-2 text-gray-300">
+                <Clock className="w-4 h-4 text-cyan-400" />
                 <span className="font-medium">Created:</span>
                 <span>{new Date(report.createdAt).toLocaleString()}</span>
               </div>
-              <div className="flex items-center gap-2 text-gray-600 dark:text-gray-300">
-                <Clock className="w-4 h-4 text-violet-500" />
+              <div className="flex items-center gap-2 text-gray-300">
+                <Clock className="w-4 h-4 text-cyan-400" />
                 <span className="font-medium">Last Updated:</span>
                 <span>{new Date(report.updatedAt).toLocaleString()}</span>
               </div>
@@ -213,23 +210,25 @@ export const ReportsDetail = () => {
         </div>
 
         {/* Actions */}
-        <div className="px-6 py-5 border-t border-gray-200 dark:border-gray-700 flex flex-wrap gap-4 justify-end">
+        <div className="px-6 py-5 border-t border-purple-700/30 flex flex-wrap gap-4 justify-end">
           {report.status !== "resolved" && (
-            <button
+            <motion.button
               onClick={handleResolve}
-              className="flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white px-5 py-2 rounded-lg shadow transition"
+              whileHover={{ scale: 1.05, boxShadow: "0 0 20px #00FFFF" }}
+              className="flex items-center gap-2 bg-cyan-600 hover:bg-cyan-700 text-white px-5 py-2 rounded-lg shadow-lg transition"
             >
               <CheckCircle /> Mark as Resolved
-            </button>
+            </motion.button>
           )}
-          <button
+          <motion.button
             onClick={handleDelete}
-            className="flex items-center gap-2 bg-red-600 hover:bg-red-700 text-white px-5 py-2 rounded-lg shadow transition"
+            whileHover={{ scale: 1.05, boxShadow: "0 0 20px #FF0080" }}
+            className="flex items-center gap-2 bg-purple-600 hover:bg-purple-700 text-white px-5 py-2 rounded-lg shadow-lg transition"
           >
             <Trash2 /> Delete Report
-          </button>
+          </motion.button>
         </div>
-      </div>
+      </motion.div>
     </motion.div>
   );
 };
