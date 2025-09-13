@@ -9,9 +9,11 @@ import {
   X,
   ChevronDown,
   ChevronUp,
+  Copy,
 } from "lucide-react";
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import { vscDarkPlus } from "react-syntax-highlighter/dist/esm/styles/prism";
+import ReactMarkdown from "react-markdown";
 
 export const CourseLessons = ({ courseId: propCourseId }) => {
   const params = useParams();
@@ -25,7 +27,6 @@ export const CourseLessons = ({ courseId: propCourseId }) => {
   const [loading, setLoading] = useState(true);
   const [expandedList, setExpandedList] = useState(true);
   const [deletingId, setDeletingId] = useState(null);
-
   const listRef = useRef(null);
 
   useEffect(() => {
@@ -51,30 +52,12 @@ export const CourseLessons = ({ courseId: propCourseId }) => {
     }
   };
 
-  // parse content into note/code parts
-  const parseContent = (content = "") => {
-    const regex = /```(\w+)?\n([\s\S]*?)```/g;
-    let match;
-    const parts = [];
-    let last = 0;
-    while ((match = regex.exec(content)) !== null) {
-      if (match.index > last) {
-        const text = content.slice(last, match.index).trim();
-        if (text) parts.push({ type: "note", text });
-      }
-      parts.push({ type: "code", lang: match[1] || "text", text: match[2] });
-      last = regex.lastIndex;
-    }
-    if (last < content.length) {
-      const text = content.slice(last).trim();
-      if (text) parts.push({ type: "note", text });
-    }
-    return parts;
-  };
-
   const handleSelect = (lesson) => {
     setSelected(lesson);
-    window.scrollTo({ top: 0, behavior: "smooth" });
+    setTimeout(() => {
+      const el = document.getElementById(`lesson-${lesson._id}`);
+      if (el) el.scrollIntoView({ behavior: "smooth", block: "center" });
+    }, 50);
   };
 
   const handleAddLesson = async () => {
@@ -122,6 +105,32 @@ export const CourseLessons = ({ courseId: propCourseId }) => {
     }
   };
 
+  const parseContent = (content = "") => {
+    // Split content into code blocks and markdown
+    const regex = /```(\w+)?\n([\s\S]*?)```/g;
+    let match;
+    const parts = [];
+    let last = 0;
+    while ((match = regex.exec(content)) !== null) {
+      if (match.index > last) {
+        const text = content.slice(last, match.index).trim();
+        if (text) parts.push({ type: "markdown", text });
+      }
+      parts.push({ type: "code", lang: match[1] || "text", text: match[2] });
+      last = regex.lastIndex;
+    }
+    if (last < content.length) {
+      const text = content.slice(last).trim();
+      if (text) parts.push({ type: "markdown", text });
+    }
+    return parts;
+  };
+
+  const handleCopy = (text) => {
+    navigator.clipboard.writeText(text);
+    toast.success("Code copied!");
+  };
+
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64 text-white">
@@ -139,22 +148,21 @@ export const CourseLessons = ({ courseId: propCourseId }) => {
           <div className="flex items-center gap-2">
             <button
               onClick={() => setOpenAdd(true)}
-              className="flex items-center gap-2 px-3 py-1 rounded bg-indigo-600 hover:bg-indigo-700"
+              className="flex items-center gap-2 px-3 py-1 rounded bg-purple-600 hover:bg-purple-700"
             >
               <PlusCircle size={16} /> Add
             </button>
             <button
               onClick={() => setExpandedList((s) => !s)}
               className="p-2 rounded bg-gray-800 hover:bg-gray-700"
-              title="Collapse / Expand"
             >
               {expandedList ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
             </button>
           </div>
         </div>
 
-        <div className="relative pl-6">
-          <div className="absolute left-2 top-2 bottom-2 w-0.5 bg-gradient-to-b from-indigo-500 to-purple-600 rounded" />
+        <div className="relative pl-6" ref={listRef}>
+          <div className="absolute left-2 top-2 bottom-2 w-0.5 bg-gradient-to-b from-purple-500 to-cyan-400 rounded" />
           <AnimatePresence initial={false}>
             {expandedList &&
               lessons.map((l, idx) => {
@@ -162,6 +170,7 @@ export const CourseLessons = ({ courseId: propCourseId }) => {
                 return (
                   <motion.div
                     key={l._id}
+                    id={`lesson-${l._id}`}
                     layout
                     initial={{ opacity: 0, x: -10 }}
                     animate={{ opacity: 1, x: 0 }}
@@ -173,24 +182,20 @@ export const CourseLessons = ({ courseId: propCourseId }) => {
                     <div
                       className={`absolute left-0 top-0 w-3 h-3 rounded-full border-2 ${
                         isSel
-                          ? "bg-indigo-500 border-indigo-300"
+                          ? "bg-purple-500 border-cyan-300"
                           : "bg-gray-800 border-gray-600"
                       }`}
                     />
                     <div
                       className={`p-3 rounded-md ${
                         isSel
-                          ? "bg-gradient-to-r from-indigo-700 to-purple-700"
+                          ? "bg-gradient-to-r from-purple-700 to-cyan-700 shadow-lg shadow-purple-500/50"
                           : "hover:bg-gray-800"
                       }`}
                     >
                       <div className="flex items-center justify-between">
                         <div className="flex-1">
-                          <div
-                            className={`font-semibold ${
-                              isSel ? "text-white" : "text-gray-200"
-                            }`}
-                          >
+                          <div className={`font-semibold ${isSel ? "text-white" : "text-gray-200"}`}>
                             {l.title}
                           </div>
                           <div className="text-xs mt-1 text-gray-400">
@@ -204,7 +209,6 @@ export const CourseLessons = ({ courseId: propCourseId }) => {
                           }}
                           disabled={deletingId === l._id}
                           className="p-2 rounded bg-red-600 hover:bg-red-700"
-                          title="Delete lesson"
                         >
                           <Trash2 size={14} />
                         </button>
@@ -230,12 +234,10 @@ export const CourseLessons = ({ courseId: propCourseId }) => {
             <div className="text-3xl font-semibold text-gray-200">
               Select a lesson
             </div>
-            <div className="text-gray-400">
-              or click Add to create your first lesson
-            </div>
+            <div className="text-gray-400">or click Add to create your first lesson</div>
             <button
               onClick={() => setOpenAdd(true)}
-              className="mt-4 px-6 py-2 rounded bg-indigo-600 hover:bg-indigo-700 flex items-center gap-2"
+              className="mt-4 px-6 py-2 rounded bg-purple-600 hover:bg-purple-700 flex items-center gap-2"
             >
               <PlusCircle /> Add Lesson
             </button>
@@ -250,7 +252,9 @@ export const CourseLessons = ({ courseId: propCourseId }) => {
           >
             <div className="flex items-start justify-between gap-4 mb-6">
               <div>
-                <h1 className="text-3xl font-bold">{selected.title}</h1>
+                <h1 className="text-3xl font-bold bg-gradient-to-r from-purple-400 to-cyan-400 bg-clip-text text-transparent">
+                  {selected.title}
+                </h1>
                 <div className="text-sm text-gray-400 mt-1">
                   Published {new Date(selected.createdAt).toLocaleString()}
                 </div>
@@ -259,17 +263,15 @@ export const CourseLessons = ({ courseId: propCourseId }) => {
 
             <div className="space-y-6">
               {parseContent(selected.content).map((part, i) =>
-                part.type === "note" ? (
+                part.type === "markdown" ? (
                   <motion.div
-                    key={`${selected._id}-note-${i}`}
+                    key={`${selected._id}-md-${i}`}
                     initial={{ opacity: 0, x: -10 }}
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ delay: i * 0.02 }}
-                    className="bg-gradient-to-r from-gray-800 to-gray-900 p-6 rounded-lg shadow"
+                    className="bg-gray-800/80 p-6 rounded-lg shadow prose prose-invert max-w-none whitespace-pre-wrap"
                   >
-                    <div className="prose prose-invert max-w-none whitespace-pre-wrap text-gray-200 leading-relaxed">
-                      {part.text}
-                    </div>
+                    <ReactMarkdown>{part.text}</ReactMarkdown>
                   </motion.div>
                 ) : (
                   <motion.div
@@ -277,7 +279,7 @@ export const CourseLessons = ({ courseId: propCourseId }) => {
                     initial={{ opacity: 0, x: 10 }}
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ delay: i * 0.02 }}
-                    className="rounded-lg overflow-hidden shadow"
+                    className="relative rounded-lg overflow-hidden shadow"
                   >
                     <SyntaxHighlighter
                       language={part.lang || "text"}
@@ -287,6 +289,13 @@ export const CourseLessons = ({ courseId: propCourseId }) => {
                     >
                       {part.text}
                     </SyntaxHighlighter>
+                    <button
+                      onClick={() => handleCopy(part.text)}
+                      className="absolute top-2 right-2 bg-gray-700/80 hover:bg-purple-700 p-1 rounded transition"
+                      title="Copy code"
+                    >
+                      <Copy size={16} />
+                    </button>
                   </motion.div>
                 )
               )}
@@ -335,14 +344,12 @@ export const CourseLessons = ({ courseId: propCourseId }) => {
                     setNewLesson((p) => ({ ...p, content: e.target.value }))
                   }
                   rows={10}
-                  placeholder={`Notes text and code blocks using triple backticks. Example:\n\nThis is a note.\n\n\`\`\`html\n<p>Hello</p>\n\`\`\``}
+                  placeholder={`Notes text and code blocks using triple backticks.\nExample:\nThis is a note.\n\`\`\`html\n<p>Hello</p>\n\`\`\``}
                   className="w-full p-3 rounded bg-gray-800 text-white font-mono"
                 />
                 <div className="flex items-center gap-2 justify-end">
                   <button
-                    onClick={() => {
-                      setNewLesson({ title: "", content: "" });
-                    }}
+                    onClick={() => setNewLesson({ title: "", content: "" })}
                     className="px-4 py-2 rounded bg-gray-700"
                   >
                     Reset
@@ -350,7 +357,7 @@ export const CourseLessons = ({ courseId: propCourseId }) => {
                   <button
                     onClick={handleAddLesson}
                     disabled={adding}
-                    className="px-4 py-2 rounded bg-indigo-600 hover:bg-indigo-700"
+                    className="px-4 py-2 rounded bg-purple-600 hover:bg-purple-700"
                   >
                     {adding ? "Adding..." : "Add Lesson"}
                   </button>
