@@ -62,48 +62,56 @@ export const Reports = () => {
       initial={{ opacity: 0, y: 30 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4 }}
-      className="p-6 bg-white dark:bg-gray-900 rounded-xl shadow-lg"
+      className="p-6 bg-gradient-to-br from-[#0f172a]/95 via-[#1e1b4b]/95 to-[#0f172a]/95 
+             backdrop-blur-xl rounded-2xl shadow-2xl border border-purple-700/40"
     >
-      <h2 className="text-2xl font-bold mb-6 flex items-center gap-2">
-        <AlertTriangle className="text-red-500" />
+      <h2 className="text-2xl font-bold mb-6 flex items-center gap-3 text-purple-300">
+        <AlertTriangle className="text-cyan-400 drop-shadow-lg" />
         Reports ({reports.length})
       </h2>
 
       <div className="space-y-4">
-        {reports.map((r, idx) => (
+        {reports.map((r) => (
           <motion.div
             key={r._id}
             onClick={() => navigate(`/admin/reports/${r._id}`)}
-            whileHover={{ scale: 1.01 }}
-            className="p-4 bg-gray-100 dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 cursor-pointer hover:shadow-md transition-all"
+            whileHover={{ scale: 1.02 }}
+            className="p-4 rounded-xl 
+                   bg-gradient-to-r from-[#1e1b4b]/80 to-[#0f172a]/80 
+                   backdrop-blur-md shadow-md border border-purple-600/40 
+                   cursor-pointer hover:shadow-purple-500/30 hover:border-cyan-400/50 
+                   transition-all duration-300"
           >
             <div className="flex items-center justify-between mb-2">
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2 text-gray-200">
                 {getTargetIcon(r.targetType)}
-                <span className="font-medium text-gray-900 dark:text-gray-200">
+                <span className="font-medium text-white/90">
                   {r.targetType} → {renderTarget(r)}
                 </span>
               </div>
               <span
-                className={`px-3 py-1 rounded-full text-xs font-semibold ${
-                  r.status === "resolved"
-                    ? "bg-green-200 text-green-700"
-                    : "bg-yellow-200 text-yellow-700"
-                }`}
+                className={`px-3 py-1 rounded-full text-xs font-semibold shadow-sm 
+              ${
+                r.status === "resolved"
+                  ? "bg-cyan-500/20 text-cyan-300 border border-cyan-400/30"
+                  : "bg-purple-500/20 text-purple-300 border border-purple-400/30"
+              }`}
               >
                 {r.status || "pending"}
               </span>
             </div>
 
-            <p className="text-sm text-gray-600 dark:text-gray-300 line-clamp-2">
+            <p className="text-sm text-gray-400 line-clamp-2">
               {r.description || "No description provided"}
             </p>
 
-            <div className="flex items-center justify-between mt-3 text-xs text-gray-500 dark:text-gray-400">
-              <span>
+            <div className="flex items-center justify-between mt-3 text-xs text-gray-500">
+              <span className="text-purple-300">
                 Reporter: {r.reporter?.fullname || "Anonymous"}
               </span>
-              <span>{new Date(r.createdAt).toLocaleString()}</span>
+              <span className="text-cyan-400">
+                {new Date(r.createdAt).toLocaleString()}
+              </span>
             </div>
           </motion.div>
         ))}
