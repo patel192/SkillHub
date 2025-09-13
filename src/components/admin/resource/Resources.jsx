@@ -8,6 +8,7 @@ import {
   DollarSign,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { motion } from "framer-motion";
 
 export const Resources = () => {
   const [courses, setCourses] = useState([]);
@@ -50,24 +51,22 @@ export const Resources = () => {
     const defaultImageUrl =
       "https://via.placeholder.com/400x200?text=Course+Image";
     return (
-      <div
-        className="bg-gray-800 text-white rounded-lg shadow-lg overflow-hidden 
-        transition-all duration-300 transform hover:scale-105 hover:shadow-2xl 
-        hover:shadow-blue-500/30 flex flex-col"
+      <motion.div
+        whileHover={{ scale: 1.03, boxShadow: "0 0 20px #00FFFF" }}
+        className="bg-[#1b1b2a]/80 backdrop-blur-lg rounded-xl overflow-hidden border border-purple-600/50 flex flex-col transition transform duration-300"
       >
         <img
           src={course.imageUrl || defaultImageUrl}
           alt={course.title}
-          className="w-full h-48"
+          className="w-full h-48 object-cover"
         />
         <div className="p-6 flex flex-col flex-grow">
-          <h3 className="text-xl font-bold mb-2 line-clamp-2">{course.title}</h3>
-          <p className="text-gray-400 text-sm line-clamp-3 mb-4">
-            {course.description}
-          </p>
+          <h3 className="text-xl font-bold mb-2 line-clamp-2 text-white">{course.title}</h3>
+          <p className="text-gray-300 text-sm line-clamp-3 mb-4">{course.description}</p>
+          
           <div className="mt-auto space-y-1 text-sm text-gray-300">
             <div className="flex items-center gap-2">
-              <User size={16} className="text-gray-400" />
+              <User size={16} className="text-cyan-400" />
               {course.instructor}
             </div>
             <div className="flex items-center gap-2">
@@ -94,32 +93,28 @@ export const Resources = () => {
 
           {/* Action Buttons */}
           <div className="flex gap-3 mt-4">
-            <button
+            <motion.button
+              whileHover={{ scale: 1.05, boxShadow: "0 0 15px #00FFFF" }}
               onClick={() => navigate(`/admin/resources/${course._id}`)}
-              className="flex-1 bg-blue-600 hover:bg-blue-700 
-              hover:shadow-lg hover:shadow-blue-500/50 hover:scale-105 
-              text-white py-2 px-4 rounded-lg text-sm font-medium 
-              transition transform duration-200"
+              className="flex-1 bg-cyan-600 hover:bg-cyan-700 text-white py-2 px-4 rounded-lg text-sm font-medium transition transform"
             >
               Lessons
-            </button>
-            <button
+            </motion.button>
+            <motion.button
+              whileHover={{ scale: 1.05, boxShadow: "0 0 15px #FF00FF" }}
               onClick={() => navigate(`/admin/quiz/${course._id}`)}
-              className="flex-1 bg-purple-600 hover:bg-purple-700 
-              hover:shadow-lg hover:shadow-purple-500/50 hover:scale-105 
-              text-white py-2 px-4 rounded-lg text-sm font-medium 
-              transition transform duration-200"
+              className="flex-1 bg-purple-600 hover:bg-purple-700 text-white py-2 px-4 rounded-lg text-sm font-medium transition transform"
             >
               Quiz
-            </button>
+            </motion.button>
           </div>
         </div>
-      </div>
+      </motion.div>
     );
   };
 
   return (
-    <div className="p-6">
+    <div className="p-6 bg-gradient-to-br from-[#0f172a] via-[#1e1b4b] to-[#0f172a] min-h-screen">
       <h1 className="text-2xl font-bold mb-6 text-white">Select a Course</h1>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {courses.map((course) => (
