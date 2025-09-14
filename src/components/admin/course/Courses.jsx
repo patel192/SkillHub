@@ -56,7 +56,7 @@ export const Courses = () => {
           whileHover={{ scale: 1.05, boxShadow: "0px 0px 20px rgba(168,85,247,0.7)" }}
           whileTap={{ scale: 0.95 }}
           className="flex items-center gap-2 bg-gradient-to-r from-purple-600 to-pink-600 px-5 py-2.5 rounded-xl shadow-lg text-white font-semibold"
-          onClick={() => navigate("/courses/new")}
+          onClick={() => navigate("/admin/courses/new")}
         >
           <Plus size={18} />
           Add Course

@@ -34,6 +34,7 @@ import { AdminCourseDetails } from "./components/admin/course/AdminCourseDetails
 import { CourseLessons } from "./components/admin/resource/CourseLessons";
 import { CourseQuiz } from "./components/admin/resource/CourseQuiz";
 import { EditCourse } from "./components/admin/course/EditCourse";
+import { AddCourse } from "./components/admin/course/AddCourse";
 
 function App() {
   return (
@@ -71,6 +72,7 @@ function App() {
           <Route path="courses" element={<Courses />}></Route>
           <Route path="courses/:id" element={<AdminCourseDetails />}></Route>
           <Route path="courses/edit/:id" element={<EditCourse />}></Route>
+          <Route path="courses/new" element={<AddCourse />}></Route>
           <Route path="users" element={<Users />}></Route>
           <Route path="users/:id" element={<UserDetails />}></Route>
           <Route path="reports" element={<Reports />}></Route>
