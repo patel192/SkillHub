@@ -11,11 +11,12 @@ import {
   User,
   Sparkles,
   Book,
+  Flag,
 } from "lucide-react";
 import { ReportModal } from "../report/ReportModal";
 
 export const CourseDetails = () => {
- const { courseId } = useParams();
+  const { courseId } = useParams();
   const [course, setCourse] = useState(null);
   const [overview, setOverview] = useState([]);
   const [enrolled, setEnrolled] = useState(false);
@@ -74,10 +75,10 @@ export const CourseDetails = () => {
         progress: 0,
       });
       setEnrolled(true);
-      toast.success("🎉 Successfully enrolled in this course!");
+      toast.success("Successfully enrolled in this course!");
     } catch (error) {
       console.error("Failed to enroll", error);
-      toast.error("❌ Enrollment failed. Please try again.");
+      toast.error("Enrollment failed. Please try again.");
     }
   };
 
@@ -94,77 +95,61 @@ export const CourseDetails = () => {
       initial={{ opacity: 0, y: 30 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5 }}
-      className="p-6 max-w-6xl mx-auto text-white"
+      className="min-h-screen bg-gradient-to-br from-[#0f172a] via-[#1e1b4b] to-[#0f172a] p-6 max-w-6xl mx-auto text-white"
     >
       {/* Hero Banner */}
-      <div className="w-100 h-100 rounded-xl overflow-hidden shadow-xl mb-6 m-auto">
+      <div className="rounded-xl overflow-hidden shadow-2xl mb-8 border border-purple-600/40">
         <img
           src={course.imageUrl}
           alt={course.title}
-          className="w-full h-auto rounded-lg"
+          className="w-100 h-100 rounded-lg m-auto"
         />
       </div>
 
       {/* Title + Actions */}
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-8">
         <div>
-          <h1 className="text-4xl font-bold mb-2 flex items-center gap-2">
-            <Sparkles size={28} className="text-indigo-400" />
+          <h1 className="text-4xl font-bold mb-3 flex items-center gap-3">
+            <Sparkles size={30} className="text-cyan-400" />
             {course.title}
           </h1>
-          <p className="text-gray-400 max-w-2xl">{course.description}</p>
+          <p className="text-gray-300 max-w-2xl">{course.description}</p>
         </div>
-        <div className="flex gap-3">
-          <button
+        <div className="flex gap-4">
+          <motion.button
+            whileHover={{ scale: 1.05, boxShadow: "0 0 15px #06b6d4" }}
             onClick={handleEnroll}
             disabled={enrolled}
             className={`px-6 py-2 rounded-full text-white font-semibold transition duration-300 shadow-lg ${
               enrolled
                 ? "bg-green-600 cursor-not-allowed"
-                : "bg-gradient-to-r from-indigo-500 to-purple-600 hover:opacity-90"
+                : "bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-700 hover:to-blue-700"
             }`}
           >
-            {enrolled ? "🎓 Enrolled" : "🚀 Enroll Now"}
-          </button>
+            {enrolled ? "Enrolled" : "Enroll Now"}
+          </motion.button>
 
-          {/* Report button */}
-          <button
+          <motion.button
+            whileHover={{ scale: 1.05, boxShadow: "0 0 15px #f43f5e" }}
             onClick={() => setShowReportModal(true)}
-            className="px-6 py-2 rounded-full bg-red-600 hover:bg-red-700 text-white font-semibold shadow-lg"
+            className="px-6 py-2 rounded-full bg-gradient-to-r from-red-600 to-pink-600 hover:from-red-700 hover:to-pink-700 text-white font-semibold shadow-lg"
           >
-            🚩 Report
-          </button>
+            <Flag size={18} className="inline-block mr-2" />
+            Report
+          </motion.button>
         </div>
       </div>
 
       {/* Metadata Badges */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 text-sm mb-8">
-        <CourseMeta
-          icon={<User size={18} />}
-          label="Instructor"
-          value={course.instructor}
-        />
-        <CourseMeta
-          icon={<BookOpen size={18} />}
-          label="Category"
-          value={course.category}
-        />
-        <CourseMeta
-          icon={<Clock size={18} />}
-          label="Duration"
-          value={course.duration}
-        />
-        <CourseMeta
-          icon={<BadgeCheck size={18} />}
-          label="Level"
-          value={course.level}
-        />
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 text-sm mb-10">
+        <CourseMeta icon={<User size={18} />} label="Instructor" value={course.instructor} />
+        <CourseMeta icon={<BookOpen size={18} />} label="Category" value={course.category} />
+        <CourseMeta icon={<Clock size={18} />} label="Duration" value={course.duration} />
+        <CourseMeta icon={<BadgeCheck size={18} />} label="Level" value={course.level} />
         <CourseMeta
           icon={<DollarSign size={18} />}
           label="Price"
-          value={
-            course.price > 0 ? `₹${course.price}` : "Free"
-          }
+          value={course.price > 0 ? `₹${course.price}` : "Free"}
         />
         <CourseMeta
           icon={<BadgeCheck size={18} />}
@@ -172,7 +157,7 @@ export const CourseDetails = () => {
           value={
             <span
               className={`px-2 py-1 rounded text-xs font-bold ${
-                course.isPublished ? "bg-green-600" : "bg-yellow-500"
+                course.isPublished ? "bg-green-600" : "bg-yellow-500 text-black"
               }`}
             >
               {course.isPublished ? "Published" : "Unpublished"}
@@ -183,8 +168,8 @@ export const CourseDetails = () => {
 
       {/* Course Overview */}
       <div>
-        <h3 className="text-2xl font-semibold mb-4 border-b border-gray-700 pb-2">
-          📘 Course Overview
+        <h3 className="text-2xl font-semibold mb-4 border-b border-purple-600/50 pb-2">
+          Course Overview
         </h3>
         {overview.length > 0 ? (
           <ul className="list-disc pl-6 text-gray-300 leading-relaxed text-base space-y-2">
@@ -198,37 +183,36 @@ export const CourseDetails = () => {
       </div>
 
       {enrolled && (
-        <div className="mt-8 flex justify-center">
-          <button
+        <div className="mt-10 flex justify-center">
+          <motion.button
+            whileHover={{ scale: 1.05, boxShadow: "0 0 15px #06b6d4" }}
             onClick={() => {
               window.location.href = `/user/learn/${courseId}`;
             }}
-            className="px-8 py-3 bg-blue-600 hover:bg-blue-700 hover:scale-105 text-white font-semibold rounded-full shadow-lg transition duration-300"
+            className="px-8 py-3 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white font-semibold rounded-full shadow-lg transition duration-300 flex items-center gap-3"
           >
-            <div className="flex gap-3">
-              <Book size={20} /> Continue Learning
-            </div>
-          </button>
+            <Book size={20} /> Continue Learning
+          </motion.button>
         </div>
       )}
 
       {/* Report Modal */}
       {showReportModal && (
-        <ReportModal
-          courseId={courseId}
-          onClose={() => setShowReportModal(false)}
-        />
+        <ReportModal courseId={courseId} onClose={() => setShowReportModal(false)} />
       )}
     </motion.div>
   );
 };
 
 const CourseMeta = ({ icon, label, value }) => (
-  <div className="flex items-center gap-3 bg-[#1f2937] p-4 rounded-lg shadow">
-    <div className="text-indigo-400">{icon}</div>
+  <motion.div
+    whileHover={{ scale: 1.02, boxShadow: "0 0 15px #8B5CF6" }}
+    className="flex items-center gap-3 bg-[#1b1b2a]/80 backdrop-blur-lg border border-purple-600/40 p-4 rounded-xl shadow-md"
+  >
+    <div className="text-cyan-400">{icon}</div>
     <div>
-      <p className="text-gray-400">{label}</p>
+      <p className="text-gray-400 text-sm">{label}</p>
       <p className="font-medium text-white">{value}</p>
     </div>
-  </div>
+  </motion.div>
 );
