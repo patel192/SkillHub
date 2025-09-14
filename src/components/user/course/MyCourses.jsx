@@ -29,9 +29,8 @@ export const MyCourses = () => {
       const res = await axios.get(`http://localhost:8000/enrollment/${userId}`);
       const enrollments = res.data.data || [];
 
-      // Use populated courseId directly
       const mapped = enrollments.map((enrollment) => ({
-        ...enrollment.courseId, // course details
+        ...enrollment.courseId,
         progress: enrollment.progress,
         status: enrollment.status,
       }));
@@ -45,7 +44,7 @@ export const MyCourses = () => {
   const activeCourses = activeTab === "my" ? myCourses : discoverCourses;
 
   return (
-    <div className="p-6 text-white">
+    <div className="min-h-screen bg-gradient-to-br from-[#0f172a] via-[#1e1b4b] to-[#0f172a] p-6 text-white">
       <motion.h2
         initial={{ x: -100, opacity: 0 }}
         animate={{ x: 0, opacity: 1 }}
@@ -57,28 +56,31 @@ export const MyCourses = () => {
 
       {/* Tabs */}
       <div className="flex gap-4 mb-8">
-        <button
+        <motion.button
+          whileHover={{ scale: 1.05, boxShadow: "0 0 15px #8B5CF6" }}
           onClick={() => setActiveTab("my")}
-          className={`px-4 py-2 rounded-full transition-all duration-300 ${
+          className={`px-5 py-2.5 rounded-full font-semibold transition-all duration-300 ${
             activeTab === "my"
-              ? "bg-gradient-to-r from-purple-500 to-indigo-600 shadow-md"
-              : "bg-gray-800 hover:bg-gray-700"
+              ? "bg-gradient-to-r from-purple-600 to-indigo-600 shadow-lg text-white"
+              : "bg-[#1b1b2a]/80 border border-purple-600/40 hover:bg-purple-600/40"
           }`}
         >
-          <BookOpen className="inline-block mr-2" size={18} />
+          <BookOpen className="inline-block mr-2 text-purple-400" size={18} />
           My Courses
-        </button>
-        <button
+        </motion.button>
+
+        <motion.button
+          whileHover={{ scale: 1.05, boxShadow: "0 0 15px #F43F5E" }}
           onClick={() => setActiveTab("discover")}
-          className={`px-4 py-2 rounded-full transition-all duration-300 ${
+          className={`px-5 py-2.5 rounded-full font-semibold transition-all duration-300 ${
             activeTab === "discover"
-              ? "bg-gradient-to-r from-pink-500 to-rose-600 shadow-md"
-              : "bg-gray-800 hover:bg-gray-700"
+              ? "bg-gradient-to-r from-pink-500 to-rose-600 shadow-lg text-white"
+              : "bg-[#1b1b2a]/80 border border-pink-600/40 hover:bg-pink-600/40"
           }`}
         >
-          <Flame className="inline-block mr-2" size={18} />
+          <Flame className="inline-block mr-2 text-pink-400" size={18} />
           Discover Courses
-        </button>
+        </motion.button>
       </div>
 
       {/* Course Cards */}
@@ -90,41 +92,50 @@ export const MyCourses = () => {
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ duration: 0.4 }}
-              className="bg-[#1E293B] rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl transform hover:-translate-y-1 transition-all duration-300"
+              whileHover={{
+                scale: 1.03,
+                boxShadow: "0 0 20px #00FFFF",
+              }}
+              className="bg-[#1b1b2a]/80 backdrop-blur-lg border border-purple-600/50 rounded-xl overflow-hidden p-5"
             >
               <img
                 src={course.imageUrl}
                 alt={course.title}
-                className="w-20 h-20 object-cover m-auto"
+                className="w-24 h-24 object-cover mx-auto rounded-lg mb-4 shadow-md"
               />
 
-              <div className="p-4">
-                <h3 className="text-xl font-semibold mb-2">{course.title}</h3>
-                <p className="text-sm text-gray-400 mb-4">
-                  {course.description}
-                </p>
+              <h3 className="text-xl font-semibold text-white mb-2 text-center">
+                {course.title}
+              </h3>
+              <p className="text-sm text-gray-300 mb-4 text-center">
+                {course.description}
+              </p>
 
-                {activeTab === "my" && course.progress != null && (
-                  <div className="mb-2">
-                    <div className="w-full bg-gray-700 rounded-full h-2.5">
-                      <div
-                        className="bg-green-500 h-2.5 rounded-full"
-                        style={{ width: `${course.progress}%` }}
-                      />
-                    </div>
-                    <p className="text-xs text-right mt-1 text-gray-300">
-                      {course.progress}% completed
-                    </p>
+              {activeTab === "my" && course.progress != null && (
+                <div className="mb-4">
+                  <div className="w-full bg-gray-700 rounded-full h-2.5">
+                    <motion.div
+                      initial={{ width: 0 }}
+                      animate={{ width: `${course.progress}%` }}
+                      transition={{ duration: 0.6 }}
+                      className="bg-cyan-500 h-2.5 rounded-full"
+                    />
                   </div>
-                )}
+                  <p className="text-xs text-right mt-1 text-gray-300">
+                    {course.progress}% completed
+                  </p>
+                </div>
+              )}
 
-                <Link to={`/user/course/${course._id}`}>
-                  <button className="w-full mt-3 bg-indigo-600 hover:bg-indigo-700 text-white py-2 rounded-lg flex items-center justify-center gap-2 transition-all duration-300">
-                    <PlayCircle size={18} />
-                    {activeTab === "my" ? "Continue" : "Start Learning"}
-                  </button>
-                </Link>
-              </div>
+              <Link to={`/user/course/${course._id}`}>
+                <motion.button
+                  whileHover={{ scale: 1.05, boxShadow: "0 0 15px #06b6d4" }}
+                  className="w-full mt-3 bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-700 hover:to-blue-700 text-white py-2 rounded-lg flex items-center justify-center gap-2 font-medium transition-all duration-300"
+                >
+                  <PlayCircle size={18} className="text-cyan-300" />
+                  {activeTab === "my" ? "Continue" : "Start Learning"}
+                </motion.button>
+              </Link>
             </motion.div>
           ))
         ) : (
