@@ -3,7 +3,8 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { motion } from "framer-motion";
 import axios from "axios";
 import { AlertTriangle, X } from "lucide-react";
-import toast from "react-hot-toast"; // ✅ toast added
+import toast from "react-hot-toast";
+import { Player } from "@lottiefiles/react-lottie-player"; // ✅ Lottie Player
 
 // ✅ Cloudinary upload function
 const uploadToCloudinary = async (file) => {
@@ -30,14 +31,12 @@ export const Profile = () => {
   const [userData, setUserData] = useState(null);
   const [avatarFile, setAvatarFile] = useState(null);
 
-  // ✅ Report modal state
   const [isReportOpen, setIsReportOpen] = useState(false);
   const [reportType, setReportType] = useState("");
   const [reportMessage, setReportMessage] = useState("");
 
   const userId = localStorage.getItem("userId");
 
-  // ✅ Fetch user data
   useEffect(() => {
     const fetchUser = async () => {
       try {
@@ -57,41 +56,39 @@ export const Profile = () => {
   const handleSave = async () => {
     try {
       let avatarUrl = userData.avatar;
-      if (avatarFile) {
-        avatarUrl = await uploadToCloudinary(avatarFile);
-      }
+      if (avatarFile) avatarUrl = await uploadToCloudinary(avatarFile);
+
       const updates = { ...userData, avatar: avatarUrl };
       const res = await axios.put(`http://localhost:8000/user/${userId}`, updates);
 
       setUserData(res.data.user);
       setEditMode(false);
       setAvatarFile(null);
-      toast.success("Profile updated successfully ✅"); // ✅ success popup
+      toast.success("Profile updated successfully ✅");
     } catch (err) {
       console.error("❌ Error saving user:", err);
-      toast.error("Failed to update profile ❌"); // ✅ error popup
+      toast.error("Failed to update profile ❌");
     }
   };
 
-  // ✅ Fixed Report Submit with toast
   const handleReportSubmit = async (e) => {
     e.preventDefault();
     try {
       await axios.post("http://localhost:8000/report", {
-        reporter: userId, 
-        type: reportType, 
+        reporter: userId,
+        type: reportType,
         description: reportMessage,
-        targetType: "User", 
-        targetId: userData._id, 
+        targetType: "User",
+        targetId: userData._id,
       });
 
-      toast.success("Report submitted successfully ✅"); // ✅ success popup
+      toast.success("Report submitted successfully ✅");
       setReportType("");
       setReportMessage("");
       setIsReportOpen(false);
     } catch (err) {
       console.error("❌ Error submitting report:", err);
-      toast.error("Failed to submit report ❌"); // ✅ error popup
+      toast.error("Failed to submit report ❌");
     }
   };
 
@@ -101,7 +98,7 @@ export const Profile = () => {
 
   return (
     <motion.div
-      className="bg-white dark:bg-gray-900 p-8 rounded-2xl shadow-lg max-w-full mx-auto transition-all h-full"
+      className="bg-gray-900 p-8 rounded-2xl shadow-lg max-w-full mx-auto text-white transition-all h-full"
       initial={{ opacity: 0, y: 50 }}
       animate={{ opacity: 1, y: 0 }}
     >
@@ -112,8 +109,8 @@ export const Profile = () => {
             key={tab}
             className={`px-4 py-2 rounded-md font-medium transition ${
               activeTab === tab
-                ? "bg-purple-600 text-white"
-                : "bg-gray-200 dark:bg-gray-700"
+                ? "bg-purple-600 text-white shadow-glow"
+                : "bg-gray-800 hover:bg-gray-700"
             }`}
             onClick={() => setActiveTab(tab)}
           >
@@ -122,7 +119,7 @@ export const Profile = () => {
         ))}
       </div>
 
-      {/* Profile Section */}
+      {/* Profile Tab */}
       {activeTab === "profile" && (
         <div className="flex flex-col sm:flex-row items-center gap-6">
           <img
@@ -130,7 +127,6 @@ export const Profile = () => {
             alt="Profile"
             className="w-28 h-28 rounded-full border-4 border-purple-500 shadow-md object-cover"
           />
-
           <div className="w-full">
             {editMode && (
               <div className="mb-4">
@@ -155,10 +151,9 @@ export const Profile = () => {
                   value={userData.fullname || ""}
                   onChange={handleChange}
                   disabled={!editMode}
-                  className="w-full p-2 mt-1 rounded-md bg-gray-100 dark:bg-gray-800 border"
+                  className="w-full p-2 mt-1 rounded-md bg-gray-800 border border-gray-700"
                 />
               </div>
-
               <div>
                 <label className="block text-sm font-medium">Email</label>
                 <input
@@ -167,10 +162,9 @@ export const Profile = () => {
                   value={userData.email || ""}
                   onChange={handleChange}
                   disabled={!editMode}
-                  className="w-full p-2 mt-1 rounded-md bg-gray-100 dark:bg-gray-800 border"
+                  className="w-full p-2 mt-1 rounded-md bg-gray-800 border border-gray-700"
                 />
               </div>
-
               <div>
                 <label className="block text-sm font-medium">Bio</label>
                 <textarea
@@ -179,7 +173,7 @@ export const Profile = () => {
                   onChange={handleChange}
                   disabled={!editMode}
                   rows="2"
-                  className="w-full p-2 mt-1 rounded-md bg-gray-100 dark:bg-gray-800 border"
+                  className="w-full p-2 mt-1 rounded-md bg-gray-800 border border-gray-700"
                 />
               </div>
             </div>
@@ -188,20 +182,19 @@ export const Profile = () => {
               {!editMode ? (
                 <button
                   onClick={() => setEditMode(true)}
-                  className="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-md"
+                  className="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-md shadow-glow"
                 >
                   Edit Info
                 </button>
               ) : (
                 <button
                   onClick={handleSave}
-                  className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-md"
+                  className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-md shadow-glow"
                 >
                   Save Changes
                 </button>
               )}
 
-              {/* ✅ Report Button */}
               <button
                 onClick={() => setIsReportOpen(true)}
                 className="flex items-center gap-2 bg-gradient-to-r from-red-500 to-pink-600 text-white px-4 py-2 rounded-xl shadow-md hover:scale-105 transition-transform"
@@ -214,17 +207,69 @@ export const Profile = () => {
         </div>
       )}
 
+      {/* Achievements Tab */}
+      {activeTab === "achievements" && (
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 mt-4">
+          {userData.achievements && userData.achievements.length > 0 ? (
+            userData.achievements.map((ach, idx) => (
+              <motion.div
+                key={ach._id}
+                className="p-6 rounded-2xl bg-gradient-to-br from-gray-800 via-gray-900 to-gray-800 shadow-glow flex flex-col items-center justify-center border border-purple-600 text-white"
+                whileHover={{ scale: 1.05, boxShadow: "0 0 25px #8b5cf6" }}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: idx * 0.15 }}
+              >
+                <div className="w-28 h-28 mb-3">
+                  {ach.icon ? (
+                    <Player
+                      src={ach.icon}
+                      autoplay
+                      loop
+                      style={{ width: "100%", height: "100%" }}
+                    />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center text-gray-400">
+                      No Icon
+                    </div>
+                  )}
+                </div>
+                <span className="font-bold text-lg text-purple-400">{ach.name}</span>
+                <span className="text-gray-400 text-sm mt-1">
+                  Points: {ach.pointsRequired}
+                </span>
+              </motion.div>
+            ))
+          ) : (
+            <p className="text-gray-400 col-span-full text-center mt-4">
+              No achievements unlocked yet 🕒
+            </p>
+          )}
+        </div>
+      )}
+
+      {/* Activity Tab */}
+      {activeTab === "activity" && (
+        <motion.div
+          className="text-gray-400 text-center mt-8"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+        >
+          Activity feed is coming soon 📜
+        </motion.div>
+      )}
+
       {/* Report Modal */}
       {isReportOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <motion.div
             initial={{ scale: 0.8, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
-            className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-lg w-full max-w-md relative"
+            className="bg-gray-900 p-6 rounded-xl shadow-lg w-full max-w-md relative text-white"
           >
             <button
               onClick={() => setIsReportOpen(false)}
-              className="absolute top-3 right-3 text-gray-500 hover:text-gray-800 dark:hover:text-white"
+              className="absolute top-3 right-3 text-gray-400 hover:text-white"
             >
               <X size={20} />
             </button>
@@ -237,7 +282,7 @@ export const Profile = () => {
                   value={reportType}
                   onChange={(e) => setReportType(e.target.value)}
                   required
-                  className="w-full p-2 rounded-md border bg-gray-100 dark:bg-gray-700"
+                  className="w-full p-2 rounded-md border bg-gray-800 text-white"
                 >
                   <option value="">-- Select an issue --</option>
                   <option value="abuse">🚨 Abusive Behavior</option>
@@ -253,7 +298,7 @@ export const Profile = () => {
                   onChange={(e) => setReportMessage(e.target.value)}
                   required
                   rows="3"
-                  className="w-full p-2 rounded-md border bg-gray-100 dark:bg-gray-700"
+                  className="w-full p-2 rounded-md border bg-gray-800 text-white"
                   placeholder="Describe the issue..."
                 />
               </div>

@@ -357,7 +357,9 @@ export const CommunityDetails = () => {
       {/* Header */}
       <div className="flex flex-col md:flex-row justify-between items-start gap-4">
         <div className="flex-1">
-          <h1 className="text-3xl font-bold">{community.name}</h1>
+          <h1 className="text-3xl font-bold bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent drop-shadow-lg animate-pulse">
+            {community.name}
+          </h1>
           <p className="text-gray-400 mt-1">{community.description}</p>
           <p className="text-xs text-gray-500 mt-2">
             {community.members?.length ?? 0} members
@@ -368,14 +370,14 @@ export const CommunityDetails = () => {
           {!joined ? (
             <button
               onClick={() => handleMembership("join")}
-              className="flex items-center gap-2 px-4 py-2 bg-cyan-600 rounded-lg hover:bg-cyan-700"
+              className="flex items-center gap-2 px-4 py-2 bg-cyan-600 rounded-lg hover:bg-cyan-700 transition-all shadow-md hover:shadow-cyan-500/50"
             >
               <FaUserPlus /> Join
             </button>
           ) : (
             <button
               onClick={() => handleMembership("leave")}
-              className="flex items-center gap-2 px-4 py-2 bg-red-600 rounded-lg hover:bg-red-700"
+              className="flex items-center gap-2 px-4 py-2 bg-red-600 rounded-lg hover:bg-red-700 transition-all shadow-md hover:shadow-red-500/50"
             >
               <FaUserMinus /> Leave
             </button>
@@ -384,7 +386,7 @@ export const CommunityDetails = () => {
           {admin && (
             <button
               onClick={() => setEditMode((v) => !v)}
-              className="flex items-center gap-2 px-4 py-2 bg-yellow-600 rounded-lg hover:bg-yellow-700"
+              className="flex items-center gap-2 px-4 py-2 bg-yellow-600 rounded-lg hover:bg-yellow-700 transition-all shadow-md hover:shadow-yellow-400/50"
             >
               <FaEdit /> {editMode ? "Close Admin" : "Admin"}
             </button>
@@ -394,8 +396,8 @@ export const CommunityDetails = () => {
 
       {/* Admin Panel */}
       {admin && editMode && (
-        <section className="bg-[#142027] p-4 rounded-lg space-y-4 border border-gray-700">
-          <h2 className="text-lg font-semibold">Admin Controls</h2>
+        <section className="bg-[#142027] p-4 rounded-lg space-y-4 border border-gray-700 shadow-lg shadow-cyan-500/20">
+          <h2 className="text-lg font-semibold text-cyan-300">Admin Controls</h2>
 
           {/* Edit info */}
           <div className="grid md:grid-cols-3 gap-3">
@@ -404,7 +406,7 @@ export const CommunityDetails = () => {
               onChange={(e) =>
                 setEditData((p) => ({ ...p, name: e.target.value }))
               }
-              className="p-2 rounded bg-gray-800"
+              className="p-2 rounded bg-gray-800 focus:ring-2 focus:ring-cyan-500"
               placeholder="Name"
             />
             <input
@@ -412,12 +414,12 @@ export const CommunityDetails = () => {
               onChange={(e) =>
                 setEditData((p) => ({ ...p, coverImage: e.target.value }))
               }
-              className="p-2 rounded bg-gray-800"
+              className="p-2 rounded bg-gray-800 focus:ring-2 focus:ring-cyan-500"
               placeholder="Cover image URL"
             />
             <button
               onClick={handleUpdateCommunity}
-              className="px-3 py-2 bg-green-600 rounded"
+              className="px-3 py-2 bg-green-600 rounded hover:bg-green-700 shadow-md hover:shadow-green-500/50"
             >
               Save changes
             </button>
@@ -428,14 +430,14 @@ export const CommunityDetails = () => {
             onChange={(e) =>
               setEditData((p) => ({ ...p, description: e.target.value }))
             }
-            className="w-full p-2 rounded bg-gray-800"
+            className="w-full p-2 rounded bg-gray-800 focus:ring-2 focus:ring-cyan-500"
             placeholder="Description"
             rows={2}
           />
 
           {/* Members management */}
           <div>
-            <h3 className="font-semibold mb-2">Members</h3>
+            <h3 className="font-semibold mb-2 text-indigo-300">Members</h3>
             <div className="grid gap-2 max-h-44 overflow-y-auto">
               {Array.isArray(community.members) &&
               community.members.length > 0 ? (
@@ -447,7 +449,7 @@ export const CommunityDetails = () => {
                   return (
                     <div
                       key={memberId}
-                      className="flex items-center justify-between bg-[#1f2a2e] p-2 rounded"
+                      className="flex items-center justify-between bg-[#1f2a2e] p-2 rounded hover:shadow-md hover:shadow-cyan-500/30 transition"
                     >
                       <div>
                         <div className="font-medium">{memberName}</div>
@@ -457,7 +459,7 @@ export const CommunityDetails = () => {
                         {m.role !== "admin" && (
                           <button
                             onClick={() => handlePromoteMember(memberId)}
-                            className="px-2 py-1 bg-blue-600 rounded hover:bg-blue-700 text-sm"
+                            className="px-2 py-1 bg-blue-600 rounded hover:bg-blue-700 text-sm shadow hover:shadow-blue-400/40"
                             title="Promote to admin"
                           >
                             <FaUserShield />
@@ -465,7 +467,7 @@ export const CommunityDetails = () => {
                         )}
                         <button
                           onClick={() => handleRemoveMember(memberId)}
-                          className="px-2 py-1 bg-red-600 rounded hover:bg-red-700 text-sm"
+                          className="px-2 py-1 bg-red-600 rounded hover:bg-red-700 text-sm shadow hover:shadow-red-400/40"
                         >
                           <FaTrash />
                         </button>
@@ -482,12 +484,12 @@ export const CommunityDetails = () => {
               <input
                 value={newMemberId}
                 onChange={(e) => setNewMemberId(e.target.value)}
-                className="flex-1 p-2 rounded bg-gray-800"
+                className="flex-1 p-2 rounded bg-gray-800 focus:ring-2 focus:ring-indigo-500"
                 placeholder="Add member by User ID"
               />
               <button
                 onClick={handleAddMember}
-                className="px-3 py-2 bg-indigo-600 rounded hover:bg-indigo-700"
+                className="px-3 py-2 bg-indigo-600 rounded hover:bg-indigo-700 shadow hover:shadow-indigo-500/40"
               >
                 Add
               </button>
@@ -514,9 +516,9 @@ export const CommunityDetails = () => {
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.9, delay: idx * 0.03 }}
-                className={`p-4 rounded-2xl shadow-md ${
+                className={`p-4 rounded-2xl shadow-lg hover:shadow-cyan-500/30 transition ${
                   pinned
-                    ? "bg-yellow-900/10 border border-yellow-600"
+                    ? "bg-yellow-900/20 border border-yellow-600"
                     : "bg-[#334155]"
                 }`}
               >
@@ -524,18 +526,18 @@ export const CommunityDetails = () => {
                   <img
                     src={post.userId?.avatar || "/avatars/default.png"}
                     alt={post.userId?.fullname || userName}
-                    className="w-10 h-10 rounded-full border-2 border-cyan-500"
+                    className="w-10 h-10 rounded-full border-2 border-cyan-500 shadow-md"
                   />
                   <div className="flex-1">
                     <div className="flex items-center justify-between">
                       <div>
                         <div className="flex items-center gap-2">
-                          <div className="font-semibold">
+                          <div className="font-semibold text-cyan-300 drop-shadow">
                             {post.userId?.fullname || userName}
                           </div>
                           {pinned && (
-                            <span className="text-xs text-yellow-300">
-                              Pinned
+                            <span className="text-xs text-yellow-300 animate-pulse">
+                              📌 Pinned
                             </span>
                           )}
                         </div>
@@ -548,7 +550,7 @@ export const CommunityDetails = () => {
                         setReportTarget({ type: "Post", id: post._id });
                         setIsReportOpen(true);
                       }}
-                      className="p-2 rounded hover:bg-gray-700"
+                      className="p-2 rounded hover:bg-gray-700 transition"
                     >
                       <FaEllipsisV />
                     </button>
@@ -559,8 +561,10 @@ export const CommunityDetails = () => {
                     <div className="flex items-center gap-6 mt-4 text-gray-300">
                       <button
                         onClick={() => handleLike(post._id)}
-                        className={`flex items-center gap-2 ${
-                          liked ? "text-red-400" : "hover:text-red-400"
+                        className={`flex items-center gap-2 transition ${
+                          liked
+                            ? "text-red-400 drop-shadow-[0_0_10px_#f87171]"
+                            : "hover:text-red-400"
                         }`}
                         aria-pressed={liked}
                       >
@@ -575,7 +579,7 @@ export const CommunityDetails = () => {
                             [post._id]: !s[post._id],
                           }))
                         }
-                        className="flex items-center gap-2 hover:text-blue-400"
+                        className="flex items-center gap-2 hover:text-blue-400 hover:drop-shadow-[0_0_8px_#60a5fa]"
                       >
                         <FaCommentAlt />
                         <span>{commentCount}</span>
@@ -585,7 +589,7 @@ export const CommunityDetails = () => {
                       {admin && (
                         <button
                           onClick={() => handlePinToggle(post._id, pinned)}
-                          className="flex items-center gap-2 hover:text-yellow-300"
+                          className="flex items-center gap-2 hover:text-yellow-300 hover:drop-shadow-[0_0_8px_#facc15]"
                         >
                           <FaThumbsUp />
                           <span>{pinned ? "Unpin" : "Pin"}</span>
@@ -598,7 +602,7 @@ export const CommunityDetails = () => {
                       {showComments[post._id] && (
                         <motion.div
                           transition={{ duration: 2 }}
-                          className="bg-[#1e293b] p-3 rounded-lg mt-3 space-y-3"
+                          className="bg-[#1e293b] p-3 rounded-lg mt-3 space-y-3 shadow-inner shadow-cyan-500/20"
                         >
                           {Array.isArray(post.comments) &&
                           post.comments.length > 0 ? (
@@ -642,14 +646,14 @@ export const CommunityDetails = () => {
                                         [c._id]: e.target.value,
                                       }))
                                     }
-                                    className="flex-1 p-1 rounded bg-gray-800 text-xs"
+                                    className="flex-1 p-1 rounded bg-gray-800 text-xs focus:ring-1 focus:ring-cyan-500"
                                     placeholder="Write a reply..."
                                   />
                                   <button
                                     onClick={() =>
                                       handleAddReply(post._id, c._id)
                                     }
-                                    className="px-2 py-1 bg-green-600 rounded text-xs"
+                                    className="px-2 py-1 bg-green-600 rounded text-xs hover:bg-green-700 hover:shadow-md hover:shadow-green-400/40"
                                   >
                                     Reply
                                   </button>
@@ -672,12 +676,12 @@ export const CommunityDetails = () => {
                                   [post._id]: e.target.value,
                                 }))
                               }
-                              className="flex-1 p-2 rounded bg-gray-800"
+                              className="flex-1 p-2 rounded bg-gray-800 focus:ring-1 focus:ring-blue-500"
                               placeholder="Write a comment..."
                             />
                             <button
                               onClick={() => handleAddComment(post._id)}
-                              className="px-3 py-2 bg-blue-600 rounded"
+                              className="px-3 py-2 bg-blue-600 rounded hover:bg-blue-700 hover:shadow-md hover:shadow-blue-400/40"
                             >
                               Send
                             </button>
@@ -696,12 +700,12 @@ export const CommunityDetails = () => {
       {/* New post only for members */}
       {joined && (
         <motion.div
-          className="bg-[#334155] p-4 rounded-2xl shadow-md"
+          className="bg-[#334155] p-4 rounded-2xl shadow-md hover:shadow-cyan-500/30 transition"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
         >
           <textarea
-            className="w-full p-3 rounded-lg bg-[#1e293b] text-white focus:outline-none"
+            className="w-full p-3 rounded-lg bg-[#1e293b] text-white focus:outline-none focus:ring-2 focus:ring-cyan-500"
             rows={3}
             placeholder="Share an idea, ask a question..."
             value={newPost}
@@ -710,7 +714,7 @@ export const CommunityDetails = () => {
           <div className="flex justify-end mt-3">
             <button
               onClick={handleAddPost}
-              className="px-4 py-2 bg-cyan-600 rounded-lg hover:bg-cyan-700"
+              className="px-4 py-2 bg-cyan-600 rounded-lg hover:bg-cyan-700 transition shadow hover:shadow-cyan-500/50"
             >
               Post
             </button>
@@ -731,7 +735,7 @@ export const CommunityDetails = () => {
               <X size={20} />
             </button>
 
-            <h2 className="text-xl font-semibold mb-4">
+            <h2 className="text-xl font-semibold mb-4 text-red-500">
               Report {reportTarget?.type}
             </h2>
             <form onSubmit={handleReportSubmit} className="space-y-4">
@@ -743,7 +747,7 @@ export const CommunityDetails = () => {
                   value={reportType}
                   onChange={(e) => setReportType(e.target.value)}
                   required
-                  className="w-full p-2 rounded-md border bg-gray-100 dark:bg-gray-700"
+                  className="w-full p-2 rounded-md border bg-gray-100 dark:bg-gray-700 focus:ring-2 focus:ring-red-400"
                 >
                   <option value="">-- Select an issue --</option>
                   <option value="abuse">🚨 Abuse</option>
@@ -759,7 +763,7 @@ export const CommunityDetails = () => {
                   onChange={(e) => setReportMessage(e.target.value)}
                   required
                   rows="3"
-                  className="w-full p-2 rounded-md border bg-gray-100 dark:bg-gray-700"
+                  className="w-full p-2 rounded-md border bg-gray-100 dark:bg-gray-700 focus:ring-2 focus:ring-red-400"
                   placeholder="Describe the issue..."
                 />
               </div>
@@ -775,5 +779,6 @@ export const CommunityDetails = () => {
         </div>
       )}
     </div>
+
   );
 };
