@@ -2,9 +2,24 @@ import { motion } from "framer-motion";
 import React from "react";
 import { Menu, X ,Bell} from "lucide-react";
 import { useState, useEffect } from "react";
+import axios from "axios";
 export const AdminNavbar = ({ toggleSidebar, isSidebarOpen }) => {
   const [time, setTime] = useState(new Date());
   const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [avatar, setavatar] = useState("")
+  const userId = localStorage.getItem("userId")
+  const fetchUser = async () => {
+    try{
+    const user = await axios.get(`http://localhost:8000/user/${userId}`);
+    console.log(user.data.data.avatar)
+    setavatar(user.data.data.avatar)
+    }catch(err){
+    console.error(err)
+    }
+  }
+  useEffect(()=>{
+    fetchUser
+  })
 
   useEffect(() => {
     const timer = setInterval(() => setTime(new Date()), 60000); // update every minute
@@ -47,7 +62,7 @@ export const AdminNavbar = ({ toggleSidebar, isSidebarOpen }) => {
         <div className="relative">
           <img
             onClick={() => setDropdownOpen(!dropdownOpen)}
-            src="https://i.pravatar.cc/30"
+            src={avatar}
             alt="Avatar"
             className="w-8 h-8 rounded-full cursor-pointer border border-blue-500"
           />
