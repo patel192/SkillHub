@@ -98,7 +98,7 @@ export const Profile = () => {
 
   return (
     <motion.div
-      className="bg-gray-900 p-8 rounded-2xl shadow-lg max-w-full mx-auto text-white transition-all h-full"
+      className="bg-gradient-to-br from-[#0f172a] via-[#1e1b4b] to-[#0f172a] p-8 rounded-2xl shadow-lg max-w-full mx-auto text-white transition-all h-full border border-purple-600/40"
       initial={{ opacity: 0, y: 50 }}
       animate={{ opacity: 1, y: 0 }}
     >
@@ -109,8 +109,8 @@ export const Profile = () => {
             key={tab}
             className={`px-4 py-2 rounded-md font-medium transition ${
               activeTab === tab
-                ? "bg-purple-600 text-white shadow-glow"
-                : "bg-gray-800 hover:bg-gray-700"
+                ? "bg-gradient-to-r from-purple-500 to-cyan-500 text-white shadow-[0_0_15px_#8b5cf6]"
+                : "bg-[#1b1b2a] hover:bg-[#2a2a3b] text-gray-300"
             }`}
             onClick={() => setActiveTab(tab)}
           >
@@ -125,55 +125,55 @@ export const Profile = () => {
           <img
             src={userData.avatar}
             alt="Profile"
-            className="w-28 h-28 rounded-full border-4 border-purple-500 shadow-md object-cover"
+            className="w-28 h-28 rounded-full border-4 border-cyan-400 shadow-[0_0_20px_#22d3ee] object-cover"
           />
           <div className="w-full">
             {editMode && (
               <div className="mb-4">
-                <label className="block text-sm font-medium mb-2">Upload New Avatar</label>
+                <label className="block text-sm font-medium mb-2 text-cyan-300">Upload New Avatar</label>
                 <input
                   type="file"
                   accept="image/*"
                   onChange={(e) => setAvatarFile(e.target.files[0])}
-                  className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4
+                  className="block w-full text-sm text-gray-300 file:mr-4 file:py-2 file:px-4
                     file:rounded-md file:border-0 file:text-sm file:font-semibold
-                    file:bg-purple-600 file:text-white hover:file:bg-purple-700"
+                    file:bg-gradient-to-r file:from-purple-500 file:to-cyan-500 file:text-white hover:file:opacity-90"
                 />
               </div>
             )}
 
             <div className="space-y-4">
               <div>
-                <label className="block text-sm font-medium">Full Name</label>
+                <label className="block text-sm font-medium text-purple-400">Full Name</label>
                 <input
                   type="text"
                   name="fullname"
                   value={userData.fullname || ""}
                   onChange={handleChange}
                   disabled={!editMode}
-                  className="w-full p-2 mt-1 rounded-md bg-gray-800 border border-gray-700"
+                  className="w-full p-2 mt-1 rounded-md bg-[#1b1b2a] border border-purple-500/40 focus:border-cyan-400 focus:ring focus:ring-cyan-400/30 disabled:opacity-60"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium">Email</label>
+                <label className="block text-sm font-medium text-purple-400">Email</label>
                 <input
                   type="email"
                   name="email"
                   value={userData.email || ""}
                   onChange={handleChange}
                   disabled={!editMode}
-                  className="w-full p-2 mt-1 rounded-md bg-gray-800 border border-gray-700"
+                  className="w-full p-2 mt-1 rounded-md bg-[#1b1b2a] border border-purple-500/40 focus:border-cyan-400 focus:ring focus:ring-cyan-400/30 disabled:opacity-60"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium">Bio</label>
+                <label className="block text-sm font-medium text-purple-400">Bio</label>
                 <textarea
                   name="bio"
                   value={userData.bio || ""}
                   onChange={handleChange}
                   disabled={!editMode}
                   rows="2"
-                  className="w-full p-2 mt-1 rounded-md bg-gray-800 border border-gray-700"
+                  className="w-full p-2 mt-1 rounded-md bg-[#1b1b2a] border border-purple-500/40 focus:border-cyan-400 focus:ring focus:ring-cyan-400/30 disabled:opacity-60"
                 />
               </div>
             </div>
@@ -182,14 +182,14 @@ export const Profile = () => {
               {!editMode ? (
                 <button
                   onClick={() => setEditMode(true)}
-                  className="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-md shadow-glow"
+                  className="bg-gradient-to-r from-purple-500 to-cyan-500 hover:opacity-90 text-white px-4 py-2 rounded-md shadow-[0_0_15px_#22d3ee]"
                 >
                   Edit Info
                 </button>
               ) : (
                 <button
                   onClick={handleSave}
-                  className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-md shadow-glow"
+                  className="bg-gradient-to-r from-green-500 to-cyan-500 hover:opacity-90 text-white px-4 py-2 rounded-md shadow-[0_0_15px_#22d3ee]"
                 >
                   Save Changes
                 </button>
@@ -214,8 +214,8 @@ export const Profile = () => {
             userData.achievements.map((ach, idx) => (
               <motion.div
                 key={ach._id}
-                className="p-6 rounded-2xl bg-gradient-to-br from-gray-800 via-gray-900 to-gray-800 shadow-glow flex flex-col items-center justify-center border border-purple-600 text-white"
-                whileHover={{ scale: 1.05, boxShadow: "0 0 25px #8b5cf6" }}
+                className="p-6 rounded-2xl bg-gradient-to-br from-[#1b1b2a] to-[#2a2a3b] shadow-[0_0_15px_#8b5cf6] flex flex-col items-center justify-center border border-purple-600 text-white"
+                whileHover={{ scale: 1.05, boxShadow: "0 0 25px #22d3ee" }}
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: idx * 0.15 }}
@@ -234,7 +234,7 @@ export const Profile = () => {
                     </div>
                   )}
                 </div>
-                <span className="font-bold text-lg text-purple-400">{ach.name}</span>
+                <span className="font-bold text-lg text-cyan-400">{ach.name}</span>
                 <span className="text-gray-400 text-sm mt-1">
                   Points: {ach.pointsRequired}
                 </span>
@@ -265,7 +265,7 @@ export const Profile = () => {
           <motion.div
             initial={{ scale: 0.8, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
-            className="bg-gray-900 p-6 rounded-xl shadow-lg w-full max-w-md relative text-white"
+            className="bg-gradient-to-br from-[#1b1b2a] to-[#2a2a3b] p-6 rounded-xl shadow-lg w-full max-w-md relative text-white border border-purple-600/50"
           >
             <button
               onClick={() => setIsReportOpen(false)}
@@ -274,15 +274,15 @@ export const Profile = () => {
               <X size={20} />
             </button>
 
-            <h2 className="text-xl font-semibold mb-4">Report User</h2>
+            <h2 className="text-xl font-semibold mb-4 text-cyan-400">Report User</h2>
             <form onSubmit={handleReportSubmit} className="space-y-4">
               <div>
-                <label className="block text-sm font-medium mb-1">Report Type</label>
+                <label className="block text-sm font-medium mb-1 text-purple-400">Report Type</label>
                 <select
                   value={reportType}
                   onChange={(e) => setReportType(e.target.value)}
                   required
-                  className="w-full p-2 rounded-md border bg-gray-800 text-white"
+                  className="w-full p-2 rounded-md border border-purple-600/40 bg-[#1b1b2a] text-white"
                 >
                   <option value="">-- Select an issue --</option>
                   <option value="abuse">🚨 Abusive Behavior</option>
@@ -292,13 +292,13 @@ export const Profile = () => {
               </div>
 
               <div>
-                <label className="block text-sm font-medium mb-1">Details</label>
+                <label className="block text-sm font-medium mb-1 text-purple-400">Details</label>
                 <textarea
                   value={reportMessage}
                   onChange={(e) => setReportMessage(e.target.value)}
                   required
                   rows="3"
-                  className="w-full p-2 rounded-md border bg-gray-800 text-white"
+                  className="w-full p-2 rounded-md border border-purple-600/40 bg-[#1b1b2a] text-white"
                   placeholder="Describe the issue..."
                 />
               </div>
