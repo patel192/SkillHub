@@ -9,11 +9,36 @@ import {
   FaGoogle,
   FaDiscord,
   FaLink,
-  
 } from "react-icons/fa";
 
 export const Settings = () => {
   const [activeTab, setActiveTab] = useState("account");
+
+  // ✅ Custom glowing checkbox/toggle
+  const CustomToggle = ({ label }) => (
+    <label className="flex items-center space-x-3 cursor-pointer group">
+      <input type="checkbox" className="hidden peer" />
+      <div
+        className="w-6 h-6 rounded-md border-2 border-gray-400 dark:border-gray-600 
+        peer-checked:border-green-400 flex items-center justify-center 
+        transition-all duration-300 peer-checked:bg-green-500 
+        peer-checked:shadow-[0_0_10px_2px_rgba(34,197,94,0.8)]"
+      >
+        <svg
+          className="w-4 h-4 text-white opacity-0 peer-checked:opacity-100 transition-opacity duration-300"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="3"
+          viewBox="0 0 24 24"
+        >
+          <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+        </svg>
+      </div>
+      <span className="text-gray-800 dark:text-gray-200 group-hover:text-green-400 transition">
+        {label}
+      </span>
+    </label>
+  );
 
   const renderTabContent = () => {
     switch (activeTab) {
@@ -22,12 +47,30 @@ export const Settings = () => {
           <div className="space-y-4">
             <h3 className="text-lg font-semibold">Personal Information</h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-              <input type="text" placeholder="Full Name" className="input p-3 rounded placeholder-shown:bg-zinc-800 duration-500 focus:p-4 focus:bg-gradient-to-b from-blue-700 to-purple-600" />
-              <input type="email" placeholder="Email" className="input p-3 rounded placeholder-shown:bg-zinc-800 duration-500 focus:p-4 focus:bg-gradient-to-b from-blue-700 to-purple-600" />
-              <input type="text" placeholder="Username" className="input p-3 rounded placeholder-shown:bg-zinc-800 duration-500 focus:p-4 focus:bg-gradient-to-b from-blue-700 to-purple-600" />
-              <input type="tel" placeholder="Phone Number" className="input p-3 rounded placeholder-shown:bg-zinc-800 duration-500 focus:p-4 focus:bg-gradient-to-b from-blue-700 to-purple-600" />
+              <input
+                type="text"
+                placeholder="Full Name"
+                className="p-3 rounded bg-zinc-800 text-white placeholder-gray-500 focus:ring-2 focus:ring-blue-500"
+              />
+              <input
+                type="email"
+                placeholder="Email"
+                className="p-3 rounded bg-zinc-800 text-white placeholder-gray-500 focus:ring-2 focus:ring-blue-500"
+              />
+              <input
+                type="text"
+                placeholder="Username"
+                className="p-3 rounded bg-zinc-800 text-white placeholder-gray-500 focus:ring-2 focus:ring-blue-500"
+              />
+              <input
+                type="tel"
+                placeholder="Phone Number"
+                className="p-3 rounded bg-zinc-800 text-white placeholder-gray-500 focus:ring-2 focus:ring-blue-500"
+              />
             </div>
-            <button className="btn-primary bg-blue-600 rounded p-2 pl-4 pr-4 hover:scale-110 duration-600 hover:bg-green-500 ">Save Changes</button>
+            <button className="bg-blue-600 text-white rounded px-6 py-2 hover:scale-110 duration-300 hover:bg-green-500 shadow-lg">
+              Save Changes
+            </button>
           </div>
         );
 
@@ -35,15 +78,11 @@ export const Settings = () => {
         return (
           <div className="space-y-4">
             <h3 className="text-lg font-semibold">Privacy Settings</h3>
-            <label className="flex items-center space-x-2">
-              <input type="checkbox" className="toggle" />
-              <span>Make profile public</span>
-            </label>
-            <label className="flex items-center space-x-2">
-              <input type="checkbox" className="toggle" />
-              <span>Enable activity tracking</span>
-            </label>
-            <button className="btn-primary">Save Privacy Preferences</button>
+            <CustomToggle label="Make profile public" />
+            <CustomToggle label="Enable activity tracking" />
+            <button className="bg-blue-600 text-white rounded px-6 py-2 hover:scale-110 duration-300 hover:bg-green-500 shadow-lg">
+              Save Privacy Preferences
+            </button>
           </div>
         );
 
@@ -51,16 +90,15 @@ export const Settings = () => {
         return (
           <div className="space-y-4">
             <h3 className="text-lg font-semibold">Theme & Appearance</h3>
-            <select className="input">
+            <select className="p-3 rounded bg-zinc-800 text-white">
               <option value="system">System Default</option>
               <option value="light">Light Mode</option>
               <option value="dark">Dark Mode</option>
             </select>
-            <label className="flex items-center space-x-2">
-              <input type="checkbox" className="toggle" />
-              <span>Enable animations</span>
-            </label>
-            <button className="btn-primary">Save Appearance Settings</button>
+            <CustomToggle label="Enable animations" />
+            <button className="bg-blue-600 text-white rounded px-6 py-2 hover:scale-110 duration-300 hover:bg-green-500 shadow-lg">
+              Save Appearance Settings
+            </button>
           </div>
         );
 
@@ -68,19 +106,12 @@ export const Settings = () => {
         return (
           <div className="space-y-4">
             <h3 className="text-lg font-semibold">Notification Preferences</h3>
-            <label className="flex items-center space-x-2">
-              <input type="checkbox" className="toggle" />
-              <span>Email Notifications</span>
-            </label>
-            <label className="flex items-center space-x-2">
-              <input type="checkbox" className="toggle" />
-              <span>Push Notifications</span>
-            </label>
-            <label className="flex items-center space-x-2">
-              <input type="checkbox" className="toggle" />
-              <span>Activity Alerts</span>
-            </label>
-            <button className="btn-primary">Update Preferences</button>
+            <CustomToggle label="Email Notifications" />
+            <CustomToggle label="Push Notifications" />
+            <CustomToggle label="Activity Alerts" />
+            <button className="bg-blue-600 text-white rounded px-6 py-2 hover:scale-110 duration-300 hover:bg-green-500 shadow-lg">
+              Update Preferences
+            </button>
           </div>
         );
 
@@ -89,13 +120,13 @@ export const Settings = () => {
           <div className="space-y-4">
             <h3 className="text-lg font-semibold">Connected Accounts</h3>
             <div className="flex flex-col md:flex-row md:space-x-4 space-y-2 md:space-y-0">
-              <button className="btn-social bg-black text-white">
+              <button className="bg-black text-white px-4 py-2 rounded flex items-center hover:scale-105 duration-300">
                 <FaGithub className="mr-2" /> Connect GitHub
               </button>
-              <button className="btn-social bg-red-600 text-white">
+              <button className="bg-red-600 text-white px-4 py-2 rounded flex items-center hover:scale-105 duration-300">
                 <FaGoogle className="mr-2" /> Connect Google
               </button>
-              <button className="btn-social bg-indigo-500 text-white">
+              <button className="bg-indigo-500 text-white px-4 py-2 rounded flex items-center hover:scale-105 duration-300">
                 <FaDiscord className="mr-2" /> Connect Discord
               </button>
             </div>
@@ -107,7 +138,7 @@ export const Settings = () => {
           <div className="space-y-4">
             <h3 className="text-lg font-semibold text-red-600">Danger Zone</h3>
             <p>Deleting your account is permanent and cannot be undone.</p>
-            <button className="btn-danger">
+            <button className="bg-red-600 text-white px-6 py-2 rounded flex items-center hover:scale-110 duration-300 hover:bg-red-700 shadow-lg">
               <FaTrashAlt className="mr-2" /> Delete My Account
             </button>
           </div>
@@ -117,63 +148,38 @@ export const Settings = () => {
         return null;
     }
   };
+
   return (
     <div className="p-6 bg-white dark:bg-gray-900 shadow-xl rounded-2xl">
       <h2 className="text-2xl font-bold mb-6 text-center text-gray-800 dark:text-white">
         ⚙️ User Settings
       </h2>
 
-      <div className="flex flex-wrap gap-10 mb-6 justify-between">
-        <button
-          onClick={() => setActiveTab("account")}
-          className={`tab-btn  w-1/9  ${
-            activeTab === "account" ? "active" : ""
-          }`}
-        >
-          <div className="flex justify-center items-center flex-col bg-green-500 rounded-2xl h-20 hover:scale-110 duration-500 cursor-pointer">
-            <FaUserCog className="mr-1" /> Account
-          </div>
-        </button>
-        <button
-          onClick={() => setActiveTab("privacy")}
-          className={`tab-btn w-1/9 ${activeTab === "privacy" ? "active" : ""}`}
-        >
-          <div className="flex justify-center items-center flex-col bg-blue-500 rounded-2xl h-20 hover:scale-110 duration-500 cursor-pointer">
-            <FaLock className="mr-1" /> Privacy
-          </div>
-        </button>
-        <button
-          onClick={() => setActiveTab("appearance")}
-          className={`tab-btn w-1/9 ${activeTab === "appearance" ? "active" : ""}`}
-        >
-          <div className="flex justify-center items-center flex-col bg-purple-500 rounded-2xl h-20 hover:scale-110 duration-500 cursor-pointer">
-            <FaPalette className="mr-1" /> Appearance
-          </div>
-        </button>
-        <button
-          onClick={() => setActiveTab("notifications")}
-          className={`tab-btn w-1/9 ${activeTab === "notifications" ? "active" : ""}`}
-        >
-          <div className="flex justify-center items-center flex-col bg-yellow-500 rounded-2xl h-20 hover:scale-110 duration-500 cursor-pointer">
-            <FaBell className="mr-1" /> Notifications
-          </div>
-        </button>
-        <button
-          onClick={() => setActiveTab("integrations")}
-          className={`tab-btn w-1/9 ${activeTab === "integrations" ? "active" : ""}`}
-        >
-          <div className="flex justify-center items-center flex-col bg-pink-500 rounded-2xl h-20 hover:scale-110 duration-500 cursor-pointer">
-            <FaLink className="mr-1" />
-            Integrations</div>
-        </button>
-        <button
-          onClick={() => setActiveTab("deactivate")}
-          className={`tab-btn w-1/9 ${activeTab === "deactivate" ? "active" : ""}`}
-        >
-          <div className="flex justify-center items-center flex-col bg-red-500 rounded-2xl h-20 hover:scale-110 duration-500 cursor-pointer" >
-            <FaTrashAlt className="mr-1" />
-            Deactivate</div>
-        </button>
+      {/* ✅ Glowing tab options */}
+      <div className="flex flex-wrap gap-6 mb-6 justify-between">
+        {[
+          { key: "account", icon: <FaUserCog />, label: "Account", color: "bg-green-500" },
+          { key: "privacy", icon: <FaLock />, label: "Privacy", color: "bg-blue-500" },
+          { key: "appearance", icon: <FaPalette />, label: "Appearance", color: "bg-purple-500" },
+          { key: "notifications", icon: <FaBell />, label: "Notifications", color: "bg-yellow-500" },
+          { key: "integrations", icon: <FaLink />, label: "Integrations", color: "bg-pink-500" },
+          { key: "deactivate", icon: <FaTrashAlt />, label: "Deactivate", color: "bg-red-500" },
+        ].map((tab) => (
+          <button
+            key={tab.key}
+            onClick={() => setActiveTab(tab.key)}
+            className={`tab-btn w-28 ${activeTab === tab.key ? "scale-110" : ""}`}
+          >
+            <div
+              className={`${tab.color} flex justify-center items-center flex-col rounded-2xl h-20 
+              transition-transform duration-500 hover:scale-110 cursor-pointer 
+              shadow-lg hover:shadow-[0_0_20px] hover:shadow-${tab.color.split("-")[1]}-400 
+              ${activeTab === tab.key ? "shadow-[0_0_25px] shadow-white" : ""}`}
+            >
+              {tab.icon} {tab.label}
+            </div>
+          </button>
+        ))}
       </div>
 
       <div>{renderTabContent()}</div>
