@@ -15,7 +15,7 @@ import {
 } from "lucide-react";
 import { ReportModal } from "../report/ReportModal";
 
-export const CourseDetails = () => {
+export const CourseDetails = ({token}) => {
   const { courseId } = useParams();
   const [course, setCourse] = useState(null);
   const [overview, setOverview] = useState([]);
@@ -32,7 +32,9 @@ export const CourseDetails = () => {
 
   const fetchCourseDetails = async () => {
     try {
-      const res = await axios.get(`http://localhost:8000/course/${courseId}`);
+      const res = await axios.get(`http://localhost:8000/course/${courseId}`,{
+        headers:{Authorization:`Bearer ${token}`}
+      });
       setCourse(res.data.data);
     } catch (error) {
       console.error("Failed to fetch course", error);
@@ -41,7 +43,9 @@ export const CourseDetails = () => {
 
   const fetchCourseOverview = async () => {
     try {
-      const res = await axios.get(`http://localhost:8000/overview/${courseId}`);
+      const res = await axios.get(`http://localhost:8000/overview/${courseId}`,{
+        headers:{Authorization:`Bearer ${token}`}
+      });
       let data = res.data.data?.overview || [];
       if (typeof data === "string") {
         data = data.split("\n").filter(Boolean);
@@ -54,7 +58,9 @@ export const CourseDetails = () => {
 
   const checkIfEnrolled = async () => {
     try {
-      const res = await axios.get(`http://localhost:8000/enrollment/${userId}`);
+      const res = await axios.get(`http://localhost:8000/enrollment/${userId}`,{
+        headers:{Authorization:`Bearer ${token}`}
+      });
       const enrollments = res.data.data || [];
       const isAlreadyEnrolled = enrollments.some(
         (enroll) =>
@@ -68,7 +74,9 @@ export const CourseDetails = () => {
 
   const handleEnroll = async () => {
     try {
-      await axios.post("http://localhost:8000/enrollment", {
+      await axios.post("http://localhost:8000/enrollment",{
+        headers:{Authorization:`Bearer ${token}`}
+      }, {
         userId,
         courseId,
         status: "Registered",

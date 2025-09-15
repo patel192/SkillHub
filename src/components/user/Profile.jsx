@@ -22,7 +22,7 @@ const uploadToCloudinary = async (file) => {
   return result.secure_url;
 };
 
-export const Profile = () => {
+export const Profile = ({token}) => {
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -40,7 +40,9 @@ export const Profile = () => {
   useEffect(() => {
     const fetchUser = async () => {
       try {
-        const res = await axios.get(`http://localhost:8000/user/${userId}`);
+        const res = await axios.get(`http://localhost:8000/user/${userId}`,{
+        headers:{Authorization:`Bearer ${token}`}
+      });
         setUserData(res.data.data);
       } catch (err) {
         console.error("❌ Error fetching user:", err);
@@ -59,7 +61,9 @@ export const Profile = () => {
       if (avatarFile) avatarUrl = await uploadToCloudinary(avatarFile);
 
       const updates = { ...userData, avatar: avatarUrl };
-      const res = await axios.put(`http://localhost:8000/user/${userId}`, updates);
+      const res = await axios.put(`http://localhost:8000/user/${userId}`,{
+        headers:{Authorization:`Bearer ${token}`}
+      }, updates);
 
       setUserData(res.data.user);
       setEditMode(false);
@@ -74,7 +78,9 @@ export const Profile = () => {
   const handleReportSubmit = async (e) => {
     e.preventDefault();
     try {
-      await axios.post("http://localhost:8000/report", {
+      await axios.post("http://localhost:8000/report",{
+        headers:{Authorization:`Bearer ${token}`}
+      }, {
         reporter: userId,
         type: reportType,
         description: reportMessage,

@@ -15,7 +15,7 @@ import {
 } from "lucide-react";
 import toast from "react-hot-toast";
 import { MoreVertical } from "lucide-react";
-export const Messages = () => {
+export const Messages = ({token}) => {
   const currentUserId = localStorage.getItem("userId");
   const [isReportOpen, setIsReportOpen] = useState(false);
   const [reportTarget, setReportTarget] = useState(null); // { type, id }
@@ -50,7 +50,9 @@ export const Messages = () => {
     e.preventDefault();
     if (!reportTarget) return;
     try {
-      await axios.post("http://localhost:8000/report", {
+      await axios.post("http://localhost:8000/report",{
+        headers:{Authorization:`Bearer ${token}`}
+      }, {
         reporter: currentUserId,
         type: reportType,
         description: reportMessage,
@@ -73,7 +75,9 @@ export const Messages = () => {
   const fetchFriends = async () => {
     try {
       const res = await axios.get(
-        `http://localhost:8000/friends/${currentUserId}`
+        `http://localhost:8000/friends/${currentUserId}`,{
+        headers:{Authorization:`Bearer ${token}`}
+      }
       );
       const list = res.data?.data ?? [];
       setFriends(list);
@@ -86,7 +90,9 @@ export const Messages = () => {
   const fetchIncoming = async () => {
     try {
       const res = await axios.get(
-        `http://localhost:8000/friends/requests/${currentUserId}`
+        `http://localhost:8000/friends/requests/${currentUserId}`,{
+        headers:{Authorization:`Bearer ${token}`}
+      }
       );
       setIncoming(res.data?.data ?? []);
     } catch {
@@ -97,7 +103,9 @@ export const Messages = () => {
   const fetchOutgoing = async () => {
     try {
       const res = await axios.get(
-        `http://localhost:8000/friends/requests/sent/${currentUserId}`
+        `http://localhost:8000/friends/requests/sent/${currentUserId}`,{
+        headers:{Authorization:`Bearer ${token}`}
+      }
       );
       setOutgoing(res.data?.data ?? []);
     } catch {
@@ -109,7 +117,9 @@ export const Messages = () => {
     if (!friendId) return setMessages([]);
     try {
       const res = await axios.get(
-        `http://localhost:8000/messages/${currentUserId}/${friendId}`
+        `http://localhost:8000/messages/${currentUserId}/${friendId}`,{
+        headers:{Authorization:`Bearer ${token}`}
+      }
       );
       // controller returns { success, messages } so try both shapes
       setMessages(res.data?.messages ?? res.data?.data ?? []);
@@ -132,7 +142,9 @@ export const Messages = () => {
     if (editMsg) {
       try {
         const res = await axios.patch(
-          `http://localhost:8000/message/${editMsg._id}`,
+          `http://localhost:8000/message/${editMsg._id}`,{
+        headers:{Authorization:`Bearer ${token}`}
+      },
           {
             text: newMessage,
           }
@@ -171,7 +183,9 @@ export const Messages = () => {
     setMessages((prev) => [...prev, optimisticMsg]);
 
     try {
-      const res = await axios.post("http://localhost:8000/message", {
+      const res = await axios.post("http://localhost:8000/message",{
+        headers:{Authorization:`Bearer ${token}`}
+      }, {
         senderId: currentUserId,
         receiverId: selectedUserId,
         text: newMessage,
@@ -196,7 +210,9 @@ export const Messages = () => {
   const handleReaction = async (msgId, emoji) => {
     try {
       const res = await axios.patch(
-        `http://localhost:8000/message/${msgId}/reaction`,
+        `http://localhost:8000/message/${msgId}/reaction`,{
+        headers:{Authorization:`Bearer ${token}`}
+      },
         {
           userId: currentUserId,
           emoji,
@@ -230,7 +246,9 @@ export const Messages = () => {
 
   const handleDelete = async (messageId) => {
     try {
-      await axios.delete(`http://localhost:8000/message/${messageId}`);
+      await axios.delete(`http://localhost:8000/message/${messageId}`,{
+        headers:{Authorization:`Bearer ${token}`}
+      });
       setMessages((prev) =>
         prev.filter((m) => String(m._id) !== String(messageId))
       );
@@ -253,7 +271,9 @@ export const Messages = () => {
   const handleIncomingAction = async (requestId, action) => {
     try {
       // keeping your existing route shape
-      await axios.patch(`http://localhost:8000/friends/request/${requestId}`, {
+      await axios.patch(`http://localhost:8000/friends/request/${requestId}`,{
+        headers:{Authorization:`Bearer ${token}`}
+      }, {
         status: action,
       });
       await fetchIncoming();
@@ -268,7 +288,9 @@ export const Messages = () => {
     const id = String(recipientId);
     setAddingRequestIds((prev) => new Set(prev).add(id));
     try {
-      await axios.post(`http://localhost:8000/friends/request`, {
+      await axios.post(`http://localhost:8000/friends/request`,{
+        headers:{Authorization:`Bearer ${token}`}
+      }, {
         requesterId: currentUserId,
         recipientId: id,
       });
@@ -300,7 +322,9 @@ export const Messages = () => {
         try {
           // backend user search endpoint — adjust if your route differs
           const res = await axios.get(
-            `http://localhost:8000/users/search?q=${encodeURIComponent(q)}`
+            `http://localhost:8000/users/search?q=${encodeURIComponent(q)}`,{
+        headers:{Authorization:`Bearer ${token}`}
+      }
           );
           setSearchResults(res.data?.data ?? res.data ?? []);
         } catch (err) {

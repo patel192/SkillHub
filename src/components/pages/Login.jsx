@@ -24,7 +24,7 @@ export const Login = () => {
 
         // Save details + token in localStorage
         localStorage.setItem("token", token);
-        localStorage.setItem("userId", data._id);
+        localStorage.setItem("userId", data.id);
         localStorage.setItem("fullname", data.fullname);
         localStorage.setItem("role", data.role);
 

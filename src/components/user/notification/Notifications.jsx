@@ -2,14 +2,16 @@ import React, { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import axios from "axios";
 import { FaBook, FaCertificate, FaCheckCircle, FaBell } from "react-icons/fa";
-export const Notifications = () => {
+export const Notifications = ({token}) => {
     const [notifications, setNotifications] = useState([]);
   const userId = localStorage.getItem("userId");
 
   useEffect(() => {
     const fetchNotifications = async () => {
       try {
-        const res = await axios.get(`http://localhost:8000/notifications/${userId}`);
+        const res = await axios.get(`http://localhost:8000/notifications/${userId}`,{
+          headers:{Authorization:`Bearer ${token}`}
+        });
         setNotifications(res.data.data || []);
       } catch (err) {
         console.error("❌ Error fetching notifications:", err);

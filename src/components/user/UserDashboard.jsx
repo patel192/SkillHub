@@ -25,7 +25,8 @@ export const UserDashboard = ({token}) => {
   // Notifications
   const fetchNotifications = async () => {
     const resNotifications = await axios.get(
-      `http://localhost:8000/notifications/${userId}`,{
+      `http://localhost:8000/notifications/${userId}`,
+      {
         headers:{Authorization:`Bearer ${token}`}
       }
     );
@@ -35,6 +36,7 @@ export const UserDashboard = ({token}) => {
 
   useEffect(() => {
     fetchNotifications();
+    console.log(token)
   }, []);
 
   useEffect(() => {

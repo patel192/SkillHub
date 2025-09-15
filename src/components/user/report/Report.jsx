@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { motion } from "framer-motion";
 import axios from "axios";
 import { Flag, Loader2, CheckCircle, AlertTriangle } from "lucide-react";
-export const Report = ({ targetType = "General", targetId = null }) => {
+export const Report = ({ targetType = "General", targetId = null},{token}) => {
    const [type, setType] = useState("bug");
   const [description, setDescription] = useState("");
   const [loading, setLoading] = useState(false);
@@ -19,7 +19,9 @@ export const Report = ({ targetType = "General", targetId = null }) => {
     setSuccess(false);
 
     try {
-      await axios.post("http://localhost:8000/report", {
+      await axios.post("http://localhost:8000/report",{
+          headers:{Authorization:`Bearer ${token}`}
+        }, {
         type,
         description,
         targetType,

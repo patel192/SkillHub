@@ -8,14 +8,16 @@ import {
   FaClock,
 } from "react-icons/fa";
 import { useParams } from "react-router-dom";
-export const Activities = () => {
+export const Activities = ({token}) => {
     const [activities, setActivities] = useState([]);
   const userId = localStorage.getItem("userId");
 
   useEffect(() => {
     const fetchActivities = async () => {
       try {
-        const res = await axios.get(`http://localhost:8000/activities/${userId}`);
+        const res = await axios.get(`http://localhost:8000/activities/${userId}`,{
+          headers:{Authorization:`Bearer ${token}`}
+        });
         setActivities(res.data.data || []);
       } catch (err) {
         console.error("❌ Error fetching activities:", err);

@@ -3,7 +3,7 @@ import { Crown, Trophy, Award } from "lucide-react";
 import { motion } from "framer-motion";
 import axios from "axios";
 
-export const LeaderBoard = () => {
+export const LeaderBoard = ({token}) => {
   const [users, setUsers] = useState([]);
   const [achievements, setAchievements] = useState([]);
   const [activeTab, setActiveTab] = useState("leaderboard");
@@ -13,7 +13,9 @@ export const LeaderBoard = () => {
   useEffect(() => {
     const fetchUsers = async () => {
       try {
-        const res = await axios.get("http://localhost:8000/users");
+        const res = await axios.get("http://localhost:8000/users",{
+        headers:{Authorization:`Bearer ${token}`}
+      });
         setUsers(Array.isArray(res.data.users) ? res.data.users : []);
       } catch {
         setUsers([]);
@@ -27,7 +29,9 @@ export const LeaderBoard = () => {
       try {
         if (!userId) return;
         const res = await axios.get(
-          `http://localhost:8000/achievement/${userId}`
+          `http://localhost:8000/achievement/${userId}`,{
+        headers:{Authorization:`Bearer ${token}`}
+      }
         );
         if (res.data.success) setAchievements(res.data.achievement);
       } catch {

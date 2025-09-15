@@ -4,7 +4,7 @@ import { PlayCircle, BookOpen, Flame } from "lucide-react";
 import axios from "axios";
 import { Link } from "react-router-dom";
 
-export const MyCourses = () => {
+export const MyCourses = ({token}) => {
   const [activeTab, setActiveTab] = useState("my");
   const [myCourses, setMyCourses] = useState([]);
   const [discoverCourses, setDiscoverCourses] = useState([]);
@@ -17,7 +17,9 @@ export const MyCourses = () => {
 
   const fetchDiscoverCourses = async () => {
     try {
-      const res = await axios.get(`http://localhost:8000/courses`);
+      const res = await axios.get(`http://localhost:8000/courses`,{
+        headers:{Authorization:`Bearer ${token}`}
+      });
       setDiscoverCourses(res.data.data || []);
     } catch (error) {
       console.error("Error fetching discoverable courses:", error.message);
@@ -26,7 +28,9 @@ export const MyCourses = () => {
 
   const fetchMyCourses = async () => {
     try {
-      const res = await axios.get(`http://localhost:8000/enrollment/${userId}`);
+      const res = await axios.get(`http://localhost:8000/enrollment/${userId}`,{
+        headers:{Authorization:`Bearer ${token}`}
+      });
       const enrollments = res.data.data || [];
 
       const mapped = enrollments.map((enrollment) => ({
