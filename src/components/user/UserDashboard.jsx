@@ -13,7 +13,7 @@ import { AiOutlineArrowRight } from "react-icons/ai";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 
-export const UserDashboard = () => {
+export const UserDashboard = ({token}) => {
   const [userData, setUserData] = useState(null);
   const [activities, setActivities] = useState([]);
   const [courseName, setCourseName] = useState("");
@@ -25,7 +25,9 @@ export const UserDashboard = () => {
   // Notifications
   const fetchNotifications = async () => {
     const resNotifications = await axios.get(
-      `http://localhost:8000/notifications/${userId}`
+      `http://localhost:8000/notifications/${userId}`,{
+        headers:{Authorization:`Bearer ${token}`}
+      }
     );
     const dataNotifications = resNotifications.data.data || [];
     setNotifications(dataNotifications);
@@ -40,13 +42,17 @@ export const UserDashboard = () => {
       try {
         // Courses
         const resCourses = await axios.get(
-          `http://localhost:8000/enrollment/${userId}`
+          `http://localhost:8000/enrollment/${userId}`,{
+        headers:{Authorization:`Bearer ${token}`}
+      }
         );
         const dataCourses = resCourses.data;
 
         // Certificates
         const resCerts = await axios.get(
-          `http://localhost:8000/certificates/${userId}`
+          `http://localhost:8000/certificates/${userId}`,{
+        headers:{Authorization:`Bearer ${token}`}
+      }
         );
         const dataCerts = resCerts.data;
 
@@ -69,14 +75,18 @@ export const UserDashboard = () => {
           const sorted = [...courseTimes].sort((a, b) => b.seconds - a.seconds);
           mostLearnedCourse = sorted[0];
           const Coursename = await axios.get(
-            `http://localhost:8000/course/${mostLearnedCourse.courseId}`
+            `http://localhost:8000/course/${mostLearnedCourse.courseId}`,{
+        headers:{Authorization:`Bearer ${token}`}
+      }
           );
           setCourseName(Coursename.data.data.title);
         }
 
         // Activities
         const resActivities = await axios.get(
-          `http://localhost:8000/activities/${userId}`
+          `http://localhost:8000/activities/${userId}`,{
+        headers:{Authorization:`Bearer ${token}`}
+      }
         );
         const dataActivities = resActivities.data.data || [];
         setActivities(dataActivities);

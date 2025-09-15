@@ -37,6 +37,7 @@ import { EditCourse } from "./components/admin/course/EditCourse";
 import { AddCourse } from "./components/admin/course/AddCourse";
 
 function App() {
+  const token = localStorage.getItem("token")
   return (
     <>
       <Routes>
@@ -44,7 +45,7 @@ function App() {
         <Route path="signup" element={<SignUp />}></Route>
         <Route path="login" element={<Login />}></Route>
         <Route path="user" element={<UserLayout />}>
-          <Route path="dashboard" element={<UserDashboard />}></Route>
+          <Route path="dashboard" element={<UserDashboard token={token} />}></Route>
           <Route
             path="communities"
             element={<Community basePath="user" />}
