@@ -10,7 +10,7 @@ import {
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 
-export const Resources = () => {
+export const Resources = ({token}) => {
   const [courses, setCourses] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -20,7 +20,9 @@ export const Resources = () => {
   useEffect(() => {
     const fetchCourses = async () => {
       try {
-        const response = await fetch("http://localhost:8000/courses");
+        const response = await fetch("http://localhost:8000/courses",{
+          headers:{Authorization:`Bearer ${token}`}
+        });
         const result = await response.json();
         setCourses(result.data);
       } catch (e) {

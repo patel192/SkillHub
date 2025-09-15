@@ -24,7 +24,7 @@ import {
   ResponsiveContainer,
 } from "recharts";
 
-export const AdminDashboard = () => {
+export const AdminDashboard = ({token}) => {
   const [stats, setStats] = useState({});
   const [latestUsers, setLatestUsers] = useState([]);
   const [latestCourses, setLatestCourses] = useState([]);
@@ -38,7 +38,9 @@ export const AdminDashboard = () => {
 
   const fetchOverview = async () => {
     try {
-      const res = await axios.get("http://localhost:8000/admin/overview");
+      const res = await axios.get("http://localhost:8000/admin/overview",{
+          headers:{Authorization:`Bearer ${token}`}
+        });
       setStats(res.data.stats || {});
       setLatestUsers(res.data.latestUsers || []);
       setLatestCourses(res.data.latestCourses || []);

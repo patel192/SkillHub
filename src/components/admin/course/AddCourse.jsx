@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { motion } from "framer-motion";
 
-export const AddCourse = () => {
+export const AddCourse = ({token}) => {
   const [formData, setFormData] = useState({
     title: "",
     description: "",
@@ -27,7 +27,9 @@ export const AddCourse = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const response = await fetch("http://localhost:8000/course", {
+      const response = await fetch("http://localhost:8000/course",{
+          headers:{Authorization:`Bearer ${token}`}
+        }, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

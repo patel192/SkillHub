@@ -2,13 +2,15 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import { Link } from "react-router-dom";
 
-export const Users = () => {
+export const Users = ({token}) => {
   const [users, setUsers] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
 
   const fetchUsers = async () => {
     try {
-      const res = await axios.get("http://localhost:8000/users");
+      const res = await axios.get("http://localhost:8000/users",{
+          headers:{Authorization:`Bearer ${token}`}
+        });
       setUsers(res.data.users || []);
       console.log(res.data);
     } catch (error) {
@@ -23,7 +25,9 @@ export const Users = () => {
 
   const toggleActive = async (id, currentStatus) => {
     try {
-      await axios.patch(`http://localhost:8000/user/${id}`, {
+      await axios.patch(`http://localhost:8000/user/${id}`,{
+          headers:{Authorization:`Bearer ${token}`}
+        }, {
         isActive: !currentStatus,
       });
       fetchUsers();
@@ -34,7 +38,9 @@ export const Users = () => {
 
   const toggleRole = async (id, currentRole) => {
     try {
-      await axios.patch(`http://localhost:8000/user/${id}`, {
+      await axios.patch(`http://localhost:8000/user/${id}`,{
+          headers:{Authorization:`Bearer ${token}`}
+        }, {
         role: currentRole === "admin" ? "user" : "admin",
       });
       fetchUsers();

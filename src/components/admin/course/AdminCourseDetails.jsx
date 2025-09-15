@@ -4,7 +4,7 @@ import axios from "axios";
 import { Loader2, PlusCircle, MoreHorizontal } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
-export const AdminCourseDetails = () => {
+export const AdminCourseDetails = ({token}) => {
   const { id } = useParams();
   const navigate = useNavigate();
 
@@ -22,7 +22,9 @@ export const AdminCourseDetails = () => {
   const fetchCourse = async () => {
     try {
       setLoading(true);
-      const res = await axios.get(`http://localhost:8000/course/${id}`);
+      const res = await axios.get(`http://localhost:8000/course/${id}`,{
+          headers:{Authorization:`Bearer ${token}`}
+        });
       setCourse(res.data.data);
     } catch (err) {
       console.error("Failed to fetch course:", err.message);
@@ -33,7 +35,9 @@ export const AdminCourseDetails = () => {
 
   const fetchOverview = async () => {
     try {
-      const res = await axios.get(`http://localhost:8000/overview/${id}`);
+      const res = await axios.get(`http://localhost:8000/overview/${id}`,{
+          headers:{Authorization:`Bearer ${token}`}
+        });
       setOverview(res.data.data?.overview || []);
     } catch (err) {
       console.error("Failed to fetch overview:", err.message);
@@ -43,7 +47,9 @@ export const AdminCourseDetails = () => {
   const handleAddPoint = async () => {
     if (!newPoint.trim()) return;
     try {
-      const res = await axios.patch(`http://localhost:8000/overview/${id}`, {
+      const res = await axios.patch(`http://localhost:8000/overview/${id}`,{
+          headers:{Authorization:`Bearer ${token}`}
+        }, {
         point: newPoint,
       });
       setOverview(res.data.data.overview);

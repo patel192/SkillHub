@@ -16,7 +16,7 @@ import {
   ExternalLink,
 } from "lucide-react";
 
-export const ReportsDetail = () => {
+export const ReportsDetail = ({token}) => {
   const { id } = useParams();
   const navigate = useNavigate();
   const [report, setReport] = useState(null);
@@ -25,7 +25,9 @@ export const ReportsDetail = () => {
   useEffect(() => {
     const fetchReport = async () => {
       try {
-        const res = await axios.get(`http://localhost:8000/reports/${id}`);
+        const res = await axios.get(`http://localhost:8000/reports/${id}`,{
+          headers:{Authorization:`Bearer ${token}`}
+        });
         setReport(res.data.report);
       } catch (err) {
         console.error("❌ Failed to fetch report:", err);
@@ -38,7 +40,9 @@ export const ReportsDetail = () => {
 
   const handleResolve = async () => {
     try {
-      await axios.patch(`http://localhost:8000/reports/${id}`, {
+      await axios.patch(`http://localhost:8000/reports/${id}`,{
+          headers:{Authorization:`Bearer ${token}`}
+        }, {
         status: "resolved",
       });
       setReport((prev) => ({ ...prev, status: "resolved" }));
@@ -51,7 +55,9 @@ export const ReportsDetail = () => {
   const handleDelete = async () => {
     if (!window.confirm("Are you sure you want to delete this report?")) return;
     try {
-      await axios.delete(`http://localhost:8000/report/${id}`);
+      await axios.delete(`http://localhost:8000/report/${id}`,{
+          headers:{Authorization:`Bearer ${token}`}
+        });
       alert("🗑️ Report deleted");
       navigate("/admin/reports");
     } catch (err) {

@@ -4,7 +4,7 @@ import axios from "axios";
 import { Save, ArrowLeft, Loader2, GraduationCap } from "lucide-react";
 import { motion } from "framer-motion";
 
-export const EditCourse = () => {
+export const EditCourse = ({token}) => {
   const { id } = useParams();
   const navigate = useNavigate();
 
@@ -37,7 +37,9 @@ export const EditCourse = () => {
   const fetchCourse = async () => {
     try {
       setLoading(true);
-      const res = await axios.get(`http://localhost:8000/course/${id}`);
+      const res = await axios.get(`http://localhost:8000/course/${id}`,{
+          headers:{Authorization:`Bearer ${token}`}
+        });
       setCourseData(res.data.data);
     } catch (err) {
       console.error("Failed to fetch course:", err.message);
@@ -57,7 +59,9 @@ export const EditCourse = () => {
   const handleSave = async () => {
     try {
       setSaving(true);
-      await axios.patch(`http://localhost:8000/course/${id}`, courseData);
+      await axios.patch(`http://localhost:8000/course/${id}`,{
+          headers:{Authorization:`Bearer ${token}`}
+        }, courseData);
       navigate("/admin/courses");
     } catch (err) {
       console.error("Save failed:", err.message);

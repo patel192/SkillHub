@@ -3,7 +3,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { motion } from "framer-motion";
 import { ArrowLeft,Edit,ShieldAlert,Trash2 } from "lucide-react";
-export const UserDetails = () => {
+export const UserDetails = ({token}) => {
   const { id } = useParams();
   const navigate = useNavigate();
   const [user, setUser] = useState(null);
@@ -15,7 +15,9 @@ export const UserDetails = () => {
 
   const fetchUser = async () => {
     try {
-      const res = await axios.get(`http://localhost:8000/user/${id}`);
+      const res = await axios.get(`http://localhost:8000/user/${id}`,{
+          headers:{Authorization:`Bearer ${token}`}
+        });
       setUser(res.data.data);
     } catch (err) {
       console.error("Failed to fetch user:", err);

@@ -15,7 +15,7 @@ import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import { vscDarkPlus } from "react-syntax-highlighter/dist/esm/styles/prism";
 import ReactMarkdown from "react-markdown";
 
-export const CourseLessons = ({ courseId: propCourseId }) => {
+export const CourseLessons = ({ courseId: propCourseId },{token}) => {
   const params = useParams();
   const courseId = propCourseId || params.courseId;
 
@@ -37,7 +37,9 @@ export const CourseLessons = ({ courseId: propCourseId }) => {
   const fetchLessons = async () => {
     setLoading(true);
     try {
-      const res = await axios.get(`http://localhost:8000/lessons/${courseId}`);
+      const res = await axios.get(`http://localhost:8000/lessons/${courseId}`,{
+          headers:{Authorization:`Bearer ${token}`}
+        });
       const data = res.data?.data ?? [];
       const sorted = data.sort(
         (a, b) => new Date(a.createdAt) - new Date(b.createdAt)
@@ -72,7 +74,9 @@ export const CourseLessons = ({ courseId: propCourseId }) => {
         content: newLesson.content.trim(),
         courseId,
       };
-      const res = await axios.post("http://localhost:8000/lessons", payload);
+      const res = await axios.post("http://localhost:8000/lessons",{
+          headers:{Authorization:`Bearer ${token}`}
+        }, payload);
       const added = res.data?.data;
       setLessons((p) => [...p, added]);
       setNewLesson({ title: "", content: "" });
@@ -91,7 +95,9 @@ export const CourseLessons = ({ courseId: propCourseId }) => {
     if (!window.confirm("Delete this lesson?")) return;
     setDeletingId(lessonId);
     try {
-      await axios.delete(`http://localhost:8000/lessons/${lessonId}`);
+      await axios.delete(`http://localhost:8000/lessons/${lessonId}`,{
+          headers:{Authorization:`Bearer ${token}`}
+        });
       setLessons((p) => p.filter((l) => l._id !== lessonId));
       toast.success("Lesson deleted");
       if (selected && String(selected._id) === String(lessonId)) {

@@ -4,7 +4,7 @@ import { motion } from "framer-motion";
 import { AlertTriangle, User, BookOpen, MessageSquare } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
-export const Reports = () => {
+export const Reports = ({token}) => {
   const [reports, setReports] = useState([]);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
@@ -12,7 +12,9 @@ export const Reports = () => {
   useEffect(() => {
     const fetchReports = async () => {
       try {
-        const res = await axios.get("http://localhost:8000/reports");
+        const res = await axios.get("http://localhost:8000/reports",{
+          headers:{Authorization:`Bearer ${token}`}
+        });
         setReports(res.data?.reports || []);
       } catch (err) {
         console.error("❌ Failed to fetch reports:", err);

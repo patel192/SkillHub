@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { Pencil, Trash, CheckCircle, XCircle, Plus } from "lucide-react";
 import { motion } from "framer-motion";
 
-export const Courses = () => {
+export const Courses = ({token}) => {
   const [courses, setCourses] = useState([]);
   const navigate = useNavigate();
 
@@ -14,7 +14,9 @@ export const Courses = () => {
 
   const fetchCourses = async () => {
     try {
-      const res = await axios.get("http://localhost:8000/courses");
+      const res = await axios.get("http://localhost:8000/courses",{
+          headers:{Authorization:`Bearer ${token}`}
+        });
       setCourses(res.data.data || []);
     } catch (err) {
       console.error("Failed to fetch courses:", err.message);
@@ -24,7 +26,9 @@ export const Courses = () => {
   const deleteCourse = async (id) => {
     if (!window.confirm("Are you sure you want to delete this course?")) return;
     try {
-      await axios.delete(`http://localhost:8000/courses/${id}`);
+      await axios.delete(`http://localhost:8000/courses/${id}`,{
+          headers:{Authorization:`Bearer ${token}`}
+        });
       setCourses((prev) => prev.filter((c) => c._id !== id));
     } catch (err) {
       console.error("Delete failed:", err.message);
@@ -33,7 +37,9 @@ export const Courses = () => {
 
   const togglePublish = async (id, currentStatus) => {
     try {
-      await axios.patch(`http://localhost:8000/courses/${id}`, {
+      await axios.patch(`http://localhost:8000/courses/${id}`,{
+          headers:{Authorization:`Bearer ${token}`}
+        }, {
         isPublished: !currentStatus,
       });
       setCourses((prev) =>

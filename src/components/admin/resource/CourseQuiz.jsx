@@ -10,7 +10,7 @@ import {
   ChevronUp,
 } from "lucide-react";
 
-export const CourseQuiz = () => {
+export const CourseQuiz = ({token}) => {
   const { courseId } = useParams();
   const [questions, setQuestions] = useState([]);
   const [selectedQuestion, setSelectedQuestion] = useState(null);
@@ -32,7 +32,9 @@ export const CourseQuiz = () => {
   useEffect(() => {
     const fetchQuestions = async () => {
       try {
-        const res = await fetch(`http://localhost:8000/questions/${courseId}`);
+        const res = await fetch(`http://localhost:8000/questions/${courseId}`,{
+          headers:{Authorization:`Bearer ${token}`}
+        });
         const data = await res.json();
         setQuestions(data.data);
         if (data.data.length > 0) setSelectedQuestion(data.data[0]);
@@ -47,7 +49,9 @@ export const CourseQuiz = () => {
 
   const handleAddQuestion = async () => {
     try {
-      const res = await fetch(`http://localhost:8000/questions/${courseId}`, {
+      const res = await fetch(`http://localhost:8000/questions/${courseId}`,{
+          headers:{Authorization:`Bearer ${token}`}
+        }, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(newQuestion),

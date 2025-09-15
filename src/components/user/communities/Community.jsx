@@ -3,14 +3,16 @@ import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { motion } from "framer-motion";
 
-export const Community = ({ basePath }) => {
+export const Community = ({ basePath },{token}) => {
   const [communities, setCommunities] = useState([]);
   const navigate = useNavigate();
 
   useEffect(() => {
     const fetchCommunities = async () => {
       try {
-        const res = await axios.get("http://localhost:8000/communities");
+        const res = await axios.get("http://localhost:8000/communities",{
+          headers:{Authorization:`Bearer ${token}`}
+        });
         setCommunities(res.data.data);
       } catch (err) {
         console.error("❌ Error fetching communities:", err);

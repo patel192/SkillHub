@@ -48,7 +48,7 @@ function App() {
           <Route path="dashboard" element={<UserDashboard token={token} />}></Route>
           <Route
             path="communities"
-            element={<Community basePath="user" />}
+            element={<Community basePath="user" token={token} />}
           ></Route>
           <Route path="community/:id" element={<CommunityDetails />}></Route>
           <Route path="mycourses" element={<MyCourses token={token} />}></Route>
@@ -65,26 +65,26 @@ function App() {
           <Route path="report" element={<Report token={token} />}></Route>
         </Route>
         <Route path="admin" element={<AdminLayout />}>
-          <Route path="admindashboard" element={<AdminDashboard />}></Route>
-          <Route path="resources" element={<Resources />}></Route>
-          <Route path="resources/:courseId" element={<CourseLessons />}></Route>
-          <Route path="quiz/:courseId" element={<CourseQuiz />}></Route>
+          <Route path="admindashboard" element={<AdminDashboard token={token} />}></Route>
+          <Route path="resources" element={<Resources token={token} />}></Route>
+          <Route path="resources/:courseId" element={<CourseLessons token={token} />}></Route>
+          <Route path="quiz/:courseId" element={<CourseQuiz token={token} />}></Route>
 
-          <Route path="courses" element={<Courses />}></Route>
-          <Route path="courses/:id" element={<AdminCourseDetails />}></Route>
-          <Route path="courses/edit/:id" element={<EditCourse />}></Route>
-          <Route path="courses/new" element={<AddCourse />}></Route>
-          <Route path="users" element={<Users />}></Route>
-          <Route path="users/:id" element={<UserDetails />}></Route>
-          <Route path="reports" element={<Reports />}></Route>
-          <Route path="reports/:id" element={<ReportsDetail />}></Route>
+          <Route path="courses" element={<Courses token={token} />}></Route>
+          <Route path="courses/:id" element={<AdminCourseDetails token={token} />}></Route>
+          <Route path="courses/edit/:id" element={<EditCourse token={token} />}></Route>
+          <Route path="courses/new" element={<AddCourse token={token} />}></Route>
+          <Route path="users" element={<Users token={token} />}></Route>
+          <Route path="users/:id" element={<UserDetails token={token} />}></Route>
+          <Route path="reports" element={<Reports token={token} />}></Route>
+          <Route path="reports/:id" element={<ReportsDetail token={token} />}></Route>
           <Route
             path="communities"
-            element={<Community basePath="admin" />}
+            element={<Community basePath="admin"/>}
           ></Route>
           <Route
             path="community/:id"
-            element={<AdminCommunityDetails basePath="admin" />}
+            element={<AdminCommunityDetails basePath="admin"/>}
           ></Route>
         </Route>
       </Routes>
