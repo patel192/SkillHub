@@ -6,33 +6,34 @@ const roadmapData = [
   {
     title: "Frontend Developer",
     description: "Master HTML, CSS, JavaScript, React, and more.",
-    icon: <FaPaintBrush className="text-pink-500 text-3xl" />,
+    icon: <FaPaintBrush className="text-purple-400 text-3xl" />,
     source: "https://roadmap.sh/frontend",
   },
   {
     title: "Backend Developer",
     description: "Learn Node.js, Express, databases, APIs, and more.",
-    icon: <FaDatabase className="text-green-400 text-3xl" />,
+    icon: <FaDatabase className="text-cyan-400 text-3xl" />,
     source: "https://roadmap.sh/backend",
   },
   {
     title: "Full Stack Developer",
     description: "Become proficient in both frontend and backend development.",
-    icon: <FaCode className="text-blue-400 text-3xl" />,
+    icon: <FaCode className="text-pink-400 text-3xl" />,
     source: "https://roadmap.sh/full-stack",
   },
 ];
+
 export const RoadMap = () => {
-    const [roadmaps, setRoadmaps] = useState([]);
+  const [roadmaps, setRoadmaps] = useState([]);
 
   useEffect(() => {
-    // For future: fetch roadmap content from an API
     setRoadmaps(roadmapData);
   }, []);
+
   return (
-   <div className="p-6 bg-[#0F172A] min-h-screen text-white">
+    <div className="p-6 bg-gray-900 min-h-screen text-white">
       <motion.h1
-        className="text-4xl font-bold mb-6 text-center"
+        className="text-4xl font-bold mb-10 text-center bg-clip-text text-transparent bg-gradient-to-r from-purple-400 to-cyan-400"
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
@@ -40,12 +41,11 @@ export const RoadMap = () => {
         Explore Developer Roadmaps
       </motion.h1>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
         {roadmaps.map((roadmap, index) => (
           <motion.div
             key={index}
-            className="bg-[#1E293B] rounded-xl p-5 shadow-md hover:shadow-blue-500/40 transition-shadow duration-300 border border-blue-900"
-            whileHover={{ scale: 1.03 }}
+            className="bg-gray-800 rounded-2xl p-6 shadow-lg border border-cyan-500/20 transform transition-transform duration-300 hover:scale-105 hover:shadow-[0_0_20px_rgba(128,0,255,0.4)]"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: index * 0.2, duration: 0.5 }}
@@ -59,7 +59,7 @@ export const RoadMap = () => {
               href={roadmap.source}
               target="_blank"
               rel="noopener noreferrer"
-              className="text-blue-400 hover:underline"
+              className="text-purple-300 hover:text-cyan-300 hover:underline font-semibold"
             >
               View Full Roadmap →
             </a>
@@ -67,5 +67,5 @@ export const RoadMap = () => {
         ))}
       </div>
     </div>
-  )
-}
+  );
+};
