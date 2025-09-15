@@ -10,6 +10,7 @@ import {
   FaDiscord,
   FaLink,
 } from "react-icons/fa";
+import { motion } from "framer-motion";
 
 export const Settings = () => {
   const [activeTab, setActiveTab] = useState("account");
@@ -155,29 +156,29 @@ export const Settings = () => {
         ⚙️ User Settings
       </h2>
 
-      {/* ✅ Glowing tab options */}
+      {/* ✅ Glowing tab options with purple-cyan gradient */}
       <div className="flex flex-wrap gap-6 mb-6 justify-between">
         {[
-          { key: "account", icon: <FaUserCog />, label: "Account", color: "bg-green-500" },
-          { key: "privacy", icon: <FaLock />, label: "Privacy", color: "bg-blue-500" },
-          { key: "appearance", icon: <FaPalette />, label: "Appearance", color: "bg-purple-500" },
-          { key: "notifications", icon: <FaBell />, label: "Notifications", color: "bg-yellow-500" },
-          { key: "integrations", icon: <FaLink />, label: "Integrations", color: "bg-pink-500" },
-          { key: "deactivate", icon: <FaTrashAlt />, label: "Deactivate", color: "bg-red-500" },
+          { key: "account", icon: <FaUserCog />, label: "Account" },
+          { key: "privacy", icon: <FaLock />, label: "Privacy" },
+          { key: "appearance", icon: <FaPalette />, label: "Appearance" },
+          { key: "notifications", icon: <FaBell />, label: "Notifications" },
+          { key: "integrations", icon: <FaLink />, label: "Integrations" },
+          { key: "deactivate", icon: <FaTrashAlt />, label: "Deactivate" },
         ].map((tab) => (
           <button
             key={tab.key}
             onClick={() => setActiveTab(tab.key)}
-            className={`tab-btn w-28 ${activeTab === tab.key ? "scale-110" : ""}`}
+            className={`tab-btn w-28`}
           >
-            <div
-              className={`${tab.color} flex justify-center items-center flex-col rounded-2xl h-20 
-              transition-transform duration-500 hover:scale-110 cursor-pointer 
-              shadow-lg hover:shadow-[0_0_20px] hover:shadow-${tab.color.split("-")[1]}-400 
-              ${activeTab === tab.key ? "shadow-[0_0_25px] shadow-white" : ""}`}
+            <motion.div
+              className={`flex justify-center items-center flex-col rounded-2xl h-20 
+              bg-gradient-to-r from-purple-600 to-cyan-400 cursor-pointer 
+              transition-transform duration-500 hover:scale-110 shadow-lg 
+              ${activeTab === tab.key ? "shadow-[0_0_25px_4px_rgba(128,0,255,0.7)]" : ""}`}
             >
               {tab.icon} {tab.label}
-            </div>
+            </motion.div>
           </button>
         ))}
       </div>
