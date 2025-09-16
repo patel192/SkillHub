@@ -21,7 +21,7 @@ export const SignUp = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const res = await axios.post("http://localhost:8000/user", form);
+      const res = await axios.post("/user", form);
 
       // ✅ Save token & user in localStorage
       localStorage.setItem("token", res.data.token);

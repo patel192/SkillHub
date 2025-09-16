@@ -1,3 +1,4 @@
+import axios from "axios";
 import "./App.css"
 import { Route, Routes } from "react-router-dom";
 import { SignUp } from "./components/pages/SignUp";
@@ -37,6 +38,7 @@ import { AddCourse } from "./components/admin/course/AddCourse";
 
 function App() {
   const token = localStorage.getItem("token")
+  axios.defaults.baseURL = "https://skillhub-backend-4982.onrender.com" 
   return (
     <>
       <Routes>
