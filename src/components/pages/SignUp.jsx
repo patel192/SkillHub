@@ -28,7 +28,7 @@ export const SignUp = () => {
       localStorage.setItem("user", JSON.stringify(res.data.user));
 
       alert("Account created successfully!");
-      navigate("/dashboard"); // redirect where you want
+      navigate("/login"); // redirect where you want
     } catch (err) {
       console.error(err);
       alert(err.response?.data?.message || "Signup failed");
