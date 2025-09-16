@@ -17,7 +17,7 @@ export const Login = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const res = await axios.post("http://localhost:8000/loginuser", form);
+      const res = await axios.post("/loginuser", form);
 
       if (res.status === 200) {
         const { data, token } = res.data;
