@@ -1,5 +1,4 @@
-import "./App.css";
-
+import "./App.css"
 import { Route, Routes } from "react-router-dom";
 import { SignUp } from "./components/pages/SignUp";
 import { Login } from "./components/pages/Login";
@@ -9,7 +8,7 @@ import { UserDashboard } from "./components/user/UserDashboard";
 import { MyCourses } from "./components/user/course/MyCourses";
 import { Certificates } from "./components/user/certificate/Certificates";
 import { Messages } from "./components/user/messages/Messages";
-import { RoadMap } from "./components/user/roadmap/RoadMap";
+
 import { LeaderBoard } from "./components/user/leaderboard/LeaderBoard";
 import { Profile } from "./components/user/Profile";
 import { Settings } from "./components/user/Settings";
@@ -54,7 +53,6 @@ function App() {
           <Route path="mycourses" element={<MyCourses token={token} />}></Route>
           <Route path="certificates" element={<Certificates />}></Route>
           <Route path="messages" element={<Messages token={token} />}></Route>
-          <Route path="raodmap" element={<RoadMap />}></Route>
           <Route path="leaderboard" element={<LeaderBoard token={token} />}></Route>
           <Route path="profile" element={<Profile token={token} />}></Route>
           <Route path="settings" element={<Settings />}></Route>

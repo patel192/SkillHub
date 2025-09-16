@@ -70,12 +70,6 @@ export const UserSidebar = ({ isOpen }) => {
           <Settings size={18} /> Settings
         </Link>
         <Link
-          to="/user/raodmap"
-          className="flex items-center gap-3 hover:text-blue-400"
-        >
-          <Map size={18} /> RoadMaps
-        </Link>
-        <Link
           to="/user/leaderboard"
           className="flex items-center gap-3 hover:text-blue-400"
         >
