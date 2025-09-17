@@ -8,7 +8,7 @@ export const Users = ({token}) => {
 
   const fetchUsers = async () => {
     try {
-      const res = await axios.get("http://localhost:8000/users",{
+      const res = await axios.get("/users",{
           headers:{Authorization:`Bearer ${token}`}
         });
       setUsers(res.data.users || []);
@@ -25,7 +25,7 @@ export const Users = ({token}) => {
 
   const toggleActive = async (id, currentStatus) => {
     try {
-      await axios.patch(`http://localhost:8000/user/${id}`,{
+      await axios.patch(`/user/${id}`,{
           headers:{Authorization:`Bearer ${token}`}
         }, {
         isActive: !currentStatus,
@@ -38,7 +38,7 @@ export const Users = ({token}) => {
 
   const toggleRole = async (id, currentRole) => {
     try {
-      await axios.patch(`http://localhost:8000/user/${id}`,{
+      await axios.patch(`/user/${id}`,{
           headers:{Authorization:`Bearer ${token}`}
         }, {
         role: currentRole === "admin" ? "user" : "admin",

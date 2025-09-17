@@ -14,7 +14,7 @@ export const Courses = ({token}) => {
 
   const fetchCourses = async () => {
     try {
-      const res = await axios.get("http://localhost:8000/courses",{
+      const res = await axios.get("/courses",{
           headers:{Authorization:`Bearer ${token}`}
         });
       setCourses(res.data.data || []);
@@ -26,7 +26,7 @@ export const Courses = ({token}) => {
   const deleteCourse = async (id) => {
     if (!window.confirm("Are you sure you want to delete this course?")) return;
     try {
-      await axios.delete(`http://localhost:8000/courses/${id}`,{
+      await axios.delete(`/courses/${id}`,{
           headers:{Authorization:`Bearer ${token}`}
         });
       setCourses((prev) => prev.filter((c) => c._id !== id));
@@ -37,7 +37,7 @@ export const Courses = ({token}) => {
 
   const togglePublish = async (id, currentStatus) => {
     try {
-      await axios.patch(`http://localhost:8000/courses/${id}`,{
+      await axios.patch(`/courses/${id}`,{
           headers:{Authorization:`Bearer ${token}`}
         }, {
         isPublished: !currentStatus,

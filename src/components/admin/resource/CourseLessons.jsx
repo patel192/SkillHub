@@ -37,7 +37,7 @@ export const CourseLessons = ({ courseId: propCourseId },{token}) => {
   const fetchLessons = async () => {
     setLoading(true);
     try {
-      const res = await axios.get(`http://localhost:8000/lessons/${courseId}`,{
+      const res = await axios.get(`/lessons/${courseId}`,{
           headers:{Authorization:`Bearer ${token}`}
         });
       const data = res.data?.data ?? [];
@@ -74,7 +74,7 @@ export const CourseLessons = ({ courseId: propCourseId },{token}) => {
         content: newLesson.content.trim(),
         courseId,
       };
-      const res = await axios.post("http://localhost:8000/lessons",{
+      const res = await axios.post("/lessons",{
           headers:{Authorization:`Bearer ${token}`}
         }, payload);
       const added = res.data?.data;
@@ -95,7 +95,7 @@ export const CourseLessons = ({ courseId: propCourseId },{token}) => {
     if (!window.confirm("Delete this lesson?")) return;
     setDeletingId(lessonId);
     try {
-      await axios.delete(`http://localhost:8000/lessons/${lessonId}`,{
+      await axios.delete(`/lessons/${lessonId}`,{
           headers:{Authorization:`Bearer ${token}`}
         });
       setLessons((p) => p.filter((l) => l._id !== lessonId));

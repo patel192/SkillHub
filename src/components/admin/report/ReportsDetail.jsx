@@ -25,7 +25,7 @@ export const ReportsDetail = ({token}) => {
   useEffect(() => {
     const fetchReport = async () => {
       try {
-        const res = await axios.get(`http://localhost:8000/reports/${id}`,{
+        const res = await axios.get(`/reports/${id}`,{
           headers:{Authorization:`Bearer ${token}`}
         });
         setReport(res.data.report);
@@ -40,7 +40,7 @@ export const ReportsDetail = ({token}) => {
 
   const handleResolve = async () => {
     try {
-      await axios.patch(`http://localhost:8000/reports/${id}`,{
+      await axios.patch(`/reports/${id}`,{
           headers:{Authorization:`Bearer ${token}`}
         }, {
         status: "resolved",
@@ -55,7 +55,7 @@ export const ReportsDetail = ({token}) => {
   const handleDelete = async () => {
     if (!window.confirm("Are you sure you want to delete this report?")) return;
     try {
-      await axios.delete(`http://localhost:8000/report/${id}`,{
+      await axios.delete(`/report/${id}`,{
           headers:{Authorization:`Bearer ${token}`}
         });
       alert("🗑️ Report deleted");

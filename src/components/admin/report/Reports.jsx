@@ -12,7 +12,7 @@ export const Reports = ({token}) => {
   useEffect(() => {
     const fetchReports = async () => {
       try {
-        const res = await axios.get("http://localhost:8000/reports",{
+        const res = await axios.get("/reports",{
           headers:{Authorization:`Bearer ${token}`}
         });
         setReports(res.data?.reports || []);

@@ -9,7 +9,7 @@ export const ReportModal = ({ targetType, targetId, onClose }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      await axios.post("http://localhost:8000/report", {
+      await axios.post("/report", {
         reporter: localStorage.getItem("userId"), // ✅ required
         type,
         description,

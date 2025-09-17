@@ -32,7 +32,7 @@ export const CourseDetails = ({token}) => {
 
   const fetchCourseDetails = async () => {
     try {
-      const res = await axios.get(`http://localhost:8000/course/${courseId}`,{
+      const res = await axios.get(`/course/${courseId}`,{
         headers:{Authorization:`Bearer ${token}`}
       });
       setCourse(res.data.data);
@@ -43,7 +43,7 @@ export const CourseDetails = ({token}) => {
 
   const fetchCourseOverview = async () => {
     try {
-      const res = await axios.get(`http://localhost:8000/overview/${courseId}`,{
+      const res = await axios.get(`/overview/${courseId}`,{
         headers:{Authorization:`Bearer ${token}`}
       });
       let data = res.data.data?.overview || [];
@@ -58,7 +58,7 @@ export const CourseDetails = ({token}) => {
 
   const checkIfEnrolled = async () => {
     try {
-      const res = await axios.get(`http://localhost:8000/enrollment/${userId}`,{
+      const res = await axios.get(`/enrollment/${userId}`,{
         headers:{Authorization:`Bearer ${token}`}
       });
       const enrollments = res.data.data || [];
@@ -74,7 +74,7 @@ export const CourseDetails = ({token}) => {
 
   const handleEnroll = async () => {
     try {
-      await axios.post("http://localhost:8000/enrollment",{
+      await axios.post("/enrollment",{
         headers:{Authorization:`Bearer ${token}`}
       }, {
         userId,

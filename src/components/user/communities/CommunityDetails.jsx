@@ -47,7 +47,7 @@ export const CommunityDetails = () => {
     if (!reportTarget) return;
 
     try {
-      await axios.post("http://localhost:8000/report", {
+      await axios.post("/report", {
         reporter: userId,
         type: reportType,
         description: reportMessage,
@@ -71,7 +71,7 @@ export const CommunityDetails = () => {
     if (!txt) return;
     try {
       await axios.post(
-        `http://localhost:8000/posts/${postId}/comment/${commentId}/reply`,
+        `/posts/${postId}/comment/${commentId}/reply`,
         {
           userId,
           content: txt,
@@ -130,9 +130,9 @@ export const CommunityDetails = () => {
     setLoading(true);
     try {
       const [resCommunity, resPosts] = await Promise.all([
-        axios.get(`http://localhost:8000/communities/${id}`),
+        axios.get(`/communities/${id}`),
         axios.get(
-          `http://localhost:8000/communities/${id}/posts?sort=new&limit=50`
+          `/communities/${id}/posts?sort=new&limit=50`
         ),
       ]);
 
@@ -165,7 +165,7 @@ export const CommunityDetails = () => {
     if (!userId) return;
     try {
       const res = await axios.get(
-        `http://localhost:8000/notifications/${userId}`
+        `/notifications/${userId}`
       );
       const data = res.data?.data ?? res.data ?? [];
 
@@ -201,7 +201,7 @@ export const CommunityDetails = () => {
   const handleMembership = async (action) => {
     if (!userId) return alert("Please login first");
     try {
-      await axios.patch(`http://localhost:8000/communities/${id}/${action}`, {
+      await axios.patch(`/communities/${id}/${action}`, {
         userId,
       });
       showNotification(`Successfully ${action}ed community`);
@@ -216,7 +216,7 @@ export const CommunityDetails = () => {
   const handleAddPost = async () => {
     if (!newPost.trim()) return;
     try {
-      await axios.post("http://localhost:8000/posts", {
+      await axios.post("/posts", {
         userId,
         content: newPost,
         communityId: id,
@@ -233,7 +233,7 @@ export const CommunityDetails = () => {
   const handleLike = async (postId) => {
     if (!userId) return alert("Please login first");
     try {
-      await axios.post(`http://localhost:8000/posts/${postId}/like`, {
+      await axios.post(`/posts/${postId}/like`, {
         userId,
       });
       showNotification("You liked a post");
@@ -248,7 +248,7 @@ export const CommunityDetails = () => {
     const txt = (commentText[postId] || "").trim();
     if (!txt) return;
     try {
-      await axios.post(`http://localhost:8000/posts/${postId}/comment`, {
+      await axios.post(`/posts/${postId}/comment`, {
         userId,
         content: txt,
       });
@@ -267,7 +267,7 @@ export const CommunityDetails = () => {
   const handlePinToggle = async (postId, currentlyPinned) => {
     try {
       const action = currentlyPinned ? "unpin" : "pin";
-      await axios.patch(`http://localhost:8000/communities/${id}/${action}`, {
+      await axios.patch(`/communities/${id}/${action}`, {
         postId,
       });
       showNotification(`Post ${currentlyPinned ? "unpinned" : "pinned"}`);
@@ -281,7 +281,7 @@ export const CommunityDetails = () => {
   const handleUpdateCommunity = async () => {
     if (!editData.name.trim() || !userId) return alert("Name is required");
     try {
-      await axios.put(`http://localhost:8000/communities/${id}`, {
+      await axios.put(`/communities/${id}`, {
         ...editData,
         userId,
       });
@@ -300,7 +300,7 @@ export const CommunityDetails = () => {
   const handleRemoveMember = async (memberId) => {
     if (!memberId) return;
     try {
-      await axios.patch(`http://localhost:8000/communities/${id}/leave`, {
+      await axios.patch(`/communities/${id}/leave`, {
         userId: memberId,
       });
       showNotification("Member removed");
@@ -317,7 +317,7 @@ export const CommunityDetails = () => {
   const handleAddMember = async () => {
     if (!newMemberId?.trim()) return alert("Enter a userId");
     try {
-      await axios.patch(`http://localhost:8000/communities/${id}/join`, {
+      await axios.patch(`/communities/${id}/join`, {
         userId: newMemberId,
       });
       setNewMemberId("");
@@ -332,7 +332,7 @@ export const CommunityDetails = () => {
   const handlePromoteMember = async (memberId) => {
     if (!memberId) return;
     try {
-      await axios.patch(`http://localhost:8000/communities/${id}/promote`, {
+      await axios.patch(`/communities/${id}/promote`, {
         userId: memberId,
       });
       showNotification("Member promoted to admin");

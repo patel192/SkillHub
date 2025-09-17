@@ -22,7 +22,7 @@ export const AdminCourseDetails = ({token}) => {
   const fetchCourse = async () => {
     try {
       setLoading(true);
-      const res = await axios.get(`http://localhost:8000/course/${id}`,{
+      const res = await axios.get(`/course/${id}`,{
           headers:{Authorization:`Bearer ${token}`}
         });
       setCourse(res.data.data);
@@ -35,7 +35,7 @@ export const AdminCourseDetails = ({token}) => {
 
   const fetchOverview = async () => {
     try {
-      const res = await axios.get(`http://localhost:8000/overview/${id}`,{
+      const res = await axios.get(`/overview/${id}`,{
           headers:{Authorization:`Bearer ${token}`}
         });
       setOverview(res.data.data?.overview || []);
@@ -47,7 +47,7 @@ export const AdminCourseDetails = ({token}) => {
   const handleAddPoint = async () => {
     if (!newPoint.trim()) return;
     try {
-      const res = await axios.patch(`http://localhost:8000/overview/${id}`,{
+      const res = await axios.patch(`/overview/${id}`,{
           headers:{Authorization:`Bearer ${token}`}
         }, {
         point: newPoint,

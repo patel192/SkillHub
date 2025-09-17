@@ -15,7 +15,7 @@ export const Activities = ({token}) => {
   useEffect(() => {
     const fetchActivities = async () => {
       try {
-        const res = await axios.get(`http://localhost:8000/activities/${userId}`,{
+        const res = await axios.get(`/activities/${userId}`,{
           headers:{Authorization:`Bearer ${token}`}
         });
         setActivities(res.data.data || []);

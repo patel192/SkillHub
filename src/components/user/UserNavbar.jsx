@@ -21,7 +21,7 @@ export const UserNavbar = ({ toggleSidebar, isSidebarOpen }) => {
   // ✅ Fetch Notifications
   const fetchNotifications = async () => {
     try {
-      const res = await axios.get(`http://localhost:8000/notifications/${userId}`);
+      const res = await axios.get(`/notifications/${userId}`);
       setNotifications(res.data.data || []);
     } catch (err) {
       console.error("❌ Error fetching notifications:", err);
@@ -29,7 +29,7 @@ export const UserNavbar = ({ toggleSidebar, isSidebarOpen }) => {
   };
   const fetchUser = async () => {
     try{
-    const user = await axios.get(`http://localhost:8000/user/${userId}`);
+    const user = await axios.get(`/user/${userId}`);
     console.log(user.data.data.avatar)
     setavatar(user.data.data.avatar)
     }catch(err){
@@ -48,7 +48,7 @@ useEffect(() => {
   // ✅ Mark as read
   const markAsRead = async (id) => {
     try {
-      await axios.patch(`http://localhost:8000/notifications/${id}/read`);
+      await axios.patch(`/notifications/${id}/read`);
       setNotifications((prev) =>
         prev.map((n) => (n._id === id ? { ...n, read: true } : n))
       );

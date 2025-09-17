@@ -13,7 +13,7 @@ export const LeaderBoard = ({token}) => {
   useEffect(() => {
     const fetchUsers = async () => {
       try {
-        const res = await axios.get("http://localhost:8000/users",{
+        const res = await axios.get("/users",{
         headers:{Authorization:`Bearer ${token}`}
       });
         setUsers(Array.isArray(res.data.users) ? res.data.users : []);
@@ -29,7 +29,7 @@ export const LeaderBoard = ({token}) => {
       try {
         if (!userId) return;
         const res = await axios.get(
-          `http://localhost:8000/achievement/${userId}`,{
+          `/achievement/${userId}`,{
         headers:{Authorization:`Bearer ${token}`}
       }
         );

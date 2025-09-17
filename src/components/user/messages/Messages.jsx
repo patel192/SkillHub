@@ -50,7 +50,7 @@ export const Messages = ({token}) => {
     e.preventDefault();
     if (!reportTarget) return;
     try {
-      await axios.post("http://localhost:8000/report",{
+      await axios.post("/report",{
         headers:{Authorization:`Bearer ${token}`}
       }, {
         reporter: currentUserId,
@@ -75,7 +75,7 @@ export const Messages = ({token}) => {
   const fetchFriends = async () => {
     try {
       const res = await axios.get(
-        `http://localhost:8000/friends/${currentUserId}`,{
+        `/friends/${currentUserId}`,{
         headers:{Authorization:`Bearer ${token}`}
       }
       );
@@ -90,7 +90,7 @@ export const Messages = ({token}) => {
   const fetchIncoming = async () => {
     try {
       const res = await axios.get(
-        `http://localhost:8000/friends/requests/${currentUserId}`,{
+        `/friends/requests/${currentUserId}`,{
         headers:{Authorization:`Bearer ${token}`}
       }
       );
@@ -103,7 +103,7 @@ export const Messages = ({token}) => {
   const fetchOutgoing = async () => {
     try {
       const res = await axios.get(
-        `http://localhost:8000/friends/requests/sent/${currentUserId}`,{
+        `/friends/requests/sent/${currentUserId}`,{
         headers:{Authorization:`Bearer ${token}`}
       }
       );
@@ -117,7 +117,7 @@ export const Messages = ({token}) => {
     if (!friendId) return setMessages([]);
     try {
       const res = await axios.get(
-        `http://localhost:8000/messages/${currentUserId}/${friendId}`,{
+        `/messages/${currentUserId}/${friendId}`,{
         headers:{Authorization:`Bearer ${token}`}
       }
       );
@@ -142,7 +142,7 @@ export const Messages = ({token}) => {
     if (editMsg) {
       try {
         const res = await axios.patch(
-          `http://localhost:8000/message/${editMsg._id}`,{
+          `/message/${editMsg._id}`,{
         headers:{Authorization:`Bearer ${token}`}
       },
           {
@@ -183,7 +183,7 @@ export const Messages = ({token}) => {
     setMessages((prev) => [...prev, optimisticMsg]);
 
     try {
-      const res = await axios.post("http://localhost:8000/message",{
+      const res = await axios.post("/message",{
         headers:{Authorization:`Bearer ${token}`}
       }, {
         senderId: currentUserId,
@@ -210,7 +210,7 @@ export const Messages = ({token}) => {
   const handleReaction = async (msgId, emoji) => {
     try {
       const res = await axios.patch(
-        `http://localhost:8000/message/${msgId}/reaction`,{
+        `/message/${msgId}/reaction`,{
         headers:{Authorization:`Bearer ${token}`}
       },
         {
@@ -246,7 +246,7 @@ export const Messages = ({token}) => {
 
   const handleDelete = async (messageId) => {
     try {
-      await axios.delete(`http://localhost:8000/message/${messageId}`,{
+      await axios.delete(`/message/${messageId}`,{
         headers:{Authorization:`Bearer ${token}`}
       });
       setMessages((prev) =>
@@ -271,7 +271,7 @@ export const Messages = ({token}) => {
   const handleIncomingAction = async (requestId, action) => {
     try {
       // keeping your existing route shape
-      await axios.patch(`http://localhost:8000/friends/request/${requestId}`,{
+      await axios.patch(`/friends/request/${requestId}`,{
         headers:{Authorization:`Bearer ${token}`}
       }, {
         status: action,
@@ -288,7 +288,7 @@ export const Messages = ({token}) => {
     const id = String(recipientId);
     setAddingRequestIds((prev) => new Set(prev).add(id));
     try {
-      await axios.post(`http://localhost:8000/friends/request`,{
+      await axios.post(`/friends/request`,{
         headers:{Authorization:`Bearer ${token}`}
       }, {
         requesterId: currentUserId,
@@ -322,7 +322,7 @@ export const Messages = ({token}) => {
         try {
           // backend user search endpoint — adjust if your route differs
           const res = await axios.get(
-            `http://localhost:8000/users/search?q=${encodeURIComponent(q)}`,{
+            `/users/search?q=${encodeURIComponent(q)}`,{
         headers:{Authorization:`Bearer ${token}`}
       }
           );

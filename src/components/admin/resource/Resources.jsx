@@ -20,7 +20,7 @@ export const Resources = ({token}) => {
   useEffect(() => {
     const fetchCourses = async () => {
       try {
-        const response = await fetch("http://localhost:8000/courses",{
+        const response = await fetch("/courses",{
           headers:{Authorization:`Bearer ${token}`}
         });
         const result = await response.json();

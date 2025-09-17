@@ -10,7 +10,7 @@ export const AdminNavbar = ({ toggleSidebar, isSidebarOpen }) => {
   const userId = localStorage.getItem("userId")
   const fetchUser = async () => {
     try{
-    const user = await axios.get(`http://localhost:8000/user/${userId}`);
+    const user = await axios.get(`/user/${userId}`);
     console.log(user.data.data.avatar)
     setavatar(user.data.data.avatar)
     }catch(err){

@@ -40,7 +40,7 @@ export const Profile = ({token}) => {
   useEffect(() => {
     const fetchUser = async () => {
       try {
-        const res = await axios.get(`http://localhost:8000/user/${userId}`,{
+        const res = await axios.get(`/user/${userId}`,{
         headers:{Authorization:`Bearer ${token}`}
       });
         setUserData(res.data.data);
@@ -61,7 +61,7 @@ export const Profile = ({token}) => {
       if (avatarFile) avatarUrl = await uploadToCloudinary(avatarFile);
 
       const updates = { ...userData, avatar: avatarUrl };
-      const res = await axios.put(`http://localhost:8000/user/${userId}`,{
+      const res = await axios.put(`/user/${userId}`,{
         headers:{Authorization:`Bearer ${token}`}
       }, updates);
 
@@ -78,7 +78,7 @@ export const Profile = ({token}) => {
   const handleReportSubmit = async (e) => {
     e.preventDefault();
     try {
-      await axios.post("http://localhost:8000/report",{
+      await axios.post("/report",{
         headers:{Authorization:`Bearer ${token}`}
       }, {
         reporter: userId,

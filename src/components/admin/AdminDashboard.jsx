@@ -38,7 +38,7 @@ export const AdminDashboard = ({token}) => {
 
   const fetchOverview = async () => {
     try {
-      const res = await axios.get("http://localhost:8000/admin/overview",{
+      const res = await axios.get("/admin/overview",{
           headers:{Authorization:`Bearer ${token}`}
         });
       setStats(res.data.stats || {});

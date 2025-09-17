@@ -48,7 +48,7 @@ export const AdminCommunityDetails = ({ token }) => {
 
     try {
       await axios.post(
-        "http://localhost:8000/report",
+        "/report",
         {
           headers: { Authorization: `Bearer ${token}` },
         },
@@ -77,7 +77,7 @@ export const AdminCommunityDetails = ({ token }) => {
     if (!txt) return;
     try {
       await axios.post(
-        `http://localhost:8000/posts/${postId}/comment/${commentId}/reply`,
+        `/${postId}/comment/${commentId}/reply`,
         {
           headers: { Authorization: `Bearer ${token}` },
         },
@@ -139,11 +139,11 @@ export const AdminCommunityDetails = ({ token }) => {
     setLoading(true);
     try {
       const [resCommunity, resPosts] = await Promise.all([
-        axios.get(`http://localhost:8000/communities/${id}`, {
+        axios.get(`/communities/${id}`, {
           headers: { Authorization: `Bearer ${token}` },
         }),
         axios.get(
-          `http://localhost:8000/communities/${id}/posts?sort=new&limit=50`,
+          `/communities/${id}/posts?sort=new&limit=50`,
           {
             headers: { Authorization: `Bearer ${token}` },
           }
@@ -179,7 +179,7 @@ export const AdminCommunityDetails = ({ token }) => {
     if (!userId) return;
     try {
       const res = await axios.get(
-        `http://localhost:8000/notifications/${userId}`,
+        `/notifications/${userId}`,
         {
           headers: { Authorization: `Bearer ${token}` },
         }
@@ -219,7 +219,7 @@ export const AdminCommunityDetails = ({ token }) => {
     if (!userId) return alert("Please login first");
     try {
       await axios.patch(
-        `http://localhost:8000/communities/${id}/${action}`,
+        `/communities/${id}/${action}`,
         {
           headers: { Authorization: `Bearer ${token}` },
         },
@@ -240,7 +240,7 @@ export const AdminCommunityDetails = ({ token }) => {
     if (!newPost.trim()) return;
     try {
       await axios.post(
-        "http://localhost:8000/posts",
+        "/posts",
         {
           headers: { Authorization: `Bearer ${token}` },
         },
@@ -263,7 +263,7 @@ export const AdminCommunityDetails = ({ token }) => {
     if (!userId) return alert("Please login first");
     try {
       await axios.post(
-        `http://localhost:8000/posts/${postId}/like`,
+        `/posts/${postId}/like`,
         {
           headers: { Authorization: `Bearer ${token}` },
         },
@@ -284,7 +284,7 @@ export const AdminCommunityDetails = ({ token }) => {
     if (!txt) return;
     try {
       await axios.post(
-        `http://localhost:8000/posts/${postId}/comment`,
+        `/posts/${postId}/comment`,
         {
           headers: { Authorization: `Bearer ${token}` },
         },
@@ -309,7 +309,7 @@ export const AdminCommunityDetails = ({ token }) => {
     try {
       const action = currentlyPinned ? "unpin" : "pin";
       await axios.patch(
-        `http://localhost:8000/communities/${id}/${action}`,
+        `/communities/${id}/${action}`,
         {
           headers: { Authorization: `Bearer ${token}` },
         },
@@ -329,7 +329,7 @@ export const AdminCommunityDetails = ({ token }) => {
     if (!editData.name.trim() || !userId) return alert("Name is required");
     try {
       await axios.put(
-        `http://localhost:8000/communities/${id}`,
+        `/communities/${id}`,
         {
           headers: { Authorization: `Bearer ${token}` },
         },
@@ -354,7 +354,7 @@ export const AdminCommunityDetails = ({ token }) => {
     if (!memberId) return;
     try {
       await axios.patch(
-        `http://localhost:8000/communities/${id}/leave`,
+        `/communities/${id}/leave`,
         {
           headers: { Authorization: `Bearer ${token}` },
         },
@@ -377,7 +377,7 @@ export const AdminCommunityDetails = ({ token }) => {
     if (!newMemberId?.trim()) return alert("Enter a userId");
     try {
       await axios.patch(
-        `http://localhost:8000/communities/${id}/join`,
+        `/communities/${id}/join`,
         {
           headers: { Authorization: `Bearer ${token}` },
         },
@@ -398,7 +398,7 @@ export const AdminCommunityDetails = ({ token }) => {
     if (!memberId) return;
     try {
       await axios.patch(
-        `http://localhost:8000/communities/${id}/promote`,
+        `/communities/${id}/promote`,
         {
           headers: { Authorization: `Bearer ${token}` },
         },

@@ -9,7 +9,7 @@ export const Notifications = ({token}) => {
   useEffect(() => {
     const fetchNotifications = async () => {
       try {
-        const res = await axios.get(`http://localhost:8000/notifications/${userId}`,{
+        const res = await axios.get(`/notifications/${userId}`,{
           headers:{Authorization:`Bearer ${token}`}
         });
         setNotifications(res.data.data || []);

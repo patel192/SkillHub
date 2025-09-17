@@ -85,7 +85,7 @@ export const LearningPage = ({token}) => {
   useEffect(() => {
     const fetchLessons = async () => {
       try {
-        const res = await fetch(`http://localhost:8000/lessons/${courseId}`,{
+        const res = await fetch(`/lessons/${courseId}`,{
         headers:{Authorization:`Bearer ${token}`}
       });
         const data = await res.json();
@@ -104,7 +104,7 @@ export const LearningPage = ({token}) => {
   useEffect(() => {
     const fetchEnrollment = async () => {
       try {
-        const res = await fetch(`http://localhost:8000/enrollment/${userId}`,{
+        const res = await fetch(`/enrollment/${userId}`,{
         headers:{Authorization:`Bearer ${token}`}
       });
         const data = await res.json();
@@ -126,14 +126,14 @@ export const LearningPage = ({token}) => {
   useEffect(() => {
     const fetchQuizAndProgress = async () => {
       try {
-        const resQ = await fetch(`http://localhost:8000/questions/${courseId}`,{
+        const resQ = await fetch(`/questions/${courseId}`,{
         headers:{Authorization:`Bearer ${token}`}
       });
         const dataQ = await resQ.json();
         if (Array.isArray(dataQ.data)) setQuizQuestions(dataQ.data);
 
         const resP = await fetch(
-          `http://localhost:8000/progress/${userId}/${courseId}`,{
+          `/progress/${userId}/${courseId}`,{
         headers:{Authorization:`Bearer ${token}`}
       }
         );
@@ -189,7 +189,7 @@ export const LearningPage = ({token}) => {
         quizAnswers: newAnswers,
         points: newPoints,
       };
-      await fetch("http://localhost:8000/progress/save,", {
+      await fetch("/progress/save,", {
         method: "POST",
         headers: { "Content-Type": "application/json",Authorization:`Bearer ${token}` },
         body: JSON.stringify(payload),
@@ -259,7 +259,7 @@ export const LearningPage = ({token}) => {
       !achievementThresholds.includes(points)
     ) {
       try {
-        const res = await fetch(`http://localhost:8000/check/${userId}`, {
+        const res = await fetch(`/check/${userId}`, {
           method: "POST",
           headers:{Authorization:`Bearer ${token}`}
         });
@@ -276,7 +276,7 @@ export const LearningPage = ({token}) => {
     if (!enrollmentId) return;
     try {
       const res = await fetch(
-        `http://localhost:8000/enrollment/mark-complete/${enrollmentId}/${lessonId}`,
+        `/enrollment/mark-complete/${enrollmentId}/${lessonId}`,
         { method: "PATCH",
           headers:{Authorization:`Bearer ${token}`}
          }

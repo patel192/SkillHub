@@ -32,7 +32,7 @@ export const CourseQuiz = ({token}) => {
   useEffect(() => {
     const fetchQuestions = async () => {
       try {
-        const res = await fetch(`http://localhost:8000/questions/${courseId}`,{
+        const res = await fetch(`/questions/${courseId}`,{
           headers:{Authorization:`Bearer ${token}`}
         });
         const data = await res.json();
@@ -49,7 +49,7 @@ export const CourseQuiz = ({token}) => {
 
   const handleAddQuestion = async () => {
     try {
-      const res = await fetch(`http://localhost:8000/questions/${courseId}`,{
+      const res = await fetch(`/questions/${courseId}`,{
           headers:{Authorization:`Bearer ${token}`}
         }, {
         method: "POST",

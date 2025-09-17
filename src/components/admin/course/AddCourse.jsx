@@ -27,7 +27,7 @@ export const AddCourse = ({token}) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const response = await fetch("http://localhost:8000/course",{
+      const response = await fetch("/course",{
           headers:{Authorization:`Bearer ${token}`}
         }, {
         method: "POST",

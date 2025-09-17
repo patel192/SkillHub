@@ -19,7 +19,7 @@ export const Report = ({ targetType = "General", targetId = null},{token}) => {
     setSuccess(false);
 
     try {
-      await axios.post("http://localhost:8000/report",{
+      await axios.post("/report",{
           headers:{Authorization:`Bearer ${token}`}
         }, {
         type,

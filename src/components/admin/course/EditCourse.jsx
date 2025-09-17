@@ -37,7 +37,7 @@ export const EditCourse = ({token}) => {
   const fetchCourse = async () => {
     try {
       setLoading(true);
-      const res = await axios.get(`http://localhost:8000/course/${id}`,{
+      const res = await axios.get(`/course/${id}`,{
           headers:{Authorization:`Bearer ${token}`}
         });
       setCourseData(res.data.data);
@@ -59,7 +59,7 @@ export const EditCourse = ({token}) => {
   const handleSave = async () => {
     try {
       setSaving(true);
-      await axios.patch(`http://localhost:8000/course/${id}`,{
+      await axios.patch(`/course/${id}`,{
           headers:{Authorization:`Bearer ${token}`}
         }, courseData);
       navigate("/admin/courses");

@@ -10,7 +10,7 @@ export const Community = ({ basePath },{token}) => {
   useEffect(() => {
     const fetchCommunities = async () => {
       try {
-        const res = await axios.get("http://localhost:8000/communities",{
+        const res = await axios.get("/communities",{
           headers:{Authorization:`Bearer ${token}`}
         });
         setCommunities(res.data.data);

@@ -17,7 +17,7 @@ export const MyCourses = ({token}) => {
 
   const fetchDiscoverCourses = async () => {
     try {
-      const res = await axios.get(`http://localhost:8000/courses`,{
+      const res = await axios.get(`/courses`,{
         headers:{Authorization:`Bearer ${token}`}
       });
       setDiscoverCourses(res.data.data || []);
@@ -28,7 +28,7 @@ export const MyCourses = ({token}) => {
 
   const fetchMyCourses = async () => {
     try {
-      const res = await axios.get(`http://localhost:8000/enrollment/${userId}`,{
+      const res = await axios.get(`/enrollment/${userId}`,{
         headers:{Authorization:`Bearer ${token}`}
       });
       const enrollments = res.data.data || [];

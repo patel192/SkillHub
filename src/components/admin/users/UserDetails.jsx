@@ -15,7 +15,7 @@ export const UserDetails = ({token}) => {
 
   const fetchUser = async () => {
     try {
-      const res = await axios.get(`http://localhost:8000/user/${id}`,{
+      const res = await axios.get(`/user/${id}`,{
           headers:{Authorization:`Bearer ${token}`}
         });
       setUser(res.data.data);

@@ -25,7 +25,7 @@ export const UserDashboard = ({token}) => {
   // Notifications
   const fetchNotifications = async () => {
     const resNotifications = await axios.get(
-      `http://localhost:8000/notifications/${userId}`,
+      `/notifications/${userId}`,
       {
         headers:{Authorization:`Bearer ${token}`}
       }
@@ -44,7 +44,7 @@ export const UserDashboard = ({token}) => {
       try {
         // Courses
         const resCourses = await axios.get(
-          `http://localhost:8000/enrollment/${userId}`,{
+          `/enrollment/${userId}`,{
         headers:{Authorization:`Bearer ${token}`}
       }
         );
@@ -52,7 +52,7 @@ export const UserDashboard = ({token}) => {
 
         // Certificates
         const resCerts = await axios.get(
-          `http://localhost:8000/certificates/${userId}`,{
+          `/certificates/${userId}`,{
         headers:{Authorization:`Bearer ${token}`}
       }
         );
@@ -77,7 +77,7 @@ export const UserDashboard = ({token}) => {
           const sorted = [...courseTimes].sort((a, b) => b.seconds - a.seconds);
           mostLearnedCourse = sorted[0];
           const Coursename = await axios.get(
-            `http://localhost:8000/course/${mostLearnedCourse.courseId}`,{
+            `/course/${mostLearnedCourse.courseId}`,{
         headers:{Authorization:`Bearer ${token}`}
       }
           );
@@ -86,7 +86,7 @@ export const UserDashboard = ({token}) => {
 
         // Activities
         const resActivities = await axios.get(
-          `http://localhost:8000/activities/${userId}`,{
+          `/activities/${userId}`,{
         headers:{Authorization:`Bearer ${token}`}
       }
         );
