@@ -13,7 +13,7 @@ import { AiOutlineArrowRight } from "react-icons/ai";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 
-export const UserDashboard = ({token}) => {
+export const UserDashboard = ({ token }) => {
   const [userData, setUserData] = useState(null);
   const [activities, setActivities] = useState([]);
   const [courseName, setCourseName] = useState("");
@@ -24,38 +24,31 @@ export const UserDashboard = ({token}) => {
 
   // Notifications
   const fetchNotifications = async () => {
-    const resNotifications = await axios.get(
-      `/notifications/${userId}`,
-      {
-        headers:{Authorization:`Bearer ${token}`}
-      }
-    );
+    const resNotifications = await axios.get(`/notifications/${userId}`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
     const dataNotifications = resNotifications.data.data || [];
     setNotifications(dataNotifications);
   };
 
   useEffect(() => {
     fetchNotifications();
-    console.log(token)
+    console.log(token);
   }, []);
 
   useEffect(() => {
     const fetchUserDashboard = async () => {
       try {
         // Courses
-        const resCourses = await axios.get(
-          `/enrollment/${userId}`,{
-        headers:{Authorization:`Bearer ${token}`}
-      }
-        );
+        const resCourses = await axios.get(`/enrollment/${userId}`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
         const dataCourses = resCourses.data;
 
         // Certificates
-        const resCerts = await axios.get(
-          `/certificates/${userId}`,{
-        headers:{Authorization:`Bearer ${token}`}
-      }
-        );
+        const resCerts = await axios.get(`/certificates/${userId}`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
         const dataCerts = resCerts.data;
 
         // Learning Time
@@ -77,19 +70,18 @@ export const UserDashboard = ({token}) => {
           const sorted = [...courseTimes].sort((a, b) => b.seconds - a.seconds);
           mostLearnedCourse = sorted[0];
           const Coursename = await axios.get(
-            `/course/${mostLearnedCourse.courseId}`,{
-        headers:{Authorization:`Bearer ${token}`}
-      }
+            `/course/${mostLearnedCourse.courseId}`,
+            {
+              headers: { Authorization: `Bearer ${token}` },
+            }
           );
           setCourseName(Coursename.data.data.title);
         }
 
         // Activities
-        const resActivities = await axios.get(
-          `/activities/${userId}`,{
-        headers:{Authorization:`Bearer ${token}`}
-      }
-        );
+        const resActivities = await axios.get(`/activities/${userId}`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
         const dataActivities = resActivities.data.data || [];
         setActivities(dataActivities);
 
@@ -133,7 +125,10 @@ export const UserDashboard = ({token}) => {
       whileHover={{ scale: 1.05, boxShadow: `0 0 20px ${accent}` }}
       className="bg-[#1b1b2a]/80 backdrop-blur-lg p-5 rounded-xl border border-purple-600/50 flex items-center gap-4 transition"
     >
-      <div className="p-3 rounded-full" style={{ background: `${accent}20`, color: accent }}>
+      <div
+        className="p-3 rounded-full"
+        style={{ background: `${accent}20`, color: accent }}
+      >
         <Icon size={24} />
       </div>
       <div>
@@ -156,13 +151,30 @@ export const UserDashboard = ({token}) => {
       </motion.div>
 
       {/* Stats */}
-      <StatCard icon={FaBook} title="Courses Enrolled" value={userData.courses} accent="#00FFFF" />
-      <StatCard icon={FaTasks} title="Challenges Completed" value={userData.challenges} accent="#FF00FF" />
-      <StatCard icon={FaCertificate} title="Certificates Earned" value={userData.certificates} accent="#FFD700" />
+      <StatCard
+        icon={FaBook}
+        title="Courses Enrolled"
+        value={userData.courses}
+        accent="#00FFFF"
+      />
+      <StatCard
+        icon={FaTasks}
+        title="Challenges Completed"
+        value={userData.challenges}
+        accent="#FF00FF"
+      />
+      <StatCard
+        icon={FaCertificate}
+        title="Certificates Earned"
+        value={userData.certificates}
+        accent="#FFD700"
+      />
       <StatCard
         icon={FaClock}
         title="Total Learning Time"
-        value={`${Math.floor(userData.totalMinutes / 60)}h ${userData.totalMinutes % 60}m`}
+        value={`${Math.floor(userData.totalMinutes / 60)}h ${
+          userData.totalMinutes % 60
+        }m`}
         accent="#7C3AED"
       />
 
@@ -182,7 +194,9 @@ export const UserDashboard = ({token}) => {
           <motion.button
             whileHover={{ scale: 1.05, boxShadow: "0 0 15px #00FF00" }}
             className="mt-4 bg-green-600 px-4 py-2 rounded-lg text-sm font-medium transition"
-            onClick={() => navigate(`/learning/${userData.mostLearnedCourse.courseId}`)}
+            onClick={() =>
+              navigate(`/learning/${userData.mostLearnedCourse.courseId}`)
+            }
           >
             Resume
           </motion.button>
@@ -194,7 +208,9 @@ export const UserDashboard = ({token}) => {
         whileHover={{ scale: 1.03, boxShadow: "0 0 20px #FF00FF" }}
         className="bg-[#1b1b2a]/80 backdrop-blur-lg p-5 rounded-xl border border-purple-600/50 col-span-1"
       >
-        <div className="font-semibold mb-3 text-lg text-white">Recommended for You</div>
+        <div className="font-semibold mb-3 text-lg text-white">
+          Recommended for You
+        </div>
         <div className="grid grid-cols-1 gap-3">
           {userData.recommendations.map((course, index) => (
             <div
@@ -207,7 +223,9 @@ export const UserDashboard = ({token}) => {
                 className="w-14 h-14 rounded-lg object-cover"
               />
               <div className="flex justify-between items-center w-full">
-                <span className="font-medium text-gray-200">{course.title}</span>
+                <span className="font-medium text-gray-200">
+                  {course.title}
+                </span>
                 <AiOutlineArrowRight size={20} className="text-cyan-400" />
               </div>
             </div>
@@ -227,7 +245,10 @@ export const UserDashboard = ({token}) => {
         <ul className="text-sm text-gray-300 space-y-2">
           {notifications.length > 0 ? (
             notifications.slice(0, 3).map((n) => (
-              <li key={n._id} className={n.read ? "text-gray-400" : "text-white"}>
+              <li
+                key={n._id}
+                className={n.read ? "text-gray-400" : "text-white"}
+              >
                 • {n.message}
               </li>
             ))
@@ -244,7 +265,9 @@ export const UserDashboard = ({token}) => {
         className="bg-[#1b1b2a]/80 backdrop-blur-lg p-5 rounded-xl border border-purple-600/50 col-span-1 cursor-pointer"
         onClick={() => navigate("/user/activities")}
       >
-        <div className="font-semibold mb-3 text-lg text-white">Recent Activity</div>
+        <div className="font-semibold mb-3 text-lg text-white">
+          Recent Activity
+        </div>
         <ul className="text-sm space-y-2">
           {userData.recentActivity.length > 0 ? (
             userData.recentActivity.map((activity) => (

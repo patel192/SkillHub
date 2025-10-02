@@ -15,7 +15,7 @@ import {
 import axios from "axios";
 import { FaEllipsisV } from "react-icons/fa";
 import { X } from "lucide-react";
-export const CommunityDetails = () => {
+export const CommunityDetails = ({ token }) => {
   const { id } = useParams(); // community id
   const [community, setCommunity] = useState(null);
   const [posts, setPosts] = useState([]);
@@ -47,13 +47,19 @@ export const CommunityDetails = () => {
     if (!reportTarget) return;
 
     try {
-      await axios.post("/report", {
-        reporter: userId,
-        type: reportType,
-        description: reportMessage,
-        targetType: reportTarget.type,
-        targetId: reportTarget.id,
-      });
+      await axios.post(
+        "/report",
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        },
+        {
+          reporter: userId,
+          type: reportType,
+          description: reportMessage,
+          targetType: reportTarget.type,
+          targetId: reportTarget.id,
+        }
+      );
 
       toast.success(`${reportTarget.type} reported successfully ✅`);
       setReportType("");
@@ -72,6 +78,9 @@ export const CommunityDetails = () => {
     try {
       await axios.post(
         `/posts/${postId}/comment/${commentId}/reply`,
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        },
         {
           userId,
           content: txt,
@@ -130,10 +139,12 @@ export const CommunityDetails = () => {
     setLoading(true);
     try {
       const [resCommunity, resPosts] = await Promise.all([
-        axios.get(`/communities/${id}`),
-        axios.get(
-          `/communities/${id}/posts?sort=new&limit=50`
-        ),
+        axios.get(`/communities/${id}`, {
+          headers: { Authorization: `Bearer ${token}` },
+        }),
+        axios.get(`/communities/${id}/posts?sort=new&limit=50`, {
+          headers: { Authorization: `Bearer ${token}` },
+        }),
       ]);
 
       const communityData = resCommunity?.data?.data ?? resCommunity?.data;
@@ -164,9 +175,9 @@ export const CommunityDetails = () => {
   const fetchNotifications = async () => {
     if (!userId) return;
     try {
-      const res = await axios.get(
-        `/notifications/${userId}`
-      );
+      const res = await axios.get(`/notifications/${userId}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
       const data = res.data?.data ?? res.data ?? [];
 
       const newOnes = data.filter(
@@ -201,9 +212,15 @@ export const CommunityDetails = () => {
   const handleMembership = async (action) => {
     if (!userId) return alert("Please login first");
     try {
-      await axios.patch(`/communities/${id}/${action}`, {
-        userId,
-      });
+      await axios.patch(
+        `/communities/${id}/${action}`,
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        },
+        {
+          userId,
+        }
+      );
       showNotification(`Successfully ${action}ed community`);
       await fetchCommunityAndPosts();
     } catch (err) {
@@ -216,11 +233,17 @@ export const CommunityDetails = () => {
   const handleAddPost = async () => {
     if (!newPost.trim()) return;
     try {
-      await axios.post("/posts", {
-        userId,
-        content: newPost,
-        communityId: id,
-      });
+      await axios.post(
+        "/posts",
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        },
+        {
+          userId,
+          content: newPost,
+          communityId: id,
+        }
+      );
       setNewPost("");
       showNotification("Post created successfully");
       await fetchCommunityAndPosts();
@@ -233,9 +256,15 @@ export const CommunityDetails = () => {
   const handleLike = async (postId) => {
     if (!userId) return alert("Please login first");
     try {
-      await axios.post(`/posts/${postId}/like`, {
-        userId,
-      });
+      await axios.post(
+        `/posts/${postId}/like`,
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        },
+        {
+          userId,
+        }
+      );
       showNotification("You liked a post");
       await fetchCommunityAndPosts();
     } catch (err) {
@@ -248,10 +277,16 @@ export const CommunityDetails = () => {
     const txt = (commentText[postId] || "").trim();
     if (!txt) return;
     try {
-      await axios.post(`/posts/${postId}/comment`, {
-        userId,
-        content: txt,
-      });
+      await axios.post(
+        `/posts/${postId}/comment`,
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        },
+        {
+          userId,
+          content: txt,
+        }
+      );
       setCommentText((p) => ({ ...p, [postId]: "" }));
       showNotification("Comment added");
       await fetchCommunityAndPosts();
@@ -267,9 +302,15 @@ export const CommunityDetails = () => {
   const handlePinToggle = async (postId, currentlyPinned) => {
     try {
       const action = currentlyPinned ? "unpin" : "pin";
-      await axios.patch(`/communities/${id}/${action}`, {
-        postId,
-      });
+      await axios.patch(
+        `/communities/${id}/${action}`,
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        },
+        {
+          postId,
+        }
+      );
       showNotification(`Post ${currentlyPinned ? "unpinned" : "pinned"}`);
       await fetchCommunityAndPosts();
     } catch (err) {
@@ -281,10 +322,16 @@ export const CommunityDetails = () => {
   const handleUpdateCommunity = async () => {
     if (!editData.name.trim() || !userId) return alert("Name is required");
     try {
-      await axios.put(`/communities/${id}`, {
-        ...editData,
-        userId,
-      });
+      await axios.put(
+        `/communities/${id}`,
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        },
+        {
+          ...editData,
+          userId,
+        }
+      );
       setEditMode(false);
       showNotification("Community updated");
       await fetchCommunityAndPosts();
@@ -300,9 +347,15 @@ export const CommunityDetails = () => {
   const handleRemoveMember = async (memberId) => {
     if (!memberId) return;
     try {
-      await axios.patch(`/communities/${id}/leave`, {
-        userId: memberId,
-      });
+      await axios.patch(
+        `/communities/${id}/leave`,
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        },
+        {
+          userId: memberId,
+        }
+      );
       showNotification("Member removed");
       await fetchCommunityAndPosts();
     } catch (err) {
@@ -317,9 +370,15 @@ export const CommunityDetails = () => {
   const handleAddMember = async () => {
     if (!newMemberId?.trim()) return alert("Enter a userId");
     try {
-      await axios.patch(`/communities/${id}/join`, {
-        userId: newMemberId,
-      });
+      await axios.patch(
+        `/communities/${id}/join`,
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        },
+        {
+          userId: newMemberId,
+        }
+      );
       setNewMemberId("");
       showNotification("Member added");
       await fetchCommunityAndPosts();
@@ -332,9 +391,15 @@ export const CommunityDetails = () => {
   const handlePromoteMember = async (memberId) => {
     if (!memberId) return;
     try {
-      await axios.patch(`/communities/${id}/promote`, {
-        userId: memberId,
-      });
+      await axios.patch(
+        `/communities/${id}/promote`,
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        },
+        {
+          userId: memberId,
+        }
+      );
       showNotification("Member promoted to admin");
       await fetchCommunityAndPosts();
     } catch (err) {
@@ -397,7 +462,9 @@ export const CommunityDetails = () => {
       {/* Admin Panel */}
       {admin && editMode && (
         <section className="bg-[#142027] p-4 rounded-lg space-y-4 border border-gray-700 shadow-lg shadow-cyan-500/20">
-          <h2 className="text-lg font-semibold text-cyan-300">Admin Controls</h2>
+          <h2 className="text-lg font-semibold text-cyan-300">
+            Admin Controls
+          </h2>
 
           {/* Edit info */}
           <div className="grid md:grid-cols-3 gap-3">
@@ -545,15 +612,15 @@ export const CommunityDetails = () => {
                           {new Date(post.createdAt).toLocaleString()}
                         </div>
                       </div>
-                    <button
-                      onClick={() => {
-                        setReportTarget({ type: "Post", id: post._id });
-                        setIsReportOpen(true);
-                      }}
-                      className="p-2 rounded hover:bg-gray-700 transition"
-                    >
-                      <FaEllipsisV />
-                    </button>
+                      <button
+                        onClick={() => {
+                          setReportTarget({ type: "Post", id: post._id });
+                          setIsReportOpen(true);
+                        }}
+                        className="p-2 rounded hover:bg-gray-700 transition"
+                      >
+                        <FaEllipsisV />
+                      </button>
                     </div>
 
                     <p className="mt-3">{post.content}</p>
@@ -757,7 +824,9 @@ export const CommunityDetails = () => {
               </div>
 
               <div>
-                <label className="block text-sm font-medium mb-1">Details</label>
+                <label className="block text-sm font-medium mb-1">
+                  Details
+                </label>
                 <textarea
                   value={reportMessage}
                   onChange={(e) => setReportMessage(e.target.value)}
@@ -779,6 +848,5 @@ export const CommunityDetails = () => {
         </div>
       )}
     </div>
-
   );
 };

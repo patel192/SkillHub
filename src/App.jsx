@@ -51,7 +51,7 @@ function App() {
             path="communities"
             element={<Community basePath="user" token={token} />}
           ></Route>
-          <Route path="community/:id" element={<CommunityDetails />}></Route>
+          <Route path="community/:id" element={<CommunityDetails token={token} />}></Route>
           <Route path="mycourses" element={<MyCourses token={token} />}></Route>
           <Route path="certificates" element={<Certificates />}></Route>
           <Route path="messages" element={<Messages token={token} />}></Route>
