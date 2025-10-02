@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { BookOpen, Clock, User, Zap, Star, DollarSign } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
+import axios from "axios";
 
 export const Resources = () => {
   const token = localStorage.getItem("token");
@@ -14,19 +15,18 @@ export const Resources = () => {
   useEffect(() => {
     const fetchCourses = async () => {
       try {
-        const response = await fetch("/courses", {
+        const response = await axios.get("/courses", {
           headers: { Authorization: `Bearer ${token}` },
         });
-        const result = await response.json();
-        setCourses(result.data);
+        setCourses(response.data.data); // assuming backend returns { data: [...] }
       } catch (e) {
-        setError(e.message);
+        setError(e.response?.data?.message || e.message);
       } finally {
         setLoading(false);
       }
     };
     fetchCourses();
-  }, []);
+  }, [token]);
 
   if (loading) {
     return (
@@ -83,10 +83,10 @@ export const Resources = () => {
             </div>
             <div className="flex items-center gap-2">
               <Star size={16} className="text-yellow-400" />
-              {course.rating.toFixed(1)} ({course.enrollemntCount} enrolled)
+              {course.rating?.toFixed(1)} ({course.enrollemntCount} enrolled)
             </div>
             <div className="flex items-center gap-2 font-bold text-green-400">
-              <DollarSign size={16} />${course.price.toFixed(2)}
+              <DollarSign size={16} />${course.price?.toFixed(2)}
             </div>
           </div>
 
