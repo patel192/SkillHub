@@ -13,7 +13,9 @@ import {
   Book,
 } from "lucide-react";
 import { AchievementPopup } from "../../../../utils/AchievementPopup";
-export const LearningPage = ({token}) => {
+
+export const LearningPage = () => {
+  const token = localStorage.getItem("token");
   const { courseId } = useParams();
   const userId = localStorage.getItem("userId");
   const achievementThresholds = [10, 50, 100];
@@ -84,9 +86,9 @@ export const LearningPage = ({token}) => {
   useEffect(() => {
     const fetchLessons = async () => {
       try {
-        const res = await fetch(`/lessons/${courseId}`,{
-        headers:{Authorization:`Bearer ${token}`}
-      });
+        const res = await fetch(`/lessons/${courseId}`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
         const data = await res.json();
         if (Array.isArray(data.data)) {
           setLessons(data.data);
@@ -103,9 +105,9 @@ export const LearningPage = ({token}) => {
   useEffect(() => {
     const fetchEnrollment = async () => {
       try {
-        const res = await fetch(`/enrollment/${userId}`,{
-        headers:{Authorization:`Bearer ${token}`}
-      });
+        const res = await fetch(`/enrollment/${userId}`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
         const data = await res.json();
         if (data.data && Array.isArray(data.data)) {
           const enrollment = data.data.find((e) => e.courseId._id === courseId);
@@ -125,17 +127,15 @@ export const LearningPage = ({token}) => {
   useEffect(() => {
     const fetchQuizAndProgress = async () => {
       try {
-        const resQ = await fetch(`/questions/${courseId}`,{
-        headers:{Authorization:`Bearer ${token}`}
-      });
+        const resQ = await fetch(`/questions/${courseId}`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
         const dataQ = await resQ.json();
         if (Array.isArray(dataQ.data)) setQuizQuestions(dataQ.data);
 
-        const resP = await fetch(
-          `/progress/${userId}/${courseId}`,{
-        headers:{Authorization:`Bearer ${token}`}
-      }
-        );
+        const resP = await fetch(`/progress/${userId}/${courseId}`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
         const dataP = await resP.json();
         if (dataP.success && dataP.data) {
           setCurrentQuestionIdx(dataP.data.currentQuestionIdx || 0);
@@ -188,9 +188,12 @@ export const LearningPage = ({token}) => {
         quizAnswers: newAnswers,
         points: newPoints,
       };
-      await fetch("/progress/save,", {
+      await fetch("/progress/save", {
         method: "POST",
-        headers: { "Content-Type": "application/json",Authorization:`Bearer ${token}` },
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
         body: JSON.stringify(payload),
       });
     } catch (err) {
@@ -260,7 +263,7 @@ export const LearningPage = ({token}) => {
       try {
         const res = await fetch(`/check/${userId}`, {
           method: "POST",
-          headers:{Authorization:`Bearer ${token}`}
+          headers: { Authorization: `Bearer ${token}` },
         });
         const data = await res.json();
         if (data.success && data.newlyUnlocked.length > 0)
@@ -276,9 +279,7 @@ export const LearningPage = ({token}) => {
     try {
       const res = await fetch(
         `/enrollment/mark-complete/${enrollmentId}/${lessonId}`,
-        { method: "PATCH",
-          headers:{Authorization:`Bearer ${token}`}
-         }
+        { method: "PATCH", headers: { Authorization: `Bearer ${token}` } }
       );
       const data = await res.json();
       setCompletedLessons(data.completedLessons || []);
