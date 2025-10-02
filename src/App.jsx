@@ -58,7 +58,7 @@ function App() {
           <Route path="profile" element={<Profile token={token} />}></Route>
           <Route path="settings" element={<Settings />}></Route>
           <Route path="course/:courseId" element={<CourseDetails token={token} />}></Route>
-          <Route path="learn/:courseId" element={<LearningPage token={token}/>} ></Route>
+          <Route path="learn/:courseId" element={<LearningPage token={token} />} ></Route>
           <Route path="activities" element={<Activities token={token}/>}></Route>
           <Route path="notifications" element={<Notifications token={token} />}></Route>
           <Route path="report" element={<Report token={token} />}></Route>
