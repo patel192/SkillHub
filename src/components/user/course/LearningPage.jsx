@@ -4,7 +4,6 @@ import { useParams } from "react-router-dom";
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import { vscDarkPlus } from "react-syntax-highlighter/dist/esm/styles/prism";
 import { motion } from "framer-motion";
-import axios from "axios";
 import {
   Clock,
   BookOpen,
@@ -15,8 +14,7 @@ import {
 } from "lucide-react";
 import { AchievementPopup } from "../../../../utils/AchievementPopup";
 
-export const LearningPage = () => {
-  const token = localStorage.getItem("token");
+export const LearningPage = ({token}) => {
   const { courseId } = useParams();
   const userId = localStorage.getItem("userId");
   const achievementThresholds = [10, 50, 100];
@@ -87,7 +85,7 @@ export const LearningPage = () => {
   useEffect(() => {
     const fetchLessons = async () => {
       try {
-        const res = await axios.get(`/lessons/${courseId}`, {
+        const res = await fetch(`/lessons/${courseId}`, {
           headers: { Authorization: `Bearer ${token}` },
         });
         const data = await res.json();
@@ -95,6 +93,7 @@ export const LearningPage = () => {
           setLessons(data.data);
           if (data.data.length > 0) setSelectedLesson(data.data[0]);
         }
+        console.log(token)
       } catch (err) {
         console.error("Error fetching lessons:", err);
       }
@@ -106,7 +105,7 @@ export const LearningPage = () => {
   useEffect(() => {
     const fetchEnrollment = async () => {
       try {
-        const res = await axios.get(`/enrollment/${userId}`, {
+        const res = await fetch(`/enrollment/${userId}`, {
           headers: { Authorization: `Bearer ${token}` },
         });
         const data = await res.json();
@@ -128,13 +127,13 @@ export const LearningPage = () => {
   useEffect(() => {
     const fetchQuizAndProgress = async () => {
       try {
-        const resQ = await axios.get(`/questions/${courseId}`, {
+        const resQ = await fetch(`/questions/${courseId}`, {
           headers: { Authorization: `Bearer ${token}` },
         });
         const dataQ = await resQ.json();
         if (Array.isArray(dataQ.data)) setQuizQuestions(dataQ.data);
 
-        const resP = await axios.get(`/progress/${userId}/${courseId}`, {
+        const resP = await fetch(`/progress/${userId}/${courseId}`, {
           headers: { Authorization: `Bearer ${token}` },
         });
         const dataP = await resP.json();
@@ -189,15 +188,14 @@ export const LearningPage = () => {
         quizAnswers: newAnswers,
         points: newPoints,
       };
-      await axios.post(
-        "/progress/save",
-        {
-          headers: { Authorization: `Bearer ${token}` },
+      await fetch("/progress/save,", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
         },
-        {
-          body: JSON.stringify(payload),
-        }
-      );
+        body: JSON.stringify(payload),
+      });
     } catch (err) {
       console.error("Error saving progress:", err);
     }
@@ -263,7 +261,8 @@ export const LearningPage = () => {
       !achievementThresholds.includes(points)
     ) {
       try {
-        const res = await axios.post(`/check/${userId}`, {
+        const res = await fetch(`/check/${userId}`, {
+          method: "POST",
           headers: { Authorization: `Bearer ${token}` },
         });
         const data = await res.json();
@@ -278,11 +277,9 @@ export const LearningPage = () => {
   const handleMarkComplete = async (lessonId) => {
     if (!enrollmentId) return;
     try {
-      const res = await axios.patch(
+      const res = await fetch(
         `/enrollment/mark-complete/${enrollmentId}/${lessonId}`,
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
+        { method: "PATCH", headers: { Authorization: `Bearer ${token}` } }
       );
       const data = await res.json();
       setCompletedLessons(data.completedLessons || []);
