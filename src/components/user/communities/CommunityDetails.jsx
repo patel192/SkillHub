@@ -15,7 +15,8 @@ import {
 import axios from "axios";
 import { FaEllipsisV } from "react-icons/fa";
 import { X } from "lucide-react";
-export const CommunityDetails = ({ token }) => {
+export const CommunityDetails = () => {
+  const token = localStorage.getItem("token")
   const { id } = useParams(); // community id
   const [community, setCommunity] = useState(null);
   const [posts, setPosts] = useState([]);

@@ -4,8 +4,9 @@ import { PlayCircle, BookOpen, Flame } from "lucide-react";
 import axios from "axios";
 import { Link } from "react-router-dom";
 
-export const MyCourses = ({token}) => {
+export const MyCourses = () => {
   const [activeTab, setActiveTab] = useState("my");
+  const token = localStorage.getItem("token")
   const [myCourses, setMyCourses] = useState([]);
   const [discoverCourses, setDiscoverCourses] = useState([]);
   const userId = localStorage.getItem("userId");

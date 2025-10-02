@@ -2,12 +2,12 @@ import React, { useState } from "react";
 import { motion } from "framer-motion";
 import axios from "axios";
 import { Flag, Loader2, CheckCircle, AlertTriangle } from "lucide-react";
-export const Report = ({ targetType = "General", targetId = null},{token}) => {
-   const [type, setType] = useState("bug");
+export const Report = ({ targetType = "General", targetId = null }) => {
+  const [type, setType] = useState("bug");
   const [description, setDescription] = useState("");
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
-
+  const token = localStorage.getItem("token");
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!targetType || !targetId) {
@@ -19,15 +19,18 @@ export const Report = ({ targetType = "General", targetId = null},{token}) => {
     setSuccess(false);
 
     try {
-      await axios.post("/report",{
-          headers:{Authorization:`Bearer ${token}`}
-        }, {
-        type,
-        description,
-        targetType,
-        targetId,
-        
-      });
+      await axios.post(
+        "/report",
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        },
+        {
+          type,
+          description,
+          targetType,
+          targetId,
+        }
+      );
       setSuccess(true);
       setDescription("");
       setType("bug");
@@ -102,5 +105,5 @@ export const Report = ({ targetType = "General", targetId = null},{token}) => {
         </motion.button>
       </form>
     </motion.div>
-  )
-}
+  );
+};

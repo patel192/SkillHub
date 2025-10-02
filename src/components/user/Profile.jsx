@@ -13,19 +13,22 @@ const uploadToCloudinary = async (file) => {
   data.append("upload_preset", "My_Images");
   data.append("cloud_name", "dfaou6haj");
 
-  const res = await fetch("https://api.cloudinary.com/v1_1/dfaou6haj/image/upload", {
-    method: "POST",
-    body: data,
-  });
+  const res = await fetch(
+    "https://api.cloudinary.com/v1_1/dfaou6haj/image/upload",
+    {
+      method: "POST",
+      body: data,
+    }
+  );
 
   const result = await res.json();
   return result.secure_url;
 };
 
-export const Profile = ({token}) => {
+export const Profile = () => {
   const navigate = useNavigate();
   const location = useLocation();
-
+  const token = localStorage.getItem("token");
   const [editMode, setEditMode] = useState(false);
   const [activeTab, setActiveTab] = useState("profile");
   const [userData, setUserData] = useState(null);
@@ -40,9 +43,9 @@ export const Profile = ({token}) => {
   useEffect(() => {
     const fetchUser = async () => {
       try {
-        const res = await axios.get(`/user/${userId}`,{
-        headers:{Authorization:`Bearer ${token}`}
-      });
+        const res = await axios.get(`/user/${userId}`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
         setUserData(res.data.data);
       } catch (err) {
         console.error("❌ Error fetching user:", err);
@@ -61,9 +64,13 @@ export const Profile = ({token}) => {
       if (avatarFile) avatarUrl = await uploadToCloudinary(avatarFile);
 
       const updates = { ...userData, avatar: avatarUrl };
-      const res = await axios.put(`/user/${userId}`,{
-        headers:{Authorization:`Bearer ${token}`}
-      }, updates);
+      const res = await axios.put(
+        `/user/${userId}`,
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        },
+        updates
+      );
 
       setUserData(res.data.user);
       setEditMode(false);
@@ -78,15 +85,19 @@ export const Profile = ({token}) => {
   const handleReportSubmit = async (e) => {
     e.preventDefault();
     try {
-      await axios.post("/report",{
-        headers:{Authorization:`Bearer ${token}`}
-      }, {
-        reporter: userId,
-        type: reportType,
-        description: reportMessage,
-        targetType: "User",
-        targetId: userData._id,
-      });
+      await axios.post(
+        "/report",
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        },
+        {
+          reporter: userId,
+          type: reportType,
+          description: reportMessage,
+          targetType: "User",
+          targetId: userData._id,
+        }
+      );
 
       toast.success("Report submitted successfully ✅");
       setReportType("");
@@ -136,7 +147,9 @@ export const Profile = ({token}) => {
           <div className="w-full">
             {editMode && (
               <div className="mb-4">
-                <label className="block text-sm font-medium mb-2 text-cyan-300">Upload New Avatar</label>
+                <label className="block text-sm font-medium mb-2 text-cyan-300">
+                  Upload New Avatar
+                </label>
                 <input
                   type="file"
                   accept="image/*"
@@ -150,7 +163,9 @@ export const Profile = ({token}) => {
 
             <div className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-purple-400">Full Name</label>
+                <label className="block text-sm font-medium text-purple-400">
+                  Full Name
+                </label>
                 <input
                   type="text"
                   name="fullname"
@@ -161,7 +176,9 @@ export const Profile = ({token}) => {
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-purple-400">Email</label>
+                <label className="block text-sm font-medium text-purple-400">
+                  Email
+                </label>
                 <input
                   type="email"
                   name="email"
@@ -172,7 +189,9 @@ export const Profile = ({token}) => {
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-purple-400">Bio</label>
+                <label className="block text-sm font-medium text-purple-400">
+                  Bio
+                </label>
                 <textarea
                   name="bio"
                   value={userData.bio || ""}
@@ -240,7 +259,9 @@ export const Profile = ({token}) => {
                     </div>
                   )}
                 </div>
-                <span className="font-bold text-lg text-cyan-400">{ach.name}</span>
+                <span className="font-bold text-lg text-cyan-400">
+                  {ach.name}
+                </span>
                 <span className="text-gray-400 text-sm mt-1">
                   Points: {ach.pointsRequired}
                 </span>
@@ -280,10 +301,14 @@ export const Profile = ({token}) => {
               <X size={20} />
             </button>
 
-            <h2 className="text-xl font-semibold mb-4 text-cyan-400">Report User</h2>
+            <h2 className="text-xl font-semibold mb-4 text-cyan-400">
+              Report User
+            </h2>
             <form onSubmit={handleReportSubmit} className="space-y-4">
               <div>
-                <label className="block text-sm font-medium mb-1 text-purple-400">Report Type</label>
+                <label className="block text-sm font-medium mb-1 text-purple-400">
+                  Report Type
+                </label>
                 <select
                   value={reportType}
                   onChange={(e) => setReportType(e.target.value)}
@@ -298,7 +323,9 @@ export const Profile = ({token}) => {
               </div>
 
               <div>
-                <label className="block text-sm font-medium mb-1 text-purple-400">Details</label>
+                <label className="block text-sm font-medium mb-1 text-purple-400">
+                  Details
+                </label>
                 <textarea
                   value={reportMessage}
                   onChange={(e) => setReportMessage(e.target.value)}

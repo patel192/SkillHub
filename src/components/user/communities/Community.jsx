@@ -5,6 +5,7 @@ import { motion } from "framer-motion";
 
 export const Community = ({ basePath }) => {
   const [communities, setCommunities] = useState([]);
+  const token = localStorage.getItem("token")
   const navigate = useNavigate();
 
   useEffect(() => {

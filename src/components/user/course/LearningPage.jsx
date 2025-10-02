@@ -14,11 +14,11 @@ import {
 } from "lucide-react";
 import { AchievementPopup } from "../../../../utils/AchievementPopup";
 
-export const LearningPage = ({token}) => {
+export const LearningPage = () => {
   const { courseId } = useParams();
   const userId = localStorage.getItem("userId");
   const achievementThresholds = [10, 50, 100];
-
+  const token = localStorage.getItem("token");
   const canvasRef = useRef(null);
   const startTimeRef = useRef(null);
   const intervalRef = useRef(null);
@@ -93,7 +93,7 @@ export const LearningPage = ({token}) => {
           setLessons(data.data);
           if (data.data.length > 0) setSelectedLesson(data.data[0]);
         }
-        console.log(token)
+        console.log(token);
       } catch (err) {
         console.error("Error fetching lessons:", err);
       }

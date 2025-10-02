@@ -3,19 +3,19 @@ import { Crown, Trophy, Award } from "lucide-react";
 import { motion } from "framer-motion";
 import axios from "axios";
 
-export const LeaderBoard = ({token}) => {
+export const LeaderBoard = () => {
   const [users, setUsers] = useState([]);
   const [achievements, setAchievements] = useState([]);
   const [activeTab, setActiveTab] = useState("leaderboard");
-
+  const token = localStorage.getItem("token");
   const userId = localStorage.getItem("userId");
 
   useEffect(() => {
     const fetchUsers = async () => {
       try {
-        const res = await axios.get("/users",{
-        headers:{Authorization:`Bearer ${token}`}
-      });
+        const res = await axios.get("/users", {
+          headers: { Authorization: `Bearer ${token}` },
+        });
         setUsers(Array.isArray(res.data.users) ? res.data.users : []);
       } catch {
         setUsers([]);
@@ -28,11 +28,9 @@ export const LeaderBoard = ({token}) => {
     const fetchAchievements = async () => {
       try {
         if (!userId) return;
-        const res = await axios.get(
-          `/achievement/${userId}`,{
-        headers:{Authorization:`Bearer ${token}`}
-      }
-        );
+        const res = await axios.get(`/achievement/${userId}`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
         if (res.data.success) setAchievements(res.data.achievement);
       } catch {
         setAchievements([]);

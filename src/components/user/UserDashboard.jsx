@@ -13,7 +13,8 @@ import { AiOutlineArrowRight } from "react-icons/ai";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 
-export const UserDashboard = ({ token }) => {
+export const UserDashboard = () => {
+  const token = localStorage.getItem("token")
   const [userData, setUserData] = useState(null);
   const [activities, setActivities] = useState([]);
   const [courseName, setCourseName] = useState("");

@@ -8,15 +8,15 @@ import {
   FaClock,
 } from "react-icons/fa";
 import { useParams } from "react-router-dom";
-export const Activities = ({token}) => {
-    const [activities, setActivities] = useState([]);
+export const Activities = () => {
+  const [activities, setActivities] = useState([]);
   const userId = localStorage.getItem("userId");
-
+  const token = localStorage.getItem("token");
   useEffect(() => {
     const fetchActivities = async () => {
       try {
-        const res = await axios.get(`/activities/${userId}`,{
-          headers:{Authorization:`Bearer ${token}`}
+        const res = await axios.get(`/activities/${userId}`, {
+          headers: { Authorization: `Bearer ${token}` },
         });
         setActivities(res.data.data || []);
       } catch (err) {
@@ -39,7 +39,7 @@ export const Activities = ({token}) => {
     }
   };
   return (
-     <div className="p-6 text-white bg-gradient-to-br from-[#0f172a] to-[#1e293b] min-h-screen">
+    <div className="p-6 text-white bg-gradient-to-br from-[#0f172a] to-[#1e293b] min-h-screen">
       <motion.h1
         className="text-3xl font-bold mb-6"
         initial={{ opacity: 0, y: -20 }}
@@ -71,5 +71,5 @@ export const Activities = ({token}) => {
         </ul>
       )}
     </div>
-  )
-}
+  );
+};

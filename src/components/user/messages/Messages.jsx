@@ -15,8 +15,9 @@ import {
 } from "lucide-react";
 import toast from "react-hot-toast";
 import { MoreVertical } from "lucide-react";
-export const Messages = ({token}) => {
+export const Messages = () => {
   const currentUserId = localStorage.getItem("userId");
+  const token = localStorage.getItem("token")
   const [isReportOpen, setIsReportOpen] = useState(false);
   const [reportTarget, setReportTarget] = useState(null); // { type, id }
   const [reportType, setReportType] = useState("");

@@ -45,23 +45,23 @@ function App() {
         <Route path="signup" element={<SignUp />}></Route>
         <Route path="login" element={<Login />}></Route>
         <Route path="user" element={<UserLayout />}>
-          <Route path="dashboard" element={<UserDashboard token={token} />}></Route>
+          <Route path="dashboard" element={<UserDashboard />}></Route>
           <Route
             path="communities"
-            element={<Community basePath="user" token={token} />}
+            element={<Community basePath="user" />}
           ></Route>
-          <Route path="community/:id" element={<CommunityDetails token={token} />}></Route>
-          <Route path="mycourses" element={<MyCourses token={token} />}></Route>
+          <Route path="community/:id" element={<CommunityDetails/>}></Route>
+          <Route path="mycourses" element={<MyCourses/>}></Route>
           <Route path="certificates" element={<Certificates />}></Route>
-          <Route path="messages" element={<Messages token={token} />}></Route>
-          <Route path="leaderboard" element={<LeaderBoard token={token} />}></Route>
-          <Route path="profile" element={<Profile token={token} />}></Route>
+          <Route path="messages" element={<Messages/>}></Route>
+          <Route path="leaderboard" element={<LeaderBoard/>}></Route>
+          <Route path="profile" element={<Profile/>}></Route>
           <Route path="settings" element={<Settings />}></Route>
-          <Route path="course/:courseId" element={<CourseDetails token={token} />}></Route>
-          <Route path="learn/:courseId" element={<LearningPage token={token} />} ></Route>
-          <Route path="activities" element={<Activities token={token}/>}></Route>
-          <Route path="notifications" element={<Notifications token={token} />}></Route>
-          <Route path="report" element={<Report token={token} />}></Route>
+          <Route path="course/:courseId" element={<CourseDetails/>}></Route>
+          <Route path="learn/:courseId" element={<LearningPage/>} ></Route>
+          <Route path="activities" element={<Activities/>}></Route>
+          <Route path="notifications" element={<Notifications/>}></Route>
+          <Route path="report" element={<Report/>}></Route>
         </Route>
         <Route path="admin" element={<AdminLayout />}>
           <Route path="admindashboard" element={<AdminDashboard token={token} />}></Route>

@@ -15,7 +15,7 @@ import {
 } from "lucide-react";
 import { ReportModal } from "../report/ReportModal";
 
-export const CourseDetails = ({token}) => {
+export const CourseDetails = () => {
   const { courseId } = useParams();
   const [course, setCourse] = useState(null);
   const [overview, setOverview] = useState([]);
@@ -23,6 +23,7 @@ export const CourseDetails = ({token}) => {
   const [showReportModal, setShowReportModal] = useState(false);
 
   const userId = localStorage.getItem("userId");
+  const token = localStorage.getItem("token")
 
   useEffect(() => {
     fetchCourseDetails();

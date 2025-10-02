@@ -2,15 +2,15 @@ import React, { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import axios from "axios";
 import { FaBook, FaCertificate, FaCheckCircle, FaBell } from "react-icons/fa";
-export const Notifications = ({token}) => {
-    const [notifications, setNotifications] = useState([]);
+export const Notifications = () => {
+  const [notifications, setNotifications] = useState([]);
   const userId = localStorage.getItem("userId");
-
+  const token = localStorage.getItem("token");
   useEffect(() => {
     const fetchNotifications = async () => {
       try {
-        const res = await axios.get(`/notifications/${userId}`,{
-          headers:{Authorization:`Bearer ${token}`}
+        const res = await axios.get(`/notifications/${userId}`, {
+          headers: { Authorization: `Bearer ${token}` },
         });
         setNotifications(res.data.data || []);
       } catch (err) {
@@ -33,7 +33,7 @@ export const Notifications = ({token}) => {
     }
   };
   return (
-   <div className="p-6 text-white bg-gradient-to-br from-[#0f172a] to-[#1e293b] min-h-screen">
+    <div className="p-6 text-white bg-gradient-to-br from-[#0f172a] to-[#1e293b] min-h-screen">
       <motion.h1
         className="text-3xl font-bold mb-6"
         initial={{ opacity: 0, y: -20 }}
@@ -52,7 +52,9 @@ export const Notifications = ({token}) => {
               key={n._id}
               whileHover={{ scale: 1.02 }}
               className={`flex items-start gap-4 p-4 rounded-xl shadow-lg ${
-                n.read ? "bg-[#334155]" : "bg-[#475569] border-l-4 border-blue-400"
+                n.read
+                  ? "bg-[#334155]"
+                  : "bg-[#475569] border-l-4 border-blue-400"
               }`}
             >
               <div className="mt-1">{getIcon(n.type)}</div>
@@ -67,5 +69,5 @@ export const Notifications = ({token}) => {
         </ul>
       )}
     </div>
-  )
-}
+  );
+};
