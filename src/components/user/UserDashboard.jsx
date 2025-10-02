@@ -76,7 +76,7 @@ export const UserDashboard = () => {
           setCourseName(resCourse.data.data.title);
         }
 
-        // --- Fetch all users for leaderboard rank ---
+        // --- Leaderboard rank calculation ---
         const resUsers = await axios.get("/users", {
           headers: { Authorization: `Bearer ${token}` },
         });
@@ -177,6 +177,68 @@ export const UserDashboard = () => {
         </motion.div>
       )}
 
+      {/* Recommendations */}
+      <motion.div
+        whileHover={{ scale: 1.03, boxShadow: "0 0 20px #FF00FF" }}
+        className="bg-[#1b1b2a]/80 backdrop-blur-lg p-5 rounded-xl border border-purple-600/50 col-span-1"
+      >
+        <div className="font-semibold mb-3 text-lg text-white">Recommended for You</div>
+        <div className="grid grid-cols-1 gap-3">
+          {userData.recommendations.map((course, index) => (
+            <div
+              key={index}
+              className="flex items-center gap-3 bg-[#2a2a3b] p-3 rounded-xl hover:bg-[#3b3b4d] transition"
+            >
+              <img src={course.image} alt={course.title} className="w-14 h-14 rounded-lg object-cover" />
+              <div className="flex justify-between items-center w-full">
+                <span className="font-medium text-gray-200">{course.title}</span>
+                <AiOutlineArrowRight size={20} className="text-cyan-400" />
+              </div>
+            </div>
+          ))}
+        </div>
+      </motion.div>
+
+      {/* Notifications */}
+      <motion.div
+        whileHover={{ scale: 1.03, boxShadow: "0 0 20px #00FFFF" }}
+        className="bg-[#1b1b2a]/80 backdrop-blur-lg p-5 rounded-xl border border-purple-600/50 col-span-1 cursor-pointer"
+        onClick={() => navigate("/user/notifications")}
+      >
+        <div className="flex items-center gap-2 font-semibold text-lg mb-3 text-white">
+          <FaBell className="text-yellow-400" /> Notifications
+        </div>
+        <ul className="text-sm text-gray-300 space-y-2">
+          {notifications.length > 0
+            ? notifications.slice(0, 3).map((n) => (
+                <li key={n._id} className={n.read ? "text-gray-400" : "text-white"}>
+                  • {n.message}
+                </li>
+              ))
+            : <li className="text-gray-400">No notifications yet</li>}
+        </ul>
+        <p className="mt-3 text-cyan-400 text-sm">View All →</p>
+      </motion.div>
+
+      {/* Recent Activity */}
+      <motion.div
+        whileHover={{ scale: 1.03, boxShadow: "0 0 20px #FF00FF" }}
+        className="bg-[#1b1b2a]/80 backdrop-blur-lg p-5 rounded-xl border border-purple-600/50 col-span-1 cursor-pointer"
+        onClick={() => navigate("/user/activities")}
+      >
+        <div className="font-semibold mb-3 text-lg text-white">Recent Activity</div>
+        <ul className="text-sm space-y-2">
+          {userData.recentActivity.length > 0
+            ? userData.recentActivity.map((activity) => (
+                <li key={activity._id} className="text-gray-300">
+                  • {activity.message}
+                </li>
+              ))
+            : <li className="text-gray-400">No recent activity</li>}
+        </ul>
+        <p className="mt-3 text-purple-400 text-sm">View All →</p>
+      </motion.div>
+
       {/* Leaderboard Rank */}
       <motion.div
         whileHover={{ scale: 1.03, boxShadow: "0 0 20px #FFD700" }}
@@ -188,8 +250,6 @@ export const UserDashboard = () => {
         </div>
         <MdLeaderboard size={40} className="text-yellow-400" />
       </motion.div>
-
-      {/* ... other sections like Recommendations, Notifications, Activities ... */}
     </div>
   );
 };
