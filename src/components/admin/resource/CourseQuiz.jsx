@@ -30,15 +30,28 @@ export const CourseQuiz = () => {
     points: 1,
   });
 
+  // fetch questions
   useEffect(() => {
     const fetchQuestions = async () => {
       try {
-        const res = await fetch(`/questions/${courseId}`,{
-          headers:{Authorization:`Bearer ${token}`}
+        const res = await fetch(`/questions/${courseId}`, {
+          headers: { Authorization: `Bearer ${token}` },
         });
         const data = await res.json();
         setQuestions(data.data);
-        if (data.data.length > 0) setSelectedQuestion(data.data[0]);
+
+        // restore last viewed question if exists
+        const lastViewedId = localStorage.getItem(`lastQuiz_${courseId}`);
+        if (lastViewedId) {
+          const found = data.data.find((q) => q._id === lastViewedId);
+          if (found) {
+            setSelectedQuestion(found);
+          } else if (data.data.length > 0) {
+            setSelectedQuestion(data.data[0]);
+          }
+        } else if (data.data.length > 0) {
+          setSelectedQuestion(data.data[0]);
+        }
       } catch (err) {
         setError(err.message);
       } finally {
@@ -46,20 +59,28 @@ export const CourseQuiz = () => {
       }
     };
     fetchQuestions();
-  }, [courseId]);
+  }, [courseId, token]);
 
+  // select a question & persist it
+  const handleSelectQuestion = (q) => {
+    setSelectedQuestion(q);
+    localStorage.setItem(`lastQuiz_${courseId}`, q._id);
+  };
+
+  // add a new question
   const handleAddQuestion = async () => {
     try {
-      const res = await fetch(`/questions/${courseId}`,{
-          headers:{Authorization:`Bearer ${token}`}
-        }, {
+      const res = await fetch(`/questions/${courseId}`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
         body: JSON.stringify(newQuestion),
       });
       const data = await res.json();
       setQuestions((prev) => [...prev, data]);
-      setSelectedQuestion(data);
+      handleSelectQuestion(data); // auto-select new one
       setAdding(false);
       setNewQuestion({
         question: "",
@@ -113,7 +134,7 @@ export const CourseQuiz = () => {
                   key={q._id}
                   layout
                   whileHover={{ scale: 1.03, boxShadow: "0 0 10px #9333ea" }}
-                  onClick={() => setSelectedQuestion(q)}
+                  onClick={() => handleSelectQuestion(q)}
                   className={`p-3 rounded-lg cursor-pointer relative transition ${
                     selectedQuestion?._id === q._id
                       ? "bg-purple-600/80 shadow-lg shadow-purple-500/50"
@@ -137,6 +158,7 @@ export const CourseQuiz = () => {
       {/* Main Content */}
       <main className="flex-1 p-6 overflow-y-auto">
         {adding ? (
+          /* Add Question Form */
           <motion.div
             key="add-form"
             initial={{ opacity: 0, y: 15 }}
@@ -224,6 +246,7 @@ export const CourseQuiz = () => {
             </motion.button>
           </motion.div>
         ) : selectedQuestion ? (
+          /* Selected Question View */
           <motion.div
             key={selectedQuestion._id}
             initial={{ opacity: 0, y: 15 }}
@@ -235,9 +258,9 @@ export const CourseQuiz = () => {
               {selectedQuestion.question}
             </h2>
             <ul className="space-y-2">
-              {selectedQuestion.options.map((opt) => (
+              {selectedQuestion.options.map((opt, idx) => (
                 <li
-                  key={opt._id || opt.text}
+                  key={opt._id || idx}
                   className={`flex items-center gap-3 p-2 rounded-md border transition ${
                     opt.isCorrect
                       ? "bg-green-900/40 border-green-500 text-green-400"
@@ -254,7 +277,8 @@ export const CourseQuiz = () => {
               ))}
             </ul>
             <p className="mt-4 text-sm text-gray-400">
-              Points: <span className="text-cyan-400">{selectedQuestion.points}</span>
+              Points:{" "}
+              <span className="text-cyan-400">{selectedQuestion.points}</span>
             </p>
           </motion.div>
         ) : (
