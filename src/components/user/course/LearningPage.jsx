@@ -13,7 +13,6 @@ import {
   Book,
 } from "lucide-react";
 import { AchievementPopup } from "../../../../utils/AchievementPopup";
-
 export const LearningPage = ({token}) => {
   const { courseId } = useParams();
   const userId = localStorage.getItem("userId");

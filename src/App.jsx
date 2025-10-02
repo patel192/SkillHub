@@ -9,7 +9,7 @@ import { UserDashboard } from "./components/user/UserDashboard";
 import { MyCourses } from "./components/user/course/MyCourses";
 import { Certificates } from "./components/user/certificate/Certificates";
 import { Messages } from "./components/user/messages/Messages";
-
+import { LearningPage } from "./components/user/course/LearningPage";
 import { LeaderBoard } from "./components/user/leaderboard/LeaderBoard";
 import { Profile } from "./components/user/Profile";
 import { Settings } from "./components/user/Settings";
@@ -20,7 +20,6 @@ import { Courses } from "./components/admin/course/Courses";
 import { Users } from "./components/admin/users/Users";
 import UserDetails from "./components/admin/users/UserDetails";
 import { Resources } from "./components/admin/resource/Resources";
-import { LearningPage } from "./components/user/course/LearningPage";
 import { Community } from "./components/user/communities/Community";
 import { CommunityDetails } from "./components/user/communities/CommunityDetails";
 import { Toaster } from "react-hot-toast";
@@ -59,7 +58,7 @@ function App() {
           <Route path="profile" element={<Profile token={token} />}></Route>
           <Route path="settings" element={<Settings />}></Route>
           <Route path="course/:courseId" element={<CourseDetails token={token} />}></Route>
-          <Route path="learn/:courseId" element={<LearningPage token={token}/>}></Route>
+          <Route path="learn/:courseId" element={<LearningPage/>} ></Route>
           <Route path="activities" element={<Activities token={token}/>}></Route>
           <Route path="notifications" element={<Notifications token={token} />}></Route>
           <Route path="report" element={<Report token={token} />}></Route>
