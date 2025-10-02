@@ -80,11 +80,11 @@ function App() {
           <Route path="reports/:id" element={<ReportsDetail token={token} />}></Route>
           <Route
             path="communities"
-            element={<Community basePath="admin"/>}
+            element={<Community basePath="admin" token={token}/>}
           ></Route>
           <Route
             path="community/:id"
-            element={<AdminCommunityDetails basePath="admin"/>}
+            element={<AdminCommunityDetails basePath="admin" token={token}/>}
           ></Route>
         </Route>
       </Routes>
