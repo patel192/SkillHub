@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
+import axios from "axios";
 import {
   Plus,
   CheckCircle,
@@ -34,10 +35,11 @@ export const CourseQuiz = () => {
   useEffect(() => {
     const fetchQuestions = async () => {
       try {
-        const res = await fetch(`/questions/${courseId}`, {
+        const res = await axios.get(`/questions/${courseId}`, {
           headers: { Authorization: `Bearer ${token}` },
         });
-        const data = await res.json();
+
+        const data = res.data;
         setQuestions(data.data);
 
         // restore last viewed question if exists
@@ -53,7 +55,8 @@ export const CourseQuiz = () => {
           setSelectedQuestion(data.data[0]);
         }
       } catch (err) {
-        setError(err.message);
+        console.error(err);
+        setError(err.response?.data?.message || err.message);
       } finally {
         setLoading(false);
       }
@@ -70,15 +73,13 @@ export const CourseQuiz = () => {
   // add a new question
   const handleAddQuestion = async () => {
     try {
-      const res = await fetch(`/questions/${courseId}`, {
-        method: "POST",
+      const res = await axios.post(`/questions/${courseId}`, newQuestion, {
         headers: {
-          "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify(newQuestion),
       });
-      const data = await res.json();
+
+      const data = res.data;
       setQuestions((prev) => [...prev, data]);
       handleSelectQuestion(data); // auto-select new one
       setAdding(false);
@@ -94,6 +95,7 @@ export const CourseQuiz = () => {
       });
     } catch (err) {
       console.error("Error adding question:", err);
+      setError(err.response?.data?.message || err.message);
     }
   };
 
