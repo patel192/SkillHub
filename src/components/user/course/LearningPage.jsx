@@ -125,6 +125,32 @@ export const LearningPage = () => {
 
   // Fetch quiz and progress
   useEffect(() => {
+    const fetchQuizAndProgress = async () => {
+      try {
+        const resQ = await axios.get(`/questions/${courseId}`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        if (Array.isArray(resQ.data.data)) setQuizQuestions(resQ.data.data);
+
+        const resP = await axios.get(`/progress/${userId}/${courseId}`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        if (resP.data.success && resP.data.data) {
+          setCurrentQuestionIdx(resP.data.data.currentQuestionIdx || 0);
+          setQuizAnswers(resP.data.data.quizAnswers || {});
+          setPoints(resP.data.data.points || 0);
+        } else {
+          setCurrentQuestionIdx(0);
+          setQuizAnswers({});
+          setPoints(0);
+        }
+      } catch (err) {
+        console.error("Error fetching quiz/progress:", err);
+      }
+    };
+    fetchQuizAndProgress();
+  }, [courseId, userId]);
+  useEffect(() => {
     const fetchEnrollment = async () => {
       try {
         const res = await axios.get(`/enrollment/${userId}`, {
