@@ -15,10 +15,10 @@ import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import { vscDarkPlus } from "react-syntax-highlighter/dist/esm/styles/prism";
 import ReactMarkdown from "react-markdown";
 
-export const CourseLessons = ({ courseId: propCourseId },{token}) => {
+export const CourseLessons = ({ courseId: propCourseId }) => {
   const params = useParams();
   const courseId = propCourseId || params.courseId;
-
+  const token = localStorage.getItem("token");
   const [lessons, setLessons] = useState([]);
   const [selected, setSelected] = useState(null);
   const [openAdd, setOpenAdd] = useState(false);
@@ -37,9 +37,9 @@ export const CourseLessons = ({ courseId: propCourseId },{token}) => {
   const fetchLessons = async () => {
     setLoading(true);
     try {
-      const res = await axios.get(`/lessons/${courseId}`,{
-          headers:{Authorization:`Bearer ${token}`}
-        });
+      const res = await axios.get(`/lessons/${courseId}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
       const data = res.data?.data ?? [];
       const sorted = data.sort(
         (a, b) => new Date(a.createdAt) - new Date(b.createdAt)
@@ -74,9 +74,9 @@ export const CourseLessons = ({ courseId: propCourseId },{token}) => {
         content: newLesson.content.trim(),
         courseId,
       };
-      const res = await axios.post("/lessons",{
-          headers:{Authorization:`Bearer ${token}`}
-        }, payload);
+      const res = await axios.post("/lessons", payload, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
       const added = res.data?.data;
       setLessons((p) => [...p, added]);
       setNewLesson({ title: "", content: "" });
@@ -95,9 +95,9 @@ export const CourseLessons = ({ courseId: propCourseId },{token}) => {
     if (!window.confirm("Delete this lesson?")) return;
     setDeletingId(lessonId);
     try {
-      await axios.delete(`/lessons/${lessonId}`,{
-          headers:{Authorization:`Bearer ${token}`}
-        });
+      await axios.delete(`/lessons/${lessonId}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
       setLessons((p) => p.filter((l) => l._id !== lessonId));
       toast.success("Lesson deleted");
       if (selected && String(selected._id) === String(lessonId)) {
@@ -162,7 +162,11 @@ export const CourseLessons = ({ courseId: propCourseId },{token}) => {
               onClick={() => setExpandedList((s) => !s)}
               className="p-2 rounded bg-gray-800 hover:bg-gray-700"
             >
-              {expandedList ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+              {expandedList ? (
+                <ChevronUp size={16} />
+              ) : (
+                <ChevronDown size={16} />
+              )}
             </button>
           </div>
         </div>
@@ -172,7 +176,8 @@ export const CourseLessons = ({ courseId: propCourseId },{token}) => {
           <AnimatePresence initial={false}>
             {expandedList &&
               lessons.map((l, idx) => {
-                const isSel = selected && String(selected._id) === String(l._id);
+                const isSel =
+                  selected && String(selected._id) === String(l._id);
                 return (
                   <motion.div
                     key={l._id}
@@ -201,7 +206,11 @@ export const CourseLessons = ({ courseId: propCourseId },{token}) => {
                     >
                       <div className="flex items-center justify-between">
                         <div className="flex-1">
-                          <div className={`font-semibold ${isSel ? "text-white" : "text-gray-200"}`}>
+                          <div
+                            className={`font-semibold ${
+                              isSel ? "text-white" : "text-gray-200"
+                            }`}
+                          >
                             {l.title}
                           </div>
                           <div className="text-xs mt-1 text-gray-400">
@@ -240,7 +249,9 @@ export const CourseLessons = ({ courseId: propCourseId },{token}) => {
             <div className="text-3xl font-semibold text-gray-200">
               Select a lesson
             </div>
-            <div className="text-gray-400">or click Add to create your first lesson</div>
+            <div className="text-gray-400">
+              or click Add to create your first lesson
+            </div>
             <button
               onClick={() => setOpenAdd(true)}
               className="mt-4 px-6 py-2 rounded bg-purple-600 hover:bg-purple-700 flex items-center gap-2"

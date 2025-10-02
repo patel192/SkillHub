@@ -1,16 +1,10 @@
 import React, { useState, useEffect } from "react";
-import {
-  BookOpen,
-  Clock,
-  User,
-  Zap,
-  Star,
-  DollarSign,
-} from "lucide-react";
+import { BookOpen, Clock, User, Zap, Star, DollarSign } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 
-export const Resources = ({token}) => {
+export const Resources = () => {
+  const token = localStorage.getItem("token");
   const [courses, setCourses] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -20,8 +14,8 @@ export const Resources = ({token}) => {
   useEffect(() => {
     const fetchCourses = async () => {
       try {
-        const response = await fetch("/courses",{
-          headers:{Authorization:`Bearer ${token}`}
+        const response = await fetch("/courses", {
+          headers: { Authorization: `Bearer ${token}` },
         });
         const result = await response.json();
         setCourses(result.data);
@@ -63,9 +57,13 @@ export const Resources = ({token}) => {
           className="w-full h-48 object-cover"
         />
         <div className="p-6 flex flex-col flex-grow">
-          <h3 className="text-xl font-bold mb-2 line-clamp-2 text-white">{course.title}</h3>
-          <p className="text-gray-300 text-sm line-clamp-3 mb-4">{course.description}</p>
-          
+          <h3 className="text-xl font-bold mb-2 line-clamp-2 text-white">
+            {course.title}
+          </h3>
+          <p className="text-gray-300 text-sm line-clamp-3 mb-4">
+            {course.description}
+          </p>
+
           <div className="mt-auto space-y-1 text-sm text-gray-300">
             <div className="flex items-center gap-2">
               <User size={16} className="text-cyan-400" />
@@ -88,8 +86,7 @@ export const Resources = ({token}) => {
               {course.rating.toFixed(1)} ({course.enrollemntCount} enrolled)
             </div>
             <div className="flex items-center gap-2 font-bold text-green-400">
-              <DollarSign size={16} />
-              ${course.price.toFixed(2)}
+              <DollarSign size={16} />${course.price.toFixed(2)}
             </div>
           </div>
 

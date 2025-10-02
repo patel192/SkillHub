@@ -64,13 +64,9 @@ export const Profile = () => {
       if (avatarFile) avatarUrl = await uploadToCloudinary(avatarFile);
 
       const updates = { ...userData, avatar: avatarUrl };
-      const res = await axios.put(
-        `/user/${userId}`,
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        },
-        updates
-      );
+      const res = await axios.put(`/user/${userId}`, updates, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
 
       setUserData(res.data.user);
       setEditMode(false);
@@ -88,14 +84,14 @@ export const Profile = () => {
       await axios.post(
         "/report",
         {
-          headers: { Authorization: `Bearer ${token}` },
-        },
-        {
           reporter: userId,
           type: reportType,
           description: reportMessage,
           targetType: "User",
           targetId: userData._id,
+        },
+        {
+          headers: { Authorization: `Bearer ${token}` },
         }
       );
 

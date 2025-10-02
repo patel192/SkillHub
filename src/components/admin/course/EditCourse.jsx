@@ -4,10 +4,10 @@ import axios from "axios";
 import { Save, ArrowLeft, Loader2, GraduationCap } from "lucide-react";
 import { motion } from "framer-motion";
 
-export const EditCourse = ({token}) => {
+export const EditCourse = () => {
   const { id } = useParams();
   const navigate = useNavigate();
-
+  const token = localStorage.getItem("token");
   const [courseData, setCourseData] = useState({
     title: "",
     instructor: "",
@@ -37,9 +37,9 @@ export const EditCourse = ({token}) => {
   const fetchCourse = async () => {
     try {
       setLoading(true);
-      const res = await axios.get(`/course/${id}`,{
-          headers:{Authorization:`Bearer ${token}`}
-        });
+      const res = await axios.get(`/course/${id}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
       setCourseData(res.data.data);
     } catch (err) {
       console.error("Failed to fetch course:", err.message);
@@ -59,9 +59,9 @@ export const EditCourse = ({token}) => {
   const handleSave = async () => {
     try {
       setSaving(true);
-      await axios.patch(`/course/${id}`,{
-          headers:{Authorization:`Bearer ${token}`}
-        }, courseData);
+      await axios.patch(`/course/${id}`, courseData, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
       navigate("/admin/courses");
     } catch (err) {
       console.error("Save failed:", err.message);
@@ -251,7 +251,11 @@ export const EditCourse = ({token}) => {
             whileTap={{ scale: 0.95 }}
             className="mt-6 w-full flex items-center justify-center gap-2 bg-purple-600 hover:bg-purple-700 px-4 py-3 rounded-xl transition shadow-lg font-semibold"
           >
-            {saving ? <Loader2 className="animate-spin" size={18} /> : <Save size={18} />}
+            {saving ? (
+              <Loader2 className="animate-spin" size={18} />
+            ) : (
+              <Save size={18} />
+            )}
             {saving ? "Saving..." : "Save Changes"}
           </motion.button>
         </div>

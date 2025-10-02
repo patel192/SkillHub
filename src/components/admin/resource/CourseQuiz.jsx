@@ -10,7 +10,8 @@ import {
   ChevronUp,
 } from "lucide-react";
 
-export const CourseQuiz = ({token}) => {
+export const CourseQuiz = () => {
+  const token = localStorage.getItem("token");
   const { courseId } = useParams();
   const [questions, setQuestions] = useState([]);
   const [selectedQuestion, setSelectedQuestion] = useState(null);

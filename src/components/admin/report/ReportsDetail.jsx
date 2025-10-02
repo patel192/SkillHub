@@ -16,7 +16,8 @@ import {
   ExternalLink,
 } from "lucide-react";
 
-export const ReportsDetail = ({token}) => {
+export const ReportsDetail = () => {
+  const token = localStorage.getItem("token");
   const { id } = useParams();
   const navigate = useNavigate();
   const [report, setReport] = useState(null);
@@ -25,8 +26,8 @@ export const ReportsDetail = ({token}) => {
   useEffect(() => {
     const fetchReport = async () => {
       try {
-        const res = await axios.get(`/reports/${id}`,{
-          headers:{Authorization:`Bearer ${token}`}
+        const res = await axios.get(`/reports/${id}`, {
+          headers: { Authorization: `Bearer ${token}` },
         });
         setReport(res.data.report);
       } catch (err) {
@@ -40,11 +41,15 @@ export const ReportsDetail = ({token}) => {
 
   const handleResolve = async () => {
     try {
-      await axios.patch(`/reports/${id}`,{
-          headers:{Authorization:`Bearer ${token}`}
-        }, {
-        status: "resolved",
-      });
+      await axios.patch(
+        `/reports/${id}`,
+        {
+          status: "resolved",
+        },
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
       setReport((prev) => ({ ...prev, status: "resolved" }));
       alert("✅ Report marked as resolved");
     } catch (err) {
@@ -55,9 +60,9 @@ export const ReportsDetail = ({token}) => {
   const handleDelete = async () => {
     if (!window.confirm("Are you sure you want to delete this report?")) return;
     try {
-      await axios.delete(`/report/${id}`,{
-          headers:{Authorization:`Bearer ${token}`}
-        });
+      await axios.delete(`/report/${id}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
       alert("🗑️ Report deleted");
       navigate("/admin/reports");
     } catch (err) {
@@ -67,12 +72,16 @@ export const ReportsDetail = ({token}) => {
 
   if (loading)
     return (
-      <p className="text-center text-gray-400 text-lg mt-20">⏳ Loading report...</p>
+      <p className="text-center text-gray-400 text-lg mt-20">
+        ⏳ Loading report...
+      </p>
     );
 
   if (!report)
     return (
-      <p className="text-center text-red-500 text-lg mt-20">⚠️ Report not found</p>
+      <p className="text-center text-red-500 text-lg mt-20">
+        ⚠️ Report not found
+      </p>
     );
 
   const renderTarget = () => {
@@ -163,7 +172,8 @@ export const ReportsDetail = ({token}) => {
                 {report.reporter?.fullname || "Anonymous"}
               </p>
               <div className="flex items-center gap-2 text-sm text-gray-400 mt-1">
-                <Mail className="w-4 h-4 text-cyan-400" /> {report.reporter?.email || "N/A"}
+                <Mail className="w-4 h-4 text-cyan-400" />{" "}
+                {report.reporter?.email || "N/A"}
               </div>
             </div>
 
@@ -172,8 +182,10 @@ export const ReportsDetail = ({token}) => {
                 <Tag className="w-5 h-5 text-cyan-400" />
                 <span className="font-semibold text-white">Report Type</span>
               </div>
-              <span className="inline-block px-4 py-1 rounded-full text-sm font-medium
-                               bg-purple-500/20 text-purple-300 border border-purple-400/30">
+              <span
+                className="inline-block px-4 py-1 rounded-full text-sm font-medium
+                               bg-purple-500/20 text-purple-300 border border-purple-400/30"
+              >
                 {report.type}
               </span>
             </div>

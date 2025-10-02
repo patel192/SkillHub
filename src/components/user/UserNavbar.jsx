@@ -10,6 +10,7 @@ export const UserNavbar = ({ toggleSidebar, isSidebarOpen }) => {
   const [notifications, setNotifications] = useState([]);
   const userId = localStorage.getItem("userId");
   const [avatar, setavatar] = useState("")
+  const token = localStorage.getItem("token");
 
   useEffect(() => {
     const timer = setInterval(() => setTime(new Date()), 60000);
@@ -29,7 +30,9 @@ export const UserNavbar = ({ toggleSidebar, isSidebarOpen }) => {
   };
   const fetchUser = async () => {
     try{
-    const user = await axios.get(`/user/${userId}`);
+    const user = await axios.get(`/user/${userId}`,{
+      headers:{ Authorization: `Bearer ${token}` }
+    });
     console.log(user.data.data.avatar)
     setavatar(user.data.data.avatar)
     }catch(err){
@@ -48,7 +51,9 @@ useEffect(() => {
   // ✅ Mark as read
   const markAsRead = async (id) => {
     try {
-      await axios.patch(`/notifications/${id}/read`);
+      await axios.patch(`/notifications/${id}/read`,{
+      headers:{ Authorization: `Bearer ${token}` }
+    });
       setNotifications((prev) =>
         prev.map((n) => (n._id === id ? { ...n, read: true } : n))
       );

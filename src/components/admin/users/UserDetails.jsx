@@ -3,7 +3,8 @@ import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { motion } from "framer-motion";
 import { ArrowLeft,Edit,ShieldAlert,Trash2 } from "lucide-react";
-export const UserDetails = ({token}) => {
+export const UserDetails = () => {
+  const token = localStorage.getItem("token");
   const { id } = useParams();
   const navigate = useNavigate();
   const [user, setUser] = useState(null);

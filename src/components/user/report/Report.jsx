@@ -22,13 +22,13 @@ export const Report = ({ targetType = "General", targetId = null }) => {
       await axios.post(
         "/report",
         {
-          headers: { Authorization: `Bearer ${token}` },
-        },
-        {
           type,
           description,
           targetType,
           targetId,
+        },
+        {
+          headers: { Authorization: `Bearer ${token}` },
         }
       );
       setSuccess(true);

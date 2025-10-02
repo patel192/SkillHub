@@ -15,7 +15,8 @@ import {
 import axios from "axios";
 import { FaEllipsisV } from "react-icons/fa";
 import { X } from "lucide-react";
-export const AdminCommunityDetails = ({ token }) => {
+export const AdminCommunityDetails = () => {
+  const token = localStorage.getItem("token");
   const { id } = useParams(); // community id
   const [community, setCommunity] = useState(null);
   const [posts, setPosts] = useState([]);
@@ -50,14 +51,14 @@ export const AdminCommunityDetails = ({ token }) => {
       await axios.post(
         "/report",
         {
-          headers: { Authorization: `Bearer ${token}` },
-        },
-        {
           reporter: userId,
           type: reportType,
           description: reportMessage,
           targetType: reportTarget.type,
           targetId: reportTarget.id,
+        },
+        {
+          headers: { Authorization: `Bearer ${token}` },
         }
       );
 
@@ -79,11 +80,11 @@ export const AdminCommunityDetails = ({ token }) => {
       await axios.post(
         `/${postId}/comment/${commentId}/reply`,
         {
-          headers: { Authorization: `Bearer ${token}` },
-        },
-        {
           userId,
           content: txt,
+        },
+        {
+          headers: { Authorization: `Bearer ${token}` },
         }
       );
       setReplyText((p) => ({ ...p, [commentId]: "" }));
@@ -142,12 +143,9 @@ export const AdminCommunityDetails = ({ token }) => {
         axios.get(`/communities/${id}`, {
           headers: { Authorization: `Bearer ${token}` },
         }),
-        axios.get(
-          `/communities/${id}/posts?sort=new&limit=50`,
-          {
-            headers: { Authorization: `Bearer ${token}` },
-          }
-        ),
+        axios.get(`/communities/${id}/posts?sort=new&limit=50`, {
+          headers: { Authorization: `Bearer ${token}` },
+        }),
       ]);
 
       const communityData = resCommunity?.data?.data ?? resCommunity?.data;
@@ -178,12 +176,9 @@ export const AdminCommunityDetails = ({ token }) => {
   const fetchNotifications = async () => {
     if (!userId) return;
     try {
-      const res = await axios.get(
-        `/notifications/${userId}`,
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
-      );
+      const res = await axios.get(`/notifications/${userId}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
       const data = res.data?.data ?? res.data ?? [];
 
       const newOnes = data.filter(
@@ -221,10 +216,10 @@ export const AdminCommunityDetails = ({ token }) => {
       await axios.patch(
         `/communities/${id}/${action}`,
         {
-          headers: { Authorization: `Bearer ${token}` },
+          userId,
         },
         {
-          userId,
+          headers: { Authorization: `Bearer ${token}` },
         }
       );
       showNotification(`Successfully ${action}ed community`);
@@ -242,12 +237,12 @@ export const AdminCommunityDetails = ({ token }) => {
       await axios.post(
         "/posts",
         {
-          headers: { Authorization: `Bearer ${token}` },
-        },
-        {
           userId,
           content: newPost,
           communityId: id,
+        },
+        {
+          headers: { Authorization: `Bearer ${token}` },
         }
       );
       setNewPost("");
@@ -265,10 +260,10 @@ export const AdminCommunityDetails = ({ token }) => {
       await axios.post(
         `/posts/${postId}/like`,
         {
-          headers: { Authorization: `Bearer ${token}` },
+          userId,
         },
         {
-          userId,
+          headers: { Authorization: `Bearer ${token}` },
         }
       );
       showNotification("You liked a post");
@@ -286,11 +281,11 @@ export const AdminCommunityDetails = ({ token }) => {
       await axios.post(
         `/posts/${postId}/comment`,
         {
-          headers: { Authorization: `Bearer ${token}` },
-        },
-        {
           userId,
           content: txt,
+        },
+        {
+          headers: { Authorization: `Bearer ${token}` },
         }
       );
       setCommentText((p) => ({ ...p, [postId]: "" }));
@@ -311,10 +306,10 @@ export const AdminCommunityDetails = ({ token }) => {
       await axios.patch(
         `/communities/${id}/${action}`,
         {
-          headers: { Authorization: `Bearer ${token}` },
+          postId,
         },
         {
-          postId,
+          headers: { Authorization: `Bearer ${token}` },
         }
       );
       showNotification(`Post ${currentlyPinned ? "unpinned" : "pinned"}`);
@@ -331,11 +326,11 @@ export const AdminCommunityDetails = ({ token }) => {
       await axios.put(
         `/communities/${id}`,
         {
-          headers: { Authorization: `Bearer ${token}` },
-        },
-        {
           ...editData,
           userId,
+        },
+        {
+          headers: { Authorization: `Bearer ${token}` },
         }
       );
       setEditMode(false);
@@ -356,10 +351,10 @@ export const AdminCommunityDetails = ({ token }) => {
       await axios.patch(
         `/communities/${id}/leave`,
         {
-          headers: { Authorization: `Bearer ${token}` },
+          userId: memberId,
         },
         {
-          userId: memberId,
+          headers: { Authorization: `Bearer ${token}` },
         }
       );
       showNotification("Member removed");
@@ -379,10 +374,10 @@ export const AdminCommunityDetails = ({ token }) => {
       await axios.patch(
         `/communities/${id}/join`,
         {
-          headers: { Authorization: `Bearer ${token}` },
+          userId: newMemberId,
         },
         {
-          userId: newMemberId,
+          headers: { Authorization: `Bearer ${token}` },
         }
       );
       setNewMemberId("");
@@ -400,10 +395,10 @@ export const AdminCommunityDetails = ({ token }) => {
       await axios.patch(
         `/communities/${id}/promote`,
         {
-          headers: { Authorization: `Bearer ${token}` },
+          userId: memberId,
         },
         {
-          userId: memberId,
+          headers: { Authorization: `Bearer ${token}` },
         }
       );
       showNotification("Member promoted to admin");

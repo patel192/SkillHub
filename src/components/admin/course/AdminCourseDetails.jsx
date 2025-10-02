@@ -4,7 +4,8 @@ import axios from "axios";
 import { Loader2, PlusCircle, MoreHorizontal } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
-export const AdminCourseDetails = ({token}) => {
+export const AdminCourseDetails = () => {
+  const token = localStorage.getItem("token");
   const { id } = useParams();
   const navigate = useNavigate();
 
@@ -22,9 +23,9 @@ export const AdminCourseDetails = ({token}) => {
   const fetchCourse = async () => {
     try {
       setLoading(true);
-      const res = await axios.get(`/course/${id}`,{
-          headers:{Authorization:`Bearer ${token}`}
-        });
+      const res = await axios.get(`/course/${id}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
       setCourse(res.data.data);
     } catch (err) {
       console.error("Failed to fetch course:", err.message);
@@ -35,9 +36,9 @@ export const AdminCourseDetails = ({token}) => {
 
   const fetchOverview = async () => {
     try {
-      const res = await axios.get(`/overview/${id}`,{
-          headers:{Authorization:`Bearer ${token}`}
-        });
+      const res = await axios.get(`/overview/${id}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
       setOverview(res.data.data?.overview || []);
     } catch (err) {
       console.error("Failed to fetch overview:", err.message);
@@ -47,11 +48,15 @@ export const AdminCourseDetails = ({token}) => {
   const handleAddPoint = async () => {
     if (!newPoint.trim()) return;
     try {
-      const res = await axios.patch(`/overview/${id}`,{
-          headers:{Authorization:`Bearer ${token}`}
-        }, {
-        point: newPoint,
-      });
+      const res = await axios.patch(
+        `/overview/${id}`,
+        {
+          point: newPoint,
+        },
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
       setOverview(res.data.data.overview);
       setNewPoint("");
     } catch (err) {
@@ -85,7 +90,10 @@ export const AdminCourseDetails = ({token}) => {
         </h1>
         <div className="relative">
           <motion.button
-            whileHover={{ scale: 1.05, boxShadow: "0 0 12px rgba(168,85,247,0.6)" }}
+            whileHover={{
+              scale: 1.05,
+              boxShadow: "0 0 12px rgba(168,85,247,0.6)",
+            }}
             className="p-2 bg-gradient-to-r from-purple-700 to-purple-900 rounded-lg text-purple-200 hover:text-white"
             onClick={() => setMenuOpen((prev) => !prev)}
           >
@@ -128,7 +136,8 @@ export const AdminCourseDetails = ({token}) => {
       {/* Overview Section */}
       <div className="bg-gradient-to-br from-gray-900 via-purple-900/40 to-gray-800 p-6 rounded-2xl shadow-lg border border-purple-800/30">
         <h2 className="text-2xl font-semibold mb-5 flex items-center gap-2">
-          <span className="animate-pulse text-purple-400">📖</span> Course Overview
+          <span className="animate-pulse text-purple-400">📖</span> Course
+          Overview
         </h2>
 
         {/* Input for adding new points */}
@@ -142,7 +151,10 @@ export const AdminCourseDetails = ({token}) => {
           />
           <motion.button
             onClick={handleAddPoint}
-            whileHover={{ scale: 1.05, boxShadow: "0 0 15px rgba(147,51,234,0.7)" }}
+            whileHover={{
+              scale: 1.05,
+              boxShadow: "0 0 15px rgba(147,51,234,0.7)",
+            }}
             className="flex items-center gap-2 bg-gradient-to-r from-purple-600 to-purple-800 px-4 py-2 rounded-lg text-white font-medium"
           >
             <PlusCircle size={18} /> Add
@@ -162,14 +174,20 @@ export const AdminCourseDetails = ({token}) => {
                 <motion.div
                   className="w-3 h-3 mt-2 rounded-full bg-purple-500 shadow-lg"
                   animate={{ scale: [1, 1.3, 1] }}
-                  transition={{ repeat: Infinity, duration: 2, ease: "easeInOut" }}
+                  transition={{
+                    repeat: Infinity,
+                    duration: 2,
+                    ease: "easeInOut",
+                  }}
                 ></motion.div>
                 <span className="text-gray-300">{point}</span>
               </motion.li>
             ))}
           </ul>
         ) : (
-          <p className="text-gray-400">No overview available for this course.</p>
+          <p className="text-gray-400">
+            No overview available for this course.
+          </p>
         )}
       </div>
     </div>

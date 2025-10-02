@@ -5,7 +5,7 @@ import toast from "react-hot-toast";
 export const ReportModal = ({ targetType, targetId, onClose }) => {
   const [type, setType] = useState("bug");
   const [description, setDescription] = useState("");
-
+const token = localStorage.getItem("token");
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
@@ -15,6 +15,8 @@ export const ReportModal = ({ targetType, targetId, onClose }) => {
         description,
         targetType, // ✅ dynamic target
         targetId,   // ✅ dynamic id
+      },{
+        headers: { Authorization: `Bearer ${token}` },
       });
 
       toast.success("✅ Report submitted successfully!");

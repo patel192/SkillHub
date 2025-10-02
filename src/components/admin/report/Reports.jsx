@@ -4,10 +4,11 @@ import { motion } from "framer-motion";
 import { AlertTriangle, User, BookOpen, MessageSquare } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
-export const Reports = ({token}) => {
+export const Reports = () => {
   const [reports, setReports] = useState([]);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
+  const token = localStorage.getItem("token");
 
   useEffect(() => {
     const fetchReports = async () => {

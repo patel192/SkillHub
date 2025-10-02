@@ -1,7 +1,8 @@
 import React, { useState } from "react";
 import { motion } from "framer-motion";
 
-export const AddCourse = ({token}) => {
+export const AddCourse = () => {
+  const token = localStorage.getItem("token");
   const [formData, setFormData] = useState({
     title: "",
     description: "",

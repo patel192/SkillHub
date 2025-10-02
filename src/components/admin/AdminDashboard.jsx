@@ -24,7 +24,8 @@ import {
   ResponsiveContainer,
 } from "recharts";
 
-export const AdminDashboard = ({token}) => {
+export const AdminDashboard = () => {
+  const token = localStorage.getItem("token");
   const [stats, setStats] = useState({});
   const [latestUsers, setLatestUsers] = useState([]);
   const [latestCourses, setLatestCourses] = useState([]);
@@ -38,9 +39,9 @@ export const AdminDashboard = ({token}) => {
 
   const fetchOverview = async () => {
     try {
-      const res = await axios.get("/admin/overview",{
-          headers:{Authorization:`Bearer ${token}`}
-        });
+      const res = await axios.get("/admin/overview", {
+        headers: { Authorization: `Bearer ${token}` },
+      });
       setStats(res.data.stats || {});
       setLatestUsers(res.data.latestUsers || []);
       setLatestCourses(res.data.latestCourses || []);
@@ -65,19 +66,67 @@ export const AdminDashboard = ({token}) => {
 
       {/* Stat Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
-        <StatCard icon={<Users size={28} />} label="Total Users" value={stats.totalUsers} gradient="from-purple-500 to-cyan-500" />
-        <StatCard icon={<Book size={28} />} label="Total Courses" value={stats.totalCourses} gradient="from-cyan-500 to-teal-500" />
-        <StatCard icon={<CheckCircle size={28} />} label="Published" value={stats.totalPublished} gradient="from-green-400 to-emerald-500" />
-        <StatCard icon={<Clock size={28} />} label="Unpublished" value={stats.totalUnpublished} gradient="from-yellow-400 to-orange-500" />
-        <StatCard icon={<Award size={28} />} label="Certificates" value={stats.totalCertificates} gradient="from-pink-500 to-purple-500" />
-        <StatCard icon={<FileText size={28} />} label="Posts" value={stats.totalPosts} gradient="from-cyan-400 to-sky-500" />
-        <StatCard icon={<Layers size={28} />} label="Communities" value={stats.totalCommunities} gradient="from-indigo-400 to-purple-500" />
-        <StatCard icon={<DollarSign size={28} />} label="Revenue" value={`$${stats.totalRevenue}`} gradient="from-emerald-400 to-green-500" />
-        <StatCard icon={<TrendingUp size={28} />} label="Active Users (7d)" value={stats.activeUsers} gradient="from-purple-400 to-pink-500" />
+        <StatCard
+          icon={<Users size={28} />}
+          label="Total Users"
+          value={stats.totalUsers}
+          gradient="from-purple-500 to-cyan-500"
+        />
+        <StatCard
+          icon={<Book size={28} />}
+          label="Total Courses"
+          value={stats.totalCourses}
+          gradient="from-cyan-500 to-teal-500"
+        />
+        <StatCard
+          icon={<CheckCircle size={28} />}
+          label="Published"
+          value={stats.totalPublished}
+          gradient="from-green-400 to-emerald-500"
+        />
+        <StatCard
+          icon={<Clock size={28} />}
+          label="Unpublished"
+          value={stats.totalUnpublished}
+          gradient="from-yellow-400 to-orange-500"
+        />
+        <StatCard
+          icon={<Award size={28} />}
+          label="Certificates"
+          value={stats.totalCertificates}
+          gradient="from-pink-500 to-purple-500"
+        />
+        <StatCard
+          icon={<FileText size={28} />}
+          label="Posts"
+          value={stats.totalPosts}
+          gradient="from-cyan-400 to-sky-500"
+        />
+        <StatCard
+          icon={<Layers size={28} />}
+          label="Communities"
+          value={stats.totalCommunities}
+          gradient="from-indigo-400 to-purple-500"
+        />
+        <StatCard
+          icon={<DollarSign size={28} />}
+          label="Revenue"
+          value={`$${stats.totalRevenue}`}
+          gradient="from-emerald-400 to-green-500"
+        />
+        <StatCard
+          icon={<TrendingUp size={28} />}
+          label="Active Users (7d)"
+          value={stats.activeUsers}
+          gradient="from-purple-400 to-pink-500"
+        />
       </div>
 
       {/* Enrollment Trends */}
-      <Section title="Enrollment Trends" icon={<Activity size={22} className="text-cyan-400" />}>
+      <Section
+        title="Enrollment Trends"
+        icon={<Activity size={22} className="text-cyan-400" />}
+      >
         {enrollmentTrends.length === 0 ? (
           <p className="text-gray-400">No data available.</p>
         ) : (
@@ -93,7 +142,13 @@ export const AdminDashboard = ({token}) => {
                   borderRadius: "8px",
                 }}
               />
-              <Line type="monotone" dataKey="count" stroke="#a855f7" strokeWidth={3} dot={{ r: 4, fill: "#22d3ee" }} />
+              <Line
+                type="monotone"
+                dataKey="count"
+                stroke="#a855f7"
+                strokeWidth={3}
+                dot={{ r: 4, fill: "#22d3ee" }}
+              />
             </LineChart>
           </ResponsiveContainer>
         )}
@@ -107,7 +162,10 @@ export const AdminDashboard = ({token}) => {
 
       {/* Reports & Top Courses */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        <Section title="Latest Reports" icon={<Bug size={20} className="text-pink-400" />}>
+        <Section
+          title="Latest Reports"
+          icon={<Bug size={20} className="text-pink-400" />}
+        >
           {reports.length === 0 ? (
             <p className="text-gray-400">No reports submitted.</p>
           ) : (
@@ -139,7 +197,10 @@ export const AdminDashboard = ({token}) => {
           )}
         </Section>
 
-        <Section title="Top Courses" icon={<TrendingUp size={20} className="text-green-400" />}>
+        <Section
+          title="Top Courses"
+          icon={<TrendingUp size={20} className="text-green-400" />}
+        >
           {topCourses.length === 0 ? (
             <p className="text-gray-400">No course data yet.</p>
           ) : (
@@ -163,7 +224,9 @@ export const AdminDashboard = ({token}) => {
                   >
                     <td className="py-3 font-medium">{c.title}</td>
                     <td className="py-3">{c.category}</td>
-                    <td className="py-3 text-cyan-400 font-semibold">{c.count}</td>
+                    <td className="py-3 text-cyan-400 font-semibold">
+                      {c.count}
+                    </td>
                   </motion.tr>
                 ))}
               </tbody>
@@ -199,7 +262,10 @@ const Section = ({ title, icon, children }) => (
 );
 
 const LatestUsers = ({ users }) => (
-  <Section title="Latest Users" icon={<Users size={22} className="text-cyan-400" />}>
+  <Section
+    title="Latest Users"
+    icon={<Users size={22} className="text-cyan-400" />}
+  >
     {users.length === 0 ? (
       <p className="text-gray-400">No users found.</p>
     ) : (
@@ -250,7 +316,10 @@ const LatestUsers = ({ users }) => (
 );
 
 const LatestCourses = ({ courses }) => (
-  <Section title="Latest Courses" icon={<Book size={22} className="text-purple-400" />}>
+  <Section
+    title="Latest Courses"
+    icon={<Book size={22} className="text-purple-400" />}
+  >
     {courses.length === 0 ? (
       <p className="text-gray-400">No courses found.</p>
     ) : (

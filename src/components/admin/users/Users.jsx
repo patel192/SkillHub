@@ -2,15 +2,16 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import { Link } from "react-router-dom";
 
-export const Users = ({token}) => {
+export const Users = () => {
+  const token = localStorage.getItem("token");
   const [users, setUsers] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
 
   const fetchUsers = async () => {
     try {
-      const res = await axios.get("/users",{
-          headers:{Authorization:`Bearer ${token}`}
-        });
+      const res = await axios.get("/users", {
+        headers: { Authorization: `Bearer ${token}` },
+      });
       setUsers(res.data.users || []);
       console.log(res.data);
     } catch (error) {
@@ -25,11 +26,15 @@ export const Users = ({token}) => {
 
   const toggleActive = async (id, currentStatus) => {
     try {
-      await axios.patch(`/user/${id}`,{
-          headers:{Authorization:`Bearer ${token}`}
-        }, {
-        isActive: !currentStatus,
-      });
+      await axios.patch(
+        `/user/${id}`,
+        {
+          isActive: !currentStatus,
+        },
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
       fetchUsers();
     } catch (error) {
       console.error("Failed to update status:", error);
@@ -38,11 +43,15 @@ export const Users = ({token}) => {
 
   const toggleRole = async (id, currentRole) => {
     try {
-      await axios.patch(`/user/${id}`,{
-          headers:{Authorization:`Bearer ${token}`}
-        }, {
-        role: currentRole === "admin" ? "user" : "admin",
-      });
+      await axios.patch(
+        `/user/${id}`,
+        {
+          role: currentRole === "admin" ? "user" : "admin",
+        },
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
       fetchUsers();
     } catch (error) {
       console.error("Failed to update role:", error);

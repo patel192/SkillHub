@@ -4,19 +4,19 @@ import { useNavigate } from "react-router-dom";
 import { Pencil, Trash, CheckCircle, XCircle, Plus } from "lucide-react";
 import { motion } from "framer-motion";
 
-export const Courses = ({token}) => {
+export const Courses = () => {
   const [courses, setCourses] = useState([]);
   const navigate = useNavigate();
-
+  const token = localStorage.getItem("token");
   useEffect(() => {
     fetchCourses();
   }, []);
 
   const fetchCourses = async () => {
     try {
-      const res = await axios.get("/courses",{
-          headers:{Authorization:`Bearer ${token}`}
-        });
+      const res = await axios.get("/courses", {
+        headers: { Authorization: `Bearer ${token}` },
+      });
       setCourses(res.data.data || []);
     } catch (err) {
       console.error("Failed to fetch courses:", err.message);
@@ -26,9 +26,9 @@ export const Courses = ({token}) => {
   const deleteCourse = async (id) => {
     if (!window.confirm("Are you sure you want to delete this course?")) return;
     try {
-      await axios.delete(`/courses/${id}`,{
-          headers:{Authorization:`Bearer ${token}`}
-        });
+      await axios.delete(`/courses/${id}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
       setCourses((prev) => prev.filter((c) => c._id !== id));
     } catch (err) {
       console.error("Delete failed:", err.message);
@@ -37,11 +37,15 @@ export const Courses = ({token}) => {
 
   const togglePublish = async (id, currentStatus) => {
     try {
-      await axios.patch(`/courses/${id}`,{
-          headers:{Authorization:`Bearer ${token}`}
-        }, {
-        isPublished: !currentStatus,
-      });
+      await axios.patch(
+        `/courses/${id}`,
+        {
+          isPublished: !currentStatus,
+        },
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
       setCourses((prev) =>
         prev.map((c) =>
           c._id === id ? { ...c, isPublished: !currentStatus } : c
@@ -59,7 +63,10 @@ export const Courses = ({token}) => {
           Manage Courses
         </h2>
         <motion.button
-          whileHover={{ scale: 1.05, boxShadow: "0px 0px 20px rgba(168,85,247,0.7)" }}
+          whileHover={{
+            scale: 1.05,
+            boxShadow: "0px 0px 20px rgba(168,85,247,0.7)",
+          }}
           whileTap={{ scale: 0.95 }}
           className="flex items-center gap-2 bg-gradient-to-r from-purple-600 to-pink-600 px-5 py-2.5 rounded-xl shadow-lg text-white font-semibold"
           onClick={() => navigate("/admin/courses/new")}
@@ -78,8 +85,15 @@ export const Courses = ({token}) => {
               key={course._id}
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: index * 0.08, type: "spring", stiffness: 120 }}
-              whileHover={{ scale: 1.03, boxShadow: "0px 0px 30px rgba(168,85,247,0.6)" }}
+              transition={{
+                delay: index * 0.08,
+                type: "spring",
+                stiffness: 120,
+              }}
+              whileHover={{
+                scale: 1.03,
+                boxShadow: "0px 0px 30px rgba(168,85,247,0.6)",
+              }}
               className="bg-white/5 backdrop-blur-md rounded-2xl overflow-hidden border border-purple-800/50 shadow-lg cursor-pointer"
               onClick={() => navigate(`/admin/courses/${course._id}`)}
             >
@@ -130,7 +144,11 @@ export const Courses = ({token}) => {
                         : "bg-green-500 hover:bg-green-600"
                     }`}
                   >
-                    {course.isPublished ? <XCircle size={16} /> : <CheckCircle size={16} />}
+                    {course.isPublished ? (
+                      <XCircle size={16} />
+                    ) : (
+                      <CheckCircle size={16} />
+                    )}
                     {course.isPublished ? "Unpublish" : "Publish"}
                   </motion.button>
 

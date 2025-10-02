@@ -23,7 +23,7 @@ export const CourseDetails = () => {
   const [showReportModal, setShowReportModal] = useState(false);
 
   const userId = localStorage.getItem("userId");
-  const token = localStorage.getItem("token")
+  const token = localStorage.getItem("token");
 
   useEffect(() => {
     fetchCourseDetails();
@@ -33,8 +33,8 @@ export const CourseDetails = () => {
 
   const fetchCourseDetails = async () => {
     try {
-      const res = await axios.get(`/course/${courseId}`,{
-        headers:{Authorization:`Bearer ${token}`}
+      const res = await axios.get(`/course/${courseId}`, {
+        headers: { Authorization: `Bearer ${token}` },
       });
       setCourse(res.data.data);
     } catch (error) {
@@ -44,8 +44,8 @@ export const CourseDetails = () => {
 
   const fetchCourseOverview = async () => {
     try {
-      const res = await axios.get(`/overview/${courseId}`,{
-        headers:{Authorization:`Bearer ${token}`}
+      const res = await axios.get(`/overview/${courseId}`, {
+        headers: { Authorization: `Bearer ${token}` },
       });
       let data = res.data.data?.overview || [];
       if (typeof data === "string") {
@@ -59,8 +59,8 @@ export const CourseDetails = () => {
 
   const checkIfEnrolled = async () => {
     try {
-      const res = await axios.get(`/enrollment/${userId}`,{
-        headers:{Authorization:`Bearer ${token}`}
+      const res = await axios.get(`/enrollment/${userId}`, {
+        headers: { Authorization: `Bearer ${token}` },
       });
       const enrollments = res.data.data || [];
       const isAlreadyEnrolled = enrollments.some(
@@ -75,14 +75,18 @@ export const CourseDetails = () => {
 
   const handleEnroll = async () => {
     try {
-      await axios.post("/enrollment",{
-        headers:{Authorization:`Bearer ${token}`}
-      }, {
-        userId,
-        courseId,
-        status: "Registered",
-        progress: 0,
-      });
+      await axios.post(
+        "/enrollment",
+        {
+          userId,
+          courseId,
+          status: "Registered",
+          progress: 0,
+        },
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
       setEnrolled(true);
       toast.success("Successfully enrolled in this course!");
     } catch (error) {
@@ -151,10 +155,26 @@ export const CourseDetails = () => {
 
       {/* Metadata Badges */}
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 text-sm mb-10">
-        <CourseMeta icon={<User size={18} />} label="Instructor" value={course.instructor} />
-        <CourseMeta icon={<BookOpen size={18} />} label="Category" value={course.category} />
-        <CourseMeta icon={<Clock size={18} />} label="Duration" value={course.duration} />
-        <CourseMeta icon={<BadgeCheck size={18} />} label="Level" value={course.level} />
+        <CourseMeta
+          icon={<User size={18} />}
+          label="Instructor"
+          value={course.instructor}
+        />
+        <CourseMeta
+          icon={<BookOpen size={18} />}
+          label="Category"
+          value={course.category}
+        />
+        <CourseMeta
+          icon={<Clock size={18} />}
+          label="Duration"
+          value={course.duration}
+        />
+        <CourseMeta
+          icon={<BadgeCheck size={18} />}
+          label="Level"
+          value={course.level}
+        />
         <CourseMeta
           icon={<DollarSign size={18} />}
           label="Price"
@@ -207,7 +227,10 @@ export const CourseDetails = () => {
 
       {/* Report Modal */}
       {showReportModal && (
-        <ReportModal courseId={courseId} onClose={() => setShowReportModal(false)} />
+        <ReportModal
+          courseId={courseId}
+          onClose={() => setShowReportModal(false)}
+        />
       )}
     </motion.div>
   );
