@@ -11,7 +11,6 @@ import {
   HelpCircle,
   ChevronUp,
   ChevronDown,
-  Book,
 } from "lucide-react";
 import { AchievementPopup } from "../../../../utils/AchievementPopup";
 
@@ -50,6 +49,7 @@ export const LearningPage = () => {
   const saveStoredTime = (time) =>
     localStorage.setItem(`learningTime_${userId}_${courseId}`, time.toString());
 
+  // Firework Animation
   const triggerFirework = () => {
     const canvas = canvasRef.current;
     if (!canvas) return;
@@ -100,7 +100,7 @@ export const LearningPage = () => {
     fetchLessons();
   }, [courseId]);
 
-  // Fetch enrollment + completed lessons
+  // Fetch enrollment
   useEffect(() => {
     const fetchEnrollment = async () => {
       try {
@@ -150,27 +150,6 @@ export const LearningPage = () => {
     };
     fetchQuizAndProgress();
   }, [courseId, userId]);
-  useEffect(() => {
-    const fetchEnrollment = async () => {
-      try {
-        const res = await axios.get(`/enrollment/${userId}`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        if (res.data.data && Array.isArray(res.data.data)) {
-          const enrollment = res.data.data.find(
-            (e) => e.courseId._id === courseId
-          );
-          if (enrollment) {
-            setEnrollmentId(enrollment._id);
-            setCompletedLessons(enrollment.completedLessons || []);
-          }
-        }
-      } catch (err) {
-        console.error("Error fetching enrollment:", err);
-      }
-    };
-    fetchEnrollment();
-  }, [courseId, userId]);
 
   // Track learning time
   useEffect(() => {
@@ -198,6 +177,7 @@ export const LearningPage = () => {
     };
   }, [courseId, userId]);
 
+  // Save progress
   const saveProgress = async (newIdx, newAnswers, newPoints) => {
     try {
       await axios.post(
@@ -218,30 +198,7 @@ export const LearningPage = () => {
     }
   };
 
-  const parseContent = (content = "") => {
-    const regex = /```(\w+)?\n([\s\S]*?)```/g;
-    let match,
-      parts = [],
-      lastIndex = 0;
-    while ((match = regex.exec(content)) !== null) {
-      if (match.index > lastIndex) {
-        const textPart = content.slice(lastIndex, match.index).trim();
-        if (textPart) parts.push({ type: "note", text: textPart });
-      }
-      parts.push({
-        type: "code",
-        lang: match[1] || "javascript",
-        text: match[2],
-      });
-      lastIndex = regex.lastIndex;
-    }
-    if (lastIndex < content.length) {
-      const textPart = content.slice(lastIndex).trim();
-      if (textPart) parts.push({ type: "note", text: textPart });
-    }
-    return parts;
-  };
-
+  // Handle quiz answer change
   const handleQuizChange = (questionId, optionText) => {
     setQuizAnswers((prev) => {
       const updated = { ...prev, [questionId]: optionText };
@@ -250,6 +207,7 @@ export const LearningPage = () => {
     });
   };
 
+  // Handle submit quiz
   const handleSubmitQuiz = async () => {
     const currentQ = quizQuestions[currentQuestionIdx];
     if (!currentQ) return;
@@ -271,38 +229,6 @@ export const LearningPage = () => {
     } else {
       setQuizResults(true);
       saveProgress(currentQuestionIdx, quizAnswers, newPoints);
-    }
-
-    if (
-      achievementThresholds.includes(newPoints) &&
-      !achievementThresholds.includes(points)
-    ) {
-      try {
-        const res = await axios.post(
-          `/check/${userId}`,
-          {},
-          { headers: { Authorization: `Bearer ${token}` } }
-        );
-        const data = await res.json();
-        if (data.success && data.newlyUnlocked.length > 0)
-          setUnlockedAchievement(data.newlyUnlocked[0]);
-      } catch (err) {
-        console.error("Error checking achievements:", err);
-      }
-    }
-  };
-
-  const handleMarkComplete = async (lessonId) => {
-    if (!enrollmentId) return;
-    try {
-      const res = await axios.patch(
-        `/enrollment/mark-complete/${enrollmentId}/${lessonId}`,
-        {},
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
-      setCompletedLessons(res.data.completedLessons || []);
-    } catch (err) {
-      console.error("Error marking lesson complete:", err);
     }
   };
 
@@ -330,11 +256,9 @@ export const LearningPage = () => {
           Course Menu
         </h2>
 
+        {/* Time spent */}
         <motion.div
           className="flex items-center gap-2 p-4 text-sm text-gray-300 border-b border-gray-700"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.1 }}
         >
           <Clock className="w-4 h-4 text-green-400 animate-pulse" />
           Time Spent:{" "}
@@ -347,8 +271,6 @@ export const LearningPage = () => {
         <motion.button
           onClick={() => setLearningOpen(!learningOpen)}
           className="w-full text-left px-4 py-2 font-semibold flex justify-between items-center bg-[#161b22] hover:bg-[#1f2937] transition-colors duration-300 border-l-4 border-transparent hover:border-indigo-500"
-          whileHover={{ scale: 1.03 }}
-          whileTap={{ scale: 0.97 }}
         >
           <span className="flex items-center gap-2 text-indigo-400 font-medium">
             <BookOpen className="animate-pulse" /> Lessons
@@ -362,35 +284,22 @@ export const LearningPage = () => {
 
         <motion.div
           initial={{ height: 0, opacity: 0 }}
-          animate={
-            learningOpen
-              ? { height: "auto", opacity: 1 }
-              : { height: 0, opacity: 0 }
-          }
+          animate={learningOpen ? { height: "auto", opacity: 1 } : { height: 0, opacity: 0 }}
           transition={{ duration: 0.4 }}
           className="pl-4 overflow-hidden"
         >
-          {lessons.map((lesson, idx) => (
+          {lessons.map((lesson) => (
             <motion.button
               key={lesson._id}
               onClick={() => {
                 setSelectedLesson(lesson);
-                setQuizOpen(false);
                 setQuizResults(null);
               }}
               className={`block w-full text-left px-4 py-2 text-sm rounded-md mb-1 border-l-4 transition-all duration-300 ${
                 selectedLesson?._id === lesson._id
-                  ? "bg-[#21262d] border-indigo-500 shadow-glow"
+                  ? "bg-[#21262d] border-indigo-500"
                   : "hover:bg-[#1f2937] border-transparent"
               }`}
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
-              style={{
-                boxShadow:
-                  selectedLesson?._id === lesson._id
-                    ? "0 0 10px 2px #7f5af0"
-                    : "none",
-              }}
             >
               {lesson.title}
               {completedLessons.includes(lesson._id) && (
@@ -402,20 +311,13 @@ export const LearningPage = () => {
 
         {/* Quiz Dropdown */}
         <motion.button
-          onClick={() =>
-            quizQuestions.length > 0 &&
-            (setQuizOpen(!quizOpen),
-            setSelectedLesson(null),
-            setQuizResults(null))
-          }
+          onClick={() => setQuizOpen(!quizOpen)}
           disabled={quizQuestions.length === 0}
           className={`w-full text-left px-4 py-2 font-semibold flex justify-between items-center transition-colors duration-300 ${
             quizQuestions.length === 0
               ? "opacity-50 cursor-not-allowed"
               : "hover:bg-[#1f2937]"
           }`}
-          whileHover={quizQuestions.length === 0 ? {} : { scale: 1.03 }}
-          whileTap={quizQuestions.length === 0 ? {} : { scale: 0.97 }}
         >
           <span className="flex items-center gap-2 text-yellow-400 font-medium">
             <HelpCircle className="animate-spin" />
@@ -427,93 +329,51 @@ export const LearningPage = () => {
             <ChevronDown className="text-yellow-400" />
           )}
         </motion.button>
+
+        {/* Quiz Question List */}
+        <motion.div
+          initial={{ height: 0, opacity: 0 }}
+          animate={quizOpen ? { height: "auto", opacity: 1 } : { height: 0, opacity: 0 }}
+          transition={{ duration: 0.4 }}
+          className="pl-4 overflow-hidden"
+        >
+          {quizQuestions.map((q, idx) => (
+            <motion.button
+              key={q._id}
+              onClick={() => {
+                setCurrentQuestionIdx(idx);
+                setQuizResults(null);
+                setSelectedLesson(null);
+              }}
+              className={`block w-full text-left px-4 py-2 text-sm rounded-md mb-1 border-l-4 transition-all duration-300 ${
+                currentQuestionIdx === idx
+                  ? "bg-[#21262d] border-yellow-500"
+                  : "hover:bg-[#1f2937] border-transparent"
+              }`}
+            >
+              Question {idx + 1}
+            </motion.button>
+          ))}
+        </motion.div>
       </motion.div>
 
       {/* Main Content */}
-      <motion.div
-        className="flex-1 p-6 overflow-y-auto relative z-10"
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 0.5 }}
-      >
+      <motion.div className="flex-1 p-6 overflow-y-auto relative z-10">
+        {/* Show lesson */}
         {selectedLesson && !quizOpen && (
-          <motion.div
-            key={selectedLesson._id}
-            initial={{ opacity: 0, x: 50 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: -50 }}
-            transition={{ duration: 0.5 }}
-            className="p-4 rounded-xl bg-[#161b22] shadow-glow border border-gray-700"
-          >
+          <div className="p-4 rounded-xl bg-[#161b22] border border-gray-700">
             <h1 className="text-2xl font-bold mb-4 text-indigo-400">
               {selectedLesson.title}
             </h1>
-            {parseContent(selectedLesson.content).map((part, idx) =>
-              part.type === "note" ? (
-                <motion.p
-                  key={idx}
-                  className="mb-4 leading-relaxed text-gray-200 whitespace-pre-line"
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  transition={{ delay: idx * 0.1 }}
-                >
-                  {part.text}
-                </motion.p>
-              ) : (
-                <motion.div
-                  key={idx}
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  transition={{ delay: idx * 0.1 }}
-                >
-                  <SyntaxHighlighter
-                    language={part.lang}
-                    style={vscDarkPlus}
-                    customStyle={{
-                      backgroundColor: "#161b22",
-                      borderRadius: "8px",
-                      padding: "12px",
-                      boxShadow: "0 0 10px #7f5af0",
-                    }}
-                  >
-                    {part.text}
-                  </SyntaxHighlighter>
-                </motion.div>
-              )
-            )}
-            <motion.button
-              whileHover={{ scale: 1.05, boxShadow: "0 0 12px #22c55e" }}
-              whileTap={{ scale: 0.95 }}
-              onClick={() => handleMarkComplete(selectedLesson._id)}
-              className="mt-6 px-6 py-3 rounded-lg bg-gradient-to-r from-green-500 to-green-700 text-white font-bold shadow-glow"
-            >
-              Mark as Completed
-            </motion.button>
-          </motion.div>
+            <p className="text-gray-200 whitespace-pre-line">
+              {selectedLesson.content}
+            </p>
+          </div>
         )}
 
+        {/* Show quiz */}
         {quizOpen && quizQuestions[currentQuestionIdx] && (
-          <motion.div
-            key={quizQuestions[currentQuestionIdx]._id}
-            initial={{ opacity: 0, y: 50 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -50 }}
-            transition={{ duration: 0.5 }}
-            className="mt-8"
-          >
-            <div className="w-full bg-gray-700 h-2 rounded mb-6 overflow-hidden">
-              <motion.div
-                className="h-2 rounded bg-gradient-to-r from-blue-400 to-blue-600 shadow-glow"
-                initial={{ width: 0 }}
-                animate={{
-                  width: `${
-                    ((currentQuestionIdx + 1) / quizQuestions.length) * 100
-                  }%`,
-                }}
-                transition={{ duration: 0.5 }}
-              />
-            </div>
-
+          <div className="mt-8">
             <h2 className="text-xl font-bold mb-4 text-blue-400">
               Question {currentQuestionIdx + 1} of {quizQuestions.length}
             </h2>
@@ -524,40 +384,35 @@ export const LearningPage = () => {
             <div className="grid grid-cols-1 gap-4">
               {quizQuestions[currentQuestionIdx].options.map((opt) => {
                 const isSelected =
-                  quizAnswers[quizQuestions[currentQuestionIdx]._id] ===
-                  opt.text;
+                  quizAnswers[quizQuestions[currentQuestionIdx]._id] === opt.text;
                 return (
-                  <motion.button
+                  <button
                     key={opt._id}
-                    whileHover={{ scale: 1.03, boxShadow: "0 0 12px #7f5af0" }}
-                    whileTap={{ scale: 0.97 }}
                     onClick={() =>
                       handleQuizChange(
                         quizQuestions[currentQuestionIdx]._id,
                         opt.text
                       )
                     }
-                    className={`w-full text-left px-6 py-4 rounded-xl shadow-md border transition-colors duration-300 ${
+                    className={`w-full text-left px-6 py-4 rounded-xl border ${
                       isSelected
-                        ? "bg-gradient-to-r from-purple-500 to-indigo-600 text-white border-transparent shadow-glow"
+                        ? "bg-gradient-to-r from-purple-500 to-indigo-600 text-white"
                         : "bg-[#161b22] hover:bg-[#1f2937] text-gray-200 border-gray-600"
                     }`}
                   >
                     {opt.text}
-                  </motion.button>
+                  </button>
                 );
               })}
             </div>
 
             <div className="flex gap-4 mt-8">
-              <motion.button
-                whileHover={{ scale: 1.08, boxShadow: "0 0 12px #22c55e" }}
-                whileTap={{ scale: 0.95 }}
+              <button
                 onClick={handleSubmitQuiz}
-                className="px-6 py-3 rounded-lg bg-gradient-to-r from-green-400 to-green-600 text-white font-bold shadow-glow"
+                className="px-6 py-3 rounded-lg bg-gradient-to-r from-green-400 to-green-600 text-white font-bold"
               >
                 Submit & Next
-              </motion.button>
+              </button>
             </div>
 
             <p className="mt-6 text-lg font-bold text-yellow-400">
@@ -565,16 +420,11 @@ export const LearningPage = () => {
             </p>
 
             {quizResults && (
-              <motion.div
-                initial={{ opacity: 0, scale: 0.8 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ duration: 0.5 }}
-                className="mt-6 p-6 rounded-xl bg-green-800 text-white shadow-glow"
-              >
+              <div className="mt-6 p-6 rounded-xl bg-green-800 text-white">
                 Quiz Completed! Final Score: {points}
-              </motion.div>
+              </div>
             )}
-          </motion.div>
+          </div>
         )}
       </motion.div>
     </div>
