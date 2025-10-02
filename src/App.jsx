@@ -38,7 +38,7 @@ import { AddCourse } from "./components/admin/course/AddCourse";
 
 function App() {
   const token = localStorage.getItem("token")
-  axios.defaults.baseURL = "https://skillhub-backend-4982.onrender.com" 
+  axios.defaults.baseURL = "https://skillhub-backend-gs3t.onrender.com" 
   return (
     <>
       <Routes>
