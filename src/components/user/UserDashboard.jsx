@@ -17,7 +17,7 @@ export const UserDashboard = () => {
   const token = localStorage.getItem("token");
   const userId = localStorage.getItem("userId");
   const navigate = useNavigate();
-
+const [recomcourse, setrecomcourse] = useState([])
   const [userData, setUserData] = useState(null);
   const [activities, setActivities] = useState([]);
   const [courseName, setCourseName] = useState("");
@@ -26,6 +26,13 @@ export const UserDashboard = () => {
   useEffect(() => {
     const fetchDashboardData = async () => {
       try {
+        const recommendatedCourses = await axios.get("/courses",{
+          headers:{ Authorization: `Bearer ${token}` }
+        })
+        const dataRecomCourses = recommendatedCourses.data.data || [];
+        setrecomcourse(dataRecomCourses.slice(0,2))
+        console.log(recomcourse)
+        
         // --- Notifications ---
         const resNotifications = await axios.get(`/notifications/${userId}`, {
           headers: { Authorization: `Bearer ${token}` },
