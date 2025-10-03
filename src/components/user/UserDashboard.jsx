@@ -115,7 +115,7 @@ const [recomcourse, setrecomcourse] = useState([])
   if (!userData) {
     return (
       <div className="flex justify-center items-center h-screen text-white">
-        <Spinner size={50} color="text-cyan-400" />
+        <Spinner/>
       </div>
     );
   }
