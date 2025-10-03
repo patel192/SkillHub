@@ -31,7 +31,7 @@ const [recomcourse, setrecomcourse] = useState([])
         })
         const dataRecomCourses = recommendatedCourses.data.data || [];
         setrecomcourse(dataRecomCourses.slice(0,2))
-        console.log(recomcourse)
+        console.log(dataRecomCourses)
         
         // --- Notifications ---
         const resNotifications = await axios.get(`/notifications/${userId}`, {
