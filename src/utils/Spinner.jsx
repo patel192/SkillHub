@@ -3,29 +3,22 @@ import React from "react";
 
 export const Spinner = ({ size = 40, color = "text-cyan-400" }) => {
   return (
-    <div className="flex items-center justify-center">
-      <svg
-        className={`animate-spin ${color}`}
-        xmlns="http://www.w3.org/2000/svg"
-        fill="none"
-        viewBox="0 0 24 24"
-        width={size}
-        height={size}
-      >
-        <circle
-          className="opacity-25"
-          cx="12"
-          cy="12"
-          r="10"
-          stroke="currentColor"
-          strokeWidth="4"
-        />
-        <path
-          className="opacity-75"
-          fill="currentColor"
-          d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
-        />
-      </svg>
+    <div class="flex items-center justify-center min-h-screen">
+      <div class="relative">
+        <div class="relative w-32 h-32">
+          <div
+            class="absolute w-full h-full rounded-full border-[3px] border-gray-100/10 border-r-[#0ff] border-b-[#0ff] animate-spin"
+            style="animation-duration: 3s;"
+          ></div>
+
+          <div
+            class="absolute w-full h-full rounded-full border-[3px] border-gray-100/10 border-t-[#0ff] animate-spin"
+            style="animation-duration: 2s; animation-direction: reverse;"
+          ></div>
+        </div>
+
+        <div class="absolute inset-0 bg-gradient-to-tr from-[#0ff]/10 via-transparent to-[#0ff]/5 animate-pulse rounded-full blur-sm"></div>
+      </div>
     </div>
   );
 };
