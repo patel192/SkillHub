@@ -3,6 +3,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { motion } from "framer-motion";
 import { ArrowLeft,Edit,ShieldAlert,Trash2 } from "lucide-react";
+import { Spinner } from "../../../utils/Spinner";
 export const UserDetails = () => {
   const token = localStorage.getItem("token");
   const { id } = useParams();
@@ -34,7 +35,9 @@ export const UserDetails = () => {
 
   if (loading)
     return (
-      <div className="p-6 text-lg text-gray-700">Loading user details...</div>
+      <div className="flex justify-center items-center h-screen text-white">
+        <Spinner/>
+      </div>
     );
 
   if (!user)

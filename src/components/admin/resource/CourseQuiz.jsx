@@ -10,7 +10,7 @@ import {
   ChevronDown,
   ChevronUp,
 } from "lucide-react";
-
+import { Spinner } from "../../../utils/Spinner";
 export const CourseQuiz = () => {
   const token = localStorage.getItem("token");
   const { courseId } = useParams();
@@ -99,7 +99,12 @@ export const CourseQuiz = () => {
     }
   };
 
-  if (loading) return <div className="p-6 text-gray-400">Loading quiz...</div>;
+  if (loading)
+    return (
+      <div className="flex justify-center items-center h-screen text-white">
+        <Spinner />
+      </div>
+    );
   if (error) return <div className="p-6 text-red-400">Error: {error}</div>;
 
   return (

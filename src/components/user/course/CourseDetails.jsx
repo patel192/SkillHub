@@ -3,6 +3,7 @@ import { motion } from "framer-motion";
 import { useParams } from "react-router-dom";
 import axios from "axios";
 import toast from "react-hot-toast";
+import { Spinner } from "../../../utils/Spinner";
 import {
   BadgeCheck,
   Clock,
@@ -97,8 +98,8 @@ export const CourseDetails = () => {
 
   if (!course) {
     return (
-      <div className="text-white p-6 text-center text-xl animate-pulse">
-        Loading course...
+      <div className="flex justify-center items-center h-screen text-white">
+        <Spinner/>
       </div>
     );
   }

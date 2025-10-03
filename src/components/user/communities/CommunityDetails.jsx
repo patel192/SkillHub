@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { AnimatePresence, motion } from "framer-motion";
 import toast from "react-hot-toast"; // ✅ add toast
+import { Spinner } from "../../../utils/Spinner";
 import {
   FaHeart,
   FaCommentAlt,
@@ -413,7 +414,11 @@ export const CommunityDetails = () => {
   };
 
   if (loading || !community) {
-    return <div className="p-6 text-gray-400">Loading community...</div>;
+    return (
+      <div className="flex justify-center items-center h-screen text-white">
+        <Spinner />
+      </div>
+    );
   }
 
   const joined = isMemberOf(community, userId);

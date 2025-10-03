@@ -3,7 +3,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { Save, ArrowLeft, Loader2, GraduationCap } from "lucide-react";
 import { motion } from "framer-motion";
-
+import { Spinner } from "../../../utils/Spinner";
 export const EditCourse = () => {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -73,8 +73,7 @@ export const EditCourse = () => {
   if (loading) {
     return (
       <div className="flex justify-center items-center h-screen text-white">
-        <Loader2 className="animate-spin mr-2" />
-        Loading course details...
+        <Spinner />
       </div>
     );
   }

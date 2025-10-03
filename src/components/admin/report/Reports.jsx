@@ -3,7 +3,7 @@ import axios from "axios";
 import { motion } from "framer-motion";
 import { AlertTriangle, User, BookOpen, MessageSquare } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-
+import { Spinner } from "../../../utils/Spinner";
 export const Reports = () => {
   const [reports, setReports] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -13,8 +13,8 @@ export const Reports = () => {
   useEffect(() => {
     const fetchReports = async () => {
       try {
-        const res = await axios.get("/reports",{
-          headers:{Authorization:`Bearer ${token}`}
+        const res = await axios.get("/reports", {
+          headers: { Authorization: `Bearer ${token}` },
         });
         setReports(res.data?.reports || []);
       } catch (err) {
@@ -28,7 +28,11 @@ export const Reports = () => {
   }, []);
 
   if (loading) {
-    return <p className="text-center text-gray-400">⏳ Loading reports...</p>;
+    return (
+      <div className="flex justify-center items-center h-screen text-white">
+        <Spinner />
+      </div>
+    );
   }
 
   if (reports.length === 0) {

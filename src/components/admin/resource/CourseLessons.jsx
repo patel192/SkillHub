@@ -14,7 +14,7 @@ import {
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import { vscDarkPlus } from "react-syntax-highlighter/dist/esm/styles/prism";
 import ReactMarkdown from "react-markdown";
-
+import { Spinner } from "../../../utils/Spinner";
 export const CourseLessons = ({ courseId: propCourseId }) => {
   const params = useParams();
   const courseId = propCourseId || params.courseId;
@@ -139,8 +139,8 @@ export const CourseLessons = ({ courseId: propCourseId }) => {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-64 text-white">
-        <div className="animate-pulse text-gray-300">Loading lessons...</div>
+      <div className="flex justify-center items-center h-screen text-white">
+        <Spinner />
       </div>
     );
   }

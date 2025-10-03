@@ -3,7 +3,7 @@ import { BookOpen, Clock, User, Zap, Star, DollarSign } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import axios from "axios";
-
+import { Spinner } from "../../../utils/Spinner";
 export const Resources = () => {
   const token = localStorage.getItem("token");
   const [courses, setCourses] = useState([]);
@@ -30,7 +30,9 @@ export const Resources = () => {
 
   if (loading) {
     return (
-      <div className="p-6 text-center text-gray-400">Loading courses...</div>
+      <div className="flex justify-center items-center h-screen text-white">
+        <Spinner />
+      </div>
     );
   }
 

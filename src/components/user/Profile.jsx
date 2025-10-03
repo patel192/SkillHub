@@ -5,7 +5,7 @@ import axios from "axios";
 import { AlertTriangle, X } from "lucide-react";
 import toast from "react-hot-toast";
 import { Player } from "@lottiefiles/react-lottie-player"; // ✅ Lottie Player
-
+import { Spinner } from "../../utils/Spinner";
 // ✅ Cloudinary upload function
 const uploadToCloudinary = async (file) => {
   const data = new FormData();
@@ -106,7 +106,11 @@ export const Profile = () => {
   };
 
   if (!userData) {
-    return <p className="text-center text-gray-500">⏳ Loading profile...</p>;
+    return (
+      <div className="flex justify-center items-center h-screen text-white">
+        <Spinner />
+      </div>
+    );
   }
 
   return (

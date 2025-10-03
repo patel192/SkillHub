@@ -3,7 +3,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { Loader2, PlusCircle, MoreHorizontal } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
-
+import { Spinner } from "../../../utils/Spinner";
 export const AdminCourseDetails = () => {
   const token = localStorage.getItem("token");
   const { id } = useParams();
@@ -67,16 +67,15 @@ export const AdminCourseDetails = () => {
   if (loading) {
     return (
       <div className="flex justify-center items-center h-screen text-purple-300">
-        <Loader2 className="animate-spin mr-2" />
-        Loading course overview...
+        <Spinner />
       </div>
     );
   }
 
   if (!course) {
     return (
-      <div className="p-6 text-white">
-        <p className="text-red-400">Course not found.</p>
+      <div className="flex justify-center items-center h-screen text-white">
+        <Spinner />
       </div>
     );
   }
