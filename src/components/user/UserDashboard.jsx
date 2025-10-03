@@ -30,7 +30,7 @@ const [recomcourse, setrecomcourse] = useState([])
           headers:{ Authorization: `Bearer ${token}` }
         })
         const dataRecomCourses = recommendatedCourses.data.data || [];
-        setrecomcourse(dataRecomCourses.slice(0,2))
+        setrecomcourse(dataRecomCourses)
         console.log(dataRecomCourses)
         
         // --- Notifications ---
@@ -100,10 +100,7 @@ const [recomcourse, setrecomcourse] = useState([])
           totalMinutes,
           mostLearnedCourse,
           leaderboardRank: userRank || 0,
-          recommendations: [
-            { title: "React Hooks Mastery", image: "/assets/react-course.jpg" },
-            { title: "Node.js Crash Course", image: "/assets/node-course.jpg" },
-          ],
+          recomcourses: dataRecomCourses.slice(0, 3),
           recentActivity: userActivities.slice(0, 3),
         });
       } catch (err) {
@@ -191,12 +188,12 @@ const [recomcourse, setrecomcourse] = useState([])
       >
         <div className="font-semibold mb-3 text-lg text-white">Recommended for You</div>
         <div className="grid grid-cols-1 gap-3">
-          {userData.recommendations.map((course, index) => (
+          {userData.recomcourses.map((course, index) => (
             <div
               key={index}
               className="flex items-center gap-3 bg-[#2a2a3b] p-3 rounded-xl hover:bg-[#3b3b4d] transition"
             >
-              <img src={course.image} alt={course.title} className="w-14 h-14 rounded-lg object-cover" />
+              <img src={course.imageUrl} alt={course.title} className="w-14 h-14 rounded-lg object-cover" />
               <div className="flex justify-between items-center w-full">
                 <span className="font-medium text-gray-200">{course.title}</span>
                 <AiOutlineArrowRight size={20} className="text-cyan-400" />
