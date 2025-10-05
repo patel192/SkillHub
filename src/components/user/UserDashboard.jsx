@@ -68,18 +68,25 @@ export const UserDashboard = () => {
 
         let mostLearnedCourse = null;
         if (courseTimes.length > 0) {
-          const sortedCourses = [...courseTimes].sort((a, b) => b.seconds - a.seconds);
+          const sortedCourses = [...courseTimes].sort(
+            (a, b) => b.seconds - a.seconds
+          );
           mostLearnedCourse = sortedCourses[0];
-          const resCourse = await axios.get(`/course/${mostLearnedCourse.courseId}`, {
-            headers: { Authorization: `Bearer ${token}` },
-          });
+          const resCourse = await axios.get(
+            `/course/${mostLearnedCourse.courseId}`,
+            {
+              headers: { Authorization: `Bearer ${token}` },
+            }
+          );
           setCourseName(resCourse.data.data.title);
         }
 
         const resUsers = await axios.get("/users", {
           headers: { Authorization: `Bearer ${token}` },
         });
-        const allUsers = Array.isArray(resUsers.data.users) ? resUsers.data.users : [];
+        const allUsers = Array.isArray(resUsers.data.users)
+          ? resUsers.data.users
+          : [];
         const sortedUsers = [...allUsers].sort((a, b) => b.points - a.points);
         const userRank = sortedUsers.findIndex((u) => u._id === userId) + 1;
 
@@ -115,7 +122,10 @@ export const UserDashboard = () => {
       whileHover={{ scale: 1.03, boxShadow: `0 0 15px ${accent}` }}
       className="bg-[#1b1b2a]/80 backdrop-blur-lg p-4 rounded-xl border border-purple-600/50 flex items-center gap-3 w-full max-w-md transition"
     >
-      <div className="p-3 rounded-full" style={{ background: `${accent}20`, color: accent }}>
+      <div
+        className="p-3 rounded-full"
+        style={{ background: `${accent}20`, color: accent }}
+      >
         <Icon size={24} />
       </div>
       <div>
@@ -129,7 +139,7 @@ export const UserDashboard = () => {
     <div className="flex flex-col items-center p-4 space-y-4 bg-gradient-to-br from-[#0f172a] via-[#1e1b4b] to-[#0f172a] min-h-screen text-white">
       {/* Welcome */}
       <motion.div
-        className="text-2xl font-bold text-center"
+        className="text-2xl font-bold text-center w-full max-w-md mx-auto"
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.8 }}
@@ -138,24 +148,38 @@ export const UserDashboard = () => {
       </motion.div>
 
       {/* Stats */}
-      <div className="flex flex-col items-center w-full space-y-3">
-        <StatCard icon={FaBook} title="Courses Enrolled" value={userData.courses} accent="#00FFFF" />
-        <StatCard icon={FaTasks} title="Challenges Completed" value={userData.challenges} accent="#FF00FF" />
-        <StatCard icon={FaCertificate} title="Certificates Earned" value={userData.certificates} accent="#FFD700" />
+      <div className="flex flex-col items-center w-full max-w-md space-y-3">
+        <StatCard
+          icon={FaBook}
+          title="Courses Enrolled"
+          value={userData.courses}
+          accent="#00FFFF"
+        />
+        <StatCard
+          icon={FaTasks}
+          title="Challenges Completed"
+          value={userData.challenges}
+          accent="#FF00FF"
+        />
+        <StatCard
+          icon={FaCertificate}
+          title="Certificates Earned"
+          value={userData.certificates}
+          accent="#FFD700"
+        />
         <StatCard
           icon={FaClock}
           title="Total Learning Time"
-          value={`${Math.floor(userData.totalMinutes / 60)}h ${userData.totalMinutes % 60}m`}
+          value={`${Math.floor(userData.totalMinutes / 60)}h ${
+            userData.totalMinutes % 60
+          }m`}
           accent="#7C3AED"
         />
       </div>
 
       {/* Continue Course */}
       {userData.mostLearnedCourse && (
-        <motion.div
-          whileHover={{ scale: 1.02 }}
-          className="bg-[#1b1b2a]/80 backdrop-blur-lg p-4 rounded-xl border border-purple-600/50 w-full max-w-md"
-        >
+        <motion.div className="w-full max-w-md mx-auto bg-[#1b1b2a]/80 backdrop-blur-lg p-4 rounded-xl border border-purple-600/50">
           <div className="flex items-center gap-3">
             <FaPlayCircle size={28} className="text-green-400" />
             <div>
@@ -166,7 +190,9 @@ export const UserDashboard = () => {
           <motion.button
             whileHover={{ scale: 1.05 }}
             className="mt-3 bg-green-600 px-4 py-2 rounded-lg text-sm font-medium w-full"
-            onClick={() => navigate(`/learning/${userData.mostLearnedCourse.courseId}`)}
+            onClick={() =>
+              navigate(`/learning/${userData.mostLearnedCourse.courseId}`)
+            }
           >
             Resume
           </motion.button>
@@ -174,16 +200,26 @@ export const UserDashboard = () => {
       )}
 
       {/* Recommendations - Swipeable */}
-      <div className="w-full max-w-md">
-        <p className="font-semibold mb-2 text-lg text-center">Recommended for You</p>
-        <motion.div className="flex gap-3 overflow-x-auto pb-2" drag="x" dragConstraints={{ left: -1000, right: 0 }}>
+      <div className="w-full max-w-md mx-auto">
+        <p className="font-semibold mb-2 text-lg text-center">
+          Recommended for You
+        </p>
+        <motion.div
+          className="flex gap-3 overflow-x-auto pb-2"
+          drag="x"
+          dragConstraints={{ left: -1000, right: 0 }}
+        >
           {userData.recomcourses.map((course, idx) => (
             <div
               key={idx}
-              className="min-w-[200px] bg-[#2a2a3b] p-3 rounded-xl flex-shrink-0 hover:bg-[#3b3b4d] cursor-pointer"
+              className="min-w-[180px] bg-[#2a2a3b] p-3 rounded-xl flex-shrink-0 hover:bg-[#3b3b4d] cursor-pointer"
               onClick={() => navigate(`/course/${course._id}`)}
             >
-              <img src={course.imageUrl} alt={course.title} className="w-full h-28 object-cover rounded-lg mb-2" />
+              <img
+                src={course.imageUrl}
+                alt={course.title}
+                className="w-full h-28 object-cover rounded-lg mb-2"
+              />
               <p className="text-gray-200 font-medium">{course.title}</p>
             </div>
           ))}
@@ -192,45 +228,56 @@ export const UserDashboard = () => {
 
       {/* Notifications */}
       <div
-        className="bg-[#1b1b2a]/80 backdrop-blur-lg p-4 rounded-xl border border-purple-600/50 w-full max-w-md cursor-pointer"
+        className="w-full max-w-md mx-auto bg-[#1b1b2a]/80 backdrop-blur-lg p-4 rounded-xl border border-purple-600/50 cursor-pointer"
         onClick={() => navigate("/user/notifications")}
       >
         <div className="flex items-center gap-2 font-semibold text-lg mb-2 text-white justify-center">
           <FaBell className="text-yellow-400" /> Notifications
         </div>
         <ul className="text-sm text-gray-300 space-y-1">
-          {notifications.length > 0
-            ? notifications.slice(0, 3).map((n) => (
-                <li key={n._id} className={n.read ? "text-gray-400" : "text-white"}>
-                  • {n.message}
-                </li>
-              ))
-            : <li className="text-gray-400">No notifications yet</li>}
+          {notifications.length > 0 ? (
+            notifications.slice(0, 3).map((n) => (
+              <li
+                key={n._id}
+                className={n.read ? "text-gray-400" : "text-white"}
+              >
+                • {n.message}
+              </li>
+            ))
+          ) : (
+            <li className="text-gray-400">No notifications yet</li>
+          )}
         </ul>
         <p className="mt-2 text-cyan-400 text-sm text-center">View All →</p>
       </div>
 
       {/* Recent Activity */}
       <div
-        className="bg-[#1b1b2a]/80 backdrop-blur-lg p-4 rounded-xl border border-purple-600/50 w-full max-w-md cursor-pointer"
+        className="w-full max-w-md mx-auto bg-[#1b1b2a]/80 backdrop-blur-lg p-4 rounded-xl border border-purple-600/50 cursor-pointer"
         onClick={() => navigate("/user/activities")}
       >
-        <p className="font-semibold mb-2 text-lg text-center text-white">Recent Activity</p>
+        <p className="font-semibold mb-2 text-lg text-center text-white">
+          Recent Activity
+        </p>
         <ul className="text-sm space-y-1 text-gray-300">
-          {userData.recentActivity.length > 0
-            ? userData.recentActivity.map((activity) => (
-                <li key={activity._id}>• {activity.message}</li>
-              ))
-            : <li className="text-gray-400">No recent activity</li>}
+          {userData.recentActivity.length > 0 ? (
+            userData.recentActivity.map((activity) => (
+              <li key={activity._id}>• {activity.message}</li>
+            ))
+          ) : (
+            <li className="text-gray-400">No recent activity</li>
+          )}
         </ul>
         <p className="mt-2 text-purple-400 text-sm text-center">View All →</p>
       </div>
 
       {/* Leaderboard */}
-      <div className="bg-[#1b1b2a]/80 backdrop-blur-lg p-4 rounded-xl border border-purple-600/50 flex justify-between items-center w-full max-w-md">
+      <div className="w-full max-w-md mx-auto bg-[#1b1b2a]/80 backdrop-blur-lg p-4 rounded-xl border border-purple-600/50 flex justify-between items-center">
         <div>
           <p className="text-gray-400 text-sm">Your Rank</p>
-          <h2 className="text-2xl font-semibold text-white">#{userData.leaderboardRank}</h2>
+          <h2 className="text-2xl font-semibold text-white">
+            #{userData.leaderboardRank}
+          </h2>
         </div>
         <MdLeaderboard size={36} className="text-yellow-400" />
       </div>
