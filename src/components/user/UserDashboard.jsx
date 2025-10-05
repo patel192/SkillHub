@@ -18,9 +18,7 @@ export const UserDashboard = () => {
   const token = localStorage.getItem("token");
   const userId = localStorage.getItem("userId");
   const navigate = useNavigate();
-  const [recomcourse, setrecomcourse] = useState([]);
   const [userData, setUserData] = useState(null);
-  const [activities, setActivities] = useState([]);
   const [courseName, setCourseName] = useState("");
   const [notifications, setNotifications] = useState([]);
 
@@ -31,12 +29,12 @@ export const UserDashboard = () => {
           headers: { Authorization: `Bearer ${token}` },
         });
         const dataRecomCourses = recommendatedCourses.data.data || [];
-        setrecomcourse(dataRecomCourses);
 
         const resNotifications = await axios.get(`/notifications/${userId}`, {
           headers: { Authorization: `Bearer ${token}` },
         });
-        setNotifications(resNotifications.data.data || []);
+        const dataNotifications = resNotifications.data.data || [];
+        setNotifications(dataNotifications);
 
         const resCourses = await axios.get(`/enrollment/${userId}`, {
           headers: { Authorization: `Bearer ${token}` },
@@ -52,7 +50,6 @@ export const UserDashboard = () => {
           headers: { Authorization: `Bearer ${token}` },
         });
         const userActivities = resActivities.data.data || [];
-        setActivities(userActivities);
 
         let totalSeconds = 0;
         let courseTimes = [];
@@ -74,9 +71,7 @@ export const UserDashboard = () => {
           mostLearnedCourse = sortedCourses[0];
           const resCourse = await axios.get(
             `/course/${mostLearnedCourse.courseId}`,
-            {
-              headers: { Authorization: `Bearer ${token}` },
-            }
+            { headers: { Authorization: `Bearer ${token}` } }
           );
           setCourseName(resCourse.data.data.title);
         }
@@ -98,8 +93,8 @@ export const UserDashboard = () => {
           totalMinutes,
           mostLearnedCourse,
           leaderboardRank: userRank || 0,
-          recomcourses: dataRecomCourses.slice(0, 10),
-          recentActivity: userActivities.slice(0, 5),
+          recomcourses: dataRecomCourses.slice(0, 3),
+          recentActivity: userActivities.slice(0, 3),
         });
       } catch (err) {
         console.error("❌ Error fetching dashboard data:", err);
@@ -119,8 +114,8 @@ export const UserDashboard = () => {
 
   const StatCard = ({ icon: Icon, title, value, accent }) => (
     <motion.div
-      whileHover={{ scale: 1.03, boxShadow: `0 0 15px ${accent}` }}
-      className="bg-[#1b1b2a]/80 backdrop-blur-lg p-4 rounded-xl border border-purple-600/50 flex items-center gap-3 w-full max-w-md transition"
+      whileHover={{ scale: 1.05, boxShadow: `0 0 20px ${accent}` }}
+      className="w-full max-w-md mx-auto bg-[#1b1b2a]/80 backdrop-blur-lg p-5 rounded-xl border border-purple-600/50 flex items-center gap-4 transition"
     >
       <div
         className="p-3 rounded-full"
@@ -136,60 +131,61 @@ export const UserDashboard = () => {
   );
 
   return (
-    <div className="flex flex-col items-center p-4 space-y-4 bg-gradient-to-br from-[#0f172a] via-[#1e1b4b] to-[#0f172a] min-h-screen text-white">
+    <div className="p-4 flex flex-col items-center gap-6 min-h-screen bg-gradient-to-br from-[#0f172a] via-[#1e1b4b] to-[#0f172a] text-white">
       {/* Welcome */}
       <motion.div
-        className="text-2xl font-bold text-center w-full max-w-md mx-auto"
+        className="text-3xl font-bold text-center w-full max-w-md"
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.8 }}
+        transition={{ duration: 1.0 }}
       >
         👋 Welcome back, <span className="text-cyan-400">{userData.name}</span>
       </motion.div>
 
       {/* Stats */}
-      <div className="flex flex-col items-center w-full max-w-md space-y-3">
-        <StatCard
-          icon={FaBook}
-          title="Courses Enrolled"
-          value={userData.courses}
-          accent="#00FFFF"
-        />
-        <StatCard
-          icon={FaTasks}
-          title="Challenges Completed"
-          value={userData.challenges}
-          accent="#FF00FF"
-        />
-        <StatCard
-          icon={FaCertificate}
-          title="Certificates Earned"
-          value={userData.certificates}
-          accent="#FFD700"
-        />
-        <StatCard
-          icon={FaClock}
-          title="Total Learning Time"
-          value={`${Math.floor(userData.totalMinutes / 60)}h ${
-            userData.totalMinutes % 60
-          }m`}
-          accent="#7C3AED"
-        />
-      </div>
+      <StatCard
+        icon={FaBook}
+        title="Courses Enrolled"
+        value={userData.courses}
+        accent="#00FFFF"
+      />
+      <StatCard
+        icon={FaTasks}
+        title="Challenges Completed"
+        value={userData.challenges}
+        accent="#FF00FF"
+      />
+      <StatCard
+        icon={FaCertificate}
+        title="Certificates Earned"
+        value={userData.certificates}
+        accent="#FFD700"
+      />
+      <StatCard
+        icon={FaClock}
+        title="Total Learning Time"
+        value={`${Math.floor(userData.totalMinutes / 60)}h ${
+          userData.totalMinutes % 60
+        }m`}
+        accent="#7C3AED"
+      />
 
       {/* Continue Course */}
       {userData.mostLearnedCourse && (
-        <motion.div className="w-full max-w-md mx-auto bg-[#1b1b2a]/80 backdrop-blur-lg p-4 rounded-xl border border-purple-600/50">
-          <div className="flex items-center gap-3">
-            <FaPlayCircle size={28} className="text-green-400" />
+        <motion.div
+          whileHover={{ scale: 1.03, boxShadow: "0 0 20px #00FF00" }}
+          className="w-full max-w-md mx-auto bg-[#1b1b2a]/80 backdrop-blur-lg p-5 rounded-xl border border-purple-600/50"
+        >
+          <div className="flex items-center gap-4">
+            <FaPlayCircle size={30} className="text-green-400" />
             <div>
               <p className="text-sm text-gray-400">Continue Course</p>
               <h2 className="font-semibold text-white">{courseName}</h2>
             </div>
           </div>
           <motion.button
-            whileHover={{ scale: 1.05 }}
-            className="mt-3 bg-green-600 px-4 py-2 rounded-lg text-sm font-medium w-full"
+            whileHover={{ scale: 1.05, boxShadow: "0 0 15px #00FF00" }}
+            className="mt-4 bg-green-600 px-4 py-2 rounded-lg text-sm font-medium w-full"
             onClick={() =>
               navigate(`/learning/${userData.mostLearnedCourse.courseId}`)
             }
@@ -199,87 +195,80 @@ export const UserDashboard = () => {
         </motion.div>
       )}
 
-      {/* Recommendations - Swipeable */}
+      {/* Recommendations - swipeable */}
       <div className="w-full max-w-md mx-auto">
-        <p className="font-semibold mb-2 text-lg text-center">
+        <div className="font-semibold mb-3 text-lg text-white text-center">
           Recommended for You
-        </p>
-        <motion.div
-          className="flex gap-3 overflow-x-auto pb-2"
-          drag="x"
-          dragConstraints={{ left: -1000, right: 0 }}
-        >
-          {userData.recomcourses.map((course, idx) => (
+        </div>
+        <div className="flex overflow-x-auto gap-3 pb-2">
+          {userData.recomcourses.map((course, index) => (
             <div
-              key={idx}
-              className="min-w-[180px] bg-[#2a2a3b] p-3 rounded-xl flex-shrink-0 hover:bg-[#3b3b4d] cursor-pointer"
-              onClick={() => navigate(`/course/${course._id}`)}
+              key={index}
+              className="min-w-[180px] flex-shrink-0 bg-[#2a2a3b] p-3 rounded-xl hover:bg-[#3b3b4d] transition cursor-pointer"
             >
               <img
                 src={course.imageUrl}
                 alt={course.title}
-                className="w-full h-28 object-cover rounded-lg mb-2"
+                className="w-full h-24 rounded-lg object-cover mb-2"
               />
-              <p className="text-gray-200 font-medium">{course.title}</p>
+              <span className="font-medium text-gray-200">{course.title}</span>
             </div>
           ))}
-        </motion.div>
+        </div>
       </div>
 
       {/* Notifications */}
       <div
-        className="w-full max-w-md mx-auto bg-[#1b1b2a]/80 backdrop-blur-lg p-4 rounded-xl border border-purple-600/50 cursor-pointer"
+        className="w-full max-w-md mx-auto bg-[#1b1b2a]/80 backdrop-blur-lg p-5 rounded-xl border border-purple-600/50 cursor-pointer"
         onClick={() => navigate("/user/notifications")}
       >
-        <div className="flex items-center gap-2 font-semibold text-lg mb-2 text-white justify-center">
+        <div className="flex items-center gap-2 font-semibold text-lg mb-3 text-white">
           <FaBell className="text-yellow-400" /> Notifications
         </div>
-        <ul className="text-sm text-gray-300 space-y-1">
-          {notifications.length > 0 ? (
-            notifications.slice(0, 3).map((n) => (
-              <li
-                key={n._id}
-                className={n.read ? "text-gray-400" : "text-white"}
-              >
-                • {n.message}
-              </li>
-            ))
-          ) : (
-            <li className="text-gray-400">No notifications yet</li>
-          )}
+        <ul className="text-sm text-gray-300 space-y-2">
+          {notifications.length > 0
+            ? notifications.slice(0, 3).map((n) => (
+                <li
+                  key={n._id}
+                  className={n.read ? "text-gray-400" : "text-white"}
+                >
+                  • {n.message}
+                </li>
+              ))
+            : "No notifications yet"}
         </ul>
-        <p className="mt-2 text-cyan-400 text-sm text-center">View All →</p>
+        <p className="mt-3 text-cyan-400 text-sm text-right">View All →</p>
       </div>
 
       {/* Recent Activity */}
       <div
-        className="w-full max-w-md mx-auto bg-[#1b1b2a]/80 backdrop-blur-lg p-4 rounded-xl border border-purple-600/50 cursor-pointer"
+        className="w-full max-w-md mx-auto bg-[#1b1b2a]/80 backdrop-blur-lg p-5 rounded-xl border border-purple-600/50 cursor-pointer"
         onClick={() => navigate("/user/activities")}
       >
-        <p className="font-semibold mb-2 text-lg text-center text-white">
+        <div className="font-semibold mb-3 text-lg text-white text-center">
           Recent Activity
-        </p>
-        <ul className="text-sm space-y-1 text-gray-300">
-          {userData.recentActivity.length > 0 ? (
-            userData.recentActivity.map((activity) => (
-              <li key={activity._id}>• {activity.message}</li>
-            ))
-          ) : (
-            <li className="text-gray-400">No recent activity</li>
-          )}
+        </div>
+        <ul className="text-sm space-y-2">
+          {userData.recentActivity.length > 0
+            ? userData.recentActivity.map((activity) => (
+                <li key={activity._id} className="text-gray-300">
+                  • {activity.message}
+                </li>
+              ))
+            : "No recent activity"}
         </ul>
-        <p className="mt-2 text-purple-400 text-sm text-center">View All →</p>
+        <p className="mt-3 text-purple-400 text-sm text-right">View All →</p>
       </div>
 
       {/* Leaderboard */}
-      <div className="w-full max-w-md mx-auto bg-[#1b1b2a]/80 backdrop-blur-lg p-4 rounded-xl border border-purple-600/50 flex justify-between items-center">
+      <div className="w-full max-w-md mx-auto bg-[#1b1b2a]/80 backdrop-blur-lg p-5 rounded-xl border border-purple-600/50 flex items-center justify-between">
         <div>
           <p className="text-gray-400 text-sm">Your Rank</p>
           <h2 className="text-2xl font-semibold text-white">
             #{userData.leaderboardRank}
           </h2>
         </div>
-        <MdLeaderboard size={36} className="text-yellow-400" />
+        <MdLeaderboard size={40} className="text-yellow-400" />
       </div>
     </div>
   );
