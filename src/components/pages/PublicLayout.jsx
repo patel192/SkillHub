@@ -101,23 +101,23 @@ export const PublicLayout = () => {
             { icon: <UsersRound className="text-yellow-400 w-7 h-7 mb-2" />, title: "Peer Support", text: "Join communities, connect with mentors.", color: "text-yellow-400" },
             { icon: <BarChart3 className="text-pink-400 w-7 h-7 mb-2" />, title: "Real Results", text: "Build real projects and gain certificates.", color: "text-pink-400" },
           ].map((feature, i) => (
-            <motion.div key={i} custom={i} initial="hidden" animate="visible" variants={cardVariants} className="bg-zinc-900 hover:bg-zinc-800 transition border border-zinc-700 rounded-xl p-5 shadow-lg group">
+            <motion.div key={i} custom={i} initial="hidden" animate="visible" variants={cardVariants} className="bg-zinc-800/70 hover:bg-zinc-800/90 transition border border-zinc-700 rounded-xl p-5 shadow-lg group">
               {feature.icon}
               <h4 className={`text-white text-lg font-semibold mb-1 group-hover:${feature.color}`}>{feature.title}</h4>
-              <p className="text-sm text-gray-400">{feature.text}</p>
+              <p className="text-sm text-gray-300">{feature.text}</p>
             </motion.div>
           ))}
         </div>
       </section>
 
       {/* Testimonials Section */}
-      <section className="py-20 px-6 bg-zinc-900/50">
+      <section className="py-20 px-6">
         <motion.h3 className="text-3xl font-bold text-center mb-12" initial={fadeInUp.hidden} animate={fadeInUp.visible}>
           What Our Learners Say
         </motion.h3>
         <div className="max-w-5xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-6">
           {[1,2,3].map((_, i) => (
-            <motion.div key={i} initial={{ opacity:0, y:40 }} animate={{ opacity:1, y:0, transition:{ delay:i*0.2, duration:0.8 } }} className="bg-zinc-800 p-6 rounded-xl shadow-lg">
+            <motion.div key={i} initial={{ opacity:0, y:40 }} animate={{ opacity:1, y:0, transition:{ delay:i*0.2, duration:0.8 } }} className="bg-zinc-800/70 p-6 rounded-xl shadow-lg">
               <Star className="text-yellow-400 w-6 h-6 mb-2" />
               <p className="text-gray-300 text-sm mb-4">"SkillHub helped me improve my skills and land a job!"</p>
               <h4 className="text-white font-semibold">Jane Doe</h4>
@@ -134,7 +134,7 @@ export const PublicLayout = () => {
         </motion.h3>
         <div className="space-y-6">
           {["How do I start?", "What are micro-certificates?", "Can I track my progress?"].map((q,i)=>(
-            <motion.div key={i} initial={{opacity:0, x:50}} animate={{opacity:1, x:0, transition:{delay:i*0.2}}} className="bg-zinc-800 p-5 rounded-xl cursor-pointer hover:bg-zinc-700 transition">
+            <motion.div key={i} initial={{opacity:0, x:50}} animate={{opacity:1, x:0, transition:{delay:i*0.2}}} className="bg-zinc-800/70 p-5 rounded-xl cursor-pointer hover:bg-zinc-800/90 transition">
               <h4 className="text-white font-semibold">{q}</h4>
             </motion.div>
           ))}
@@ -142,7 +142,7 @@ export const PublicLayout = () => {
       </section>
 
       {/* Footer */}
-      <footer className="mt-24 border-t border-zinc-800 py-10 px-6 text-center bg-black/60 backdrop-blur-md">
+      <footer className="mt-24 border-t border-zinc-800 py-10 px-6 text-center">
         <div className="max-w-7xl mx-auto space-y-4">
           <h2 className="text-2xl font-bold text-white tracking-wide">SkillHub</h2>
           <p className="text-gray-400 text-sm md:text-base max-w-xl mx-auto">
