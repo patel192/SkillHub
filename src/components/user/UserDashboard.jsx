@@ -33,32 +33,27 @@ export const UserDashboard = () => {
         const dataRecomCourses = recommendatedCourses.data.data || [];
         setrecomcourse(dataRecomCourses);
 
-        // Notifications
         const resNotifications = await axios.get(`/notifications/${userId}`, {
           headers: { Authorization: `Bearer ${token}` },
         });
         setNotifications(resNotifications.data.data || []);
 
-        // Courses
         const resCourses = await axios.get(`/enrollment/${userId}`, {
           headers: { Authorization: `Bearer ${token}` },
         });
         const courses = resCourses.data.data || [];
 
-        // Certificates
         const resCerts = await axios.get(`/certificates/${userId}`, {
           headers: { Authorization: `Bearer ${token}` },
         });
         const certificates = resCerts.data.data || [];
 
-        // Activities
         const resActivities = await axios.get(`/activities/${userId}`, {
           headers: { Authorization: `Bearer ${token}` },
         });
         const userActivities = resActivities.data.data || [];
         setActivities(userActivities);
 
-        // Learning time
         let totalSeconds = 0;
         let courseTimes = [];
         Object.keys(localStorage).forEach((key) => {
@@ -71,7 +66,6 @@ export const UserDashboard = () => {
         });
         const totalMinutes = Math.floor(totalSeconds / 60);
 
-        // Most learned course
         let mostLearnedCourse = null;
         if (courseTimes.length > 0) {
           const sortedCourses = [...courseTimes].sort((a, b) => b.seconds - a.seconds);
@@ -82,7 +76,6 @@ export const UserDashboard = () => {
           setCourseName(resCourse.data.data.title);
         }
 
-        // Leaderboard rank
         const resUsers = await axios.get("/users", {
           headers: { Authorization: `Bearer ${token}` },
         });
@@ -90,7 +83,6 @@ export const UserDashboard = () => {
         const sortedUsers = [...allUsers].sort((a, b) => b.points - a.points);
         const userRank = sortedUsers.findIndex((u) => u._id === userId) + 1;
 
-        // Build userData
         setUserData({
           name: "Muhammad",
           courses: courses.length,
@@ -121,7 +113,7 @@ export const UserDashboard = () => {
   const StatCard = ({ icon: Icon, title, value, accent }) => (
     <motion.div
       whileHover={{ scale: 1.03, boxShadow: `0 0 15px ${accent}` }}
-      className="bg-[#1b1b2a]/80 backdrop-blur-lg p-4 rounded-xl border border-purple-600/50 flex items-center gap-3 transition"
+      className="bg-[#1b1b2a]/80 backdrop-blur-lg p-4 rounded-xl border border-purple-600/50 flex items-center gap-3 w-full max-w-md transition"
     >
       <div className="p-3 rounded-full" style={{ background: `${accent}20`, color: accent }}>
         <Icon size={24} />
@@ -134,10 +126,10 @@ export const UserDashboard = () => {
   );
 
   return (
-    <div className="p-4 space-y-4 bg-gradient-to-br from-[#0f172a] via-[#1e1b4b] to-[#0f172a] min-h-screen text-white">
+    <div className="flex flex-col items-center p-4 space-y-4 bg-gradient-to-br from-[#0f172a] via-[#1e1b4b] to-[#0f172a] min-h-screen text-white">
       {/* Welcome */}
       <motion.div
-        className="text-2xl font-bold"
+        className="text-2xl font-bold text-center"
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.8 }}
@@ -146,7 +138,7 @@ export const UserDashboard = () => {
       </motion.div>
 
       {/* Stats */}
-      <div className="space-y-3">
+      <div className="flex flex-col items-center w-full space-y-3">
         <StatCard icon={FaBook} title="Courses Enrolled" value={userData.courses} accent="#00FFFF" />
         <StatCard icon={FaTasks} title="Challenges Completed" value={userData.challenges} accent="#FF00FF" />
         <StatCard icon={FaCertificate} title="Certificates Earned" value={userData.certificates} accent="#FFD700" />
@@ -162,7 +154,7 @@ export const UserDashboard = () => {
       {userData.mostLearnedCourse && (
         <motion.div
           whileHover={{ scale: 1.02 }}
-          className="bg-[#1b1b2a]/80 backdrop-blur-lg p-4 rounded-xl border border-purple-600/50"
+          className="bg-[#1b1b2a]/80 backdrop-blur-lg p-4 rounded-xl border border-purple-600/50 w-full max-w-md"
         >
           <div className="flex items-center gap-3">
             <FaPlayCircle size={28} className="text-green-400" />
@@ -182,8 +174,8 @@ export const UserDashboard = () => {
       )}
 
       {/* Recommendations - Swipeable */}
-      <div>
-        <p className="font-semibold mb-2 text-lg">Recommended for You</p>
+      <div className="w-full max-w-md">
+        <p className="font-semibold mb-2 text-lg text-center">Recommended for You</p>
         <motion.div className="flex gap-3 overflow-x-auto pb-2" drag="x" dragConstraints={{ left: -1000, right: 0 }}>
           {userData.recomcourses.map((course, idx) => (
             <div
@@ -200,10 +192,10 @@ export const UserDashboard = () => {
 
       {/* Notifications */}
       <div
-        className="bg-[#1b1b2a]/80 backdrop-blur-lg p-4 rounded-xl border border-purple-600/50 cursor-pointer"
+        className="bg-[#1b1b2a]/80 backdrop-blur-lg p-4 rounded-xl border border-purple-600/50 w-full max-w-md cursor-pointer"
         onClick={() => navigate("/user/notifications")}
       >
-        <div className="flex items-center gap-2 font-semibold text-lg mb-2 text-white">
+        <div className="flex items-center gap-2 font-semibold text-lg mb-2 text-white justify-center">
           <FaBell className="text-yellow-400" /> Notifications
         </div>
         <ul className="text-sm text-gray-300 space-y-1">
@@ -215,15 +207,15 @@ export const UserDashboard = () => {
               ))
             : <li className="text-gray-400">No notifications yet</li>}
         </ul>
-        <p className="mt-2 text-cyan-400 text-sm">View All →</p>
+        <p className="mt-2 text-cyan-400 text-sm text-center">View All →</p>
       </div>
 
       {/* Recent Activity */}
       <div
-        className="bg-[#1b1b2a]/80 backdrop-blur-lg p-4 rounded-xl border border-purple-600/50 cursor-pointer"
+        className="bg-[#1b1b2a]/80 backdrop-blur-lg p-4 rounded-xl border border-purple-600/50 w-full max-w-md cursor-pointer"
         onClick={() => navigate("/user/activities")}
       >
-        <p className="font-semibold mb-2 text-lg text-white">Recent Activity</p>
+        <p className="font-semibold mb-2 text-lg text-center text-white">Recent Activity</p>
         <ul className="text-sm space-y-1 text-gray-300">
           {userData.recentActivity.length > 0
             ? userData.recentActivity.map((activity) => (
@@ -231,11 +223,11 @@ export const UserDashboard = () => {
               ))
             : <li className="text-gray-400">No recent activity</li>}
         </ul>
-        <p className="mt-2 text-purple-400 text-sm">View All →</p>
+        <p className="mt-2 text-purple-400 text-sm text-center">View All →</p>
       </div>
 
       {/* Leaderboard */}
-      <div className="bg-[#1b1b2a]/80 backdrop-blur-lg p-4 rounded-xl border border-purple-600/50 flex justify-between items-center">
+      <div className="bg-[#1b1b2a]/80 backdrop-blur-lg p-4 rounded-xl border border-purple-600/50 flex justify-between items-center w-full max-w-md">
         <div>
           <p className="text-gray-400 text-sm">Your Rank</p>
           <h2 className="text-2xl font-semibold text-white">#{userData.leaderboardRank}</h2>
