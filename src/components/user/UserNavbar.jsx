@@ -9,7 +9,7 @@ export const UserNavbar = ({ toggleSidebar, isSidebarOpen }) => {
   const [notifOpen, setNotifOpen] = useState(false);
   const [notifications, setNotifications] = useState([]);
   const userId = localStorage.getItem("userId");
-  const [avatar, setavatar] = useState("")
+  const [avatar, setAvatar] = useState("");
   const token = localStorage.getItem("token");
 
   useEffect(() => {
@@ -19,7 +19,7 @@ export const UserNavbar = ({ toggleSidebar, isSidebarOpen }) => {
 
   const formattedTime = time.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
 
-  // ✅ Fetch Notifications
+  // Fetch Notifications
   const fetchNotifications = async () => {
     try {
       const res = await axios.get(`/notifications/${userId}`);
@@ -28,32 +28,35 @@ export const UserNavbar = ({ toggleSidebar, isSidebarOpen }) => {
       console.error("❌ Error fetching notifications:", err);
     }
   };
+
+  // Fetch User Avatar
   const fetchUser = async () => {
-    try{
-    const user = await axios.get(`/user/${userId}`,{
-      headers:{ Authorization: `Bearer ${token}` }
-    });
-    console.log(user.data.data.avatar)
-    setavatar(user.data.data.avatar)
-    }catch(err){
-    console.error(err)
+    try {
+      const user = await axios.get(`/user/${userId}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      setAvatar(user.data.data.avatar);
+    } catch (err) {
+      console.error(err);
     }
-  }
-useEffect(() => {
-  fetchUser()
-})
+  };
+
+  useEffect(() => {
+    fetchUser();
+  }, []);
+
   useEffect(() => {
     if (notifOpen) {
       fetchNotifications();
     }
   }, [notifOpen]);
 
-  // ✅ Mark as read
+  // Mark notification as read
   const markAsRead = async (id) => {
     try {
-      await axios.patch(`/notifications/${id}/read`,{
-      headers:{ Authorization: `Bearer ${token}` }
-    });
+      await axios.patch(`/notifications/${id}/read`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
       setNotifications((prev) =>
         prev.map((n) => (n._id === id ? { ...n, read: true } : n))
       );
@@ -77,7 +80,10 @@ useEffect(() => {
       </button>
 
       {/* Title */}
-      <h1 className="text-xl font-bold tracking-wide text-blue-400">SkillHub Dashboard</h1>
+      <h1 className="text-xl font-bold tracking-wide text-blue-400">
+        <span className="md:hidden">SkillHub</span>
+        <span className="hidden md:inline">SkillHub Dashboard</span>
+      </h1>
 
       {/* Right Section */}
       <div className="flex items-center gap-6 text-white">
