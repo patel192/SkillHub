@@ -1,25 +1,35 @@
 import React from "react";
 import { motion } from "framer-motion";
-import { ShieldCheck, Info, FileText } from "lucide-react";
+import { Info, ShieldCheck, FileText, ArrowRight } from "lucide-react";
 import { Link } from "react-scroll";
 
 export const PublicLayout = () => {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-[#10172A] to-black text-white overflow-hidden">
+    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-[#0B1220] to-black text-white overflow-hidden">
       {/* ===== Navbar ===== */}
-      <header className="fixed top-0 left-0 w-full bg-[#0F1629]/80 backdrop-blur-md border-b border-purple-500/20 z-50">
+      <header className="fixed top-0 left-0 w-full bg-[#0B1220]/80 backdrop-blur-md border-b border-purple-500/20 z-50">
         <nav className="max-w-7xl mx-auto flex justify-between items-center px-6 py-4">
-          <h1 className="text-2xl font-bold text-purple-400">SkillHub</h1>
+          <motion.h1
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
+            className="text-2xl font-bold text-purple-400 tracking-wide"
+          >
+            SkillHub
+          </motion.h1>
           <div className="hidden md:flex space-x-6 text-sm font-medium">
-            <Link to="about" smooth className="hover:text-purple-400 cursor-pointer">
-              About
-            </Link>
-            <Link to="privacy" smooth className="hover:text-purple-400 cursor-pointer">
-              Privacy
-            </Link>
-            <Link to="terms" smooth className="hover:text-purple-400 cursor-pointer">
-              Terms
-            </Link>
+            {["about", "privacy", "terms"].map((item) => (
+              <Link
+                key={item}
+                to={item}
+                smooth
+                duration={600}
+                offset={-70}
+                className="hover:text-purple-400 transition-colors cursor-pointer capitalize"
+              >
+                {item}
+              </Link>
+            ))}
           </div>
         </nav>
       </header>
@@ -30,38 +40,40 @@ export const PublicLayout = () => {
           initial={{ opacity: 0, y: -30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
-          className="text-4xl md:text-6xl font-bold mb-4 bg-gradient-to-r from-purple-400 to-blue-400 bg-clip-text text-transparent"
+          className="text-5xl md:text-7xl font-extrabold mb-6 bg-gradient-to-r from-purple-400 via-blue-400 to-cyan-400 bg-clip-text text-transparent"
         >
-          Explore. Learn. Grow.
+          Learn Smarter. Build Better. Grow Faster.
         </motion.h2>
         <motion.p
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.2, duration: 0.6 }}
-          className="max-w-2xl text-gray-300 text-sm md:text-base"
+          transition={{ delay: 0.3, duration: 0.7 }}
+          className="max-w-3xl text-gray-300 text-base md:text-lg leading-relaxed"
         >
-          EduVerse is your all-in-one platform for online learning, interactive courses, and community-driven knowledge sharing.  
-          We blend technology, creativity, and innovation for a seamless learning experience.
+          SkillHub is the next-generation learning ecosystem empowering learners, professionals,
+          and organizations to upskill with interactive experiences, real-world challenges, and
+          AI-powered learning insights — all in one place.
         </motion.p>
+
         <motion.div
-          className="mt-10 flex space-x-4"
+          className="mt-10 flex flex-wrap justify-center gap-4"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          transition={{ delay: 0.5 }}
+          transition={{ delay: 0.7 }}
         >
           <Link
             to="about"
             smooth
-            className="px-6 py-2 bg-purple-600/80 hover:bg-purple-700 rounded-full shadow-lg text-sm"
+            className="px-6 py-3 bg-purple-600 hover:bg-purple-700 rounded-full shadow-lg text-sm flex items-center gap-2 transition"
           >
-            Learn More
+            Discover More <ArrowRight size={16} />
           </Link>
           <Link
             to="privacy"
             smooth
-            className="px-6 py-2 bg-transparent border border-purple-500 hover:bg-purple-500/20 rounded-full text-sm"
+            className="px-6 py-3 border border-purple-500 hover:bg-purple-500/10 rounded-full text-sm transition"
           >
-            Our Policy
+            Our Promise
           </Link>
         </motion.div>
       </section>
@@ -69,35 +81,50 @@ export const PublicLayout = () => {
       {/* ===== About Section ===== */}
       <section
         id="about"
-        className="min-h-screen px-6 py-20 flex flex-col justify-center items-center text-center bg-[#131B3B]/40 backdrop-blur-md"
+        className="min-h-screen px-6 py-24 flex flex-col justify-center items-center text-center"
       >
         <motion.div
-          initial={{ opacity: 0, y: 50 }}
+          initial={{ opacity: 0, y: 40 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.8 }}
-          className="max-w-4xl"
+          className="max-w-6xl"
         >
-          <div className="flex justify-center mb-6">
-            <Info className="text-purple-400" size={40} />
+          <div className="flex justify-center mb-8">
+            <Info className="text-purple-400" size={48} />
           </div>
-          <h3 className="text-3xl md:text-4xl font-semibold mb-4">About EduVerse</h3>
-          <p className="text-gray-300 text-sm md:text-base leading-relaxed">
-            EduVerse was created with the vision of making education accessible and engaging for everyone.  
-            Our platform enables users to explore curated learning paths, collaborate with mentors, and grow professionally.
+          <h3 className="text-4xl md:text-5xl font-semibold mb-6">
+            About <span className="text-purple-400">SkillHub</span>
+          </h3>
+          <p className="text-gray-300 text-base md:text-lg leading-relaxed max-w-3xl mx-auto">
+            SkillHub redefines how you learn and grow in the digital age. From technical bootcamps
+            and creative workshops to AI-powered career tracking, we connect learners with mentors
+            and real-world opportunities that accelerate success.
           </p>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-10">
-            {["Interactive Learning", "Community Support", "Real-world Projects"].map((title, i) => (
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mt-16">
+            {[
+              {
+                title: "AI-Driven Learning Paths",
+                desc: "Personalized course recommendations designed by AI to suit your pace, goals, and industry needs.",
+              },
+              {
+                title: "Collaborative Projects",
+                desc: "Build, share, and showcase real-world projects with peers and mentors to stand out in your career.",
+              },
+              {
+                title: "Progress Analytics",
+                desc: "Gain deep insights into your learning journey with advanced analytics and milestone tracking.",
+              },
+            ].map((card, i) => (
               <motion.div
                 key={i}
-                whileHover={{ scale: 1.05 }}
-                className="bg-[#1C2541]/70 p-6 rounded-2xl shadow-lg border border-purple-500/30"
+                whileHover={{ y: -8 }}
+                transition={{ duration: 0.3 }}
+                className="bg-[#12192E]/80 border border-purple-500/20 p-8 rounded-3xl shadow-xl text-left hover:shadow-purple-900/30"
               >
-                <h4 className="text-lg font-semibold text-purple-400">{title}</h4>
-                <p className="text-gray-400 text-sm mt-2">
-                  Experience modern education through collaboration, creativity, and technology.
-                </p>
+                <h4 className="text-xl font-semibold mb-3 text-purple-400">{card.title}</h4>
+                <p className="text-gray-400 text-sm leading-relaxed">{card.desc}</p>
               </motion.div>
             ))}
           </div>
@@ -107,34 +134,52 @@ export const PublicLayout = () => {
       {/* ===== Privacy Policy Section ===== */}
       <section
         id="privacy"
-        className="min-h-screen px-6 py-20 flex flex-col justify-center items-center text-center bg-[#0E1428]/60 backdrop-blur-md"
+        className="min-h-screen px-6 py-24 flex flex-col justify-center items-center text-center"
       >
         <motion.div
-          initial={{ opacity: 0, y: 50 }}
+          initial={{ opacity: 0, y: 40 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.8 }}
-          className="max-w-4xl"
+          className="max-w-6xl"
         >
-          <div className="flex justify-center mb-6">
-            <ShieldCheck className="text-green-400" size={40} />
+          <div className="flex justify-center mb-8">
+            <ShieldCheck className="text-green-400" size={48} />
           </div>
-          <h3 className="text-3xl md:text-4xl font-semibold mb-4">Privacy Policy</h3>
-          <p className="text-gray-300 text-sm md:text-base leading-relaxed">
-            Your privacy is our top priority. EduVerse collects minimal user data strictly for providing better educational experiences.  
-            We never sell or share your data with third parties.
+          <h3 className="text-4xl md:text-5xl font-semibold mb-6">
+            Our <span className="text-green-400">Privacy Commitment</span>
+          </h3>
+          <p className="text-gray-300 text-base md:text-lg leading-relaxed max-w-3xl mx-auto">
+            Your trust is our greatest asset. SkillHub ensures complete data confidentiality through
+            advanced encryption, transparent practices, and user-first privacy design.
           </p>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-10">
-            {["Data Encryption", "Secure Authentication", "User Control", "Transparency"].map((point, i) => (
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mt-16">
+            {[
+              {
+                title: "Data Encryption",
+                desc: "We use industry-grade AES-256 encryption to protect your information at every step.",
+              },
+              {
+                title: "User Control",
+                desc: "You decide how your data is stored, used, and shared. We empower transparency.",
+              },
+              {
+                title: "No Third-Party Sharing",
+                desc: "Your data stays with us — no resale, no sharing, no compromise.",
+              },
+              {
+                title: "24/7 Security Audits",
+                desc: "Continuous monitoring and compliance checks to keep your privacy uncompromised.",
+              },
+            ].map((card, i) => (
               <motion.div
                 key={i}
-                whileHover={{ scale: 1.05 }}
-                className="bg-[#1C2541]/70 p-6 rounded-2xl shadow-lg border border-green-500/30"
+                whileHover={{ y: -6 }}
+                className="bg-[#12192E]/80 border border-green-500/20 p-8 rounded-3xl shadow-xl text-left hover:shadow-green-900/30"
               >
-                <h4 className="text-lg font-semibold text-green-400">{point}</h4>
-                <p className="text-gray-400 text-sm mt-2">
-                  We ensure your safety through encrypted connections and privacy-first design.
-                </p>
+                <h4 className="text-xl font-semibold mb-3 text-green-400">{card.title}</h4>
+                <p className="text-gray-400 text-sm leading-relaxed">{card.desc}</p>
               </motion.div>
             ))}
           </div>
@@ -144,45 +189,62 @@ export const PublicLayout = () => {
       {/* ===== Terms Section ===== */}
       <section
         id="terms"
-        className="min-h-screen px-6 py-20 flex flex-col justify-center items-center text-center bg-[#131B3B]/40 backdrop-blur-md"
+        className="min-h-screen px-6 py-24 flex flex-col justify-center items-center text-center"
       >
         <motion.div
-          initial={{ opacity: 0, y: 50 }}
+          initial={{ opacity: 0, y: 40 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.8 }}
-          className="max-w-4xl"
+          className="max-w-6xl"
         >
-          <div className="flex justify-center mb-6">
-            <FileText className="text-blue-400" size={40} />
+          <div className="flex justify-center mb-8">
+            <FileText className="text-blue-400" size={48} />
           </div>
-          <h3 className="text-3xl md:text-4xl font-semibold mb-4">Terms & Conditions</h3>
-          <p className="text-gray-300 text-sm md:text-base leading-relaxed">
-            By using EduVerse, you agree to our guidelines and community standards.  
-            We value respectful interactions and encourage knowledge-driven participation.
+          <h3 className="text-4xl md:text-5xl font-semibold mb-6">
+            Terms & <span className="text-blue-400">Conditions</span>
+          </h3>
+          <p className="text-gray-300 text-base md:text-lg leading-relaxed max-w-3xl mx-auto">
+            We promote respectful communication, fair use, and originality across the SkillHub
+            community. By engaging with our platform, you agree to uphold professional standards and
+            maintain integrity in all collaborations.
           </p>
-          <div className="mt-10 grid grid-cols-1 md:grid-cols-2 gap-6">
-            {["Respectful Communication", "Authentic Contributions", "Copyright Protection", "Fair Usage"].map(
-              (rule, i) => (
-                <motion.div
-                  key={i}
-                  whileHover={{ scale: 1.05 }}
-                  className="bg-[#1C2541]/70 p-6 rounded-2xl shadow-lg border border-blue-500/30"
-                >
-                  <h4 className="text-lg font-semibold text-blue-400">{rule}</h4>
-                  <p className="text-gray-400 text-sm mt-2">
-                    These terms ensure a safe, inclusive, and productive environment for all learners.
-                  </p>
-                </motion.div>
-              )
-            )}
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mt-16">
+            {[
+              {
+                title: "Respectful Conduct",
+                desc: "Collaborate professionally and foster a positive learning environment.",
+              },
+              {
+                title: "Authentic Submissions",
+                desc: "Only submit your original work — plagiarism is strictly prohibited.",
+              },
+              {
+                title: "Copyright Compliance",
+                desc: "Respect intellectual property and follow content usage rules.",
+              },
+              {
+                title: "Fair Usage Policy",
+                desc: "Maintain integrity by using resources responsibly and ethically.",
+              },
+            ].map((rule, i) => (
+              <motion.div
+                key={i}
+                whileHover={{ y: -6 }}
+                className="bg-[#12192E]/80 border border-blue-500/20 p-8 rounded-3xl shadow-xl text-left hover:shadow-blue-900/30"
+              >
+                <h4 className="text-xl font-semibold mb-3 text-blue-400">{rule.title}</h4>
+                <p className="text-gray-400 text-sm leading-relaxed">{rule.desc}</p>
+              </motion.div>
+            ))}
           </div>
         </motion.div>
       </section>
 
       {/* ===== Footer ===== */}
-      <footer className="bg-[#0F1629]/80 border-t border-purple-500/20 py-6 text-center text-gray-400 text-sm">
-        © 2025 SkillHub. All rights reserved.
+      <footer className="bg-[#0B1220]/80 border-t border-purple-500/20 py-8 text-center text-gray-400 text-sm">
+        © 2025 SkillHub — Empowering Future Innovators.
       </footer>
     </div>
   );
