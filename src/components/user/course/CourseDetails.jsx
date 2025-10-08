@@ -78,15 +78,8 @@ export const CourseDetails = () => {
     try {
       await axios.post(
         "/enrollment",
-        {
-          userId,
-          courseId,
-          status: "Registered",
-          progress: 0,
-        },
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
+        { userId, courseId, status: "Registered", progress: 0 },
+        { headers: { Authorization: `Bearer ${token}` } }
       );
       setEnrolled(true);
       toast.success("Successfully enrolled in this course!");
@@ -99,7 +92,7 @@ export const CourseDetails = () => {
   if (!course) {
     return (
       <div className="flex justify-center items-center h-screen text-white">
-        <Spinner/>
+        <Spinner />
       </div>
     );
   }
@@ -109,32 +102,34 @@ export const CourseDetails = () => {
       initial={{ opacity: 0, y: 30 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5 }}
-      className="min-h-screen bg-gradient-to-br from-[#0f172a] via-[#1e1b4b] to-[#0f172a] p-6 max-w-6xl mx-auto text-white"
+      className="min-h-screen bg-gradient-to-br from-[#0f172a] via-[#1e1b4b] to-[#0f172a] p-4 sm:p-6 md:p-8 text-white max-w-5xl mx-auto"
     >
       {/* Hero Banner */}
-      <div className="rounded-xl overflow-hidden shadow-2xl mb-8 border border-purple-600/40">
+      <div className="relative rounded-xl overflow-hidden shadow-2xl mb-6 border border-purple-600/40">
         <img
           src={course.imageUrl}
           alt={course.title}
-          className="w-100 h-100 rounded-lg m-auto"
+          className="w-full h-52 sm:h-64 md:h-80 object-cover"
         />
-      </div>
-
-      {/* Title + Actions */}
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-8">
-        <div>
-          <h1 className="text-4xl font-bold mb-3 flex items-center gap-3">
-            <Sparkles size={30} className="text-cyan-400" />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent flex items-end p-4">
+          <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-white flex items-center gap-2">
+            <Sparkles size={22} className="text-cyan-400" />
             {course.title}
           </h1>
-          <p className="text-gray-300 max-w-2xl">{course.description}</p>
         </div>
-        <div className="flex gap-4">
+      </div>
+
+      {/* Actions */}
+      <div className="flex flex-col sm:flex-row justify-between items-center gap-3 sm:gap-4 mb-6">
+        <p className="text-gray-300 text-sm sm:text-base md:text-lg max-w-full sm:max-w-xl">
+          {course.description}
+        </p>
+        <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
           <motion.button
             whileHover={{ scale: 1.05, boxShadow: "0 0 15px #06b6d4" }}
             onClick={handleEnroll}
             disabled={enrolled}
-            className={`px-6 py-2 rounded-full text-white font-semibold transition duration-300 shadow-lg ${
+            className={`px-4 sm:px-6 py-2 rounded-full text-white font-semibold transition duration-300 shadow-lg w-full sm:w-auto ${
               enrolled
                 ? "bg-green-600 cursor-not-allowed"
                 : "bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-700 hover:to-blue-700"
@@ -146,43 +141,43 @@ export const CourseDetails = () => {
           <motion.button
             whileHover={{ scale: 1.05, boxShadow: "0 0 15px #f43f5e" }}
             onClick={() => setShowReportModal(true)}
-            className="px-6 py-2 rounded-full bg-gradient-to-r from-red-600 to-pink-600 hover:from-red-700 hover:to-pink-700 text-white font-semibold shadow-lg"
+            className="px-4 sm:px-6 py-2 rounded-full bg-gradient-to-r from-red-600 to-pink-600 hover:from-red-700 hover:to-pink-700 text-white font-semibold shadow-lg w-full sm:w-auto flex items-center justify-center gap-2"
           >
-            <Flag size={18} className="inline-block mr-2" />
+            <Flag size={16} />
             Report
           </motion.button>
         </div>
       </div>
 
-      {/* Metadata Badges */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 text-sm mb-10">
+      {/* Metadata Cards */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 mb-6">
         <CourseMeta
-          icon={<User size={18} />}
+          icon={<User size={16} />}
           label="Instructor"
           value={course.instructor}
         />
         <CourseMeta
-          icon={<BookOpen size={18} />}
+          icon={<BookOpen size={16} />}
           label="Category"
           value={course.category}
         />
         <CourseMeta
-          icon={<Clock size={18} />}
+          icon={<Clock size={16} />}
           label="Duration"
           value={course.duration}
         />
         <CourseMeta
-          icon={<BadgeCheck size={18} />}
+          icon={<BadgeCheck size={16} />}
           label="Level"
           value={course.level}
         />
         <CourseMeta
-          icon={<DollarSign size={18} />}
+          icon={<DollarSign size={16} />}
           label="Price"
           value={course.price > 0 ? `₹${course.price}` : "Free"}
         />
         <CourseMeta
-          icon={<BadgeCheck size={18} />}
+          icon={<BadgeCheck size={16} />}
           label="Status"
           value={
             <span
@@ -196,32 +191,43 @@ export const CourseDetails = () => {
         />
       </div>
 
-      {/* Course Overview */}
-      <div>
-        <h3 className="text-2xl font-semibold mb-4 border-b border-purple-600/50 pb-2">
+      {/* Overview */}
+      <div className="mb-6 bg-[#1b1b2a]/80 backdrop-blur-lg p-4 sm:p-6 rounded-xl border border-purple-600/40 shadow-md">
+        <h3 className="text-xl sm:text-2xl font-semibold mb-3 border-b border-purple-600/50 pb-1">
           Course Overview
         </h3>
         {overview.length > 0 ? (
-          <ul className="list-disc pl-6 text-gray-300 leading-relaxed text-base space-y-2">
+          <ul className="list-disc pl-5 text-gray-300 text-sm sm:text-base leading-relaxed space-y-2">
             {overview.map((point, idx) => (
               <li key={idx}>{point}</li>
             ))}
           </ul>
         ) : (
-          <p className="text-gray-400 italic">No overview available.</p>
+          <p className="text-gray-400 italic text-sm sm:text-base">
+            No overview available.
+          </p>
         )}
       </div>
 
+      {/* Continue Learning Button */}
       {enrolled && (
-        <div className="mt-10 flex justify-center">
+        <div className="flex justify-center mb-6">
           <motion.button
-            whileHover={{ scale: 1.05, boxShadow: "0 0 15px #06b6d4" }}
-            onClick={() => {
-              window.location.href = `/user/learn/${courseId}`;
+            whileHover={{
+              scale: 1.05,
+              boxShadow: "0 0 20px rgba(99, 102, 241, 0.5)",
             }}
-            className="px-8 py-3 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white font-semibold rounded-full shadow-lg transition duration-300 flex items-center gap-3"
+            whileTap={{ scale: 0.95 }}
+            initial={{ opacity: 0.9 }}
+            animate={{ opacity: 1 }}
+            transition={{ type: "spring", stiffness: 300 }}
+            onClick={() => (window.location.href = `/user/learn/${courseId}`)}
+            className="relative overflow-hidden px-8 py-3 sm:px-10 sm:py-4 bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-semibold rounded-full shadow-lg group"
           >
-            <Book size={20} /> Continue Learning
+            {/* Animated background gradient */}
+            <span className="absolute inset-0 w-full h-full bg-gradient-to-r from-purple-500 to-indigo-500 opacity-20 group-hover:opacity-40 transition-opacity duration-500 rounded-full"></span>
+
+            <span className="relative z-10">Continue Learning</span>
           </motion.button>
         </div>
       )}
@@ -244,8 +250,8 @@ const CourseMeta = ({ icon, label, value }) => (
   >
     <div className="text-cyan-400">{icon}</div>
     <div>
-      <p className="text-gray-400 text-sm">{label}</p>
-      <p className="font-medium text-white">{value}</p>
+      <p className="text-gray-400 text-xs sm:text-sm">{label}</p>
+      <p className="font-medium text-white text-sm sm:text-base">{value}</p>
     </div>
   </motion.div>
 );

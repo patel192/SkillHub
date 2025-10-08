@@ -91,7 +91,7 @@ export const Settings = () => {
         return (
           <div className="space-y-4">
             <h3 className="text-lg font-semibold">Theme & Appearance</h3>
-            <select className="p-3 rounded bg-zinc-800 text-white">
+            <select className="p-3 rounded bg-zinc-800 text-white w-full">
               <option value="system">System Default</option>
               <option value="light">Light Mode</option>
               <option value="dark">Dark Mode</option>
@@ -151,13 +151,13 @@ export const Settings = () => {
   };
 
   return (
-    <div className="p-6 bg-white dark:bg-gray-900 shadow-xl rounded-2xl">
+    <div className="p-6 bg-white dark:bg-gray-900 shadow-xl rounded-2xl max-w-5xl mx-auto">
       <h2 className="text-2xl font-bold mb-6 text-center text-gray-800 dark:text-white">
         ⚙️ User Settings
       </h2>
 
       {/* ✅ Glowing tab options with purple-cyan gradient */}
-      <div className="flex flex-wrap gap-6 mb-6 justify-between">
+      <div className="flex flex-wrap gap-6 mb-6 justify-center">
         {[
           { key: "account", icon: <FaUserCog />, label: "Account" },
           { key: "privacy", icon: <FaLock />, label: "Privacy" },
@@ -166,23 +166,27 @@ export const Settings = () => {
           { key: "integrations", icon: <FaLink />, label: "Integrations" },
           { key: "deactivate", icon: <FaTrashAlt />, label: "Deactivate" },
         ].map((tab) => (
-          <button
+          <motion.button
             key={tab.key}
             onClick={() => setActiveTab(tab.key)}
-            className={`tab-btn w-28`}
+            className="w-28"
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
           >
-            <motion.div
-              className={`flex justify-center items-center flex-col rounded-2xl h-20 
+            <div
+              className={`flex flex-col justify-center items-center rounded-2xl h-20 
               bg-gradient-to-r from-purple-600 to-cyan-400 cursor-pointer 
-              transition-transform duration-500 hover:scale-110 shadow-lg 
+              transition-transform duration-500 shadow-lg 
               ${activeTab === tab.key ? "shadow-[0_0_25px_4px_rgba(128,0,255,0.7)]" : ""}`}
             >
-              {tab.icon} {tab.label}
-            </motion.div>
-          </button>
+              {tab.icon}
+              <span className="text-sm font-medium mt-1">{tab.label}</span>
+            </div>
+          </motion.button>
         ))}
       </div>
 
+      {/* TAB CONTENT */}
       <div>{renderTabContent()}</div>
     </div>
   );

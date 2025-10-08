@@ -17,7 +17,6 @@ import { AchievementPopup } from "../../../../utils/AchievementPopup";
 export const LearningPage = () => {
   const { courseId } = useParams();
   const userId = localStorage.getItem("userId");
-  const achievementThresholds = [10, 50, 100];
   const token = localStorage.getItem("token");
   const canvasRef = useRef(null);
   const startTimeRef = useRef(null);
@@ -189,9 +188,7 @@ export const LearningPage = () => {
           quizAnswers: newAnswers,
           points: newPoints,
         },
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
+        { headers: { Authorization: `Bearer ${token}` } }
       );
     } catch (err) {
       console.error("Error saving progress:", err);
@@ -232,8 +229,54 @@ export const LearningPage = () => {
     }
   };
 
+  // Handle lesson selection
+  const handleLessonSelect = (lesson) => {
+    setSelectedLesson(lesson);
+    setQuizOpen(false);
+    setLearningOpen(false); // collapse lessons menu
+    setQuizResults(null);
+  };
+
+  // Handle quiz selection
+  const handleQuizSelect = (idx) => {
+    setCurrentQuestionIdx(idx);
+    setSelectedLesson(null);
+    setQuizOpen(false); // close dropdown
+    setLearningOpen(false); // ensure lessons menu is closed
+    setQuizResults(null);
+  };
+
+  // --- Content parsing ---
+  const parseContent = (content) => {
+    const blocks = [];
+    const regex = /```(\w+)?\n([\s\S]*?)```/g;
+    let lastIndex = 0;
+    let match;
+
+    while ((match = regex.exec(content)) !== null) {
+      if (match.index > lastIndex) {
+        blocks.push({
+          type: "text",
+          content: content.slice(lastIndex, match.index),
+        });
+      }
+      blocks.push({
+        type: "code",
+        lang: match[1] || "text",
+        content: match[2],
+      });
+      lastIndex = regex.lastIndex;
+    }
+
+    if (lastIndex < content.length) {
+      blocks.push({ type: "text", content: content.slice(lastIndex) });
+    }
+
+    return blocks;
+  };
+
   return (
-    <div className="flex h-screen bg-[#0d1117] text-white relative font-sans">
+    <div className="flex flex-col md:flex-row h-screen bg-[#0d1117] text-white relative font-sans">
       <AchievementPopup
         achievement={unlockedAchievement}
         onClose={handleClosePopup}
@@ -247,7 +290,7 @@ export const LearningPage = () => {
 
       {/* Sidebar */}
       <motion.div
-        className="w-64 bg-[#161b22] border-r border-gray-700 overflow-y-auto shadow-lg"
+        className="w-full md:w-64 bg-[#161b22] border-b md:border-r border-gray-700 overflow-y-auto shadow-lg flex-shrink-0"
         initial={{ x: -120, opacity: 0 }}
         animate={{ x: 0, opacity: 1 }}
         transition={{ duration: 0.6 }}
@@ -257,9 +300,7 @@ export const LearningPage = () => {
         </h2>
 
         {/* Time spent */}
-        <motion.div
-          className="flex items-center gap-2 p-4 text-sm text-gray-300 border-b border-gray-700"
-        >
+        <motion.div className="flex items-center gap-2 p-4 text-sm text-gray-300 border-b border-gray-700">
           <Clock className="w-4 h-4 text-green-400 animate-pulse" />
           Time Spent:{" "}
           <span className="font-semibold text-white">
@@ -284,17 +325,18 @@ export const LearningPage = () => {
 
         <motion.div
           initial={{ height: 0, opacity: 0 }}
-          animate={learningOpen ? { height: "auto", opacity: 1 } : { height: 0, opacity: 0 }}
+          animate={
+            learningOpen
+              ? { height: "auto", opacity: 1 }
+              : { height: 0, opacity: 0 }
+          }
           transition={{ duration: 0.4 }}
           className="pl-4 overflow-hidden"
         >
           {lessons.map((lesson) => (
             <motion.button
               key={lesson._id}
-              onClick={() => {
-                setSelectedLesson(lesson);
-                setQuizResults(null);
-              }}
+              onClick={() => handleLessonSelect(lesson)}
               className={`block w-full text-left px-4 py-2 text-sm rounded-md mb-1 border-l-4 transition-all duration-300 ${
                 selectedLesson?._id === lesson._id
                   ? "bg-[#21262d] border-indigo-500"
@@ -330,21 +372,20 @@ export const LearningPage = () => {
           )}
         </motion.button>
 
-        {/* Quiz Question List */}
         <motion.div
           initial={{ height: 0, opacity: 0 }}
-          animate={quizOpen ? { height: "auto", opacity: 1 } : { height: 0, opacity: 0 }}
+          animate={
+            quizOpen
+              ? { height: "auto", opacity: 1 }
+              : { height: 0, opacity: 0 }
+          }
           transition={{ duration: 0.4 }}
           className="pl-4 overflow-hidden"
         >
           {quizQuestions.map((q, idx) => (
             <motion.button
               key={q._id}
-              onClick={() => {
-                setCurrentQuestionIdx(idx);
-                setQuizResults(null);
-                setSelectedLesson(null);
-              }}
+              onClick={() => handleQuizSelect(idx)}
               className={`block w-full text-left px-4 py-2 text-sm rounded-md mb-1 border-l-4 transition-all duration-300 ${
                 currentQuestionIdx === idx
                   ? "bg-[#21262d] border-yellow-500"
@@ -360,20 +401,42 @@ export const LearningPage = () => {
       {/* Main Content */}
       <motion.div className="flex-1 p-6 overflow-y-auto relative z-10">
         {/* Show lesson */}
-        {selectedLesson && !quizOpen && (
-          <div className="p-4 rounded-xl bg-[#161b22] border border-gray-700">
+        {selectedLesson && (
+          <div className="p-4 rounded-xl bg-[#161b22] border border-gray-700 mt-4 md:mt-0">
             <h1 className="text-2xl font-bold mb-4 text-indigo-400">
               {selectedLesson.title}
             </h1>
-            <p className="text-gray-200 whitespace-pre-line">
-              {selectedLesson.content}
-            </p>
+
+            <div className="text-gray-200">
+              {parseContent(selectedLesson.content).map((block, idx) => {
+                if (block.type === "text") {
+                  return (
+                    <p key={idx} className="mb-4 whitespace-pre-line">
+                      {block.content}
+                    </p>
+                  );
+                } else if (block.type === "code") {
+                  return (
+                    <SyntaxHighlighter
+                      key={idx}
+                      language={block.lang}
+                      style={vscDarkPlus}
+                      wrapLongLines={true}
+                      className="rounded-lg my-4 text-sm sm:text-base"
+                    >
+                      {block.content}
+                    </SyntaxHighlighter>
+                  );
+                }
+                return null;
+              })}
+            </div>
           </div>
         )}
 
         {/* Show quiz */}
-        {quizOpen && quizQuestions[currentQuestionIdx] && (
-          <div className="mt-8">
+        {quizQuestions[currentQuestionIdx] && (
+          <div className="mt-6 md:mt-8">
             <h2 className="text-xl font-bold mb-4 text-blue-400">
               Question {currentQuestionIdx + 1} of {quizQuestions.length}
             </h2>
@@ -384,7 +447,8 @@ export const LearningPage = () => {
             <div className="grid grid-cols-1 gap-4">
               {quizQuestions[currentQuestionIdx].options.map((opt) => {
                 const isSelected =
-                  quizAnswers[quizQuestions[currentQuestionIdx]._id] === opt.text;
+                  quizAnswers[quizQuestions[currentQuestionIdx]._id] ===
+                  opt.text;
                 return (
                   <button
                     key={opt._id}

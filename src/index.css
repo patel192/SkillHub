@@ -27,3 +27,13 @@ input:-webkit-autofill:focus {
   background-image: linear-gradient(to right, #3b82f6, #8b5cf6) !important;
 }
 
+@media (max-width: 768px) {
+  .mobile-dropdown {
+    position: fixed !important;
+    top: 70px !important; /* adjust according to navbar height */
+    left: 50%;
+    transform: translateX(-50%);
+    width: 90% !important;
+    z-index: 99999 !important;
+  }
+}

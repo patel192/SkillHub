@@ -10,6 +10,7 @@ export const LeaderBoard = () => {
   const token = localStorage.getItem("token");
   const userId = localStorage.getItem("userId");
 
+  // Fetch all users
   useEffect(() => {
     const fetchUsers = async () => {
       try {
@@ -22,8 +23,9 @@ export const LeaderBoard = () => {
       }
     };
     fetchUsers();
-  }, []);
+  }, [token]);
 
+  // Fetch achievements for the current user
   useEffect(() => {
     const fetchAchievements = async () => {
       try {
@@ -37,8 +39,9 @@ export const LeaderBoard = () => {
       }
     };
     if (activeTab === "achievements") fetchAchievements();
-  }, [activeTab, userId]);
+  }, [activeTab, userId, token]);
 
+  // Sort users by points descending
   const sortedUsers = [...users].sort((a, b) => b.points - a.points);
   const topScore = sortedUsers[0]?.points || 1;
 
@@ -50,7 +53,7 @@ export const LeaderBoard = () => {
       className="bg-[#0F172A] min-h-screen text-white px-6 py-10"
     >
       {/* Tabs */}
-      <div className="flex justify-center gap-6 mb-10">
+      <div className="flex justify-center gap-6 mb-10 flex-wrap">
         {["leaderboard", "achievements"].map((tab) => (
           <motion.button
             key={tab}
@@ -87,9 +90,8 @@ export const LeaderBoard = () => {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: index * 0.05 }}
                 className={`relative bg-gray-900 p-4 rounded-xl flex items-center justify-between 
-                  hover:shadow-[0_0_25px_#22d3ee] transition ${
-                    isCurrentUser ? "border border-purple-500" : ""
-                  }`}
+                  hover:shadow-[0_0_25px_#22d3ee] transition 
+                  ${isCurrentUser ? "border border-purple-500" : ""}`}
               >
                 {/* Left */}
                 <div className="flex items-center gap-4">

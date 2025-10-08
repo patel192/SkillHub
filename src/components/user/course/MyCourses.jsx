@@ -6,7 +6,7 @@ import { Link } from "react-router-dom";
 
 export const MyCourses = () => {
   const [activeTab, setActiveTab] = useState("my");
-  const token = localStorage.getItem("token")
+  const token = localStorage.getItem("token");
   const [myCourses, setMyCourses] = useState([]);
   const [discoverCourses, setDiscoverCourses] = useState([]);
   const userId = localStorage.getItem("userId");
@@ -18,8 +18,8 @@ export const MyCourses = () => {
 
   const fetchDiscoverCourses = async () => {
     try {
-      const res = await axios.get(`/courses`,{
-        headers:{Authorization:`Bearer ${token}`}
+      const res = await axios.get(`/courses`, {
+        headers: { Authorization: `Bearer ${token}` },
       });
       setDiscoverCourses(res.data.data || []);
     } catch (error) {
@@ -29,8 +29,8 @@ export const MyCourses = () => {
 
   const fetchMyCourses = async () => {
     try {
-      const res = await axios.get(`/enrollment/${userId}`,{
-        headers:{Authorization:`Bearer ${token}`}
+      const res = await axios.get(`/enrollment/${userId}`, {
+        headers: { Authorization: `Bearer ${token}` },
       });
       const enrollments = res.data.data || [];
 
@@ -58,34 +58,46 @@ export const MyCourses = () => {
       >
         {activeTab === "my" ? "My Courses" : "Discover Courses"}
       </motion.h2>
-
       {/* Tabs */}
-      <div className="flex gap-4 mb-8">
-        <motion.button
-          whileHover={{ scale: 1.05, boxShadow: "0 0 15px #8B5CF6" }}
-          onClick={() => setActiveTab("my")}
-          className={`px-5 py-2.5 rounded-full font-semibold transition-all duration-300 ${
-            activeTab === "my"
-              ? "bg-gradient-to-r from-purple-600 to-indigo-600 shadow-lg text-white"
-              : "bg-[#1b1b2a]/80 border border-purple-600/40 hover:bg-purple-600/40"
+      <div className="relative w-full max-w-md mx-auto mb-10 bg-[#1b1b2a]/80 backdrop-blur-lg border border-purple-700/40 rounded-full p-1 flex justify-between">
+        {/* Background slider */}
+        <motion.div
+          layout
+          transition={{ type: "spring", stiffness: 300, damping: 25 }}
+          className={`absolute top-1 bottom-1 rounded-full bg-gradient-to-r from-purple-600 to-indigo-600 shadow-lg ${
+            activeTab === "my" ? "left-1 right-1/2" : "left-1/2 right-1"
           }`}
-        >
-          <BookOpen className="inline-block mr-2 text-purple-400" size={18} />
-          My Courses
-        </motion.button>
+        />
 
-        <motion.button
-          whileHover={{ scale: 1.05, boxShadow: "0 0 15px #F43F5E" }}
-          onClick={() => setActiveTab("discover")}
-          className={`px-5 py-2.5 rounded-full font-semibold transition-all duration-300 ${
-            activeTab === "discover"
-              ? "bg-gradient-to-r from-pink-500 to-rose-600 shadow-lg text-white"
-              : "bg-[#1b1b2a]/80 border border-pink-600/40 hover:bg-pink-600/40"
+        {/* My Courses */}
+        <button
+          onClick={() => setActiveTab("my")}
+          className={`relative z-10 w-1/2 text-sm sm:text-base py-2.5 font-medium transition-colors duration-300 ${
+            activeTab === "my"
+              ? "text-white"
+              : "text-gray-300 hover:text-purple-400"
           }`}
         >
-          <Flame className="inline-block mr-2 text-pink-400" size={18} />
-          Discover Courses
-        </motion.button>
+          <div className="flex items-center justify-center gap-2">
+            <BookOpen size={16} />
+            <span>My Courses</span>
+          </div>
+        </button>
+
+        {/* Discover */}
+        <button
+          onClick={() => setActiveTab("discover")}
+          className={`relative z-10 w-1/2 text-sm sm:text-base py-2.5 font-medium transition-colors duration-300 ${
+            activeTab === "discover"
+              ? "text-white"
+              : "text-gray-300 hover:text-pink-400"
+          }`}
+        >
+          <div className="flex items-center justify-center gap-2">
+            <Flame size={16} />
+            <span>Discover</span>
+          </div>
+        </button>
       </div>
 
       {/* Course Cards */}
