@@ -4,6 +4,7 @@ import { motion } from "framer-motion";
 import { AlertTriangle, User, BookOpen, MessageSquare } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Spinner } from "../../../utils/Spinner";
+
 export const Reports = () => {
   const [reports, setReports] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -23,9 +24,8 @@ export const Reports = () => {
         setLoading(false);
       }
     };
-
     fetchReports();
-  }, []);
+  }, [token]);
 
   if (loading) {
     return (
@@ -69,50 +69,57 @@ export const Reports = () => {
       initial={{ opacity: 0, y: 30 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4 }}
-      className="p-6 bg-gradient-to-br from-[#0f172a]/95 via-[#1e1b4b]/95 to-[#0f172a]/95 
-             backdrop-blur-xl rounded-2xl shadow-2xl border border-purple-700/40"
+      className="p-4 sm:p-6 bg-gradient-to-br from-[#0f172a]/95 via-[#1e1b4b]/95 to-[#0f172a]/95 
+                 backdrop-blur-xl rounded-2xl shadow-2xl border border-purple-700/40
+                 max-w-full sm:max-w-6xl mx-auto overflow-hidden"
     >
-      <h2 className="text-2xl font-bold mb-6 flex items-center gap-3 text-purple-300">
-        <AlertTriangle className="text-cyan-400 drop-shadow-lg" />
+      {/* Header */}
+      <h2 className="text-lg sm:text-2xl font-bold mb-4 sm:mb-6 flex items-center gap-2 sm:gap-3 text-purple-300">
+        <AlertTriangle className="text-cyan-400 drop-shadow-lg" size={20} />
         Reports ({reports.length})
       </h2>
 
-      <div className="space-y-4">
+      {/* Reports List */}
+      <div className="space-y-3 sm:space-y-4">
         {reports.map((r) => (
           <motion.div
             key={r._id}
             onClick={() => navigate(`/admin/reports/${r._id}`)}
             whileHover={{ scale: 1.02 }}
-            className="p-4 rounded-xl 
-                   bg-gradient-to-r from-[#1e1b4b]/80 to-[#0f172a]/80 
-                   backdrop-blur-md shadow-md border border-purple-600/40 
-                   cursor-pointer hover:shadow-purple-500/30 hover:border-cyan-400/50 
-                   transition-all duration-300"
+            className="p-3 sm:p-4 rounded-xl 
+                       bg-gradient-to-r from-[#1e1b4b]/80 to-[#0f172a]/80 
+                       backdrop-blur-md shadow-md border border-purple-600/40 
+                       cursor-pointer hover:shadow-purple-500/30 hover:border-cyan-400/50 
+                       transition-all duration-300"
           >
-            <div className="flex items-center justify-between mb-2">
-              <div className="flex items-center gap-2 text-gray-200">
+            {/* Top Section */}
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-2 gap-2">
+              <div className="flex items-center gap-2 text-gray-200 flex-wrap">
                 {getTargetIcon(r.targetType)}
-                <span className="font-medium text-white/90">
+                <span className="font-medium text-white/90 text-sm sm:text-base">
                   {r.targetType} → {renderTarget(r)}
                 </span>
               </div>
+
               <span
-                className={`px-3 py-1 rounded-full text-xs font-semibold shadow-sm 
-              ${
-                r.status === "resolved"
-                  ? "bg-cyan-500/20 text-cyan-300 border border-cyan-400/30"
-                  : "bg-purple-500/20 text-purple-300 border border-purple-400/30"
-              }`}
+                className={`px-2 sm:px-3 py-1 rounded-full text-xs sm:text-sm font-semibold shadow-sm self-start sm:self-auto
+                  ${
+                    r.status === "resolved"
+                      ? "bg-cyan-500/20 text-cyan-300 border border-cyan-400/30"
+                      : "bg-purple-500/20 text-purple-300 border border-purple-400/30"
+                  }`}
               >
                 {r.status || "pending"}
               </span>
             </div>
 
-            <p className="text-sm text-gray-400 line-clamp-2">
+            {/* Description */}
+            <p className="text-xs sm:text-sm text-gray-400 line-clamp-3 sm:line-clamp-2">
               {r.description || "No description provided"}
             </p>
 
-            <div className="flex items-center justify-between mt-3 text-xs text-gray-500">
+            {/* Footer Info */}
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mt-2 sm:mt-3 text-[11px] sm:text-xs text-gray-500 gap-1 sm:gap-0">
               <span className="text-purple-300">
                 Reporter: {r.reporter?.fullname || "Anonymous"}
               </span>

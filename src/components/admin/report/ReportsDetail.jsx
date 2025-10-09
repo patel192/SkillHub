@@ -37,18 +37,14 @@ export const ReportsDetail = () => {
       }
     };
     fetchReport();
-  }, [id]);
+  }, [id, token]);
 
   const handleResolve = async () => {
     try {
       await axios.patch(
         `/reports/${id}`,
-        {
-          status: "resolved",
-        },
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
+        { status: "resolved" },
+        { headers: { Authorization: `Bearer ${token}` } }
       );
       setReport((prev) => ({ ...prev, status: "resolved" }));
       alert("✅ Report marked as resolved");
@@ -105,13 +101,12 @@ export const ReportsDetail = () => {
         break;
       default:
         label = "Unknown Target";
-        link = "";
     }
 
     return link ? (
       <Link
         to={link}
-        className="inline-flex items-center gap-1 text-cyan-400 hover:text-cyan-300"
+        className="inline-flex items-center gap-1 text-cyan-400 hover:text-cyan-300 text-sm sm:text-base break-all"
       >
         {label} <ExternalLink size={14} />
       </Link>
@@ -125,14 +120,14 @@ export const ReportsDetail = () => {
       initial={{ opacity: 0, y: 30 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5 }}
-      className="p-8 bg-gradient-to-br from-[#0f172a] via-[#1e1b4b] to-[#0f172a] min-h-screen"
+      className="p-4 sm:p-8 bg-gradient-to-br from-[#0f172a] via-[#1e1b4b] to-[#0f172a] min-h-screen text-white"
     >
       {/* Back button */}
       <button
         onClick={() => navigate(-1)}
-        className="flex items-center text-gray-300 mb-6 hover:text-cyan-400 transition-colors"
+        className="flex items-center text-gray-300 mb-4 sm:mb-6 hover:text-cyan-400 transition-colors text-sm sm:text-base"
       >
-        <ArrowLeft className="mr-2" /> Back to Reports
+        <ArrowLeft className="mr-2 w-4 h-4 sm:w-5 sm:h-5" /> Back to Reports
       </button>
 
       {/* Main Card */}
@@ -143,13 +138,13 @@ export const ReportsDetail = () => {
         className="bg-[#1b1b2a]/80 backdrop-blur-xl rounded-2xl shadow-2xl border border-purple-600/50 overflow-hidden"
       >
         {/* Header */}
-        <div className="flex items-center justify-between px-6 py-5 border-b border-purple-700/30">
-          <div className="flex items-center gap-3">
-            <AlertTriangle className="text-cyan-400 w-7 h-7 drop-shadow-lg" />
-            <h2 className="text-2xl font-bold text-white">Report Details</h2>
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between px-4 sm:px-6 py-4 sm:py-5 border-b border-purple-700/30 gap-3">
+          <div className="flex items-center gap-2 sm:gap-3">
+            <AlertTriangle className="text-cyan-400 w-5 h-5 sm:w-7 sm:h-7 drop-shadow-lg" />
+            <h2 className="text-xl sm:text-2xl font-bold">Report Details</h2>
           </div>
           <span
-            className={`px-4 py-1.5 rounded-full text-sm font-medium shadow-md ${
+            className={`px-3 sm:px-4 py-1 sm:py-1.5 rounded-full text-xs sm:text-sm font-medium shadow-md self-start sm:self-auto ${
               report.status === "resolved"
                 ? "bg-cyan-500/20 text-cyan-300 border border-cyan-400/30"
                 : "bg-purple-500/20 text-purple-300 border border-purple-400/30"
@@ -160,65 +155,72 @@ export const ReportsDetail = () => {
         </div>
 
         {/* Body */}
-        <div className="p-6 space-y-8">
+        <div className="p-4 sm:p-6 space-y-5 sm:space-y-8">
           {/* Reporter & Type */}
-          <div className="flex flex-col md:flex-row gap-6">
-            <div className="flex-1 bg-[#0f172a]/50 p-5 rounded-xl border border-purple-600/40">
-              <div className="flex items-center gap-2 mb-3">
-                <User className="w-5 h-5 text-cyan-400" />
-                <span className="font-semibold text-white">Reporter</span>
+          <div className="flex flex-col md:flex-row gap-4 sm:gap-6">
+            <div className="flex-1 bg-[#0f172a]/50 p-4 sm:p-5 rounded-xl border border-purple-600/40">
+              <div className="flex items-center gap-2 mb-2">
+                <User className="w-4 h-4 sm:w-5 sm:h-5 text-cyan-400" />
+                <span className="font-semibold text-white text-sm sm:text-base">
+                  Reporter
+                </span>
               </div>
-              <p className="text-lg font-medium text-white">
+              <p className="text-base sm:text-lg font-medium">
                 {report.reporter?.fullname || "Anonymous"}
               </p>
-              <div className="flex items-center gap-2 text-sm text-gray-400 mt-1">
-                <Mail className="w-4 h-4 text-cyan-400" />{" "}
+              <div className="flex items-center gap-2 text-xs sm:text-sm text-gray-400 mt-1 break-all">
+                <Mail className="w-4 h-4 text-cyan-400" />
                 {report.reporter?.email || "N/A"}
               </div>
             </div>
 
-            <div className="flex-1 bg-[#0f172a]/50 p-5 rounded-xl border border-purple-600/40">
-              <div className="flex items-center gap-2 mb-3">
-                <Tag className="w-5 h-5 text-cyan-400" />
-                <span className="font-semibold text-white">Report Type</span>
+            <div className="flex-1 bg-[#0f172a]/50 p-4 sm:p-5 rounded-xl border border-purple-600/40">
+              <div className="flex items-center gap-2 mb-2">
+                <Tag className="w-4 h-4 sm:w-5 sm:h-5 text-cyan-400" />
+                <span className="font-semibold text-white text-sm sm:text-base">
+                  Report Type
+                </span>
               </div>
-              <span
-                className="inline-block px-4 py-1 rounded-full text-sm font-medium
-                               bg-purple-500/20 text-purple-300 border border-purple-400/30"
-              >
+              <span className="inline-block px-3 sm:px-4 py-1 rounded-full text-xs sm:text-sm font-medium bg-purple-500/20 text-purple-300 border border-purple-400/30">
                 {report.type}
               </span>
             </div>
           </div>
 
           {/* Description */}
-          <div className="bg-[#0f172a]/50 p-5 rounded-xl border border-purple-600/40">
-            <div className="flex items-center gap-2 mb-3">
-              <FileText className="w-5 h-5 text-cyan-400" />
-              <span className="font-semibold text-white">Description</span>
+          <div className="bg-[#0f172a]/50 p-4 sm:p-5 rounded-xl border border-purple-600/40">
+            <div className="flex items-center gap-2 mb-2">
+              <FileText className="w-4 h-4 sm:w-5 sm:h-5 text-cyan-400" />
+              <span className="font-semibold text-white text-sm sm:text-base">
+                Description
+              </span>
             </div>
-            <p className="text-gray-300 leading-relaxed whitespace-pre-line">
+            <p className="text-gray-300 text-sm sm:text-base leading-relaxed whitespace-pre-line">
               {report.description}
             </p>
           </div>
 
           {/* Target & Meta */}
-          <div className="grid md:grid-cols-2 gap-6">
-            <div className="bg-[#0f172a]/50 p-5 rounded-xl border border-purple-600/40">
-              <div className="flex items-center gap-2 mb-3">
-                <Info className="w-5 h-5 text-cyan-400" />
-                <span className="font-semibold text-white">Target</span>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
+            <div className="bg-[#0f172a]/50 p-4 sm:p-5 rounded-xl border border-purple-600/40">
+              <div className="flex items-center gap-2 mb-2">
+                <Info className="w-4 h-4 sm:w-5 sm:h-5 text-cyan-400" />
+                <span className="font-semibold text-white text-sm sm:text-base">
+                  Target
+                </span>
               </div>
-              <p className="text-white text-lg font-medium">{renderTarget()}</p>
+              <p className="text-white text-sm sm:text-lg font-medium break-all">
+                {renderTarget()}
+              </p>
             </div>
 
-            <div className="bg-[#0f172a]/50 p-5 rounded-xl border border-purple-600/40 space-y-2">
-              <div className="flex items-center gap-2 text-gray-300">
+            <div className="bg-[#0f172a]/50 p-4 sm:p-5 rounded-xl border border-purple-600/40 space-y-2">
+              <div className="flex items-center gap-2 text-gray-300 text-xs sm:text-sm flex-wrap">
                 <Clock className="w-4 h-4 text-cyan-400" />
                 <span className="font-medium">Created:</span>
                 <span>{new Date(report.createdAt).toLocaleString()}</span>
               </div>
-              <div className="flex items-center gap-2 text-gray-300">
+              <div className="flex items-center gap-2 text-gray-300 text-xs sm:text-sm flex-wrap">
                 <Clock className="w-4 h-4 text-cyan-400" />
                 <span className="font-medium">Last Updated:</span>
                 <span>{new Date(report.updatedAt).toLocaleString()}</span>
@@ -228,22 +230,22 @@ export const ReportsDetail = () => {
         </div>
 
         {/* Actions */}
-        <div className="px-6 py-5 border-t border-purple-700/30 flex flex-wrap gap-4 justify-end">
+        <div className="px-4 sm:px-6 py-4 sm:py-5 border-t border-purple-700/30 flex flex-col sm:flex-row gap-3 sm:gap-4 justify-end">
           {report.status !== "resolved" && (
             <motion.button
               onClick={handleResolve}
               whileHover={{ scale: 1.05, boxShadow: "0 0 20px #00FFFF" }}
-              className="flex items-center gap-2 bg-cyan-600 hover:bg-cyan-700 text-white px-5 py-2 rounded-lg shadow-lg transition"
+              className="flex items-center justify-center gap-2 bg-cyan-600 hover:bg-cyan-700 text-white px-4 sm:px-5 py-2 rounded-lg shadow-lg transition text-sm sm:text-base"
             >
-              <CheckCircle /> Mark as Resolved
+              <CheckCircle className="w-4 h-4 sm:w-5 sm:h-5" /> Mark as Resolved
             </motion.button>
           )}
           <motion.button
             onClick={handleDelete}
             whileHover={{ scale: 1.05, boxShadow: "0 0 20px #FF0080" }}
-            className="flex items-center gap-2 bg-purple-600 hover:bg-purple-700 text-white px-5 py-2 rounded-lg shadow-lg transition"
+            className="flex items-center justify-center gap-2 bg-purple-600 hover:bg-purple-700 text-white px-4 sm:px-5 py-2 rounded-lg shadow-lg transition text-sm sm:text-base"
           >
-            <Trash2 /> Delete Report
+            <Trash2 className="w-4 h-4 sm:w-5 sm:h-5" /> Delete Report
           </motion.button>
         </div>
       </motion.div>

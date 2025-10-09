@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { motion, AnimatePresence } from "framer-motion";
 import toast from "react-hot-toast";
@@ -10,13 +10,17 @@ import {
   ChevronDown,
   ChevronUp,
   Copy,
+  Menu,
+  ArrowLeft,
 } from "lucide-react";
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import { vscDarkPlus } from "react-syntax-highlighter/dist/esm/styles/prism";
 import ReactMarkdown from "react-markdown";
 import { Spinner } from "../../../utils/Spinner";
+
 export const CourseLessons = ({ courseId: propCourseId }) => {
   const params = useParams();
+  const navigate = useNavigate();
   const courseId = propCourseId || params.courseId;
   const token = localStorage.getItem("token");
   const [lessons, setLessons] = useState([]);
@@ -27,6 +31,7 @@ export const CourseLessons = ({ courseId: propCourseId }) => {
   const [loading, setLoading] = useState(true);
   const [expandedList, setExpandedList] = useState(true);
   const [deletingId, setDeletingId] = useState(null);
+  const [sidebarOpen, setSidebarOpen] = useState(false); // mobile toggle
   const listRef = useRef(null);
 
   useEffect(() => {
@@ -56,6 +61,7 @@ export const CourseLessons = ({ courseId: propCourseId }) => {
 
   const handleSelect = (lesson) => {
     setSelected(lesson);
+    if (window.innerWidth < 768) setSidebarOpen(false); // close sidebar on mobile
     setTimeout(() => {
       const el = document.getElementById(`lesson-${lesson._id}`);
       if (el) el.scrollIntoView({ behavior: "smooth", block: "center" });
@@ -112,7 +118,6 @@ export const CourseLessons = ({ courseId: propCourseId }) => {
   };
 
   const parseContent = (content = "") => {
-    // Split content into code blocks and markdown
     const regex = /```(\w+)?\n([\s\S]*?)```/g;
     let match;
     const parts = [];
@@ -146,9 +151,23 @@ export const CourseLessons = ({ courseId: propCourseId }) => {
   }
 
   return (
-    <div className="flex h-screen bg-gradient-to-b from-gray-950 to-gray-900 text-white">
+    <div className="flex h-screen bg-gradient-to-b from-gray-950 to-gray-900 text-white relative">
+      {/* Mobile Menu Toggle */}
+      <button
+        className="md:hidden fixed top-4 left-4 z-50 p-2 bg-gray-800 rounded shadow"
+        onClick={() => setSidebarOpen((s) => !s)}
+      >
+        <Menu size={20} />
+      </button>
+
       {/* Sidebar */}
-      <aside className="w-96 border-r border-gray-800 p-6 overflow-y-auto">
+      <aside
+        className={`fixed md:static left-0 z-40 
+    ${sidebarOpen ? "translate-x-0" : "-translate-x-full"} 
+    md:translate-x-0 
+    w-72 md:w-96 bg-gray-900 border-r border-gray-800 p-6 overflow-y-auto transition-transform duration-300
+    md:top-0 top-16 h-[calc(100vh-4rem)] md:h-auto`}
+      >
         <div className="flex items-center justify-between mb-6">
           <h3 className="text-xl font-bold">Lessons</h3>
           <div className="flex items-center gap-2">
@@ -171,6 +190,7 @@ export const CourseLessons = ({ courseId: propCourseId }) => {
           </div>
         </div>
 
+        {/* Lessons List */}
         <div className="relative pl-6" ref={listRef}>
           <div className="absolute left-2 top-2 bottom-2 w-0.5 bg-gradient-to-b from-purple-500 to-cyan-400 rounded" />
           <AnimatePresence initial={false}>
@@ -242,8 +262,12 @@ export const CourseLessons = ({ courseId: propCourseId }) => {
         </div>
       </aside>
 
-      {/* Viewer */}
-      <main className="flex-1 p-8 overflow-y-auto">
+      {/* Main Content */}
+      <main
+        className={`flex-1 p-4 md:p-8 overflow-y-auto transition-all duration-300 ${
+          sidebarOpen ? "ml-0" : "ml-0"
+        }`}
+      >
         {!selected ? (
           <div className="h-full flex flex-col items-center justify-center gap-4">
             <div className="text-3xl font-semibold text-gray-200">
@@ -267,7 +291,16 @@ export const CourseLessons = ({ courseId: propCourseId }) => {
             transition={{ duration: 0.35 }}
             className="max-w-4xl mx-auto"
           >
-            <div className="flex items-start justify-between gap-4 mb-6">
+            {/* ✅ Back Button Added Here */}
+            <div className="flex flex-col sm:flex-row items-start justify-between gap-4 mb-6">
+              <button
+                onClick={() => navigate("/admin/resources")}
+                className="flex items-center gap-2 px-3 py-2 bg-gray-800 hover:bg-gray-700 rounded-lg text-sm text-gray-200 transition-colors"
+              >
+                <ArrowLeft size={16} />
+                Back to Resources
+              </button>
+
               <div>
                 <h1 className="text-3xl font-bold bg-gradient-to-r from-purple-400 to-cyan-400 bg-clip-text text-transparent">
                   {selected.title}

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import axios from "axios";
 import {
@@ -9,17 +9,23 @@ import {
   X,
   ChevronDown,
   ChevronUp,
+  ArrowLeft,
+  Menu,
 } from "lucide-react";
 import { Spinner } from "../../../utils/Spinner";
+
 export const CourseQuiz = () => {
   const token = localStorage.getItem("token");
   const { courseId } = useParams();
+  const navigate = useNavigate();
+
   const [questions, setQuestions] = useState([]);
   const [selectedQuestion, setSelectedQuestion] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [adding, setAdding] = useState(false);
   const [dropdownOpen, setDropdownOpen] = useState(true);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
   const [newQuestion, setNewQuestion] = useState({
     question: "",
     options: [
@@ -42,15 +48,11 @@ export const CourseQuiz = () => {
         const data = res.data;
         setQuestions(data.data);
 
-        // restore last viewed question if exists
         const lastViewedId = localStorage.getItem(`lastQuiz_${courseId}`);
         if (lastViewedId) {
           const found = data.data.find((q) => q._id === lastViewedId);
-          if (found) {
-            setSelectedQuestion(found);
-          } else if (data.data.length > 0) {
-            setSelectedQuestion(data.data[0]);
-          }
+          if (found) setSelectedQuestion(found);
+          else if (data.data.length > 0) setSelectedQuestion(data.data[0]);
         } else if (data.data.length > 0) {
           setSelectedQuestion(data.data[0]);
         }
@@ -64,24 +66,21 @@ export const CourseQuiz = () => {
     fetchQuestions();
   }, [courseId, token]);
 
-  // select a question & persist it
   const handleSelectQuestion = (q) => {
     setSelectedQuestion(q);
     localStorage.setItem(`lastQuiz_${courseId}`, q._id);
+    setSidebarOpen(false); // auto-close sidebar on mobile after selecting
   };
 
-  // add a new question
   const handleAddQuestion = async () => {
     try {
       const res = await axios.post(`/questions/${courseId}`, newQuestion, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+        headers: { Authorization: `Bearer ${token}` },
       });
 
       const data = res.data;
       setQuestions((prev) => [...prev, data]);
-      handleSelectQuestion(data); // auto-select new one
+      handleSelectQuestion(data);
       setAdding(false);
       setNewQuestion({
         question: "",
@@ -108,9 +107,39 @@ export const CourseQuiz = () => {
   if (error) return <div className="p-6 text-red-400">Error: {error}</div>;
 
   return (
-    <div className="flex h-screen bg-gradient-to-br from-[#0f172a] via-[#1e1b4b] to-[#0f172a] text-white">
+    <div className="flex h-screen bg-gradient-to-br from-[#0f172a] via-[#1e1b4b] to-[#0f172a] text-white relative">
+      {/* Mobile toggle button */}
+      <button
+        onClick={() => setSidebarOpen(true)}
+        className="md:hidden fixed top-4 left-4 z-50 bg-purple-600 hover:bg-purple-700 p-2 rounded-lg shadow-lg"
+      >
+        <Menu size={20} />
+      </button>
+
       {/* Sidebar */}
-      <aside className="w-1/4 p-4 flex flex-col border-r border-gray-700">
+      <aside
+        className={`fixed md:static inset-y-0 left-0 w-64 p-4 flex flex-col border-r border-gray-700 bg-[#0f172a] z-40 transition-transform duration-300 
+        ${sidebarOpen ? "translate-x-0" : "-translate-x-full"} 
+        md:translate-x-0`}
+      >
+        {/* Close on mobile */}
+        <div className="flex justify-between items-center mb-4 md:hidden">
+          <h2 className="text-lg font-semibold">Quiz Menu</h2>
+          <button
+            onClick={() => setSidebarOpen(false)}
+            className="text-gray-400 hover:text-white"
+          >
+            <X size={20} />
+          </button>
+        </div>
+
+        <button
+          onClick={() => navigate("/admin/resources")}
+          className="mb-4 flex items-center justify-center gap-2 w-full bg-cyan-600 hover:bg-cyan-700 text-white py-2 px-4 rounded-lg shadow-lg shadow-cyan-500/30 hover:scale-105 active:scale-95 transition"
+        >
+          <ArrowLeft size={18} /> Back to Resources
+        </button>
+
         <button
           onClick={() => setAdding(true)}
           className="mb-4 flex items-center justify-center gap-2 w-full bg-purple-600 hover:bg-purple-700 text-white py-2 px-4 rounded-lg shadow-lg shadow-purple-500/30 hover:scale-105 active:scale-95 transition"
@@ -162,16 +191,23 @@ export const CourseQuiz = () => {
         </AnimatePresence>
       </aside>
 
+      {/* Overlay for mobile */}
+      {sidebarOpen && (
+        <div
+          className="fixed inset-0 bg-black/50 z-30 md:hidden"
+          onClick={() => setSidebarOpen(false)}
+        ></div>
+      )}
+
       {/* Main Content */}
-      <main className="flex-1 p-6 overflow-y-auto">
+      <main className="flex-1 p-4 sm:p-6 overflow-y-auto mt-8 md:mt-0">
         {adding ? (
-          /* Add Question Form */
           <motion.div
             key="add-form"
             initial={{ opacity: 0, y: 15 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 15 }}
-            className="space-y-5 max-w-2xl mx-auto bg-gray-800/80 backdrop-blur-lg p-8 rounded-2xl shadow-xl border border-gray-700"
+            className="space-y-5 max-w-2xl mx-auto bg-gray-800/80 backdrop-blur-lg p-6 sm:p-8 rounded-2xl shadow-xl border border-gray-700"
           >
             <div className="flex justify-between items-center mb-2">
               <h2 className="text-2xl font-bold bg-gradient-to-r from-purple-400 to-cyan-400 bg-clip-text text-transparent">
@@ -187,7 +223,7 @@ export const CourseQuiz = () => {
 
             <input
               type="text"
-              placeholder="Enter your question here..."
+              placeholder="Enter your question..."
               value={newQuestion.question}
               onChange={(e) =>
                 setNewQuestion({ ...newQuestion, question: e.target.value })
@@ -210,7 +246,7 @@ export const CourseQuiz = () => {
                       updated[i].text = e.target.value;
                       setNewQuestion({ ...newQuestion, options: updated });
                     }}
-                    className="flex-1 bg-transparent outline-none p-2"
+                    className="flex-1 bg-transparent outline-none p-2 text-sm sm:text-base"
                   />
                   <label className="flex items-center gap-1 text-xs text-gray-300 cursor-pointer">
                     <input
@@ -253,15 +289,14 @@ export const CourseQuiz = () => {
             </motion.button>
           </motion.div>
         ) : selectedQuestion ? (
-          /* Selected Question View */
           <motion.div
             key={selectedQuestion._id}
             initial={{ opacity: 0, y: 15 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.25 }}
-            className="max-w-2xl mx-auto bg-gray-800/80 backdrop-blur-lg p-6 rounded-2xl shadow-lg border border-gray-700"
+            className="max-w-2xl mx-auto bg-gray-800/80 backdrop-blur-lg p-6 sm:p-8 rounded-2xl shadow-lg border border-gray-700"
           >
-            <h2 className="text-xl font-bold mb-4 text-purple-300">
+            <h2 className="text-xl sm:text-2xl font-bold mb-4 text-purple-300">
               {selectedQuestion.question}
             </h2>
             <ul className="space-y-2">
@@ -279,7 +314,7 @@ export const CourseQuiz = () => {
                   ) : (
                     <Circle size={18} className="text-gray-400" />
                   )}
-                  <span>{opt.text}</span>
+                  <span className="text-sm sm:text-base">{opt.text}</span>
                 </li>
               ))}
             </ul>
