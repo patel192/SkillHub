@@ -1,6 +1,14 @@
 import React, { useState } from "react";
 import { motion } from "framer-motion";
-import { ArrowRight, Menu, X, Check, Zap, Rocket } from "lucide-react";
+import {
+  ArrowRight,
+  Menu,
+  X,
+  Check,
+  Zap,
+  Rocket,
+  ArrowLeft,
+} from "lucide-react";
 import { Link as ScrollLink } from "react-scroll";
 import { Link } from "react-router-dom";
 
@@ -11,19 +19,34 @@ const HERO_IMAGE =
 // ====== Features Cards =====
 const FEATURES = [
   {
-    title: "AI-Personalized Learning",
-    desc: "Adaptive learning paths tailored to your skills and goals.",
-    img: "https://images.unsplash.com/photo-1581092160611-8ec0fa5d9ef0?crop=entropy&cs=tinysrgb&fit=crop&w=1200&q=80",
+    title: "Skill-Based Courses",
+    desc: "Learn structured lessons curated by domain experts.",
+    img: "https://images.unsplash.com/photo-1584697964403-df1c8a88c6d5?auto=format&fit=crop&w=1200&q=80",
   },
   {
-    title: "Mentor-Led Projects",
-    desc: "Build real projects and get expert reviews.",
-    img: "https://images.unsplash.com/photo-1581090700221-1f83097e8ed3?crop=entropy&cs=tinysrgb&fit=crop&w=1200&q=80",
+    title: "Learning Paths",
+    desc: "Follow step-by-step guided tracks for each technology.",
+    img: "https://images.unsplash.com/photo-1531493241285-3381b0a4e80d?auto=format&fit=crop&w=1200&q=80",
   },
   {
-    title: "Career Insights",
-    desc: "Get role-based career paths and salary benchmarks.",
-    img: "https://images.unsplash.com/photo-1526378720743-3f4b0b4c7b4b?crop=entropy&cs=tinysrgb&fit=crop&w=1200&q=80",
+    title: "Interactive Notes",
+    desc: "Community-powered notes, examples, and explanations.",
+    img: "https://images.unsplash.com/photo-1554232456-8727aae0c472?auto=format&fit=crop&w=1200&q=80",
+  },
+  {
+    title: "Progress Tracking",
+    desc: "Monitor your skill growth with visual progress analytics.",
+    img: "https://images.unsplash.com/photo-1556157382-97eda2d62296?auto=format&fit=crop&w=1200&q=80",
+  },
+  {
+    title: "AI Skill Suggestions",
+    desc: "Receive personalised course & skill recommendations.",
+    img: "https://images.unsplash.com/photo-1507842217343-583bb7270b66?auto=format&fit=crop&w=1200&q=80",
+  },
+  {
+    title: "Course Bookmarks",
+    desc: "Save lessons & courses to revisit anytime.",
+    img: "https://images.unsplash.com/photo-1521939094609-93aba1af40d7?auto=format&fit=crop&w=1200&q=80",
   },
 ];
 
@@ -236,52 +259,96 @@ export const PublicLayout = () => {
         </div>
       </section>
 
-      {/* ===== Features ===== */}
-      <section id="features" className="py-20 px-6 max-w-6xl mx-auto">
+      {/* ===== Modern Infinite Scrolling Features ===== */}
+      <section id="features" className="py-20 px-6 max-w-7xl mx-auto relative">
         <h2 className="text-3xl md:text-4xl font-bold text-center mb-12">
-          Features
+          Explore Platform Features
         </h2>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          {FEATURES.map((f, i) => (
-            <motion.div
-              key={i}
-              whileHover={{ scale: 1.03 }}
-              className="bg-[#12192E]/80 border border-purple-500/10 rounded-2xl overflow-hidden shadow-lg flex flex-col"
-            >
-              <div className="h-48 overflow-hidden">
-                <img
-                  src={f.img}
-                  alt={f.title}
-                  className="w-full h-full object-cover"
-                />
-              </div>
-              <div className="p-6 flex flex-col flex-1">
-                <h3 className="text-xl font-semibold mb-2">{f.title}</h3>
-                <p className="text-gray-300 flex-1">{f.desc}</p>
-                <button className="mt-4 inline-flex items-center gap-2 px-4 py-2 rounded-full bg-purple-600 hover:bg-purple-700 text-sm shadow">
-                  Explore <ArrowRight size={14} />
-                </button>
-              </div>
-            </motion.div>
-          ))}
-        </div>
-      </section>
 
-      {/* ===== Skills ===== */}
-      <section id="skills" className="py-20 px-6 max-w-6xl mx-auto">
-        <h2 className="text-3xl md:text-4xl font-bold text-center mb-12">
-          Skills You’ll Acquire
-        </h2>
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-8">
-          {SKILLS.map((skill) => (
-            <div key={skill.name} className="flex flex-col items-center gap-2">
-              <div className="w-20 h-20 flex items-center justify-center bg-[#111827] rounded-xl border border-purple-500/10 shadow-lg hover:scale-105 transition-transform">
-                <img src={skill.img} alt={skill.name} className="w-10 h-10" />
-              </div>
-              <p className="text-sm mt-2">{skill.name}</p>
-            </div>
-          ))}
+        {/* Left Arrow */}
+        <button
+          onClick={() =>
+            document
+              .getElementById("featureTrack")
+              .scrollBy({ left: -300, behavior: "smooth" })
+          }
+          className="hidden md:flex absolute left-0 top-1/2 -translate-y-1/2 z-20 
+               bg-[#0F172A]/70 border border-purple-500/20 text-white 
+               p-3 rounded-full backdrop-blur-md hover:bg-purple-600/20"
+        >
+          <ArrowLeft size={20} />
+        </button>
+
+        {/* Right Arrow */}
+        <button
+          onClick={() =>
+            document
+              .getElementById("featureTrack")
+              .scrollBy({ left: 300, behavior: "smooth" })
+          }
+          className="hidden md:flex absolute right-0 top-1/2 -translate-y-1/2 z-20 
+               bg-[#0F172A]/70 border border-purple-500/20 text-white 
+               p-3 rounded-full backdrop-blur-md hover:bg-purple-600/20"
+        >
+          <ArrowRight size={20} />
+        </button>
+
+        {/* Infinite Scrolling Container */}
+        <div className="overflow-hidden relative mt-6">
+          <div
+            id="featureTrack"
+            className="flex gap-6 overflow-x-scroll scrollbar-hide snap-x snap-mandatory"
+            style={{
+              scrollBehavior: "smooth",
+            }}
+          >
+            {[...FEATURES, ...FEATURES].map((f, idx) => (
+              <motion.div
+                key={idx}
+                whileHover={{ scale: 1.04 }}
+                className="min-w-[280px] bg-[#12192E]/80 border border-purple-500/10 
+                     rounded-2xl shadow-lg flex-shrink-0 overflow-hidden snap-center"
+              >
+                <div className="h-40 w-full overflow-hidden">
+                  <img
+                    src={f.img}
+                    alt={f.title}
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+
+                <div className="p-5">
+                  <h3 className="text-lg font-semibold mb-2">{f.title}</h3>
+                  <p className="text-gray-300 text-sm">{f.desc}</p>
+                  <button
+                    className="mt-4 inline-flex items-center gap-2 px-4 py-2 rounded-full 
+                               bg-purple-600 hover:bg-purple-700 text-sm shadow transition"
+                  >
+                    Explore
+                    <ArrowRight size={14} />
+                  </button>
+                </div>
+              </motion.div>
+            ))}
+          </div>
         </div>
+
+        {/* Infinite Loop Animation */}
+        <style>
+          {`
+      #featureTrack {
+        animation: scrollLoop 35s linear infinite;
+      }
+      #featureTrack:hover {
+        animation-play-state: paused;
+      }
+
+      @keyframes scrollLoop {
+        0% { transform: translateX(0); }
+        100% { transform: translateX(-50%); }
+      }
+    `}
+        </style>
       </section>
 
       {/* ===== Signup Guide ===== */}
@@ -338,6 +405,22 @@ export const PublicLayout = () => {
         </div>
       </section>
 
+      {/* ===== Skills ===== */}
+      <section id="skills" className="py-20 px-6 max-w-6xl mx-auto">
+        <h2 className="text-3xl md:text-4xl font-bold text-center mb-12">
+          Skills You’ll Acquire
+        </h2>
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-8">
+          {SKILLS.map((skill) => (
+            <div key={skill.name} className="flex flex-col items-center gap-2">
+              <div className="w-20 h-20 flex items-center justify-center bg-[#111827] rounded-xl border border-purple-500/10 shadow-lg hover:scale-105 transition-transform">
+                <img src={skill.img} alt={skill.name} className="w-10 h-10" />
+              </div>
+              <p className="text-sm mt-2">{skill.name}</p>
+            </div>
+          ))}
+        </div>
+      </section>
       {/* ===== Footer ===== */}
       <footer className="py-8 text-center text-gray-400 border-t border-purple-500/20">
         © 2025 SkillHub — Empowering Future Innovators.
