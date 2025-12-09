@@ -1,56 +1,65 @@
-import React, { useState } from "react";
-import { motion } from "framer-motion";
-import {
-  ArrowRight,
-  Menu,
-  X,
-  Check,
-  Zap,
-  Rocket,
-  ArrowLeft,
-} from "lucide-react";
-import { Link as ScrollLink } from "react-scroll";
+import React, { useRef, useState, useEffect } from "react";
 import { Link } from "react-router-dom";
+import { Link as ScrollLink } from "react-scroll";
+import { Menu, X, ArrowRight } from "lucide-react";
+import {
+  motion,
+  useMotionValue,
+  useTransform,
+  useViewportScroll,
+} from "framer-motion";
 
-// ====== Hero Section Image =====
-const HERO_IMAGE =
-  "https://images.unsplash.com/photo-1612831455546-6f1e1d3f2c2d?crop=entropy&cs=tinysrgb&fit=crop&w=1600&q=80";
+/**
+ * PublicLayout - Option C (3D Hero + Scroll Animations)
+ *
+ * Notes:
+ * - Optional Lottie: dynamically imported (won't crash if not installed)
+ * - Uses framer-motion for all animations
+ * - Uses Tailwind utility classes (Tailwind v2+/v3+)
+ */
 
-// ====== Features Cards =====
 const FEATURES = [
   {
-    title: "Skill-Based Courses",
-    desc: "Learn structured lessons curated by domain experts.",
-    img: "https://images.unsplash.com/photo-1584697964403-df1c8a88c6d5?auto=format&fit=crop&w=1200&q=80",
+    title: "Project-Driven Courses",
+    desc: "Hands-on projects that build a portfolio recruiters notice.",
+    icon: "🚀",
   },
   {
-    title: "Learning Paths",
-    desc: "Follow step-by-step guided tracks for each technology.",
-    img: "https://images.unsplash.com/photo-1531493241285-3381b0a4e80d?auto=format&fit=crop&w=1200&q=80",
+    title: "Guided Learning Paths",
+    desc: "Structured progression from fundamentals to mastery.",
+    icon: "🧭",
   },
   {
-    title: "Interactive Notes",
-    desc: "Community-powered notes, examples, and explanations.",
-    img: "https://images.unsplash.com/photo-1554232456-8727aae0c472?auto=format&fit=crop&w=1200&q=80",
-  },
-  {
-    title: "Progress Tracking",
-    desc: "Monitor your skill growth with visual progress analytics.",
-    img: "https://images.unsplash.com/photo-1556157382-97eda2d62296?auto=format&fit=crop&w=1200&q=80",
-  },
-  {
-    title: "AI Skill Suggestions",
-    desc: "Receive personalised course & skill recommendations.",
-    img: "https://images.unsplash.com/photo-1507842217343-583bb7270b66?auto=format&fit=crop&w=1200&q=80",
-  },
-  {
-    title: "Course Bookmarks",
-    desc: "Save lessons & courses to revisit anytime.",
-    img: "https://images.unsplash.com/photo-1521939094609-93aba1af40d7?auto=format&fit=crop&w=1200&q=80",
+    title: "AI-Powered Suggestions",
+    desc: "Smart recommendations to keep you on track.",
+    icon: "🤖",
   },
 ];
 
-// ====== Skills =====
+const STEPS = [
+  { title: "Sign Up", desc: "Create your account in 30 seconds." },
+  { title: "Pick a Path", desc: "Choose the right path for your goals." },
+  { title: "Ship Projects", desc: "Build and publish real apps." },
+];
+
+const BENEFITS = [
+  {
+    title: "Mentor Reviews",
+    desc: "Get expert feedback and accelerate progress.",
+    img: "https://images.unsplash.com/photo-1522071820081-009f0129c71c?auto=format&fit=crop&w=1200&q=80",
+  },
+  {
+    title: "Community",
+    desc: "Join study groups, pair programming and reviews.",
+    img: "https://images.unsplash.com/photo-1521737604893-d14cc237f11d?auto=format&fit=crop&w=1200&q=80",
+  },
+  {
+    title: "Verified Certificates",
+    desc: "Share credentials with employers and LinkedIn.",
+    img: "https://images.unsplash.com/photo-1519389950473-47ba0277781c?auto=format&fit=crop&w=1200&q=80",
+  },
+];
+
 const SKILLS = [
   {
     name: "HTML",
@@ -77,356 +86,596 @@ const SKILLS = [
     img: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/mongodb/mongodb-original.svg",
   },
   {
-    name: "Firebase",
-    img: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/firebase/firebase-plain.svg",
-  },
-  {
-    name: "Tailwind",
-    img: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/tailwindcss/tailwindcss-original.svg",
+    name: "Tailwind CSS",
+    img: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/tailwindcss/tailwindcss-plain.svg",
   },
   {
     name: "Git",
     img: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/git/git-original.svg",
   },
-  {
-    name: "Redux",
-    img: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/redux/redux-original.svg",
-  },
-  {
-    name: "Figma",
-    img: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/figma/figma-original.svg",
-  },
-  {
-    name: "Next.js",
-    img: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/nextjs/nextjs-original.svg",
-  },
-];
-
-// ====== Signup Guide =====
-const STEPS = [
-  { title: "Create Account", desc: "Sign up quickly and fill your profile." },
-  { title: "Choose Path", desc: "Select a learning path or skill assessment." },
-  {
-    title: "Start Project",
-    desc: "Join a mentor-led project and get reviews.",
-  },
-];
-
-// ====== Benefits =====
-const BENEFITS = [
-  {
-    title: "Hands-on Projects",
-    desc: "Practice by building real projects.",
-    img: "https://images.unsplash.com/photo-1605902711622-cfb43c4431f5?crop=entropy&cs=tinysrgb&fit=crop&w=1200&q=80",
-  },
-  {
-    title: "Community Support",
-    desc: "Peer reviews, study groups, and mentor office hours.",
-    img: "https://images.unsplash.com/photo-1581090700221-1f83097e8ed3?crop=entropy&cs=tinysrgb&fit=crop&w=1200&q=80",
-  },
-  {
-    title: "Verified Certificates",
-    desc: "Earn shareable certificates trusted by employers.",
-    img: "https://images.unsplash.com/photo-1605902711622-1fbcf3c5d3e1?crop=entropy&cs=tinysrgb&fit=crop&w=1200&q=80",
-  },
 ];
 
 export const PublicLayout = () => {
   const [menuOpen, setMenuOpen] = useState(false);
+  const [LottieAnim, setLottieAnim] = useState(null);
+  const heroRef = useRef(null);
+
+  // Motion values for cursor parallax
+  const x = useMotionValue(0);
+  const y = useMotionValue(0);
+  const rotateX = useTransform(y, [-60, 60], [15, -15]);
+  const rotateY = useTransform(x, [-60, 60], [-15, 15]);
+  const translateX = useTransform(x, [-60, 60], [-12, 12]);
+  const translateY = useTransform(y, [-60, 60], [-12, 12]);
+
+  // Scroll-based transform for subtle parallax on background layers
+  const { scrollY } = useViewportScroll();
+  const bgParallax = useTransform(scrollY, [0, 900], [0, -120]);
+
+  // Try dynamic import of lottie-react (optional)
+  useEffect(() => {
+    let mounted = true;
+    import("lottie-react")
+      .then((mod) => {
+        if (mounted) setLottieAnim(() => mod.default);
+      })
+      .catch(() => {
+        // lottie-react not installed; fallback will be used
+      });
+    return () => (mounted = false);
+  }, []);
+
+  // mouse move for hero area
+  const handleMouseMoveHero = (e) => {
+    if (!heroRef.current) return;
+    const rect = heroRef.current.getBoundingClientRect();
+    const mx = e.clientX - (rect.left + rect.width / 2);
+    const my = e.clientY - (rect.top + rect.height / 2);
+    x.set(mx / 8);
+    y.set(my / 8);
+  };
+
+  // Reset on leave
+  const handleMouseLeaveHero = () => {
+    x.set(0);
+    y.set(0);
+  };
+
   return (
-    <div className="min-h-screen bg-[#0B1220] text-white">
-      {/* ===== Navbar ===== */}
-      <header className="fixed top-0 left-0 w-full z-50 bg-[#0B1220]/80 backdrop-blur-xl border-b border-purple-500/20">
-        <div className="max-w-7xl mx-auto flex justify-between items-center px-6 py-4">
-          <h1 className="text-3xl font-extrabold bg-gradient-to-r from-purple-400 via-pink-400 to-blue-400 bg-clip-text text-transparent">
-            SkillHub
-          </h1>
-          <div className="hidden md:flex items-center space-x-8 text-sm font-medium">
+    <div className="min-h-screen bg-gradient-to-b from-[#06070a] via-[#0a0b0f] to-[#071018] text-white antialiased">
+      {/* NAV */}
+      <header className="fixed top-0 left-0 w-full z-50 bg-transparent">
+        <div className="max-w-7xl mx-auto px-6 py-5 flex items-center justify-between">
+          <Link to="/" className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-pink-500 via-indigo-600 to-cyan-400 shadow-lg flex items-center justify-center">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+                <path
+                  d="M4 12h16M12 4v16"
+                  stroke="white"
+                  strokeWidth="1.2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+              </svg>
+            </div>
+            <span className="font-bold text-lg tracking-tight">SkillHub</span>
+          </Link>
+
+          <nav className="hidden md:flex items-center gap-8 text-sm text-gray-300">
             <ScrollLink
               to="features"
               smooth
-              className="cursor-pointer hover:text-purple-400"
+              className="hover:text-white cursor-pointer"
             >
               Features
+            </ScrollLink>
+            <ScrollLink
+              to="how"
+              smooth
+              className="hover:text-white cursor-pointer"
+            >
+              How it works
             </ScrollLink>
             <ScrollLink
               to="skills"
               smooth
-              className="cursor-pointer hover:text-purple-400"
+              className="hover:text-white cursor-pointer"
             >
               Skills
             </ScrollLink>
-            <ScrollLink
-              to="signup"
-              smooth
-              className="cursor-pointer hover:text-purple-400"
+            <Link to="/login" className="hover:text-white">
+              Login
+            </Link>
+            <Link
+              to="/signup"
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-md bg-white text-black font-medium shadow"
             >
-              Signup
-            </ScrollLink>
+              Get Started <ArrowRight size={14} />
+            </Link>
+          </nav>
+
+          <div className="md:hidden">
+            <button
+              onClick={() => setMenuOpen((s) => !s)}
+              aria-label="toggle menu"
+              className="p-2"
+            >
+              {menuOpen ? <X size={22} /> : <Menu size={22} />}
+            </button>
           </div>
-          <button onClick={() => setMenuOpen(!menuOpen)} className="md:hidden">
-            {menuOpen ? <X size={28} /> : <Menu size={28} />}
-          </button>
         </div>
+
         {menuOpen && (
-          <div className="md:hidden flex flex-col px-6 pb-6 space-y-4 bg-[#0B1220]/95">
-            <ScrollLink to="features" smooth onClick={() => setMenuOpen(false)}>
-              Features
-            </ScrollLink>
-            <ScrollLink to="skills" smooth onClick={() => setMenuOpen(false)}>
-              Skills
-            </ScrollLink>
-            <ScrollLink to="signup" smooth onClick={() => setMenuOpen(false)}>
-              Signup
-            </ScrollLink>
+          <div className="md:hidden px-6 pb-6 pt-2 bg-[#05060a] border-t border-white/6">
+            <div className="flex flex-col gap-3 text-gray-300">
+              <ScrollLink
+                onClick={() => setMenuOpen(false)}
+                to="features"
+                smooth
+              >
+                Features
+              </ScrollLink>
+              <ScrollLink onClick={() => setMenuOpen(false)} to="how" smooth>
+                How it works
+              </ScrollLink>
+              <ScrollLink onClick={() => setMenuOpen(false)} to="skills" smooth>
+                Skills
+              </ScrollLink>
+              <Link to="/login" onClick={() => setMenuOpen(false)}>
+                Login
+              </Link>
+              <Link
+                to="/signup"
+                onClick={() => setMenuOpen(false)}
+                className="mt-2 inline-block px-4 py-2 rounded-md bg-white text-black"
+              >
+                Get Started
+              </Link>
+            </div>
           </div>
         )}
       </header>
 
-      {/* ===== Hero Section ===== */}
-      <section className="pt-24 relative w-full h-screen flex items-center bg-[#0B1220] overflow-hidden">
-        <div className="container mx-auto px-6 flex flex-col-reverse md:flex-row items-center justify-between h-full">
-          {/* Left: Text */}
-          <div className="w-full md:w-1/2 text-center md:text-left space-y-6 z-10">
-            <h1 className="text-4xl md:text-6xl font-bold bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent">
-              Upgrade Your Skills with SkillHub
-            </h1>
-            <p className="text-gray-300 text-lg leading-relaxed">
-              SkillHub is your gateway to{" "}
-              <span className="text-white font-semibold">
-                mastering modern tech skills
-              </span>
-              . Engage in{" "}
-              <span className="text-white font-semibold">
-                hands-on projects
-              </span>
-              , receive guidance from{" "}
-              <span className="text-white font-semibold">expert mentors</span>,
-              and follow{" "}
-              <span className="text-white font-semibold">
-                AI-personalized learning paths
-              </span>{" "}
-              that adapt to your goals. Explore{" "}
-              <span className="text-white font-semibold">
-                career-ready courses
-              </span>
-              , gain{" "}
-              <span className="text-white font-semibold">
-                real-world experience
-              </span>
-              , and earn{" "}
-              <span className="text-white font-semibold">
-                verified certificates
-              </span>{" "}
-              to showcase your achievements. Whether you’re starting fresh or
-              leveling up, SkillHub helps you accelerate your career growth with
-              clarity and purpose.
-            </p>
-            <div className="flex justify-center md:justify-start gap-4 mt-6">
-              <ScrollLink
-                to="signup"
-                smooth
-                className="px-6 py-3 bg-blue-600 hover:bg-blue-700 rounded-full shadow-lg cursor-pointer transition"
-              >
-                Get Started
-              </ScrollLink>
-              <ScrollLink
-                to="features"
-                smooth
-                className="px-6 py-3 border border-blue-500 hover:bg-blue-500/10 rounded-full cursor-pointer transition"
-              >
-                Learn More
-              </ScrollLink>
-            </div>
-          </div>
+      {/* HERO */}
+      <main className="pt-24">
+        <section className="relative overflow-hidden">
+          {/* background soft gradient blobs (parallax) */}
+          <motion.div
+            style={{ y: bgParallax }}
+            className="pointer-events-none absolute -left-[10%] -top-32 w-[60vw] h-[60vh] rounded-full bg-gradient-to-tr from-pink-500/20 via-violet-600/18 to-cyan-400/10 blur-3xl"
+          />
+          <motion.div
+            style={{ y: bgParallax }}
+            className="pointer-events-none absolute right-0 top-0 w-[40vw] h-[40vh] rounded-full bg-gradient-to-tr from-cyan-400/12 to-indigo-600/14 blur-3xl"
+          />
 
-          {/* Right: Hero Image */}
-          <div className="w-full md:w-1/2 flex justify-center mb-8 md:mb-0 relative">
-            <img
-              src="public/Untitled.png"
-              alt="Intro Illustration"
-              className="w-full h-[400px] md:h-[500px] lg:h-[600px] object-cover rounded-xl filter brightness-75 contrast-90"
-            />
+          <div className="max-w-7xl mx-auto px-6 py-28 grid md:grid-cols-2 gap-12 items-center">
+            {/* left column: heading & CTA */}
+            <motion.div
+              initial={{ opacity: 0, x: -30 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.6 }}
+              className="space-y-6 z-10"
+            >
+              <h1 className="text-4xl md:text-5xl font-extrabold leading-tight">
+                Learn by building —{" "}
+                <span className="bg-clip-text text-transparent bg-gradient-to-r from-pink-400 via-indigo-400 to-cyan-300">
+                  projects that matter
+                </span>
+              </h1>
 
-            {/* Overlay gradient to blend edges */}
-            <div className="absolute inset-0 bg-gradient-to-l from-[#0B1220] via-transparent to-[#0B1220] pointer-events-none rounded-xl"></div>
+              <p className="text-gray-300 text-lg max-w-xl">
+                SkillHub combines guided paths, mentor reviews, and hands-on
+                projects into a single, beautiful learning environment. Build
+                portfolio-grade projects while learning modern tools.
+              </p>
 
-            {/* Optional blurred abstract shapes for seamless transition */}
-            <div className="absolute -top-16 -right-16 w-40 h-40 bg-purple-500/20 rounded-full blur-3xl"></div>
-            <div className="absolute bottom-0 left-0 w-56 h-56 bg-blue-500/20 rounded-full blur-3xl"></div>
-            <div className="absolute top-0 left-1/2 w-72 h-72 bg-cyan-500/10 rounded-full blur-3xl"></div>
-          </div>
-        </div>
-      </section>
+              <div className="flex items-center gap-4">
+                <Link
+                  to="/signup"
+                  className="inline-flex items-center gap-2 px-5 py-3 rounded-full bg-gradient-to-r from-pink-500 to-indigo-600 shadow-lg transform-gpu hover:scale-[1.02] transition"
+                >
+                  Start Free <ArrowRight size={14} />
+                </Link>
 
-      {/* ===== Modern Infinite Scrolling Features ===== */}
-      <section id="features" className="py-20 px-6 max-w-7xl mx-auto relative">
-        <h2 className="text-3xl md:text-4xl font-bold text-center mb-12">
-          Explore Platform Features
-        </h2>
+                <ScrollLink
+                  to="features"
+                  smooth
+                  className="px-4 py-2 rounded-full border border-white/10 text-gray-200 hover:border-white/30 cursor-pointer"
+                >
+                  Explore features
+                </ScrollLink>
+              </div>
 
-        {/* Left Arrow */}
-        <button
-          onClick={() =>
-            document
-              .getElementById("featureTrack")
-              .scrollBy({ left: -300, behavior: "smooth" })
-          }
-          className="hidden md:flex absolute left-0 top-1/2 -translate-y-1/2 z-20 
-               bg-[#0F172A]/70 border border-purple-500/20 text-white 
-               p-3 rounded-full backdrop-blur-md hover:bg-purple-600/20"
-        >
-          <ArrowLeft size={20} />
-        </button>
+              {/* micro stats */}
+              <div className="flex items-center gap-6 text-sm text-gray-400 mt-4">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-md bg-[#0b0b0d] flex items-center justify-center border border-white/6">
+                    🔥
+                  </div>
+                  <div>
+                    <div className="text-white font-semibold">120k+</div>
+                    <div className="text-gray-400">Learners</div>
+                  </div>
+                </div>
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-md bg-[#0b0b0d] flex items-center justify-center border border-white/6">
+                    🏆
+                  </div>
+                  <div>
+                    <div className="text-white font-semibold">50k+</div>
+                    <div className="text-gray-400">Certificates</div>
+                  </div>
+                </div>
+              </div>
+            </motion.div>
 
-        {/* Right Arrow */}
-        <button
-          onClick={() =>
-            document
-              .getElementById("featureTrack")
-              .scrollBy({ left: 300, behavior: "smooth" })
-          }
-          className="hidden md:flex absolute right-0 top-1/2 -translate-y-1/2 z-20 
-               bg-[#0F172A]/70 border border-purple-500/20 text-white 
-               p-3 rounded-full backdrop-blur-md hover:bg-purple-600/20"
-        >
-          <ArrowRight size={20} />
-        </button>
-
-        {/* Infinite Scrolling Container */}
-        <div className="overflow-hidden relative mt-6">
-          <div
-            id="featureTrack"
-            className="flex gap-6 overflow-x-scroll scrollbar-hide snap-x snap-mandatory"
-            style={{
-              scrollBehavior: "smooth",
-            }}
-          >
-            {[...FEATURES, ...FEATURES].map((f, idx) => (
+            {/* right column: 3D-ish product mockup with layered elements */}
+            <motion.div
+              ref={heroRef}
+              onMouseMove={handleMouseMoveHero}
+              onMouseLeave={handleMouseLeaveHero}
+              style={{ perspective: 1200 }}
+              className="relative"
+            >
+              {/* layered floating cards */}
               <motion.div
-                key={idx}
-                whileHover={{ scale: 1.04 }}
-                className="min-w-[280px] bg-[#12192E]/80 border border-purple-500/10 
-                     rounded-2xl shadow-lg flex-shrink-0 overflow-hidden snap-center"
+                style={{ rotateX, rotateY, translateX, translateY }}
+                whileHover={{ scale: 1.02 }}
+                transition={{ type: "spring", stiffness: 120, damping: 14 }}
+                className="relative w-full max-w-xl mx-auto"
               >
-                <div className="h-40 w-full overflow-hidden">
-                  <img
-                    src={f.img}
-                    alt={f.title}
-                    className="w-full h-full object-cover"
-                  />
+                {/* back glass plate */}
+                <div className="absolute -left-8 -top-10 w-[360px] h-[220px] rounded-2xl bg-white/2 blur-[46px] opacity-10 transform-gpu rotate-6" />
+
+                {/* main card */}
+                <div className="relative rounded-2xl bg-gradient-to-b from-[#07070a]/80 to-[#0b0b0d]/85 border border-white/6 shadow-2xl overflow-hidden">
+                  <div className="p-5 flex items-center justify-between border-b border-white/6">
+                    <div>
+                      <div className="text-xs text-gray-400">Course</div>
+                      <div className="text-lg font-semibold">
+                        Full Stack Capstone
+                      </div>
+                    </div>
+                    <div className="text-sm text-gray-300">
+                      Progress{" "}
+                      <span className="text-white font-medium">62%</span>
+                    </div>
+                  </div>
+
+                  <div className="p-5">
+                    {/* Lottie or fallback animated SVG */}
+                    <div className="h-44 rounded-md overflow-hidden bg-gradient-to-br from-[#0b0d12] to-[#061018] flex items-center justify-center">
+                      {LottieAnim ? (
+                        <motion.div
+                          initial={{ opacity: 0 }}
+                          animate={{ opacity: 1 }}
+                          className="w-full h-full"
+                        >
+                          {/* small example Lottie JSON URL: (you can replace with your own JSON) */}
+                          <LottieWrapper LottieAnim={LottieAnim} />
+                        </motion.div>
+                      ) : (
+                        <motion.img
+                          src="https://images.unsplash.com/photo-1521747116042-5a810fda9664?auto=format&fit=crop&w=1200&q=80"
+                          alt="preview"
+                          className="object-cover w-full h-full opacity-95"
+                          initial={{ scale: 1.02 }}
+                          animate={{ scale: 1 }}
+                          transition={{ duration: 0.8 }}
+                        />
+                      )}
+                    </div>
+
+                    <div className="mt-4 grid grid-cols-2 gap-3">
+                      <div className="p-3 rounded-md bg-[#07080a] border border-white/6">
+                        <div className="text-xs text-gray-400">Next</div>
+                        <div className="text-sm text-white font-medium mt-1">
+                          API Authentication
+                        </div>
+                      </div>
+                      <div className="p-3 rounded-md bg-[#07080a] border border-white/6">
+                        <div className="text-xs text-gray-400">Due</div>
+                        <div className="text-sm text-white font-medium mt-1">
+                          Tomorrow
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="mt-4 flex gap-3">
+                      <button className="flex-1 px-4 py-3 rounded-md bg-gradient-to-r from-pink-500 to-indigo-600">
+                        Continue
+                      </button>
+                      <button className="px-4 py-3 rounded-md border border-white/8 text-gray-200">
+                        View
+                      </button>
+                    </div>
+                  </div>
                 </div>
 
+                {/* floating icon bubbles */}
+                <motion.div
+                  initial={{ y: -10, opacity: 0 }}
+                  animate={{ y: 0, opacity: 1 }}
+                  transition={{ delay: 0.2 }}
+                  className="absolute -right-8 -top-6 w-12 h-12 rounded-full bg-gradient-to-br from-yellow-400 to-orange-400 flex items-center justify-center text-sm shadow-lg"
+                >
+                  ✦
+                </motion.div>
+                <motion.div
+                  initial={{ y: 8, opacity: 0 }}
+                  animate={{ y: 0, opacity: 1 }}
+                  transition={{ delay: 0.25 }}
+                  className="absolute left-3 -bottom-6 w-14 h-14 rounded-full bg-gradient-to-br from-cyan-400 to-indigo-500 flex items-center justify-center text-sm shadow-lg"
+                >
+                  ⚡
+                </motion.div>
+              </motion.div>
+
+              {/* subtle 3D reflection layer */}
+              <motion.div
+                style={{ translateY: useTransform(y, (v) => v * 0.06) }}
+                className="w-full h-2 mt-6 rounded-full bg-gradient-to-r from-white/6 to-transparent opacity-6"
+              />
+            </motion.div>
+          </div>
+        </section>
+
+        {/* FEATURES SECTION */}
+        <section id="features" className="px-6 py-20">
+          <div className="max-w-6xl mx-auto text-center mb-10">
+            <motion.h2
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              className="text-3xl font-bold"
+            >
+              Powerful tools that help you ship
+            </motion.h2>
+            <p className="text-gray-400 mt-2">
+              Project-first learning with feedback and analytics.
+            </p>
+          </div>
+
+          <div className="max-w-7xl mx-auto grid md:grid-cols-3 gap-6">
+            {FEATURES.map((f, idx) => (
+              <motion.div
+                whileHover={{ y: -8, scale: 1.02 }}
+                key={idx}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ delay: idx * 0.12 }}
+                className="p-6 rounded-2xl bg-gradient-to-br from-[#07080a] to-[#0b0b0d] border border-white/6 shadow-lg"
+              >
+                <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-pink-500 to-indigo-500 flex items-center justify-center mb-3 text-lg">
+                  {f.icon}
+                </div>
+                <h3 className="font-semibold text-white">{f.title}</h3>
+                <p className="text-gray-400 mt-2 text-sm">{f.desc}</p>
+              </motion.div>
+            ))}
+          </div>
+        </section>
+
+        {/* HOW IT WORKS */}
+        <section
+          id="how"
+          className="px-6 py-20 bg-[#06070a] border-t border-white/6"
+        >
+          <div className="max-w-6xl mx-auto text-center mb-10">
+            <motion.h2
+              initial={{ opacity: 0 }}
+              whileInView={{ opacity: 1 }}
+              className="text-3xl font-bold"
+            >
+              How SkillHub works
+            </motion.h2>
+            <p className="text-gray-400 mt-2">
+              A focused path to real outcomes.
+            </p>
+          </div>
+
+          <div className="max-w-6xl mx-auto grid md:grid-cols-3 gap-6">
+            {STEPS.map((s, i) => (
+              <motion.div
+                key={i}
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ delay: i * 0.12 }}
+                className="p-6 rounded-2xl bg-gradient-to-br from-[#07080a] to-[#0b0b0d] border border-white/6"
+              >
+                <div className="text-2xl text-indigo-400 font-bold mb-3">
+                  {i + 1}
+                </div>
+                <h3 className="text-white font-semibold">{s.title}</h3>
+                <p className="text-gray-400 mt-2 text-sm">{s.desc}</p>
+              </motion.div>
+            ))}
+          </div>
+        </section>
+
+        {/* BENEFITS */}
+        <section className="px-6 py-20">
+          <div className="max-w-6xl mx-auto text-center mb-10">
+            <motion.h2
+              initial={{ opacity: 0 }}
+              whileInView={{ opacity: 1 }}
+              className="text-3xl font-bold"
+            >
+              Learner benefits
+            </motion.h2>
+            <p className="text-gray-400 mt-2">
+              Support, projects, and career help.
+            </p>
+          </div>
+
+          <div className="max-w-7xl mx-auto grid md:grid-cols-3 gap-6">
+            {BENEFITS.map((b, i) => (
+              <motion.div
+                key={i}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ delay: i * 0.1 }}
+                className="rounded-2xl overflow-hidden border border-white/6 bg-[#07080a] shadow-lg"
+              >
+                <div className="h-44 w-full overflow-hidden">
+                  <img
+                    src={b.img}
+                    alt={b.title}
+                    className="object-cover w-full h-full"
+                  />
+                </div>
                 <div className="p-5">
-                  <h3 className="text-lg font-semibold mb-2">{f.title}</h3>
-                  <p className="text-gray-300 text-sm">{f.desc}</p>
-                  <button
-                    className="mt-4 inline-flex items-center gap-2 px-4 py-2 rounded-full 
-                               bg-purple-600 hover:bg-purple-700 text-sm shadow transition"
-                  >
-                    Explore
-                    <ArrowRight size={14} />
-                  </button>
+                  <h3 className="text-white font-semibold">{b.title}</h3>
+                  <p className="text-gray-400 mt-2 text-sm">{b.desc}</p>
                 </div>
               </motion.div>
             ))}
           </div>
-        </div>
+        </section>
 
-        {/* Infinite Loop Animation */}
-        <style>
-          {`
-      #featureTrack {
-        animation: scrollLoop 35s linear infinite;
-      }
-      #featureTrack:hover {
-        animation-play-state: paused;
-      }
-
-      @keyframes scrollLoop {
-        0% { transform: translateX(0); }
-        100% { transform: translateX(-50%); }
-      }
-    `}
-        </style>
-      </section>
-
-      {/* ===== Signup Guide ===== */}
-      <section
-        id="signup"
-        className="py-20 px-6 max-w-6xl mx-auto bg-gradient-to-b from-transparent to-[#000000]/40"
-      >
-        <h2 className="text-3xl md:text-4xl font-bold text-center mb-12">
-          Quick Signup Guide
-        </h2>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          {STEPS.map((s, i) => (
-            <motion.div
-              key={i}
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: 0.1 * i }}
-              className="bg-[#0f1724]/60 border border-green-500/10 rounded-2xl p-6 shadow-lg"
+        {/* SKILLS */}
+        <section
+          id="skills"
+          className="px-6 py-20 bg-[#06070a] border-t border-white/6"
+        >
+          <div className="max-w-6xl mx-auto text-center mb-8">
+            <motion.h2
+              initial={{ opacity: 0 }}
+              whileInView={{ opacity: 1 }}
+              className="text-3xl font-bold"
             >
-              <div className="w-12 h-12 rounded-full bg-green-500/20 flex items-center justify-center text-green-300 font-bold mb-4">
-                {i + 1}
-              </div>
-              <h3 className="font-semibold text-white mb-2">{s.title}</h3>
-              <p className="text-gray-300 text-sm">{s.desc}</p>
-            </motion.div>
-          ))}
-        </div>
-      </section>
+              Skills you'll master
+            </motion.h2>
+            <p className="text-gray-400 mt-2">
+              Core tools, frameworks and workflows.
+            </p>
+          </div>
 
-      {/* ===== Benefits ===== */}
-      <section className="py-20 px-6 max-w-6xl mx-auto">
-        <h2 className="text-3xl md:text-4xl font-bold text-center mb-12">
-          Why Choose SkillHub
-        </h2>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          {BENEFITS.map((b, i) => (
-            <motion.div
-              key={i}
-              whileHover={{ y: -6 }}
-              className="bg-[#12192E]/80 border border-purple-500/10 p-6 rounded-2xl shadow-xl flex flex-col"
-            >
-              <div className="h-40 overflow-hidden rounded-lg mb-4">
+          <div className="max-w-6xl mx-auto grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-4">
+            {SKILLS.map((skill, idx) => (
+              <motion.div
+                key={skill.name}
+                whileHover={{ scale: 1.1, y: -6 }}
+                initial={{ opacity: 0, y: 10 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ delay: idx * 0.05 }}
+                className="group p-4 rounded-xl bg-[#0b0b0d] border border-white/10 shadow-lg
+               hover:border-indigo-500/40 hover:shadow-indigo-500/20
+               flex flex-col items-center justify-center cursor-pointer"
+              >
+                {/* Skill Icon */}
                 <img
-                  src={b.img}
-                  alt={b.title}
-                  className="w-full h-full object-cover"
+                  src={skill.img}
+                  alt={skill.name}
+                  className="w-10 h-10 object-contain transition-transform group-hover:scale-110"
                 />
-              </div>
-              <h3 className="text-xl font-semibold mb-2">{b.title}</h3>
-              <p className="text-gray-300">{b.desc}</p>
-            </motion.div>
-          ))}
-        </div>
-      </section>
 
-      {/* ===== Skills ===== */}
-      <section id="skills" className="py-20 px-6 max-w-6xl mx-auto">
-        <h2 className="text-3xl md:text-4xl font-bold text-center mb-12">
-          Skills You’ll Acquire
-        </h2>
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-8">
-          {SKILLS.map((skill) => (
-            <div key={skill.name} className="flex flex-col items-center gap-2">
-              <div className="w-20 h-20 flex items-center justify-center bg-[#111827] rounded-xl border border-purple-500/10 shadow-lg hover:scale-105 transition-transform">
-                <img src={skill.img} alt={skill.name} className="w-10 h-10" />
-              </div>
-              <p className="text-sm mt-2">{skill.name}</p>
+                {/* Label */}
+                <span className="text-gray-300 text-sm mt-3 group-hover:text-white transition">
+                  {skill.name}
+                </span>
+              </motion.div>
+            ))}
+          </div>
+        </section>
+
+        {/* CTA */}
+        <section className="px-6 py-20">
+          <div className="max-w-4xl mx-auto text-center">
+            <motion.h2
+              initial={{ opacity: 0, y: 10 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              className="text-3xl font-bold"
+            >
+              Ready to build real projects?
+            </motion.h2>
+            <p className="text-gray-400 mt-3">
+              Join SkillHub and start learning with a clear path and mentors.
+            </p>
+            <div className="mt-6 flex items-center justify-center gap-4">
+              <Link
+                to="/signup"
+                className="px-6 py-3 rounded-full bg-gradient-to-r from-pink-500 to-indigo-600 shadow-lg"
+              >
+                Get Started
+              </Link>
+              <ScrollLink
+                to="features"
+                smooth
+                className="px-6 py-3 rounded-full border border-white/10 text-gray-200"
+              >
+                Explore features
+              </ScrollLink>
             </div>
-          ))}
+          </div>
+        </section>
+      </main>
+
+      {/* FOOTER */}
+      <footer className="py-10 px-6 border-t border-white/8 bg-transparent">
+        <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-pink-500 to-indigo-600" />
+            <div>
+              <div className="font-semibold">SkillHub</div>
+              <div className="text-gray-400 text-sm">Learn • Build • Ship</div>
+            </div>
+          </div>
+
+          <div className="text-sm text-gray-400">
+            © {new Date().getFullYear()} SkillHub. All rights reserved.
+          </div>
+
+          <div className="flex items-center gap-4 text-gray-300">
+            <a href="#" className="hover:text-white">
+              Terms
+            </a>
+            <a href="#" className="hover:text-white">
+              Privacy
+            </a>
+            <a href="#" className="hover:text-white">
+              Contact
+            </a>
+          </div>
         </div>
-      </section>
-      {/* ===== Footer ===== */}
-      <footer className="py-8 text-center text-gray-400 border-t border-purple-500/20">
-        © 2025 SkillHub — Empowering Future Innovators.
       </footer>
     </div>
   );
 };
+
+/**
+ * LottieWrapper - dynamically render a Lottie animation if lottie-react is available.
+ * - If lottie-react isn't installed, it returns null and the parent falls back to an image.
+ * - You can replace the lottieJsonUrl with any Lottie JSON URL or local JSON import.
+ */
+function LottieWrapper({ LottieAnim }) {
+  // small sample animation json url (replace with your own if you want)
+  const lottieJsonUrl =
+    "https://assets7.lottiefiles.com/packages/lf20_w51pcehl.json"; // generic loader animation
+
+  const [data, setData] = useState(null);
+  useEffect(() => {
+    let mounted = true;
+    fetch(lottieJsonUrl)
+      .then((r) => r.json())
+      .then((json) => {
+        if (mounted) setData(json);
+      })
+      .catch(() => {});
+    return () => (mounted = false);
+  }, []);
+
+  if (!LottieAnim || !data) return null;
+  const Lottie = LottieAnim;
+  return (
+    <Lottie
+      animationData={data}
+      loop
+      autoplay
+      style={{ width: "100%", height: "100%" }}
+    />
+  );
+}
 
 export default PublicLayout;

@@ -1,123 +1,107 @@
 import React, { useEffect, useState } from "react";
 import { motion } from "framer-motion";
-import { Spinner } from "../../utils/Spinner";
-import {
-  FaBook,
-  FaCertificate,
-  FaClock,
-  FaPlayCircle,
-  FaTasks,
-  FaBell,
-} from "react-icons/fa";
-import { MdLeaderboard } from "react-icons/md";
-import { AiOutlineArrowRight } from "react-icons/ai";
-import { useNavigate } from "react-router-dom";
 import axios from "axios";
+import { Spinner } from "../../utils/Spinner";
+import { useNavigate } from "react-router-dom";
+
+import {
+  BookOpen,
+  Clock,
+  Award,
+  Target,
+  ArrowRight,
+  Bell,
+  Flame,
+  Play,
+} from "lucide-react";
 
 export const UserDashboard = () => {
   const token = localStorage.getItem("token");
   const userId = localStorage.getItem("userId");
-  const navigate = useNavigate();
-  const [userData, setUserData] = useState(null);
-  const [notifications, setNotifications] = useState([]);
+
   const [userName, setUserName] = useState("");
+  const [dashboard, setDashboard] = useState(null);
+  const [notifications, setNotifications] = useState([]);
 
+  const navigate = useNavigate();
+
+  // --- FETCH DATA (unchanged logic) ----------------------------------
   useEffect(() => {
-    const fetchDashboardData = async () => {
+    const fetchData = async () => {
       try {
-        const recommendatedCourses = await axios.get("/courses", {
+        const user = await axios.get(`/user/${userId}`, {
           headers: { Authorization: `Bearer ${token}` },
         });
-        const dataRecomCourses = recommendatedCourses.data.data || [];
+        setUserName(user.data.data.fullname);
 
-        const resNotifications = await axios.get(`/notifications/${userId}`, {
+        const coursesRes = await axios.get(`/enrollment/${userId}`, {
           headers: { Authorization: `Bearer ${token}` },
         });
-        const dataNotifications = resNotifications.data.data || [];
-        setNotifications(dataNotifications);
 
-        const resCourses = await axios.get(`/enrollment/${userId}`, {
+        const certRes = await axios.get(`/certificates/${userId}`, {
           headers: { Authorization: `Bearer ${token}` },
         });
-        const courses = resCourses.data.data || [];
 
-        const resCerts = await axios.get(`/certificates/${userId}`, {
+        const actRes = await axios.get(`/activities/${userId}`, {
           headers: { Authorization: `Bearer ${token}` },
         });
-        const certificates = resCerts.data.data || [];
 
-        const resActivities = await axios.get(`/activities/${userId}`, {
+        const notifRes = await axios.get(`/notifications/${userId}`, {
           headers: { Authorization: `Bearer ${token}` },
         });
-        const userActivities = resActivities.data.data || [];
+        setNotifications(notifRes.data.data || []);
 
-        let totalSeconds = 0;
+        const recRes = await axios.get("/courses", {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+
+        // -------- learning time ----------
+        let totalSec = 0;
         let courseTimes = [];
-        Object.keys(localStorage).forEach((key) => {
-          if (key.startsWith(`learningTime_${userId}_`)) {
-            const seconds = parseInt(localStorage.getItem(key), 10) || 0;
-            totalSeconds += seconds;
-            const courseId = key.split("_")[2];
-            courseTimes.push({ courseId, seconds });
+
+        Object.keys(localStorage).forEach((k) => {
+          if (k.startsWith(`learningTime_${userId}_`)) {
+            const sec = parseInt(localStorage.getItem(k)) || 0;
+            totalSec += sec;
+            const id = k.split("_")[2];
+            courseTimes.push({ courseId: id, seconds: sec });
           }
         });
-        const totalMinutes = Math.floor(totalSeconds / 60);
 
-        let mostLearnedCourse = null;
-        let courseName = "";
+        const totalMinutes = Math.floor(totalSec / 60);
+
+        let topCourseId = null;
+        let topCourseName = "";
+
         if (courseTimes.length > 0) {
-          const sortedCourses = [...courseTimes].sort(
-            (a, b) => b.seconds - a.seconds
-          );
-          mostLearnedCourse = sortedCourses[0];
-          const resCourse = await axios.get(
-            `/course/${mostLearnedCourse.courseId}`,
-            { headers: { Authorization: `Bearer ${token}` } }
-          );
-          courseName = resCourse.data.data.title;
+          courseTimes.sort((a, b) => b.seconds - a.seconds);
+          topCourseId = courseTimes[0].courseId;
+
+          const c = await axios.get(`/course/${topCourseId}`, {
+            headers: { Authorization: `Bearer ${token}` },
+          });
+          topCourseName = c.data.data.title;
         }
 
-        const resUsers = await axios.get("/users", {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        const allUsers = Array.isArray(resUsers.data.users)
-          ? resUsers.data.users
-          : [];
-        const sortedUsers = [...allUsers].sort((a, b) => b.points - a.points);
-        const userRank = sortedUsers.findIndex((u) => u._id === userId) + 1;
-
-        setUserData({
-          courses: courses.length,
+        setDashboard({
+          coursesCount: coursesRes.data.data.length,
+          certificatesCount: certRes.data.data.length,
           challenges: 12,
-          certificates: certificates.length,
           totalMinutes,
-          mostLearnedCourse,
-          courseName,
-          leaderboardRank: userRank || 0,
-          recomcourses: dataRecomCourses.slice(0, 3),
-          recentActivity: userActivities.slice(0, 3),
+          recentActivity: actRes.data.data.slice(0, 5),
+          recommended: recRes.data.data.slice(0, 4),
+          topCourseId,
+          topCourseName,
         });
       } catch (err) {
-        console.error("❌ Error fetching dashboard data:", err);
+        console.error("Dashboard loading error:", err);
       }
     };
 
-    const fetchUser = async () => {
-      try {
-        const res = await axios.get(`/user/${userId}`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        setUserName(res.data.data.fullname);
-      } catch (err) {
-        console.error("❌ Error fetching user data:", err);
-      }
-    };
+    fetchData();
+  }, []);
 
-    fetchDashboardData();
-    fetchUser();
-  }, [token, userId]);
-
-  if (!userData) {
+  if (!dashboard) {
     return (
       <div className="flex justify-center items-center h-screen text-white">
         <Spinner />
@@ -125,232 +109,163 @@ export const UserDashboard = () => {
     );
   }
 
-  const StatCard = ({ icon: Icon, title, value, accent }) => (
+  const hours = Math.floor(dashboard.totalMinutes / 60);
+  const mins = dashboard.totalMinutes % 60;
+
+  // UI COMPONENTS -----------------------------------------------------
+
+  const GlowCard = ({ children, onClick }) => (
     <motion.div
-      whileHover={{ scale: 1.05, boxShadow: `0 0 20px ${accent}` }}
-      className="
-        bg-[#1b1b2a]/80 backdrop-blur-lg rounded-lg 
-        p-4 border border-purple-600/40 flex items-center gap-3 transition
-        sm:p-5 sm:gap-4
-        lg:p-6 lg:rounded-xl lg:border-purple-600/50
-      "
+      whileHover={{ scale: 1.02 }}
+      transition={{ duration: 0.25 }}
+      onClick={onClick}
+      className="relative p-6 rounded-2xl bg-gradient-to-br from-[#0d1117] to-[#12141b] border border-white/10 shadow-lg cursor-pointer overflow-hidden"
     >
-      <div
-        className="p-3 rounded-full"
-        style={{ background: `${accent}20`, color: accent }}
-      >
-        <Icon size={28} />
+      <div className="absolute inset-0 opacity-[0.15] bg-[radial-gradient(circle_at_top_left,rgba(120,60,255,0.5),transparent_60%)]"></div>
+      {children}
+    </motion.div>
+  );
+
+  const StatBlock = ({ icon: Icon, label, value }) => (
+    <motion.div
+      initial={{ opacity: 0, y: 12 }}
+      animate={{ opacity: 1, y: 0 }}
+      className="flex items-center gap-4 p-5 rounded-xl bg-[#0f131a] border border-white/5 shadow-md"
+    >
+      <div className="p-3 rounded-xl bg-[#171b22] text-indigo-300">
+        <Icon size={22} />
       </div>
       <div>
-        <p className="text-xs sm:text-sm text-gray-400">{title}</p>
-        <h2 className="text-base sm:text-lg font-semibold text-white">
-          {value}
-        </h2>
+        <p className="text-xs text-gray-400">{label}</p>
+        <h3 className="text-xl font-bold text-white">{value}</h3>
       </div>
     </motion.div>
   );
 
+  const CourseCard = ({ course, onClick }) => (
+    <GlowCard onClick={onClick}>
+      <div className="flex gap-4">
+        <img
+          src={course.imageUrl}
+          className="w-20 h-20 rounded-xl object-cover"
+        />
+        <div>
+          <h3 className="font-semibold">{course.title}</h3>
+          <p className="text-sm text-gray-400 mt-1">
+            {course.shortDesc?.slice(0, 70) || "Course info"}
+          </p>
+        </div>
+      </div>
+    </GlowCard>
+  );
+
+  // ===================================================================
+  // FINAL UI LAYOUT — MODERN PREMIUM DASHBOARD
+  // ===================================================================
+
   return (
-    <div
-      className="
-        min-h-screen text-white bg-gradient-to-br 
-        from-[#0f172a] via-[#1e1b4b] to-[#0f172a]
-        max-w-[1600px] mx-auto
-        grid grid-cols-1 gap-4 p-4
-        sm:p-6 sm:gap-6
-        md:grid-cols-2 md:gap-8
-        lg:p-10 lg:gap-10 lg:grid-cols-2
-        xl:p-12 xl:gap-12 xl:grid-cols-3
-      "
-    >
-      {/* HEADER */}
-      <motion.h1
-        className="col-span-full text-xl sm:text-4xl lg:text-5xl font-extrabold mb-6 bg-gradient-to-r from-cyan-400 via-blue-400 to-purple-500 text-transparent bg-clip-text tracking-tight"
-        initial={{ opacity: 0, y: -20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 1 }}
-      >
-        Welcome back, <span className="text-cyan-400">{userName}</span>
-      </motion.h1>
+    <div className="p-10 text-white max-w-[1400px] mx-auto space-y-14">
 
-      {/* STAT CARDS */}
-      <StatCard
-        icon={FaBook}
-        title="Courses Enrolled"
-        value={userData.courses}
-        accent="#00FFFF"
-      />
-      <StatCard
-        icon={FaTasks}
-        title="Challenges Completed"
-        value={userData.challenges}
-        accent="#FF00FF"
-      />
-      <StatCard
-        icon={FaCertificate}
-        title="Certificates Earned"
-        value={userData.certificates}
-        accent="#FFD700"
-      />
-      <StatCard
-        icon={FaClock}
-        title="Total Learning Time"
-        value={`${Math.floor(userData.totalMinutes / 60)}h ${
-          userData.totalMinutes % 60
-        }m`}
-        accent="#7C3AED"
-      />
+      {/* HEADER ------------------------------------------------------- */}
+      <div className="space-y-2">
+        <h1 className="text-4xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-indigo-400 to-cyan-300">
+          Welcome back, {userName}
+        </h1>
+        <p className="text-gray-400">Your personalized learning dashboard</p>
+      </div>
 
-      {/* CONTINUE COURSE */}
-      {userData.mostLearnedCourse && (
-        <motion.div
-          whileHover={{ scale: 1.03, boxShadow: "0 0 20px #00FF00" }}
-          className="
-            bg-[#1b1b2a]/80 backdrop-blur-lg rounded-lg p-4
-            border border-purple-600/40 col-span-full
-            sm:p-5 md:col-span-2
-            lg:p-6 lg:rounded-xl lg:border-purple-600/50
-          "
-        >
-          <div className="flex items-center gap-4 sm:gap-5">
-            <FaPlayCircle size={30} className="text-green-400 flex-shrink-0" />
-            <div className="truncate">
-              <p className="text-xs sm:text-sm md:text-base text-gray-400">
-                Continue Course
-              </p>
-              <h2 className="font-semibold text-white text-base sm:text-lg md:text-xl truncate">
-                {userData.courseName}
-              </h2>
+      {/* QUICK STATS -------------------------------------------------- */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        <StatBlock icon={BookOpen} label="Courses Enrolled" value={dashboard.coursesCount} />
+        <StatBlock icon={Award} label="Certificates" value={dashboard.certificatesCount} />
+        <StatBlock icon={Target} label="Challenges" value={12} />
+        <StatBlock icon={Clock} label="Learning Time" value={`${hours}h ${mins}m`} />
+      </div>
+
+      {/* CONTINUE LEARNING ------------------------------------------- */}
+      {dashboard.topCourseId && (
+        <GlowCard onClick={() => navigate(`/user/learning/${dashboard.topCourseId}`)}>
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm text-gray-400">Continue Learning</p>
+              <h2 className="text-xl font-bold mt-1">{dashboard.topCourseName}</h2>
+            </div>
+
+            <div className="p-4 bg-[#1c2130] rounded-xl shadow-inner">
+              <Play size={32} className="text-cyan-300" />
             </div>
           </div>
-          <motion.button
-            whileHover={{ scale: 1.05, boxShadow: "0 0 15px #00FF00" }}
-            className="
-              mt-4 sm:mt-5 w-full md:w-auto bg-green-600 px-5 sm:px-6 py-2.5 sm:py-3
-              rounded-lg text-sm sm:text-base font-medium transition
-            "
-            onClick={() =>
-              navigate(`/user/learning/${userData.mostLearnedCourse.courseId}`)
-            }
-          >
-            Resume
-          </motion.button>
-        </motion.div>
+        </GlowCard>
       )}
 
-      {/* RECOMMENDED COURSES */}
-      <motion.div
-        whileHover={{ scale: 1.03, boxShadow: "0 0 20px #FF00FF" }}
-        className="
-          bg-[#1b1b2a]/80 backdrop-blur-lg rounded-lg p-4
-          border border-purple-600/40 col-span-full
-          sm:p-5 md:col-span-2
-          lg:p-6 lg:rounded-xl lg:border-purple-600/50
-        "
-      >
-        <div className="font-semibold mb-3 sm:mb-4 text-lg sm:text-xl">
-          Recommended for You
-        </div>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 max-h-72 overflow-y-auto">
-          {userData.recomcourses.map((course, index) => (
-            <div
-              key={index}
-              className="flex items-center gap-4 bg-[#2a2a3b] p-3 sm:p-4 rounded-xl hover:bg-[#3b3b4d] transition-colors cursor-pointer"
-            >
-              <img
-                src={course.imageUrl}
-                alt={course.title}
-                className="w-14 h-14 sm:w-16 sm:h-16 rounded-lg object-cover"
-              />
-              <div className="flex justify-between items-center w-full truncate">
-                <span className="font-medium text-gray-200 truncate">
-                  {course.title}
-                </span>
-                <AiOutlineArrowRight
-                  size={20}
-                  className="text-cyan-400 flex-shrink-0"
+      {/* MAIN GRID ---------------------------------------------------- */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
+
+        {/* LEFT SIDE -------------------------------------------------- */}
+        <div className="lg:col-span-2 space-y-12">
+
+          {/* RECOMMENDED COURSES */}
+          <div className="space-y-5">
+            <h2 className="text-2xl font-semibold">Recommended for you</h2>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+              {dashboard.recommended.map((c) => (
+                <CourseCard
+                  key={c._id}
+                  course={c}
+                  onClick={() => navigate(`/user/course/${c._id}`)}
                 />
-              </div>
+              ))}
             </div>
-          ))}
-        </div>
-      </motion.div>
+          </div>
 
-      {/* NOTIFICATIONS */}
-      <motion.div
-        whileHover={{ scale: 1.03, boxShadow: "0 0 20px #00FFFF" }}
-        className="
-          bg-[#1b1b2a]/80 backdrop-blur-lg rounded-lg p-4
-          border border-purple-600/40 col-span-full md:col-span-1 cursor-pointer
-          sm:p-5 lg:p-6 lg:rounded-xl lg:border-purple-600/50
-        "
-        onClick={() => navigate("/user/notifications")}
-      >
-        <div className="flex items-center gap-2 font-semibold text-base sm:text-lg mb-2 sm:mb-3">
-          <FaBell className="text-yellow-400" /> Notifications
-        </div>
-        <ul className="text-xs sm:text-sm text-gray-300 space-y-2 max-h-48 overflow-y-auto">
-          {notifications.length > 0 ? (
-            notifications.slice(0, 3).map((n) => (
-              <li
-                key={n._id}
-                className={n.read ? "text-gray-400" : "text-white"}
-              >
-                • {n.message}
-              </li>
-            ))
-          ) : (
-            <li className="text-gray-400">No notifications yet</li>
-          )}
-        </ul>
-        <p className="mt-3 text-cyan-400 text-xs sm:text-sm">View All →</p>
-      </motion.div>
+          {/* RECENT ACTIVITY */}
+          <div className="space-y-5">
+            <h2 className="text-2xl font-semibold">Recent Activity</h2>
 
-      {/* RECENT ACTIVITY */}
-      <motion.div
-        whileHover={{ scale: 1.03, boxShadow: "0 0 20px #FF00FF" }}
-        className="
-          bg-[#1b1b2a]/80 backdrop-blur-lg rounded-lg p-4
-          border border-purple-600/40 col-span-full md:col-span-1 cursor-pointer
-          sm:p-5 lg:p-6 lg:rounded-xl lg:border-purple-600/50
-        "
-        onClick={() => navigate("/user/activities")}
-      >
-        <div className="font-semibold mb-2 sm:mb-3 text-base sm:text-lg">
-          Recent Activity
+            <GlowCard>
+              <div className="space-y-4">
+                {dashboard.recentActivity.length > 0 ? (
+                  dashboard.recentActivity.map((a) => (
+                    <div key={a._id} className="border-b border-white/5 pb-3 last:border-none">
+                      <p className="text-sm text-gray-300">{a.message}</p>
+                      <p className="text-xs text-gray-500 mt-1">
+                        {new Date(a.createdAt).toLocaleString()}
+                      </p>
+                    </div>
+                  ))
+                ) : (
+                  <p className="text-gray-400">No recent activity</p>
+                )}
+              </div>
+            </GlowCard>
+          </div>
         </div>
-        <ul className="text-xs sm:text-sm space-y-2 max-h-48 overflow-y-auto">
-          {userData.recentActivity.length > 0 ? (
-            userData.recentActivity.map((activity) => (
-              <li key={activity._id} className="text-gray-300">
-                • {activity.message}
-              </li>
-            ))
-          ) : (
-            <li className="text-gray-400">No recent activity</li>
-          )}
-        </ul>
-        <p className="mt-3 text-purple-400 text-xs sm:text-sm">View All →</p>
-      </motion.div>
 
-      {/* LEADERBOARD */}
-      <motion.div
-        whileHover={{ scale: 1.03, boxShadow: "0 0 20px #FFD700" }}
-        className="
-          bg-[#1b1b2a]/80 backdrop-blur-lg rounded-lg p-4
-          border border-purple-600/40 flex items-center justify-between
-          col-span-full md:col-span-1
-          sm:p-5 lg:p-6 lg:rounded-xl lg:border-purple-600/50
-        "
-      >
-        <div>
-          <p className="text-xs sm:text-sm text-gray-400">Your Rank</p>
-          <h2 className="text-xl sm:text-2xl font-semibold text-white">
-            #{userData.leaderboardRank}
-          </h2>
+        {/* RIGHT SIDE — NOTIFICATIONS -------------------------------- */}
+        <div className="space-y-6">
+          <h2 className="text-2xl font-semibold">Notifications</h2>
+
+          <GlowCard>
+            <div className="space-y-3 max-h-96 overflow-y-auto pr-2">
+              {notifications.length > 0 ? (
+                notifications.slice(0, 6).map((n) => (
+                  <div key={n._id} className="p-3 bg-[#121821] rounded-xl text-sm">
+                    {n.message}
+                    <div className="text-xs text-gray-500 mt-1">
+                      {new Date(n.createdAt).toLocaleString()}
+                    </div>
+                  </div>
+                ))
+              ) : (
+                <p className="text-gray-400 text-sm">No notifications available.</p>
+              )}
+            </div>
+          </GlowCard>
         </div>
-        <MdLeaderboard size={36} className="text-yellow-400" />
-      </motion.div>
+      </div>
     </div>
   );
 };
+
+export default UserDashboard;

@@ -4,10 +4,12 @@ import axios from "axios";
 import { Save, ArrowLeft, Loader2, GraduationCap } from "lucide-react";
 import { motion } from "framer-motion";
 import { Spinner } from "../../../utils/Spinner";
+
 export const EditCourse = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const token = localStorage.getItem("token");
+
   const [courseData, setCourseData] = useState({
     title: "",
     instructor: "",
@@ -18,6 +20,7 @@ export const EditCourse = () => {
     imageUrl: "",
     isPublished: false,
   });
+
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
 
@@ -26,10 +29,11 @@ export const EditCourse = () => {
     "Data Science",
     "Design",
     "Marketing",
-    "Other",
     "AI",
+    "Other",
   ];
 
+  /* ---------------- Fetch Course ---------------- */
   useEffect(() => {
     fetchCourse();
   }, [id]);
@@ -42,20 +46,23 @@ export const EditCourse = () => {
       });
       setCourseData(res.data.data);
     } catch (err) {
-      console.error("Failed to fetch course:", err.message);
+      console.error("Error fetching course:", err);
     } finally {
       setLoading(false);
     }
   };
 
+  /* ---------------- Form Change Handler ---------------- */
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
+
     setCourseData((prev) => ({
       ...prev,
       [name]: type === "checkbox" ? checked : value,
     }));
   };
 
+  /* ---------------- Save Changes ---------------- */
   const handleSave = async () => {
     try {
       setSaving(true);
@@ -64,12 +71,13 @@ export const EditCourse = () => {
       });
       navigate("/admin/courses");
     } catch (err) {
-      console.error("Save failed:", err.message);
+      console.error("Saving failed:", err.message);
     } finally {
       setSaving(false);
     }
   };
 
+  /* ---------------- Loading Screen ---------------- */
   if (loading) {
     return (
       <div className="flex justify-center items-center h-screen text-white">
@@ -79,186 +87,186 @@ export const EditCourse = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-950 via-purple-950 to-gray-900 p-6 text-white flex flex-col items-center">
-      {/* Back button */}
+    <div className="min-h-screen p-6 bg-gradient-to-br from-[#0B0F1A] via-[#111827] to-[#1E293B] text-white flex flex-col items-center">
+
+      {/* ---------------- Back Button ---------------- */}
       <button
         onClick={() => navigate(-1)}
-        className="flex items-center gap-2 mb-6 text-gray-400 hover:text-white transition self-start"
+        className="flex items-center gap-2 mb-6 text-gray-300 hover:text-white transition self-start"
       >
         <ArrowLeft size={18} /> Back
       </button>
 
-      {/* Logo */}
+      {/* ---------------- Icon Animation ---------------- */}
       <motion.div
-        initial={{ opacity: 0, y: -15 }}
+        initial={{ opacity: 0, y: -10 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
         className="mb-6"
       >
-        <div className="relative flex items-center justify-center">
-          <motion.div
-            animate={{
-              scale: [1, 1.1, 1],
-              boxShadow: [
-                "0px 0px 10px rgba(168,85,247,0.7)",
-                "0px 0px 20px rgba(168,85,247,0.9)",
-                "0px 0px 10px rgba(168,85,247,0.7)",
-              ],
-            }}
-            transition={{ duration: 2, repeat: Infinity }}
-            className="p-4 rounded-full bg-purple-700/20"
-          >
-            <GraduationCap size={48} className="text-purple-400" />
-          </motion.div>
-        </div>
+        <motion.div
+          animate={{
+            scale: [1, 1.1, 1],
+            rotate: [0, 5, 0],
+          }}
+          transition={{ duration: 2, repeat: Infinity }}
+          className="p-5 rounded-full bg-white/10 backdrop-blur-xl border border-purple-500/20 shadow-lg"
+        >
+          <GraduationCap className="text-purple-400" size={48} />
+        </motion.div>
       </motion.div>
 
-      {/* Card */}
+      {/* ---------------- Main Card ---------------- */}
       <motion.div
-        initial={{ opacity: 0, y: 20 }}
+        initial={{ opacity: 0, y: 25 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
-        className="w-full max-w-3xl bg-white/10 backdrop-blur-xl rounded-2xl shadow-2xl p-8 border border-white/10"
+        className="w-full max-w-3xl bg-white/10 backdrop-blur-2xl
+        border border-white/10 rounded-2xl p-8 shadow-2xl space-y-6"
       >
-        <h1 className="text-3xl font-bold mb-6 text-center text-purple-400 drop-shadow">
+        <h1 className="text-3xl font-bold text-center bg-gradient-to-r 
+        from-purple-400 to-cyan-400 bg-clip-text text-transparent">
           Edit Course
         </h1>
 
-        <div className="space-y-5">
+        {/* ---------------- Inputs Grid ---------------- */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+
           {/* Title */}
-          <div>
-            <label className="block mb-1 text-gray-300">Title</label>
-            <input
-              type="text"
-              name="title"
-              value={courseData.title}
-              onChange={handleChange}
-              className="w-full p-3 rounded-xl bg-gray-900 border border-gray-700 focus:border-purple-500 focus:ring-2 focus:ring-purple-600 transition shadow-inner"
-            />
-          </div>
+          <InputField
+            label="Title"
+            name="title"
+            value={courseData.title}
+            onChange={handleChange}
+          />
 
           {/* Instructor */}
-          <div>
-            <label className="block mb-1 text-gray-300">Instructor</label>
-            <input
-              type="text"
-              name="instructor"
-              value={courseData.instructor}
-              onChange={handleChange}
-              className="w-full p-3 rounded-xl bg-gray-900 border border-gray-700 focus:border-purple-500 focus:ring-2 focus:ring-purple-600 transition"
-            />
-          </div>
+          <InputField
+            label="Instructor"
+            name="instructor"
+            value={courseData.instructor}
+            onChange={handleChange}
+          />
 
           {/* Category */}
-          <div>
-            <label className="block mb-1 text-gray-300">Category</label>
-            <select
-              name="category"
-              value={courseData.category}
-              onChange={handleChange}
-              className="w-full p-3 rounded-xl bg-gray-900 border border-gray-700 focus:border-purple-500 focus:ring-2 focus:ring-purple-600 transition"
-            >
-              <option value="">Select a Category</option>
-              {categories.map((cat) => (
-                <option key={cat} value={cat}>
-                  {cat}
-                </option>
-              ))}
-            </select>
-          </div>
+          <SelectField
+            label="Category"
+            name="category"
+            value={courseData.category}
+            options={categories}
+            onChange={handleChange}
+          />
 
           {/* Duration */}
-          <div>
-            <label className="block mb-1 text-gray-300">Duration</label>
-            <input
-              type="text"
-              name="duration"
-              value={courseData.duration}
-              onChange={handleChange}
-              className="w-full p-3 rounded-xl bg-gray-900 border border-gray-700 focus:border-purple-500 focus:ring-2 focus:ring-purple-600 transition"
-            />
-          </div>
+          <InputField
+            label="Duration"
+            name="duration"
+            value={courseData.duration}
+            onChange={handleChange}
+          />
 
           {/* Level */}
-          <div>
-            <label className="block mb-1 text-gray-300">Level</label>
-            <input
-              type="text"
-              name="level"
-              value={courseData.level}
-              onChange={handleChange}
-              className="w-full p-3 rounded-xl bg-gray-900 border border-gray-700 focus:border-purple-500 focus:ring-2 focus:ring-purple-600 transition"
-            />
-          </div>
+          <InputField
+            label="Level"
+            name="level"
+            value={courseData.level}
+            onChange={handleChange}
+          />
 
           {/* Price */}
-          <div>
-            <label className="block mb-1 text-gray-300">Price (₹)</label>
-            <input
-              type="number"
-              name="price"
-              value={courseData.price}
-              onChange={handleChange}
-              className="w-full p-3 rounded-xl bg-gray-900 border border-gray-700 focus:border-purple-500 focus:ring-2 focus:ring-purple-600 transition"
-            />
-          </div>
+          <InputField
+            label="Price (₹)"
+            type="number"
+            name="price"
+            value={courseData.price}
+            onChange={handleChange}
+          />
 
-          {/* Image */}
-          <div>
-            <label className="block mb-1 text-gray-300">Thumbnail URL</label>
-            <input
-              type="text"
-              name="imageUrl"
-              value={courseData.imageUrl}
-              onChange={handleChange}
-              className="w-full p-3 rounded-xl bg-gray-900 border border-gray-700 focus:border-purple-500 focus:ring-2 focus:ring-purple-600 transition"
-            />
-          </div>
-
-          {/* Preview */}
-          {courseData.imageUrl && (
-            <motion.img
-              src={courseData.imageUrl}
-              alt="Preview"
-              className="w-48 h-28 rounded-lg border border-gray-700 mt-3"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ duration: 0.3 }}
-            />
-          )}
-
-          {/* Publish toggle */}
-          <div className="flex items-center gap-2 mt-4">
-            <input
-              type="checkbox"
-              name="isPublished"
-              checked={courseData.isPublished}
-              onChange={handleChange}
-              className="w-5 h-5 accent-purple-600"
-            />
-            <span>Publish Course</span>
-          </div>
-
-          {/* Save Button */}
-          <motion.button
-            onClick={handleSave}
-            disabled={saving}
-            whileHover={{
-              scale: 1.05,
-              boxShadow: "0px 0px 20px rgba(168,85,247,0.8)",
-            }}
-            whileTap={{ scale: 0.95 }}
-            className="mt-6 w-full flex items-center justify-center gap-2 bg-purple-600 hover:bg-purple-700 px-4 py-3 rounded-xl transition shadow-lg font-semibold"
-          >
-            {saving ? (
-              <Loader2 className="animate-spin" size={18} />
-            ) : (
-              <Save size={18} />
-            )}
-            {saving ? "Saving..." : "Save Changes"}
-          </motion.button>
+          {/* Image URL */}
+          <InputField
+            label="Thumbnail URL"
+            name="imageUrl"
+            value={courseData.imageUrl}
+            onChange={handleChange}
+            className="md:col-span-2"
+          />
         </div>
+
+        {/* ---------------- Image Preview ---------------- */}
+        {courseData.imageUrl && (
+          <motion.img
+            src={courseData.imageUrl}
+            className="w-56 h-32 rounded-lg object-cover border border-white/20 mx-auto"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+          />
+        )}
+
+        {/* ---------------- Publish Toggle ---------------- */}
+        <div className="flex items-center gap-3 mt-4">
+          <input
+            type="checkbox"
+            name="isPublished"
+            checked={courseData.isPublished}
+            onChange={handleChange}
+            className="w-5 h-5 accent-purple-500"
+          />
+          <span className="text-gray-200">Publish Course</span>
+        </div>
+
+        {/* ---------------- Save Button ---------------- */}
+        <motion.button
+          onClick={handleSave}
+          disabled={saving}
+          whileHover={{ scale: 1.05, boxShadow: "0 0 20px rgba(168,85,247,0.8)" }}
+          whileTap={{ scale: 0.95 }}
+          className="w-full mt-6 flex justify-center items-center gap-2 
+          bg-purple-600 hover:bg-purple-700 py-3 rounded-xl font-semibold shadow-lg"
+        >
+          {saving ? (
+            <Loader2 className="animate-spin" size={18} />
+          ) : (
+            <Save size={18} />
+          )}
+          {saving ? "Saving..." : "Save Changes"}
+        </motion.button>
       </motion.div>
     </div>
   );
 };
+
+/* ---------------- Reusable Input ---------------- */
+const InputField = ({ label, name, value, onChange, type = "text", className }) => (
+  <div className={className}>
+    <label className="block mb-1 text-gray-300">{label}</label>
+    <input
+      type={type}
+      name={name}
+      value={value || ""}
+      onChange={onChange}
+      className="w-full p-3 rounded-xl bg-[#0F172A] border border-white/10 
+      focus:border-purple-500 focus:ring-2 focus:ring-purple-500/40 
+      outline-none transition"
+    />
+  </div>
+);
+
+/* ---------------- Reusable Select ---------------- */
+const SelectField = ({ label, name, value, onChange, options }) => (
+  <div>
+    <label className="block mb-1 text-gray-300">{label}</label>
+    <select
+      name={name}
+      value={value}
+      onChange={onChange}
+      className="w-full p-3 rounded-xl bg-[#0F172A] border border-white/10 
+      focus:border-purple-500 focus:ring-2 focus:ring-purple-500/40 
+      outline-none transition"
+    >
+      <option value="">Select</option>
+      {options.map((op) => (
+        <option key={op} value={op}>
+          {op}
+        </option>
+      ))}
+    </select>
+  </div>
+);

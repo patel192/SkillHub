@@ -1,39 +1,31 @@
-import React, { useState } from "react";
+import React, { useState, useCallback } from "react";
 import { UserNavbar } from "../user/UserNavbar";
 import { UserSidebar } from "../user/UserSidebar";
 import { Outlet } from "react-router-dom";
 
 export const UserLayout = () => {
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+
+  // Stable callback → does NOT get recreated every render
+  const toggleSidebar = useCallback(() => {
+    setIsSidebarOpen((prev) => !prev);
+  }, []);
 
   return (
-    <div className="flex h-screen bg-[#0F172A] text-white relative">
+    <div className="flex h-screen bg-[#05070b] text-white overflow-hidden">
+
       {/* Sidebar */}
+      <UserSidebar isOpen={isSidebarOpen} toggle={toggleSidebar} />
+
+      {/* Main */}
       <div
-        className={`fixed top-0 left-0 z-20 transition-all duration-300
-          ${isSidebarOpen ? "w-64 h-full" : "w-16 h-16"} bg-[#1E1B4B] flex flex-col`}
+        className={`flex flex-col flex-1 transition-all duration-300 ${
+          isSidebarOpen ? "ml-64" : "ml-20"
+        }`}
       >
-        {/* Top icons / menu */}
-        <div className="flex items-center justify-center h-16">
-          <UserSidebar isOpen={isSidebarOpen} />
-        </div>
+        <UserNavbar toggleSidebar={toggleSidebar} isSidebarOpen={isSidebarOpen} />
 
-        {/* Full menu when expanded */}
-        {isSidebarOpen && (
-          <div className="flex-1 overflow-y-auto mt-16">
-            {/* full menu items */}
-          </div>
-        )}
-      </div>
-
-      {/* Main content */}
-      <div className="flex-1 flex flex-col transition-all duration-300">
-        <UserNavbar
-          toggleSidebar={() => setIsSidebarOpen(!isSidebarOpen)}
-          isSidebarOpen={isSidebarOpen}
-        />
-
-        <main className="flex-1 mt-2 p-2 overflow-y-auto">
+        <main className="flex-1 overflow-y-auto p-6 bg-[#080b12] border-t border-white/5 rounded-tl-2xl shadow-inner">
           <Outlet />
         </main>
       </div>

@@ -1,161 +1,191 @@
 import React, { useEffect, useState } from "react";
-import { Menu, X, Bell } from "lucide-react";
-import { motion } from "framer-motion";
+import { Menu, Bell, ChevronDown, LogOut } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
 import axios from "axios";
 
 export const UserNavbar = ({ toggleSidebar, isSidebarOpen }) => {
   const [time, setTime] = useState(new Date());
-  const [dropdownOpen, setDropdownOpen] = useState(false);
   const [notifOpen, setNotifOpen] = useState(false);
+  const [dropdownOpen, setDropdownOpen] = useState(false);
+
   const [notifications, setNotifications] = useState([]);
-  const userId = localStorage.getItem("userId");
   const [avatar, setAvatar] = useState("");
+
+  const userId = localStorage.getItem("userId");
   const token = localStorage.getItem("token");
 
+  // =============== TIME UPDATE ===============
   useEffect(() => {
     const timer = setInterval(() => setTime(new Date()), 60000);
-    return () => clearInterval(timer);
+    return () => clearInterval(timer); // cleanup
   }, []);
 
-  const formattedTime = time.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+  // Format time
+  const formattedTime = time.toLocaleTimeString([], {
+    hour: "2-digit",
+    minute: "2-digit",
+  });
 
-  // Fetch Notifications
-  const fetchNotifications = async () => {
-    try {
-      const res = await axios.get(`/notifications/${userId}`);
-      setNotifications(res.data.data || []);
-    } catch (err) {
-      console.error("❌ Error fetching notifications:", err);
-    }
-  };
-
-  // Fetch User Avatar
-  const fetchUser = async () => {
-    try {
-      const user = await axios.get(`/user/${userId}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      setAvatar(user.data.data.avatar);
-    } catch (err) {
-      console.error(err);
-    }
-  };
-
+  // =============== FETCH USER AVATAR ===============
   useEffect(() => {
+    const fetchUser = async () => {
+      try {
+        const res = await axios.get(`/user/${userId}`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        setAvatar(res.data.data.avatar);
+      } catch (err) {}
+    };
     fetchUser();
   }, []);
 
+  // =============== FETCH NOTIFICATIONS ===============
   useEffect(() => {
-    if (notifOpen) {
-      fetchNotifications();
-    }
+    if (!notifOpen) return;
+    const fetchNotifications = async () => {
+      try {
+        const res = await axios.get(`/notifications/${userId}`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        setNotifications(res.data.data || []);
+      } catch (err) {}
+    };
+    fetchNotifications();
   }, [notifOpen]);
 
-  // Mark notification as read
-  const markAsRead = async (id) => {
-    try {
-      await axios.patch(`/notifications/${id}/read`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      setNotifications((prev) =>
-        prev.map((n) => (n._id === id ? { ...n, read: true } : n))
-      );
-    } catch (err) {
-      console.error("❌ Error marking as read:", err);
-    }
+  // Animation presets
+  const dropdownAnim = {
+    hidden: { opacity: 0, y: -10, scale: 0.96 },
+    visible: { opacity: 1, y: 0, scale: 1 },
+    exit: { opacity: 0, y: -10, scale: 0.96 },
   };
 
   return (
     <motion.header
-      initial={{ y: -30, opacity: 0 }}
-      animate={{ y: 0, opacity: 1 }}
-      transition={{ duration: 0.5 }}
-      className={`z-50 fixed top-0 left-0 right-0 h-16 px-6 bg-[#0F172A]/80 backdrop-blur-md border-b border-blue-500/20 shadow-lg flex items-center justify-between transition-all duration-300 ${
-        isSidebarOpen ? "md:ml-64" : "ml-0"
-      }`}
+      initial={{ opacity: 0, y: -25 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.4 }}
+      className="
+        fixed top-0 right-0 h-16 flex items-center justify-between
+        px-6 bg-[#0b0d12]/70 backdrop-blur-xl border-b border-white/10 shadow-lg z-40
+      "
+      style={{ left: isSidebarOpen ? "16rem" : "5rem" }}
     >
-      {/* Sidebar Toggle */}
-      <button onClick={toggleSidebar} className="text-white focus:outline-none">
-        {isSidebarOpen ? <X size={24} /> : <Menu size={24} />}
+      {/* ============= SIDEBAR TOGGLE ============= */}
+      <button
+        onClick={toggleSidebar}
+        className="p-2 rounded-md hover:bg-white/10 transition"
+      >
+        <Menu size={22} />
       </button>
 
-      {/* Title */}
-      <h1 className="text-xl font-bold tracking-wide text-blue-400">
-        <span className="md:hidden">SkillHub</span>
-        <span className="hidden md:inline">SkillHub Dashboard</span>
+      {/* ============= CENTER TITLE ============= */}
+      <h1 className="text-lg font-semibold text-indigo-300 tracking-wide hidden md:block">
+        SkillHub Dashboard
       </h1>
 
-      {/* Right Section */}
-      <div className="flex items-center gap-6 text-white">
-        {/* Time */}
-        <span className="text-sm text-gray-300">{formattedTime}</span>
+      {/* ============= RIGHT SIDE ============= */}
+      <div className="flex items-center gap-6">
 
-        {/* Notification Icon */}
+        {/* Time */}
+        <span className="text-gray-300 text-sm">{formattedTime}</span>
+
+        {/* ============= NOTIFICATIONS ============= */}
         <div className="relative">
           <button
-            onClick={() => setNotifOpen((prev) => !prev)}
-            className="relative p-2 rounded-full bg-gray-800 hover:bg-gray-700"
+            onClick={() => {
+              setNotifOpen(!notifOpen);
+              setDropdownOpen(false);
+            }}
+            className="p-2 rounded-full bg-black/40 hover:bg-black/30 transition relative"
           >
             <Bell size={20} />
             {notifications.some((n) => !n.read) && (
-              <span className="absolute top-1 right-1 h-2 w-2 bg-red-500 rounded-full"></span>
+              <span className="absolute top-1 right-1 h-2 w-2 rounded-full bg-red-500 animate-ping" />
             )}
           </button>
 
-          {/* Dropdown */}
-          {notifOpen && (
-            <motion.div
-              initial={{ opacity: 0, y: -10 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0 }}
-              className="absolute right-0 mt-2 w-80 bg-[#1E293B] border border-blue-600 rounded-lg shadow-md p-3 max-h-96 overflow-y-auto z-50"
-            >
-              <h3 className="text-lg font-semibold mb-2">Notifications</h3>
-              {notifications.length > 0 ? (
-                notifications.map((n) => (
-                  <div
-                    key={n._id}
-                    onClick={() => markAsRead(n._id)}
-                    className={`p-3 rounded-lg mb-2 cursor-pointer ${
-                      n.read ? "bg-gray-700" : "bg-indigo-600"
-                    }`}
-                  >
-                    {n.message}
-                    <p className="text-xs text-gray-400 mt-1">
-                      {new Date(n.createdAt).toLocaleString()}
-                    </p>
-                  </div>
-                ))
-              ) : (
-                <p className="text-gray-400">No notifications yet.</p>
-              )}
-            </motion.div>
-          )}
+          {/* Notification Dropdown */}
+          <AnimatePresence>
+            {notifOpen && (
+              <motion.div
+                variants={dropdownAnim}
+                initial="hidden"
+                animate="visible"
+                exit="exit"
+                className="
+                  absolute right-0 mt-2 w-80 p-3 bg-[#0f1117] border border-white/10
+                  rounded-xl shadow-xl max-h-96 overflow-y-auto backdrop-blur-sm
+                "
+              >
+                <h3 className="text-sm font-semibold mb-2 text-indigo-300">
+                  Notifications
+                </h3>
+
+                {notifications.length ? (
+                  notifications.map((n) => (
+                    <div
+                      key={n._id}
+                      className={`p-3 mb-2 rounded-lg ${
+                        n.read ? "bg-white/5" : "bg-indigo-600/30"
+                      }`}
+                    >
+                      <p>{n.message}</p>
+                      <span className="text-gray-400 text-xs block mt-1">
+                        {new Date(n.createdAt).toLocaleString()}
+                      </span>
+                    </div>
+                  ))
+                ) : (
+                  <p className="text-gray-400 text-sm">No notifications</p>
+                )}
+              </motion.div>
+            )}
+          </AnimatePresence>
         </div>
 
-        {/* Profile Dropdown */}
+        {/* ============= USER AVATAR ============= */}
         <div className="relative">
-          <img
-            onClick={() => setDropdownOpen(!dropdownOpen)}
-            src={avatar}
-            alt="Avatar"
-            className="w-8 h-8 rounded-full cursor-pointer border border-blue-500"
-          />
-          {dropdownOpen && (
-            <motion.div
-              initial={{ opacity: 0, y: -10 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0 }}
-              className="absolute right-0 mt-2 w-40 bg-[#1E293B] border border-blue-600 rounded-lg shadow-md py-2 z-10"
-            >
-              <button
-                onClick={() => alert("Logging out...")}
-                className="block w-full text-left px-4 py-2 text-sm text-gray-200 hover:bg-blue-600"
+          <button
+            onClick={() => {
+              setDropdownOpen(!dropdownOpen);
+              setNotifOpen(false);
+            }}
+            className="flex items-center gap-2"
+          >
+            <img
+              src={avatar}
+              className="w-9 h-9 rounded-full border border-indigo-400 cursor-pointer"
+            />
+            <ChevronDown size={16} className="text-gray-400 hidden md:block" />
+          </button>
+
+          {/* Avatar Dropdown */}
+          <AnimatePresence>
+            {dropdownOpen && (
+              <motion.div
+                variants={dropdownAnim}
+                initial="hidden"
+                animate="visible"
+                exit="exit"
+                className="
+                  absolute right-0 mt-2 w-44 py-2 bg-[#0f1117] border border-white/10
+                  rounded-xl shadow-xl backdrop-blur-lg
+                "
               >
-                Logout
-              </button>
-            </motion.div>
-          )}
+                <button
+                  onClick={() => {
+                    localStorage.clear();
+                    window.location.reload();
+                  }}
+                  className="flex items-center gap-2 w-full px-4 py-2 text-left hover:bg-white/10 transition"
+                >
+                  <LogOut size={16} />
+                  Logout
+                </button>
+              </motion.div>
+            )}
+          </AnimatePresence>
         </div>
       </div>
     </motion.header>

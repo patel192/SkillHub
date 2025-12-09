@@ -1,467 +1,332 @@
-// LearningPage.jsx
 import React, { useEffect, useState, useRef } from "react";
 import { useParams } from "react-router-dom";
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import { vscDarkPlus } from "react-syntax-highlighter/dist/esm/styles/prism";
 import { motion } from "framer-motion";
 import axios from "axios";
+
 import {
   Clock,
   BookOpen,
   HelpCircle,
   ChevronUp,
   ChevronDown,
+  CheckCircle2,
 } from "lucide-react";
+
 import { AchievementPopup } from "../../../../utils/AchievementPopup";
 
 export const LearningPage = () => {
   const { courseId } = useParams();
   const userId = localStorage.getItem("userId");
   const token = localStorage.getItem("token");
+
   const canvasRef = useRef(null);
   const startTimeRef = useRef(null);
   const intervalRef = useRef(null);
 
   const [lessons, setLessons] = useState([]);
   const [selectedLesson, setSelectedLesson] = useState(null);
-  const [learningOpen, setLearningOpen] = useState(false);
+
+  const [learningOpen, setLearningOpen] = useState(true);
+  const [quizOpen, setQuizOpen] = useState(false);
 
   const [quizQuestions, setQuizQuestions] = useState([]);
-  const [quizOpen, setQuizOpen] = useState(false);
   const [currentQuestionIdx, setCurrentQuestionIdx] = useState(0);
   const [quizAnswers, setQuizAnswers] = useState({});
   const [quizResults, setQuizResults] = useState(null);
   const [points, setPoints] = useState(0);
 
-  const [enrollmentId, setEnrollmentId] = useState(null);
   const [completedLessons, setCompletedLessons] = useState([]);
+
   const [learningTime, setLearningTime] = useState(0);
   const [unlockedAchievement, setUnlockedAchievement] = useState(null);
 
   const handleClosePopup = () => setUnlockedAchievement(null);
 
   const getStoredTime = () =>
-    parseInt(
-      localStorage.getItem(`learningTime_${userId}_${courseId}`) || "0",
-      10
-    );
+    parseInt(localStorage.getItem(`learningTime_${userId}_${courseId}`) || "0");
+
   const saveStoredTime = (time) =>
     localStorage.setItem(`learningTime_${userId}_${courseId}`, time.toString());
 
-  // Firework Animation
-  const triggerFirework = () => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    const ctx = canvas.getContext("2d");
-    const particles = [];
-    for (let i = 0; i < 50; i++) {
-      particles.push({
-        x: canvas.width / 2,
-        y: canvas.height / 2,
-        dx: Math.random() * 4 - 2,
-        dy: Math.random() * 4 - 2,
-        life: 100,
-        color: `hsl(${Math.random() * 360}, 100%, 50%)`,
-      });
-    }
-    const animate = () => {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      particles.forEach((p, idx) => {
-        p.x += p.dx;
-        p.y += p.dy;
-        p.life -= 2;
-        ctx.fillStyle = p.color;
-        ctx.beginPath();
-        ctx.arc(p.x, p.y, 3, 0, Math.PI * 2);
-        ctx.fill();
-        if (p.life <= 0) particles.splice(idx, 1);
-      });
-      if (particles.length > 0) requestAnimationFrame(animate);
-    };
-    animate();
-  };
-
+  // --------------------------
   // Fetch lessons
+  // --------------------------
   useEffect(() => {
-    const fetchLessons = async () => {
+    const fetchData = async () => {
       try {
-        const res = await axios.get(`/lessons/${courseId}`, {
+        const lessonsRes = await axios.get(`/lessons/${courseId}`, {
           headers: { Authorization: `Bearer ${token}` },
         });
-        if (Array.isArray(res.data.data)) {
-          setLessons(res.data.data);
-          if (res.data.data.length > 0) setSelectedLesson(res.data.data[0]);
-        }
-      } catch (err) {
-        console.error("Error fetching lessons:", err);
-      }
-    };
-    fetchLessons();
-  }, [courseId]);
 
-  // Fetch enrollment
-  useEffect(() => {
-    const fetchEnrollment = async () => {
-      try {
-        const res = await axios.get(`/enrollment/${userId}`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        if (res.data.data && Array.isArray(res.data.data)) {
-          const enrollment = res.data.data.find(
-            (e) => e.courseId._id === courseId
-          );
-          if (enrollment) {
-            setEnrollmentId(enrollment._id);
-            setCompletedLessons(enrollment.completedLessons || []);
+        if (Array.isArray(lessonsRes.data.data)) {
+          setLessons(lessonsRes.data.data);
+          if (lessonsRes.data.data.length > 0) {
+            setSelectedLesson(lessonsRes.data.data[0]);
           }
         }
-      } catch (err) {
-        console.error("Error fetching enrollment:", err);
-      }
-    };
-    fetchEnrollment();
-  }, [courseId, userId]);
 
-  // Fetch quiz and progress
-  useEffect(() => {
-    const fetchQuizAndProgress = async () => {
-      try {
-        const resQ = await axios.get(`/questions/${courseId}`, {
+        const quizRes = await axios.get(`/questions/${courseId}`, {
           headers: { Authorization: `Bearer ${token}` },
         });
-        if (Array.isArray(resQ.data.data)) setQuizQuestions(resQ.data.data);
 
-        const resP = await axios.get(`/progress/${userId}/${courseId}`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        if (resP.data.success && resP.data.data) {
-          setCurrentQuestionIdx(resP.data.data.currentQuestionIdx || 0);
-          setQuizAnswers(resP.data.data.quizAnswers || {});
-          setPoints(resP.data.data.points || 0);
-        } else {
-          setCurrentQuestionIdx(0);
-          setQuizAnswers({});
-          setPoints(0);
+        if (Array.isArray(quizRes.data.data)) {
+          setQuizQuestions(quizRes.data.data);
         }
       } catch (err) {
-        console.error("Error fetching quiz/progress:", err);
+        console.error("Error fetching learning data:", err);
       }
     };
-    fetchQuizAndProgress();
-  }, [courseId, userId]);
 
-  // Track learning time
+    fetchData();
+  }, [courseId]);
+
+  // --------------------------
+  // Time tracking
+  // --------------------------
   useEffect(() => {
     setLearningTime(getStoredTime());
     startTimeRef.current = Date.now();
 
     intervalRef.current = setInterval(() => {
-      const sessionTime = Math.floor(
-        (Date.now() - startTimeRef.current) / 1000
-      );
+      const sessionTime = Math.floor((Date.now() - startTimeRef.current) / 1000);
       setLearningTime(getStoredTime() + sessionTime);
     }, 1000);
 
-    const handleBeforeUnload = () => {
-      const sessionTime = Math.floor(
-        (Date.now() - startTimeRef.current) / 1000
-      );
+    const beforeUnload = () => {
+      const sessionTime = Math.floor((Date.now() - startTimeRef.current) / 1000);
       saveStoredTime(getStoredTime() + sessionTime);
       clearInterval(intervalRef.current);
     };
-    window.addEventListener("beforeunload", handleBeforeUnload);
-    return () => {
-      handleBeforeUnload();
-      window.removeEventListener("beforeunload", handleBeforeUnload);
-    };
-  }, [courseId, userId]);
 
-  // Save progress
-  const saveProgress = async (newIdx, newAnswers, newPoints) => {
-    try {
-      await axios.post(
-        "/progress/save",
-        {
-          userId,
-          courseId,
-          currentQuestionIdx: newIdx,
-          quizAnswers: newAnswers,
-          points: newPoints,
-        },
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
-    } catch (err) {
-      console.error("Error saving progress:", err);
-    }
-  };
+    window.addEventListener("beforeunload", beforeUnload);
 
-  // Handle quiz answer change
-  const handleQuizChange = (questionId, optionText) => {
-    setQuizAnswers((prev) => {
-      const updated = { ...prev, [questionId]: optionText };
-      saveProgress(currentQuestionIdx, updated, points);
-      return updated;
-    });
-  };
+    return () => beforeUnload();
+  }, []);
 
-  // Handle submit quiz
-  const handleSubmitQuiz = async () => {
-    const currentQ = quizQuestions[currentQuestionIdx];
-    if (!currentQ) return;
+  // --------------------------
+  // Quiz submission
+  // --------------------------
+  const handleSubmitQuiz = () => {
+    const q = quizQuestions[currentQuestionIdx];
+    if (!q) return;
 
-    const selected = quizAnswers[currentQ._id];
+    const selected = quizAnswers[q._id];
     if (!selected) return;
 
-    const isCorrect = currentQ.options.some(
-      (o) => o.text === selected && o.isCorrect
-    );
-    const newPoints = isCorrect ? points + (currentQ.points || 1) : points;
-    if (isCorrect) triggerFirework();
-    setPoints(newPoints);
+    const isCorrect = q.options.some((o) => o.text === selected && o.isCorrect);
+
+    if (isCorrect) {
+      setPoints((prev) => prev + (q.points || 1));
+    }
 
     if (currentQuestionIdx < quizQuestions.length - 1) {
-      const newIdx = currentQuestionIdx + 1;
-      setCurrentQuestionIdx(newIdx);
-      saveProgress(newIdx, quizAnswers, newPoints);
+      setCurrentQuestionIdx(currentQuestionIdx + 1);
     } else {
       setQuizResults(true);
-      saveProgress(currentQuestionIdx, quizAnswers, newPoints);
     }
   };
 
-  // Handle lesson selection
-  const handleLessonSelect = (lesson) => {
-    setSelectedLesson(lesson);
-    setQuizOpen(false);
-    setLearningOpen(false); // collapse lessons menu
-    setQuizResults(null);
-  };
-
-  // Handle quiz selection
-  const handleQuizSelect = (idx) => {
-    setCurrentQuestionIdx(idx);
-    setSelectedLesson(null);
-    setQuizOpen(false); // close dropdown
-    setLearningOpen(false); // ensure lessons menu is closed
-    setQuizResults(null);
-  };
-
-  // --- Content parsing ---
+  // --------------------------
+  // Parse lesson content blocks
+  // --------------------------
   const parseContent = (content) => {
     const blocks = [];
     const regex = /```(\w+)?\n([\s\S]*?)```/g;
-    let lastIndex = 0;
+    let last = 0;
     let match;
 
-    while ((match = regex.exec(content)) !== null) {
-      if (match.index > lastIndex) {
-        blocks.push({
-          type: "text",
-          content: content.slice(lastIndex, match.index),
-        });
+    while ((match = regex.exec(content))) {
+      if (match.index > last) {
+        blocks.push({ type: "text", content: content.slice(last, match.index) });
       }
       blocks.push({
         type: "code",
         lang: match[1] || "text",
         content: match[2],
       });
-      lastIndex = regex.lastIndex;
+      last = regex.lastIndex;
     }
 
-    if (lastIndex < content.length) {
-      blocks.push({ type: "text", content: content.slice(lastIndex) });
+    if (last < content.length) {
+      blocks.push({ type: "text", content: content.slice(last) });
     }
 
     return blocks;
   };
 
   return (
-    <div className="flex flex-col md:flex-row h-screen bg-[#0d1117] text-white relative font-sans">
-      <AchievementPopup
-        achievement={unlockedAchievement}
-        onClose={handleClosePopup}
-      />
+    <div className="flex h-screen bg-gradient-to-br from-[#0f172a] via-[#1e1b4b] to-[#0f172a] text-white relative">
+
+      {/* Fireworks */}
       <canvas
         ref={canvasRef}
-        width={window?.innerWidth || 1200}
-        height={window?.innerHeight || 800}
-        className="absolute top-0 left-0 pointer-events-none"
+        width={window.innerWidth}
+        height={window.innerHeight}
+        className="absolute inset-0 pointer-events-none"
       />
 
-      {/* Sidebar */}
-      <motion.div
-        className="w-full md:w-64 bg-[#161b22] border-b md:border-r border-gray-700 overflow-y-auto shadow-lg flex-shrink-0"
-        initial={{ x: -120, opacity: 0 }}
+      {/* Achievement Popup */}
+      <AchievementPopup achievement={unlockedAchievement} onClose={handleClosePopup} />
+
+      {/* SIDEBAR */}
+      <motion.aside
+        initial={{ x: -40, opacity: 0 }}
         animate={{ x: 0, opacity: 1 }}
-        transition={{ duration: 0.6 }}
+        transition={{ duration: 0.4 }}
+        className="w-72 bg-[#111827]/70 backdrop-blur-xl border-r border-white/10 overflow-y-auto"
       >
-        <h2 className="p-4 text-lg font-bold border-b border-gray-700 text-indigo-400 tracking-wide">
-          Course Menu
+        <h2 className="px-5 py-4 text-xl font-semibold tracking-wide text-indigo-300 border-b border-white/10">
+          Course Navigation
         </h2>
 
-        {/* Time spent */}
-        <motion.div className="flex items-center gap-2 p-4 text-sm text-gray-300 border-b border-gray-700">
-          <Clock className="w-4 h-4 text-green-400 animate-pulse" />
-          Time Spent:{" "}
+        {/* TIME */}
+        <div className="px-5 py-3 border-b border-white/10 flex items-center gap-2 text-sm text-gray-300">
+          <Clock size={16} className="text-green-400" />
+          Time Spent:
           <span className="font-semibold text-white">
             {Math.floor(learningTime / 60)}m {learningTime % 60}s
           </span>
-        </motion.div>
+        </div>
 
-        {/* Lessons Dropdown */}
-        <motion.button
+        {/* LESSONS */}
+        <button
           onClick={() => setLearningOpen(!learningOpen)}
-          className="w-full text-left px-4 py-2 font-semibold flex justify-between items-center bg-[#161b22] hover:bg-[#1f2937] transition-colors duration-300 border-l-4 border-transparent hover:border-indigo-500"
+          className="w-full px-5 py-3 flex justify-between items-center text-left bg-[#111827]/70 hover:bg-[#1f2937] transition"
         >
-          <span className="flex items-center gap-2 text-indigo-400 font-medium">
-            <BookOpen className="animate-pulse" /> Lessons
+          <span className="text-indigo-300 font-semibold flex items-center gap-2">
+            <BookOpen size={18} /> Lessons
           </span>
           {learningOpen ? (
-            <ChevronUp className="text-indigo-400" />
+            <ChevronUp className="text-indigo-300" />
           ) : (
-            <ChevronDown className="text-indigo-400" />
+            <ChevronDown className="text-indigo-300" />
           )}
-        </motion.button>
+        </button>
 
         <motion.div
-          initial={{ height: 0, opacity: 0 }}
-          animate={
-            learningOpen
-              ? { height: "auto", opacity: 1 }
-              : { height: 0, opacity: 0 }
-          }
-          transition={{ duration: 0.4 }}
-          className="pl-4 overflow-hidden"
+          initial={{ height: 0 }}
+          animate={{ height: learningOpen ? "auto" : 0 }}
+          className="overflow-hidden"
         >
-          {lessons.map((lesson) => (
-            <motion.button
-              key={lesson._id}
-              onClick={() => handleLessonSelect(lesson)}
-              className={`block w-full text-left px-4 py-2 text-sm rounded-md mb-1 border-l-4 transition-all duration-300 ${
-                selectedLesson?._id === lesson._id
-                  ? "bg-[#21262d] border-indigo-500"
-                  : "hover:bg-[#1f2937] border-transparent"
+          {lessons.map((l) => (
+            <button
+              key={l._id}
+              onClick={() => setSelectedLesson(l)}
+              className={`w-full px-6 py-3 text-left text-sm border-l-4 transition-all ${
+                selectedLesson?._id === l._id
+                  ? "bg-[#1e1b4b]/50 border-indigo-500 text-white"
+                  : "border-transparent hover:bg-[#1f2937]"
               }`}
             >
-              {lesson.title}
-              {completedLessons.includes(lesson._id) && (
-                <span className="ml-2 text-green-400">✔</span>
-              )}
-            </motion.button>
+              {l.title}
+            </button>
           ))}
         </motion.div>
 
-        {/* Quiz Dropdown */}
-        <motion.button
+        {/* QUIZ */}
+        <button
           onClick={() => setQuizOpen(!quizOpen)}
-          disabled={quizQuestions.length === 0}
-          className={`w-full text-left px-4 py-2 font-semibold flex justify-between items-center transition-colors duration-300 ${
-            quizQuestions.length === 0
-              ? "opacity-50 cursor-not-allowed"
-              : "hover:bg-[#1f2937]"
-          }`}
+          className="w-full px-5 py-3 flex justify-between items-center text-left bg-[#111827]/70 hover:bg-[#1f2937] transition mt-4"
         >
-          <span className="flex items-center gap-2 text-yellow-400 font-medium">
-            <HelpCircle className="animate-spin" />
-            {quizQuestions.length === 0 ? "No Quiz Available" : "Quiz"}
+          <span className="text-yellow-300 font-semibold flex items-center gap-2">
+            <HelpCircle size={18} /> Quiz
           </span>
           {quizOpen ? (
-            <ChevronUp className="text-yellow-400" />
+            <ChevronUp className="text-yellow-300" />
           ) : (
-            <ChevronDown className="text-yellow-400" />
+            <ChevronDown className="text-yellow-300" />
           )}
-        </motion.button>
+        </button>
 
         <motion.div
-          initial={{ height: 0, opacity: 0 }}
-          animate={
-            quizOpen
-              ? { height: "auto", opacity: 1 }
-              : { height: 0, opacity: 0 }
-          }
-          transition={{ duration: 0.4 }}
-          className="pl-4 overflow-hidden"
+          initial={{ height: 0 }}
+          animate={{ height: quizOpen ? "auto" : 0 }}
+          className="overflow-hidden"
         >
           {quizQuestions.map((q, idx) => (
-            <motion.button
+            <button
               key={q._id}
-              onClick={() => handleQuizSelect(idx)}
-              className={`block w-full text-left px-4 py-2 text-sm rounded-md mb-1 border-l-4 transition-all duration-300 ${
+              onClick={() => setCurrentQuestionIdx(idx)}
+              className={`w-full px-6 py-3 text-left text-sm border-l-4 transition ${
                 currentQuestionIdx === idx
-                  ? "bg-[#21262d] border-yellow-500"
-                  : "hover:bg-[#1f2937] border-transparent"
+                  ? "bg-[#1e1b4b]/50 border-yellow-500 text-white"
+                  : "border-transparent hover:bg-[#1f2937]"
               }`}
             >
               Question {idx + 1}
-            </motion.button>
+            </button>
           ))}
         </motion.div>
-      </motion.div>
+      </motion.aside>
 
-      {/* Main Content */}
-      <motion.div className="flex-1 p-6 overflow-y-auto relative z-10">
-        {/* Show lesson */}
+      {/* MAIN CONTENT */}
+      <div className="flex-1 p-8 overflow-y-auto">
+
+        {/* LESSON CONTENT */}
         {selectedLesson && (
-          <div className="p-4 rounded-xl bg-[#161b22] border border-gray-700 mt-4 md:mt-0">
-            <h1 className="text-2xl font-bold mb-4 text-indigo-400">
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="bg-[#111827]/70 backdrop-blur-xl rounded-2xl border border-white/10 p-6 shadow-xl"
+          >
+            <h1 className="text-3xl font-bold text-indigo-300 mb-6">
               {selectedLesson.title}
             </h1>
 
-            <div className="text-gray-200">
-              {parseContent(selectedLesson.content).map((block, idx) => {
-                if (block.type === "text") {
-                  return (
-                    <p key={idx} className="mb-4 whitespace-pre-line">
-                      {block.content}
-                    </p>
-                  );
-                } else if (block.type === "code") {
-                  return (
-                    <SyntaxHighlighter
-                      key={idx}
-                      language={block.lang}
-                      style={vscDarkPlus}
-                      wrapLongLines={true}
-                      className="rounded-lg my-4 text-sm sm:text-base"
-                    >
-                      {block.content}
-                    </SyntaxHighlighter>
-                  );
-                }
-                return null;
-              })}
-            </div>
-          </div>
+            {parseContent(selectedLesson.content).map((block, idx) =>
+              block.type === "text" ? (
+                <p key={idx} className="text-gray-200 leading-relaxed mb-4 whitespace-pre-line">
+                  {block.content}
+                </p>
+              ) : (
+                <SyntaxHighlighter
+                  key={idx}
+                  language={block.lang}
+                  style={vscDarkPlus}
+                  className="rounded-xl my-4"
+                >
+                  {block.content}
+                </SyntaxHighlighter>
+              )
+            )}
+          </motion.div>
         )}
 
-        {/* Show quiz */}
+        {/* QUIZ */}
         {quizQuestions[currentQuestionIdx] && (
-          <div className="mt-6 md:mt-8">
-            <h2 className="text-xl font-bold mb-4 text-blue-400">
-              Question {currentQuestionIdx + 1} of {quizQuestions.length}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="mt-10 bg-[#111827]/70 backdrop-blur-xl rounded-2xl border border-white/10 p-6 shadow-xl"
+          >
+            <h2 className="text-2xl font-semibold text-yellow-300 mb-4">
+              Question {currentQuestionIdx + 1} / {quizQuestions.length}
             </h2>
-            <p className="mb-6 text-lg font-semibold text-gray-200">
+
+            <p className="text-lg text-gray-200 mb-6">
               {quizQuestions[currentQuestionIdx].question}
             </p>
 
-            <div className="grid grid-cols-1 gap-4">
+            <div className="grid gap-4">
               {quizQuestions[currentQuestionIdx].options.map((opt) => {
-                const isSelected =
-                  quizAnswers[quizQuestions[currentQuestionIdx]._id] ===
-                  opt.text;
+                const selected =
+                  quizAnswers[quizQuestions[currentQuestionIdx]._id] === opt.text;
+
                 return (
                   <button
                     key={opt._id}
                     onClick={() =>
-                      handleQuizChange(
-                        quizQuestions[currentQuestionIdx]._id,
-                        opt.text
-                      )
+                      setQuizAnswers((prev) => ({
+                        ...prev,
+                        [quizQuestions[currentQuestionIdx]._id]: opt.text,
+                      }))
                     }
-                    className={`w-full text-left px-6 py-4 rounded-xl border ${
-                      isSelected
-                        ? "bg-gradient-to-r from-purple-500 to-indigo-600 text-white"
-                        : "bg-[#161b22] hover:bg-[#1f2937] text-gray-200 border-gray-600"
+                    className={`w-full px-5 py-4 rounded-xl text-left text-sm border transition-all ${
+                      selected
+                        ? "bg-gradient-to-r from-purple-500 to-indigo-600 text-white border-none"
+                        : "bg-[#1f2937] border border-gray-600 hover:bg-[#374151]"
                     }`}
                   >
                     {opt.text}
@@ -470,27 +335,15 @@ export const LearningPage = () => {
               })}
             </div>
 
-            <div className="flex gap-4 mt-8">
-              <button
-                onClick={handleSubmitQuiz}
-                className="px-6 py-3 rounded-lg bg-gradient-to-r from-green-400 to-green-600 text-white font-bold"
-              >
-                Submit & Next
-              </button>
-            </div>
-
-            <p className="mt-6 text-lg font-bold text-yellow-400">
-              Points: {points}
-            </p>
-
-            {quizResults && (
-              <div className="mt-6 p-6 rounded-xl bg-green-800 text-white">
-                Quiz Completed! Final Score: {points}
-              </div>
-            )}
-          </div>
+            <button
+              onClick={handleSubmitQuiz}
+              className="mt-8 px-6 py-3 rounded-xl bg-gradient-to-r from-green-400 to-green-600 text-black font-bold shadow-lg"
+            >
+              Submit
+            </button>
+          </motion.div>
         )}
-      </motion.div>
+      </div>
     </div>
   );
 };

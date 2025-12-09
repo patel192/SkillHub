@@ -23,47 +23,89 @@ export const Community = ({ basePath }) => {
   }, [token]);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#0f172a] via-[#0a0f1f] to-[#1e293b] text-white p-4 sm:p-6">
-      <motion.h1
-        className="text-2xl sm:text-3xl font-bold mb-6 text-center sm:text-left"
+    <div className="min-h-screen bg-gradient-to-br from-[#0f172a] via-[#1a1c2e] to-[#0f172a] text-white p-6">
+      {/* Header */}
+      <motion.div
+        className="mb-10 text-center sm:text-left"
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
+        transition={{ duration: 0.4 }}
       >
-        🌐 Communities
-      </motion.h1>
+        <h1 className="text-3xl sm:text-4xl font-extrabold bg-gradient-to-r from-purple-400 to-cyan-400 bg-clip-text text-transparent">
+          Explore Communities
+        </h1>
+        <p className="text-gray-400 mt-1 text-sm sm:text-base">
+          Connect, collaborate, and grow with people like you.
+        </p>
+      </motion.div>
 
+      {/* Communities Grid */}
       {communities.length > 0 ? (
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {communities.map((c, idx) => (
             <motion.div
               key={c._id}
               onClick={() => navigate(`/${basePath}/community/${c._id}`)}
-              className="cursor-pointer rounded-xl p-4 bg-gradient-to-br from-gray-800 via-gray-900 to-gray-800 shadow-lg border border-purple-600 hover:shadow-purple-500/50 transition-all duration-300 flex flex-col"
-              whileHover={{ scale: 1.05, boxShadow: "0 0 25px #8b5cf6" }}
-              initial={{ opacity: 0, y: 20 }}
+              initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: idx * 0.1, duration: 0.4 }}
+              transition={{ duration: 0.5, delay: idx * 0.1 }}
+              whileHover={{
+                scale: 1.04,
+                boxShadow: "0 0 25px rgba(139, 92, 246, 0.6)",
+              }}
+              className="
+              bg-[#13172a]/70 backdrop-blur-xl rounded-2xl 
+              border border-white/10 shadow-xl 
+              overflow-hidden cursor-pointer group 
+              transition-all duration-300
+            "
             >
-              <img
-                src={c.coverImage || "/cover-placeholder.png"}
-                alt={c.name}
-                className="w-full h-48 sm:h-40 md:h-32 object-cover rounded-lg mb-3 border border-gray-700"
-              />
-              <h2 className="text-lg sm:text-xl font-semibold text-purple-400 mb-1 truncate">
-                {c.name}
-              </h2>
-              <p className="text-sm text-gray-300 line-clamp-3 sm:line-clamp-2 mb-2">
-                {c.description}
-              </p>
-              <p className="mt-auto text-xs text-gray-400">
-                👥 {c.members?.length || 0} members
-              </p>
+              {/* Cover Image */}
+              <div className="relative">
+                <img
+                  src={c.coverImage || "/cover-placeholder.png"}
+                  alt={c.name}
+                  className="w-full h-40 object-cover rounded-t-2xl border-b border-white/10"
+                />
+
+                {/* Hover overlay */}
+                <div className="absolute inset-0 bg-gradient-to-b from-transparent to-black/50 opacity-0 group-hover:opacity-100 transition duration-300"></div>
+              </div>
+
+              {/* Community Content */}
+              <div className="p-5">
+                <h2 className="text-xl font-bold text-purple-300 truncate">
+                  {c.name}
+                </h2>
+
+                <p className="text-gray-400 text-sm line-clamp-2 mt-1 mb-4">
+                  {c.description}
+                </p>
+
+                {/* Members */}
+                <div className="flex items-center justify-between">
+                  <span className="text-sm text-gray-300">
+                    👥 {c.members?.length || 0} members
+                  </span>
+
+                  <button
+                    className="
+                  text-xs px-3 py-1 rounded-full
+                  bg-gradient-to-r from-purple-500 to-cyan-500 
+                  shadow-md group-hover:shadow-lg
+                "
+                  >
+                    View
+                  </button>
+                </div>
+              </div>
             </motion.div>
           ))}
         </div>
       ) : (
-        <p className="text-gray-400 text-center mt-10">No communities yet.</p>
+        <div className="text-center mt-20">
+          <p className="text-gray-400 text-lg">No communities yet.</p>
+        </div>
       )}
     </div>
   );

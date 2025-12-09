@@ -37,7 +37,7 @@ export const Reports = () => {
 
   if (reports.length === 0) {
     return (
-      <div className="text-center text-gray-400 mt-10">
+      <div className="text-center text-gray-400 mt-10 text-lg">
         No reports submitted yet.
       </div>
     );
@@ -54,59 +54,62 @@ export const Reports = () => {
   const getTargetIcon = (type) => {
     switch (type) {
       case "User":
-        return <User className="text-blue-500" size={18} />;
+        return <User className="text-blue-400" size={18} />;
       case "Course":
-        return <BookOpen className="text-green-500" size={18} />;
+        return <BookOpen className="text-green-400" size={18} />;
       case "Post":
-        return <MessageSquare className="text-purple-500" size={18} />;
+        return <MessageSquare className="text-purple-400" size={18} />;
       default:
-        return <AlertTriangle className="text-red-500" size={18} />;
+        return <AlertTriangle className="text-red-400" size={18} />;
     }
   };
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 30 }}
+      initial={{ opacity: 0, y: 25 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4 }}
-      className="p-4 sm:p-6 bg-gradient-to-br from-[#0f172a]/95 via-[#1e1b4b]/95 to-[#0f172a]/95 
-                 backdrop-blur-xl rounded-2xl shadow-2xl border border-purple-700/40
-                 max-w-full sm:max-w-6xl mx-auto overflow-hidden"
+      className="p-6 sm:p-10 min-h-screen bg-gradient-to-br 
+                 from-[#0f172a] via-[#1e1b4b] to-[#0f172a] 
+                 text-white rounded-2xl"
     >
-      {/* Header */}
-      <h2 className="text-lg sm:text-2xl font-bold mb-4 sm:mb-6 flex items-center gap-2 sm:gap-3 text-purple-300">
-        <AlertTriangle className="text-cyan-400 drop-shadow-lg" size={20} />
-        Reports ({reports.length})
+      {/* Page Title */}
+      <h2 className="text-2xl sm:text-4xl font-extrabold mb-10 
+                     bg-clip-text text-transparent 
+                     bg-gradient-to-r from-purple-400 to-cyan-400 
+                     drop-shadow-lg">
+        Reports Overview
       </h2>
 
       {/* Reports List */}
-      <div className="space-y-3 sm:space-y-4">
-        {reports.map((r) => (
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {reports.map((r, index) => (
           <motion.div
             key={r._id}
-            onClick={() => navigate(`/admin/reports/${r._id}`)}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: index * 0.05 }}
             whileHover={{ scale: 1.02 }}
-            className="p-3 sm:p-4 rounded-xl 
-                       bg-gradient-to-r from-[#1e1b4b]/80 to-[#0f172a]/80 
-                       backdrop-blur-md shadow-md border border-purple-600/40 
-                       cursor-pointer hover:shadow-purple-500/30 hover:border-cyan-400/50 
-                       transition-all duration-300"
+            onClick={() => navigate(`/admin/reports/${r._id}`)}
+            className="cursor-pointer p-5 rounded-2xl border border-purple-700/40
+                       bg-white/5 backdrop-blur-lg shadow-lg hover:shadow-purple-500/40
+                       transition-all"
           >
-            {/* Top Section */}
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-2 gap-2">
-              <div className="flex items-center gap-2 text-gray-200 flex-wrap">
+            {/* Target Row */}
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2 text-gray-200">
                 {getTargetIcon(r.targetType)}
-                <span className="font-medium text-white/90 text-sm sm:text-base">
+                <span className="font-medium text-white">
                   {r.targetType} → {renderTarget(r)}
                 </span>
               </div>
 
               <span
-                className={`px-2 sm:px-3 py-1 rounded-full text-xs sm:text-sm font-semibold shadow-sm self-start sm:self-auto
+                className={`px-3 py-1 text-xs rounded-full border font-semibold
                   ${
                     r.status === "resolved"
-                      ? "bg-cyan-500/20 text-cyan-300 border border-cyan-400/30"
-                      : "bg-purple-500/20 text-purple-300 border border-purple-400/30"
+                      ? "bg-green-500/20 text-green-300 border-green-400/20"
+                      : "bg-purple-500/20 text-purple-300 border-purple-400/30"
                   }`}
               >
                 {r.status || "pending"}
@@ -114,12 +117,12 @@ export const Reports = () => {
             </div>
 
             {/* Description */}
-            <p className="text-xs sm:text-sm text-gray-400 line-clamp-3 sm:line-clamp-2">
+            <p className="mt-3 text-gray-400 text-sm line-clamp-3">
               {r.description || "No description provided"}
             </p>
 
-            {/* Footer Info */}
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mt-2 sm:mt-3 text-[11px] sm:text-xs text-gray-500 gap-1 sm:gap-0">
+            {/* Footer */}
+            <div className="mt-4 flex justify-between items-center text-xs text-gray-500">
               <span className="text-purple-300">
                 Reporter: {r.reporter?.fullname || "Anonymous"}
               </span>

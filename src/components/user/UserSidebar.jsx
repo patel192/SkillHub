@@ -1,5 +1,5 @@
 import React from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import {
   LayoutDashboard,
   BookOpen,
@@ -7,117 +7,97 @@ import {
   BadgeCheck,
   MessageSquare,
   Settings,
-  LogOut,
   Trophy,
+  ChevronLeft,
+  ChevronRight,
+  LogOut,
+  Users,
 } from "lucide-react";
-import { motion, AnimatePresence } from "framer-motion";
-import { Link } from "react-router-dom";
-import { MdPeople } from "react-icons/md";
 
-export const UserSidebar = ({ isOpen, onClose }) => {
+export const UserSidebar = ({ isOpen, toggle }) => {
   const navigate = useNavigate();
 
+  const items = [
+    { label: "Dashboard", icon: LayoutDashboard, to: "/user/dashboard" },
+    { label: "My Courses", icon: BookOpen, to: "/user/mycourses" },
+    { label: "Profile", icon: User, to: "/user/profile" },
+    { label: "Certificates", icon: BadgeCheck, to: "/user/certificates" },
+    { label: "Messages", icon: MessageSquare, to: "/user/messages" },
+    { label: "Communities", icon: Users, to: "/user/communities" },
+    { label: "Settings", icon: Settings, to: "/user/settings" },
+    { label: "Leaderboard", icon: Trophy, to: "/user/leaderboard" },
+  ];
+
   return (
-    <AnimatePresence>
-      {isOpen && (
-        <>
-          {/* Overlay */}
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 0.5 }}
-            exit={{ opacity: 0 }}
-            onClick={onClose}
-            className="fixed inset-0 bg-black z-40"
-          />
+    <aside
+      className={`
+        fixed top-0 left-0 h-full z-40
+        bg-[#0b0d12]/80 backdrop-blur-xl border-r border-white/10
+        transition-all duration-300
+        ${isOpen ? "w-64" : "w-20"}
+      `}
+    >
+      {/* Top — logo + toggle */}
+      <div className="h-16 border-b border-white/10 flex items-center justify-between px-4">
+        <h1
+          className={`text-xl font-bold bg-gradient-to-r from-pink-400 via-indigo-400 to-cyan-300 bg-clip-text text-transparent transition-all ${
+            !isOpen && "opacity-0 w-0 overflow-hidden"
+          }`}
+        >
+          SkillHub
+        </h1>
 
-          {/* Sidebar */}
-          <motion.aside
-            initial={{ x: -300 }}
-            animate={{ x: 0 }}
-            exit={{ x: -300 }}
-            transition={{ type: "spring", stiffness: 300, damping: 30 }}
-            drag="x"
-            dragConstraints={{ left: -300, right: 0 }}
-            dragElastic={0.2}
-            onDragEnd={(event, info) => {
-              if (info.point.x < -100) onClose(); // swipe left to close
-            }}
-            className="fixed left-0 top-0 h-full bg-[#10172A]/95 backdrop-blur-md border-r border-blue-500/20 text-white p-6 pt-20 shadow-xl z-50 w-64"
-          >
-            <nav className="flex flex-col gap-6 text-sm font-medium">
-              <Link
-                to="/user/dashboard"
-                onClick={onClose}
-                className="flex items-center gap-3 hover:text-blue-400"
-              >
-                <LayoutDashboard size={18} /> Dashboard
-              </Link>
-              <Link
-                to="/user/mycourses"
-                onClick={onClose}
-                className="flex items-center gap-3 hover:text-blue-400"
-              >
-                <BookOpen size={18} /> My Courses
-              </Link>
-              <Link
-                to="/user/profile"
-                onClick={onClose}
-                className="flex items-center gap-3 hover:text-blue-400"
-              >
-                <User size={18} /> Profile
-              </Link>
-              <Link
-                to="/user/certificates"
-                onClick={onClose}
-                className="flex items-center gap-3 hover:text-blue-400"
-              >
-                <BadgeCheck size={18} /> Certificates
-              </Link>
-              <Link
-                to="/user/messages"
-                onClick={onClose}
-                className="flex items-center gap-3 hover:text-blue-400"
-              >
-                <MessageSquare size={18} /> Messages
-              </Link>
-              <Link
-                to="/user/communities"
-                onClick={onClose}
-                className="flex items-center gap-3 hover:text-blue-400"
-              >
-                <MdPeople size={18} /> Communities
-              </Link>
-              <Link
-                to="/user/settings"
-                onClick={onClose}
-                className="flex items-center gap-3 hover:text-blue-400"
-              >
-                <Settings size={18} /> Settings
-              </Link>
-              <Link
-                to="/user/leaderboard"
-                onClick={onClose}
-                className="flex items-center gap-3 hover:text-blue-400"
-              >
-                <Trophy size={18} /> LeaderBoard
-              </Link>
+        <button
+          onClick={toggle}
+          className="p-2 rounded-md hover:bg-white/10 transition"
+        >
+          {isOpen ? <ChevronLeft size={18} /> : <ChevronRight size={18} />}
+        </button>
+      </div>
 
-              <div className="mt-auto">
-                <button
-                  className="flex items-center gap-3 hover:text-red-400"
-                  onClick={() => {
-                    localStorage.removeItem("fullname");
-                    localStorage.removeItem("userId");
-                    navigate("/login");
-                  }}
-                >
-                  <LogOut size={18} /> Logout
-                </button>
-              </div>
-            </nav>
-          </motion.aside>
-        </>
-      )}
-    </AnimatePresence>
+      {/* Nav Items */}
+      <nav className="mt-6 flex flex-col gap-2">
+        {items.map((item, i) => {
+          const Icon = item.icon;
+          return (
+            <Link
+              key={i}
+              to={item.to}
+              className="
+                flex items-center gap-4 mx-3 px-3 py-3 rounded-lg
+                hover:bg-white/10 transition group
+              "
+            >
+              <Icon
+                size={20}
+                className="text-indigo-400 group-hover:text-indigo-300"
+              />
+              {isOpen && (
+                <span className="text-gray-200 group-hover:text-white text-sm">
+                  {item.label}
+                </span>
+              )}
+            </Link>
+          );
+        })}
+      </nav>
+
+      {/* Bottom Logout */}
+      <div className="absolute bottom-6 w-full px-4">
+        <button
+          onClick={() => {
+            localStorage.clear();
+            navigate("/login");
+          }}
+          className="
+            flex items-center gap-4 px-3 py-3 mx-1 w-[90%]
+            rounded-lg hover:bg-red-500/20 text-red-400 hover:text-red-300 transition
+          "
+        >
+          <LogOut size={20} />
+          {isOpen && <span>Logout</span>}
+        </button>
+      </div>
+    </aside>
   );
 };

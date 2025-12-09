@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 import { Link } from "react-router-dom";
+import { motion } from "framer-motion";
 
 export const Users = () => {
   const token = localStorage.getItem("token");
@@ -58,67 +59,100 @@ export const Users = () => {
   });
 
   return (
-    <div className="p-4 sm:p-6 md:p-8 min-h-screen bg-gradient-to-br from-[#0f172a] to-[#1e293b] text-white">
-      <h2 className="text-2xl sm:text-3xl md:text-4xl font-extrabold tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-purple-500 mb-6 sm:mb-8">
-        User Management
-      </h2>
+    <div className="p-6 md:p-10 min-h-screen bg-gradient-to-br from-[#05070f] via-[#0f172a] to-[#1e293b] text-white">
+      {/* Header */}
+      <div className="mb-10">
+        <h2 className="text-4xl font-extrabold bg-gradient-to-r from-indigo-400 to-purple-500 bg-clip-text text-transparent">
+          User Management
+        </h2>
+        <p className="text-gray-400 mt-1">Manage users • Permissions • Account states</p>
+      </div>
 
-      {/* Search Box */}
-      <div className="mb-6 sm:mb-8">
+      {/* Search */}
+      <div className="mb-10">
         <input
           type="text"
           placeholder="Search by name or email..."
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
-          className="w-full sm:w-2/3 md:w-1/3 px-3 sm:px-4 py-2 rounded-lg bg-[#1E293B]/60 border border-white/10 shadow-sm text-white 
-                     focus:outline-none focus:ring-2 focus:ring-indigo-500 placeholder-gray-400"
+          className="
+            w-full md:w-1/3 px-4 py-3 rounded-xl
+            bg-white/10 backdrop-blur-md border border-white/10
+            text-white placeholder-gray-400
+            focus:outline-none focus:ring-2 focus:ring-purple-500
+          "
         />
       </div>
 
       {/* User Cards */}
       {filteredUsers.length === 0 ? (
-        <p className="text-gray-400">No users found.</p>
+        <p className="text-gray-400 text-center">No users found.</p>
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
-          {filteredUsers.map((user) => (
+        <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-10">
+          {filteredUsers.map((user, index) => (
             <Link key={user._id} to={`${user._id}`}>
-              <div
-                className="rounded-2xl bg-[#1E293B]/60 backdrop-blur-md p-4 sm:p-6 shadow-lg border border-white/10 
-                           hover:shadow-xl hover:scale-[1.02] transition duration-300"
+              <motion.div
+                initial={{ opacity: 0, y: 40, scale: 0.9 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                transition={{
+                  delay: index * 0.06,
+                  type: "spring",
+                  stiffness: 120,
+                }}
+                whileHover={{
+                  rotateX: 6,
+                  rotateY: -6,
+                  scale: 1.05,
+                  boxShadow: "0px 0px 30px rgba(139,92,246,0.5)",
+                }}
+                className="
+                  relative rounded-2xl p-6 cursor-pointer
+                  bg-white/10 backdrop-blur-2xl border border-white/10
+                  shadow-lg hover:shadow-purple-500/30
+                "
               >
+                {/* Floating neon glow */}
+                <div className="absolute inset-0 bg-gradient-to-br from-purple-600/20 to-cyan-600/20 blur-2xl opacity-0 hover:opacity-40 transition duration-500 rounded-2xl"></div>
+
                 {/* Avatar + Basic Info */}
-                <div className="flex flex-col sm:flex-row items-center sm:items-start gap-4 mb-4 sm:mb-5">
+                <div className="relative flex items-center gap-4 mb-4 z-10">
                   {user.avatar ? (
-                    <img
+                    <motion.img
                       src={user.avatar}
                       alt={user.fullname}
-                      className="w-12 h-12 sm:w-14 sm:h-14 rounded-full object-cover border-2 border-indigo-500"
+                      className="w-14 h-14 rounded-full object-cover border border-purple-500 shadow-md"
+                      animate={{ boxShadow: ["0 0 10px #8b5cf6", "0 0 15px #22d3ee", "0 0 10px #8b5cf6"] }}
+                      transition={{ repeat: Infinity, duration: 3 }}
                     />
                   ) : (
-                    <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-indigo-600 flex items-center justify-center font-bold">
+                    <div className="w-14 h-14 rounded-full bg-indigo-600 flex items-center justify-center text-xl font-bold">
                       {user.fullname?.[0] || "U"}
                     </div>
                   )}
-                  <div className="text-center sm:text-left">
-                    <h3 className="text-lg sm:text-xl font-semibold truncate">
-                      {user.fullname || "Unnamed"}
-                    </h3>
-                    <p className="text-gray-400 text-sm truncate">{user.email}</p>
+
+                  <div>
+                    <h3 className="text-xl font-semibold">{user.fullname}</h3>
+                    <p className="text-gray-400 text-sm">{user.email}</p>
                   </div>
                 </div>
 
-                {/* Status + Role */}
-                <div className="flex flex-col sm:flex-row justify-between items-center mb-4 gap-2 sm:gap-0">
+                {/* Status + Role Badges */}
+                <div className="flex justify-between mb-5">
                   <span
-                    className={`px-3 py-1 text-xs font-medium rounded-full ${
-                      user.isActive ? "bg-green-600/70 text-white" : "bg-red-600/70 text-white"
+                    className={`px-3 py-1 rounded-full text-xs font-semibold tracking-wide ${
+                      user.isActive
+                        ? "bg-green-600/70 text-white"
+                        : "bg-red-600/70 text-white"
                     }`}
                   >
                     {user.isActive ? "Active" : "Inactive"}
                   </span>
+
                   <span
-                    className={`px-3 py-1 text-xs font-medium rounded-full ${
-                      user.role === "admin" ? "bg-yellow-500/70 text-white" : "bg-indigo-500/70 text-white"
+                    className={`px-3 py-1 rounded-full text-xs font-semibold tracking-wide ${
+                      user.role === "admin"
+                        ? "bg-yellow-500/70 text-white"
+                        : "bg-purple-500/70 text-white"
                     }`}
                   >
                     {user.role}
@@ -126,32 +160,44 @@ export const Users = () => {
                 </div>
 
                 {/* Created Date */}
-                <p className="text-sm text-gray-400 mb-4 sm:mb-5 text-center sm:text-left">
-                  Created: {user.createdAt ? new Date(user.createdAt).toLocaleDateString() : "N/A"}
+                <p className="text-gray-400 text-sm mb-5">
+                  Created:{" "}
+                  {user.createdAt
+                    ? new Date(user.createdAt).toLocaleDateString()
+                    : "N/A"}
                 </p>
 
                 {/* Action Buttons */}
-                <div className="flex flex-col sm:flex-row gap-3">
-                  <button
-                    onClick={() => toggleActive(user._id, user.isActive)}
-                    className={`py-2 rounded-lg text-sm font-semibold transition flex-1 ${
+                <div className="relative z-10 flex flex-col sm:flex-row gap-3">
+                  <motion.button
+                    onClick={(e) => {
+                      e.preventDefault();
+                      toggleActive(user._id, user.isActive);
+                    }}
+                    whileHover={{ scale: 1.07 }}
+                    className={`py-2 rounded-xl font-medium flex-1 transition ${
                       user.isActive
-                        ? "bg-red-500 hover:bg-red-600 text-white"
-                        : "bg-green-500 hover:bg-green-600 text-white"
+                        ? "bg-red-500 hover:bg-red-600"
+                        : "bg-green-500 hover:bg-green-600"
                     }`}
                   >
                     {user.isActive ? "Deactivate" : "Activate"}
-                  </button>
+                  </motion.button>
 
-                  <button
-                    onClick={() => toggleRole(user._id, user.role)}
-                    className="py-2 rounded-lg text-sm font-semibold bg-gradient-to-r from-indigo-500 to-purple-500 
-                               hover:from-indigo-600 hover:to-purple-600 text-white transition flex-1"
+                  <motion.button
+                    onClick={(e) => {
+                      e.preventDefault();
+                      toggleRole(user._id, user.role);
+                    }}
+                    whileHover={{ scale: 1.07 }}
+                    className="py-2 rounded-xl font-medium flex-1 
+                               bg-gradient-to-r from-indigo-500 to-purple-600 
+                               hover:from-indigo-600 hover:to-purple-700"
                   >
                     Make {user.role === "admin" ? "User" : "Admin"}
-                  </button>
+                  </motion.button>
                 </div>
-              </div>
+              </motion.div>
             </Link>
           ))}
         </div>

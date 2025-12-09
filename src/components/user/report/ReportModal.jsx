@@ -1,35 +1,41 @@
 import React, { useState } from "react";
 import axios from "axios";
 import toast from "react-hot-toast";
+import { motion } from "framer-motion";
+import { X, Flag } from "lucide-react";
 
 export const ReportModal = ({ targetType, targetId, onClose }) => {
   const [type, setType] = useState("bug");
   const [description, setDescription] = useState("");
-const token = localStorage.getItem("token");
+  const token = localStorage.getItem("token");
+  const userId = localStorage.getItem("userId");
+
   const handleSubmit = async (e) => {
     e.preventDefault();
-    try {
-      await axios.post("/report", {
-        reporter: localStorage.getItem("userId"), // ✅ required
-        type,
-        description,
-        targetType, // ✅ dynamic target
-        targetId,   // ✅ dynamic id
-      },{
-        headers: { Authorization: `Bearer ${token}` },
-      });
 
-      toast.success("✅ Report submitted successfully!");
+    try {
+      await axios.post(
+        "/report",
+        {
+          reporter: userId,
+          type,
+          description,
+          targetType,
+          targetId,
+        },
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+
+      toast.success("Report submitted successfully!");
       onClose();
     } catch (error) {
-      console.error("❌ Report failed:", error.response?.data || error.message);
-      toast.error(
-        error.response?.data?.message || "Failed to submit report. Try again."
-      );
+      console.error("Report error:", error);
+      toast.error("Failed to submit report.");
     }
   };
 
-  // Pick a readable title
   const getTitle = () => {
     switch (targetType) {
       case "User":
@@ -46,18 +52,43 @@ const token = localStorage.getItem("token");
   };
 
   return (
-    <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-60 z-50">
-      <div className="bg-gray-900 p-6 rounded-xl shadow-xl w-full max-w-md">
-        <h2 className="text-2xl font-bold mb-4 text-white">{getTitle()}</h2>
+    <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex justify-center items-center z-50 p-4">
+      {/* Modal Container */}
+      <motion.div
+        initial={{ opacity: 0, scale: 0.85, y: 20 }}
+        animate={{ opacity: 1, scale: 1, y: 0 }}
+        exit={{ opacity: 0 }}
+        className="relative w-full max-w-md bg-[#0f1117] border border-white/10 rounded-2xl p-6 shadow-xl text-white"
+      >
+        {/* Close Button */}
+        <button
+          onClick={onClose}
+          className="absolute top-3 right-3 text-gray-400 hover:text-white transition"
+        >
+          <X size={20} />
+        </button>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
+        {/* Title */}
+        <div className="flex items-center gap-2 mb-6">
+          <Flag className="text-red-400" size={22} />
+          <h2 className="text-xl font-semibold">{getTitle()}</h2>
+        </div>
+
+        {/* Form */}
+        <form onSubmit={handleSubmit} className="space-y-5">
           {/* Report Type */}
           <div>
-            <label className="block text-sm text-gray-300 mb-1">Report Type</label>
+            <label className="block text-sm text-gray-300 mb-1">
+              Report Type
+            </label>
             <select
               value={type}
               onChange={(e) => setType(e.target.value)}
-              className="w-full p-2 rounded-lg bg-gray-800 text-white border border-gray-700 focus:ring-2 focus:ring-indigo-500"
+              className="
+                w-full p-3 rounded-xl bg-[#1a1d26] border border-white/10 
+                text-gray-200 focus:border-indigo-400 focus:ring 
+                focus:ring-indigo-500/20 transition
+              "
               required
             >
               <option value="bug">🐞 Bug</option>
@@ -68,36 +99,51 @@ const token = localStorage.getItem("token");
 
           {/* Description */}
           <div>
-            <label className="block text-sm text-gray-300 mb-1">Description</label>
+            <label className="block text-sm text-gray-300 mb-1">
+              Description
+            </label>
             <textarea
               value={description}
               onChange={(e) => setDescription(e.target.value)}
-              placeholder="Describe the issue in detail..."
-              className="w-full p-3 rounded-lg bg-gray-800 text-white border border-gray-700 focus:ring-2 focus:ring-indigo-500"
               rows={4}
-              maxLength={1000}
+              placeholder="Describe the issue in detail..."
+              className="
+                w-full p-3 rounded-xl bg-[#1a1d26] border border-white/10 
+                text-gray-200 focus:border-indigo-400 focus:ring 
+                focus:ring-indigo-500/20 transition
+              "
               required
             />
           </div>
 
           {/* Buttons */}
-          <div className="flex justify-end gap-3">
+          <div className="flex justify-end gap-3 mt-4">
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 rounded-lg bg-gray-700 hover:bg-gray-600 text-white"
+              className="
+                px-4 py-2 rounded-xl bg-[#1a1d26] border border-white/10 
+                hover:border-gray-400 transition
+              "
             >
               Cancel
             </button>
-            <button
+
+            <motion.button
+              whileHover={{ scale: 1.03 }}
+              whileTap={{ scale: 0.97 }}
               type="submit"
-              className="px-4 py-2 rounded-lg bg-red-600 hover:bg-red-700 text-white font-semibold"
+              className="
+                px-5 py-2 rounded-xl font-medium 
+                bg-gradient-to-r from-red-500 to-pink-600 
+                hover:opacity-90 transition
+              "
             >
               Submit Report
-            </button>
+            </motion.button>
           </div>
         </form>
-      </div>
+      </motion.div>
     </div>
   );
 };

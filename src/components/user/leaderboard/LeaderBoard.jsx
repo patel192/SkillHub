@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Crown, Trophy, Award } from "lucide-react";
+import { Crown, Award, Trophy } from "lucide-react";
 import { motion } from "framer-motion";
 import axios from "axios";
 
@@ -7,12 +7,13 @@ export const LeaderBoard = () => {
   const [users, setUsers] = useState([]);
   const [achievements, setAchievements] = useState([]);
   const [activeTab, setActiveTab] = useState("leaderboard");
+
   const token = localStorage.getItem("token");
   const userId = localStorage.getItem("userId");
 
-  // Fetch all users
+  // Fetch users
   useEffect(() => {
-    const fetchUsers = async () => {
+    (async () => {
       try {
         const res = await axios.get("/users", {
           headers: { Authorization: `Bearer ${token}` },
@@ -21,15 +22,14 @@ export const LeaderBoard = () => {
       } catch {
         setUsers([]);
       }
-    };
-    fetchUsers();
-  }, [token]);
+    })();
+  }, []);
 
-  // Fetch achievements for the current user
+  // Fetch achievements
   useEffect(() => {
-    const fetchAchievements = async () => {
+    if (activeTab !== "achievements" || !userId) return;
+    (async () => {
       try {
-        if (!userId) return;
         const res = await axios.get(`/achievement/${userId}`, {
           headers: { Authorization: `Bearer ${token}` },
         });
@@ -37,146 +37,161 @@ export const LeaderBoard = () => {
       } catch {
         setAchievements([]);
       }
-    };
-    if (activeTab === "achievements") fetchAchievements();
-  }, [activeTab, userId, token]);
+    })();
+  }, [activeTab]);
 
-  // Sort users by points descending
   const sortedUsers = [...users].sort((a, b) => b.points - a.points);
   const topScore = sortedUsers[0]?.points || 1;
 
   return (
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      transition={{ duration: 0.6 }}
-      className="bg-[#0F172A] min-h-screen text-white px-6 py-10"
-    >
+    <div className="min-h-screen p-6 text-white bg-[#05070b]">
+      {/* Header */}
+      <motion.div
+        initial={{ opacity: 0, x: -15 }}
+        animate={{ opacity: 1, x: 0 }}
+        className="mb-8"
+      >
+        <h1 className="text-3xl font-bold">Leaderboard & Achievements</h1>
+        <p className="text-gray-400 text-sm mt-1">
+          Compare your progress with others & track achievements.
+        </p>
+      </motion.div>
+
       {/* Tabs */}
-      <div className="flex justify-center gap-6 mb-10 flex-wrap">
-        {["leaderboard", "achievements"].map((tab) => (
+      <div className="flex gap-4 mb-8">
+        {[
+          { key: "leaderboard", label: "Leaderboard" },
+          { key: "achievements", label: "Achievements" },
+        ].map((tab) => (
           <motion.button
-            key={tab}
-            onClick={() => setActiveTab(tab)}
-            className={`relative px-6 py-2 rounded-xl font-bold uppercase tracking-wide
-              ${
-                activeTab === tab
-                  ? "bg-gradient-to-r from-cyan-500 to-purple-600 text-white shadow-[0_0_20px_#22d3ee]"
-                  : "bg-gray-800 text-gray-400 hover:bg-gray-700"
-              }`}
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
+            key={tab.key}
+            onClick={() => setActiveTab(tab.key)}
+            whileHover={{ scale: 1.03 }}
+            className={`px-5 py-2 rounded-xl border text-sm transition ${
+              activeTab === tab.key
+                ? "bg-[#1a1d26] border-white/20"
+                : "bg-[#0f1117] border-white/10 hover:border-white/20"
+            }`}
           >
-            {tab === "leaderboard" ? "🏆 Leaderboard" : "🎖 Achievements"}
+            {tab.label}
           </motion.button>
         ))}
       </div>
 
-      {/* Leaderboard */}
+      {/* Leaderboard Panel */}
       {activeTab === "leaderboard" && (
-        <div className="max-w-3xl mx-auto space-y-4">
-          <h2 className="text-3xl font-extrabold text-center text-cyan-400 mb-6 flex items-center justify-center gap-2">
-            <Award className="text-purple-400 animate-bounce" /> Leaderboard
+        <motion.div
+          initial={{ opacity: 0, y: 15 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="bg-[#11141b] border border-white/10 rounded-2xl p-6 max-w-3xl mx-auto space-y-4"
+        >
+          <h2 className="text-xl font-semibold flex items-center gap-2">
+            <Award size={20} className="text-indigo-400" /> Leaderboard
           </h2>
 
-          {sortedUsers.map((user, index) => {
-            const isCurrentUser = user._id === userId;
-            const progress = Math.min((user.points / topScore) * 100, 100);
+          {sortedUsers.map((u, idx) => {
+            const isMe = u._id === userId;
+            const progress = (u.points / topScore) * 100;
 
             return (
               <motion.div
-                key={user._id}
-                initial={{ opacity: 0, y: 40 }}
+                key={u._id}
+                initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: index * 0.05 }}
-                className={`relative bg-gray-900 p-4 rounded-xl flex items-center justify-between 
-                  hover:shadow-[0_0_25px_#22d3ee] transition 
-                  ${isCurrentUser ? "border border-purple-500" : ""}`}
+                transition={{ delay: idx * 0.04 }}
+                className={`flex items-center justify-between bg-[#0f1117] border border-white/10 rounded-xl p-4 ${
+                  isMe ? "border-indigo-400" : ""
+                }`}
               >
                 {/* Left */}
                 <div className="flex items-center gap-4">
-                  <span className="text-2xl font-bold text-cyan-400 w-8 text-center">
-                    #{index + 1}
+                  <span className="font-bold text-lg w-8 text-indigo-300">
+                    #{idx + 1}
                   </span>
-                  {index < 3 && (
+
+                  {idx < 3 && (
                     <Crown
-                      className={`${
-                        index === 0
+                      size={20}
+                      className={
+                        idx === 0
                           ? "text-yellow-400"
-                          : index === 1
+                          : idx === 1
                           ? "text-gray-300"
                           : "text-amber-600"
-                      }`}
+                      }
                     />
                   )}
+
                   <img
-                    src={user.avatar || "/avatars/default.png"}
-                    alt={user.fullname}
-                    className="w-12 h-12 rounded-full border-2 border-cyan-400"
+                    src={u.avatar || "/avatars/default.png"}
+                    className="w-12 h-12 rounded-full border border-indigo-400"
                   />
-                  <span className="font-semibold">{user.fullname}</span>
+
+                  <span className="font-medium">{u.fullname}</span>
                 </div>
 
                 {/* Right */}
-                <div className="text-right w-40">
-                  <span className="font-bold text-cyan-300 text-lg">
-                    {user.points} pts
+                <div className="w-40 text-right">
+                  <span className="font-semibold text-indigo-300">
+                    {u.points} pts
                   </span>
-                  <div className="w-full bg-gray-700 rounded-full h-2 mt-1">
+                  <div className="h-2 w-full bg-[#1b1d26] rounded-full mt-1 overflow-hidden">
                     <motion.div
                       initial={{ width: 0 }}
                       animate={{ width: `${progress}%` }}
-                      transition={{ duration: 1 }}
-                      className="h-2 rounded-full bg-gradient-to-r from-cyan-400 to-purple-500"
+                      transition={{ duration: 0.6 }}
+                      className="h-full bg-gradient-to-r from-indigo-400 to-blue-500"
                     />
                   </div>
                 </div>
               </motion.div>
             );
           })}
-        </div>
+        </motion.div>
       )}
 
-      {/* Achievements */}
+      {/* Achievements Panel */}
       {activeTab === "achievements" && (
-        <div className="max-w-4xl mx-auto">
-          <h2 className="text-3xl font-extrabold text-center text-purple-400 mb-8 flex items-center justify-center gap-2">
-            <Trophy className="animate-spin text-cyan-400" /> Your Achievements
+        <motion.div
+          initial={{ opacity: 0, y: 15 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="bg-[#11141b] border border-white/10 rounded-2xl p-6 max-w-4xl mx-auto"
+        >
+          <h2 className="text-xl font-semibold flex items-center gap-2 mb-4">
+            <Trophy size={20} className="text-indigo-400" /> Achievements
           </h2>
 
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-6">
-            {achievements.length > 0 ? (
-              achievements.map((ach, idx) => (
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-6">
+            {achievements.length ? (
+              achievements.map((ach, i) => (
                 <motion.div
-                  key={idx}
-                  initial={{ opacity: 0, scale: 0.8 }}
+                  key={i}
+                  initial={{ opacity: 0, scale: 0.85 }}
                   animate={{ opacity: 1, scale: 1 }}
-                  transition={{ delay: idx * 0.05 }}
-                  className="relative p-5 rounded-xl bg-gray-800/70 backdrop-blur-lg shadow-lg 
-                             flex flex-col items-center justify-center 
-                             hover:scale-105 hover:shadow-[0_0_30px_#a855f7] border border-cyan-500 transition"
+                  transition={{ delay: i * 0.04 }}
+                  className="bg-[#0f1117] border border-white/10 rounded-xl p-4 flex flex-col items-center"
                 >
                   <img
                     src={ach.icon}
+                    className="w-14 h-14 mb-3"
                     alt={ach.name}
-                    className="w-16 h-16 mb-3 animate-pulse"
                   />
-                  <p className="font-semibold text-center text-cyan-200">
+                  <div className="text-sm font-medium text-indigo-300">
                     {ach.name}
-                  </p>
-                  <span className="text-xs text-purple-300">
+                  </div>
+                  <div className="text-xs text-gray-400">
                     {ach.pointsRequired} pts
-                  </span>
+                  </div>
                 </motion.div>
               ))
             ) : (
-              <p className="text-center text-gray-400">
-                No achievements unlocked yet.
+              <p className="text-gray-400 col-span-full text-center">
+                No achievements yet.
               </p>
             )}
           </div>
-        </div>
+        </motion.div>
       )}
-    </motion.div>
+    </div>
   );
 };

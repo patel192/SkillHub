@@ -1,29 +1,30 @@
 import React, { useEffect, useState } from "react";
 import { motion } from "framer-motion";
-import { PlayCircle, BookOpen, Flame } from "lucide-react";
+import { BookOpen, Flame, Play } from "lucide-react";
 import axios from "axios";
 import { Link } from "react-router-dom";
 
 export const MyCourses = () => {
   const [activeTab, setActiveTab] = useState("my");
   const token = localStorage.getItem("token");
-  const [myCourses, setMyCourses] = useState([]);
-  const [discoverCourses, setDiscoverCourses] = useState([]);
   const userId = localStorage.getItem("userId");
 
+  const [myCourses, setMyCourses] = useState([]);
+  const [discoverCourses, setDiscoverCourses] = useState([]);
+
   useEffect(() => {
-    fetchDiscoverCourses();
     fetchMyCourses();
+    fetchDiscover();
   }, []);
 
-  const fetchDiscoverCourses = async () => {
+  const fetchDiscover = async () => {
     try {
-      const res = await axios.get(`/courses`, {
+      const res = await axios.get("/courses", {
         headers: { Authorization: `Bearer ${token}` },
       });
       setDiscoverCourses(res.data.data || []);
-    } catch (error) {
-      console.error("Error fetching discoverable courses:", error.message);
+    } catch (err) {
+      console.log(err);
     }
   };
 
@@ -32,132 +33,148 @@ export const MyCourses = () => {
       const res = await axios.get(`/enrollment/${userId}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
-      const enrollments = res.data.data || [];
 
-      const mapped = enrollments.map((enrollment) => ({
-        ...enrollment.courseId,
-        progress: enrollment.progress,
-        status: enrollment.status,
+      const mapped = (res.data.data || []).map((e) => ({
+        ...e.courseId,
+        progress: e.progress,
       }));
 
       setMyCourses(mapped);
-    } catch (error) {
-      console.error("Error fetching my courses:", error.message);
+    } catch (err) {
+      console.log(err);
     }
   };
 
   const activeCourses = activeTab === "my" ? myCourses : discoverCourses;
 
+  // ------------------------------------------
+  // Premium Glass UI Course Card
+  // ------------------------------------------
+  const CourseCard = ({ course, isMy }) => (
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      whileHover={{ scale: 1.03 }}
+      transition={{ duration: 0.35 }}
+      className="
+        bg-[#111827]/60 backdrop-blur-xl rounded-2xl 
+        border border-white/10 p-5 
+        shadow-xl hover:shadow-purple-900/30 
+        hover:border-purple-500/40
+        transition-all duration-300
+      "
+    >
+      <div className="rounded-xl overflow-hidden mb-4 relative">
+        <img
+          src={course.imageUrl}
+          alt={course.title}
+          className="w-full h-40 object-cover"
+        />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent" />
+      </div>
+
+      <h3 className="text-lg font-semibold text-white">{course.title}</h3>
+      <p className="text-sm text-gray-400 mt-1 line-clamp-2">
+        {course.description}
+      </p>
+
+      {/* Progress Section */}
+      {isMy && course.progress !== undefined && (
+        <div className="mt-4">
+          <div className="h-2 rounded-full bg-[#1e2230] overflow-hidden">
+            <motion.div
+              initial={{ width: 0 }}
+              animate={{ width: `${course.progress}%` }}
+              transition={{ duration: 0.6 }}
+              className="h-full bg-gradient-to-r from-purple-400 to-indigo-500"
+            />
+          </div>
+
+          <p className="text-xs text-gray-500 mt-1 text-right">
+            {course.progress}% completed
+          </p>
+        </div>
+      )}
+
+      <Link to={`/user/course/${course._id}`}>
+        <motion.button
+          whileHover={{ scale: 1.05 }}
+          className="
+            mt-5 w-full py-2 rounded-xl
+            bg-gradient-to-r from-purple-600 to-indigo-600
+            text-white font-medium shadow-lg
+            hover:shadow-purple-800/30
+            flex items-center justify-center gap-2
+            transition
+          "
+        >
+          <Play size={18} /> {isMy ? "Continue" : "Start Learning"}
+        </motion.button>
+      </Link>
+    </motion.div>
+  );
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#0f172a] via-[#1e1b4b] to-[#0f172a] p-6 text-white">
-      <motion.h2
-        initial={{ x: -100, opacity: 0 }}
-        animate={{ x: 0, opacity: 1 }}
-        transition={{ duration: 0.5 }}
-        className="text-3xl font-bold mb-6"
+    <div className="p-8 max-w-[1300px] mx-auto space-y-12 text-white">
+
+      {/* Page Title */}
+      <motion.div
+        initial={{ opacity: 0, x: -15 }}
+        animate={{ opacity: 1, x: 0 }}
+        transition={{ duration: 0.4 }}
       >
-        {activeTab === "my" ? "My Courses" : "Discover Courses"}
-      </motion.h2>
+        <h1 className="text-3xl font-bold">
+          {activeTab === "my" ? "My Courses" : "Discover New Courses"}
+        </h1>
+        <p className="text-gray-400 text-sm mt-1">
+          Continue your journey or explore something new.
+        </p>
+      </motion.div>
+
       {/* Tabs */}
-      <div className="relative w-full max-w-md mx-auto mb-10 bg-[#1b1b2a]/80 backdrop-blur-lg border border-purple-700/40 rounded-full p-1 flex justify-between">
-        {/* Background slider */}
+      <div className="relative flex bg-[#111827]/40 backdrop-blur-xl border border-white/10 rounded-full w-fit px-1 py-1 shadow-lg">
         <motion.div
           layout
-          transition={{ type: "spring", stiffness: 300, damping: 25 }}
-          className={`absolute top-1 bottom-1 rounded-full bg-gradient-to-r from-purple-600 to-indigo-600 shadow-lg ${
-            activeTab === "my" ? "left-1 right-1/2" : "left-1/2 right-1"
-          }`}
+          className="absolute top-1 bottom-1 bg-gradient-to-r from-purple-500/40 to-indigo-500/40 rounded-full"
+          animate={{
+            left: activeTab === "my" ? "4px" : "50%",
+            width: "calc(50% - 6px)"
+          }}
+          transition={{ type: "spring", stiffness: 160, damping: 18 }}
         />
 
-        {/* My Courses */}
         <button
           onClick={() => setActiveTab("my")}
-          className={`relative z-10 w-1/2 text-sm sm:text-base py-2.5 font-medium transition-colors duration-300 ${
-            activeTab === "my"
-              ? "text-white"
-              : "text-gray-300 hover:text-purple-400"
-          }`}
+          className={`relative z-10 px-6 py-2 flex items-center gap-2 text-sm font-semibold transition
+            ${activeTab === "my" ? "text-white" : "text-gray-400 hover:text-purple-300"}
+          `}
         >
-          <div className="flex items-center justify-center gap-2">
-            <BookOpen size={16} />
-            <span>My Courses</span>
-          </div>
+          <BookOpen size={16} /> My Courses
         </button>
 
-        {/* Discover */}
         <button
           onClick={() => setActiveTab("discover")}
-          className={`relative z-10 w-1/2 text-sm sm:text-base py-2.5 font-medium transition-colors duration-300 ${
-            activeTab === "discover"
-              ? "text-white"
-              : "text-gray-300 hover:text-pink-400"
-          }`}
+          className={`relative z-10 px-6 py-2 flex items-center gap-2 text-sm font-semibold transition
+            ${activeTab === "discover" ? "text-white" : "text-gray-400 hover:text-indigo-300"}
+          `}
         >
-          <div className="flex items-center justify-center gap-2">
-            <Flame size={16} />
-            <span>Discover</span>
-          </div>
+          <Flame size={16} /> Discover
         </button>
       </div>
 
-      {/* Course Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+      {/* Courses Grid */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-10">
         {activeCourses.length > 0 ? (
           activeCourses.map((course) => (
-            <motion.div
+            <CourseCard
               key={course._id}
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 0.4 }}
-              whileHover={{
-                scale: 1.03,
-                boxShadow: "0 0 20px #00FFFF",
-              }}
-              className="bg-[#1b1b2a]/80 backdrop-blur-lg border border-purple-600/50 rounded-xl overflow-hidden p-5"
-            >
-              <img
-                src={course.imageUrl}
-                alt={course.title}
-                className="w-24 h-24 object-cover mx-auto rounded-lg mb-4 shadow-md"
-              />
-
-              <h3 className="text-xl font-semibold text-white mb-2 text-center">
-                {course.title}
-              </h3>
-              <p className="text-sm text-gray-300 mb-4 text-center">
-                {course.description}
-              </p>
-
-              {activeTab === "my" && course.progress != null && (
-                <div className="mb-4">
-                  <div className="w-full bg-gray-700 rounded-full h-2.5">
-                    <motion.div
-                      initial={{ width: 0 }}
-                      animate={{ width: `${course.progress}%` }}
-                      transition={{ duration: 0.6 }}
-                      className="bg-cyan-500 h-2.5 rounded-full"
-                    />
-                  </div>
-                  <p className="text-xs text-right mt-1 text-gray-300">
-                    {course.progress}% completed
-                  </p>
-                </div>
-              )}
-
-              <Link to={`/user/course/${course._id}`}>
-                <motion.button
-                  whileHover={{ scale: 1.05, boxShadow: "0 0 15px #06b6d4" }}
-                  className="w-full mt-3 bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-700 hover:to-blue-700 text-white py-2 rounded-lg flex items-center justify-center gap-2 font-medium transition-all duration-300"
-                >
-                  <PlayCircle size={18} className="text-cyan-300" />
-                  {activeTab === "my" ? "Continue" : "Start Learning"}
-                </motion.button>
-              </Link>
-            </motion.div>
+              course={course}
+              isMy={activeTab === "my"}
+            />
           ))
         ) : (
-          <p className="text-gray-400 col-span-full text-center">
-            No courses found.
+          <p className="text-gray-400 text-center col-span-full">
+            No courses available.
           </p>
         )}
       </div>
