@@ -1,12 +1,114 @@
-# React + Vite
+# SkillHub — Frontend
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A frontend web application that allows users to **explore, add, and manage skills** through a simple and user-friendly interface.  
+This project represents the client-side of the SkillHub platform and is designed to work with a backend API.
 
-Currently, two official plugins are available:
+---
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## 🧭 Overview
 
-## Expanding the ESLint configuration
+**SkillHub — Frontend** is built to provide an interface where users can:
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+- View a list of available skills
+- Add new skills
+- Interact with skill-related data
+- Navigate through a clean and structured UI
+
+The application focuses on clarity, usability, and correct data handling from the frontend perspective.
+
+---
+
+## 🛠️ Tech Stack
+
+- **React.js** — Component-based UI development  
+- **JavaScript (ES6+)**  
+- **HTML5 & CSS3** — Layout and styling  
+- **Axios / Fetch** — API communication  
+
+---
+
+## 🚀 Getting Started
+
+Follow these steps to run the project locally.
+
+### 1. Clone the repository
+
+```bash
+git clone https://github.com/patel192/SkillHub.git
+cd SkillHub
+```
+
+### 2. Install dependencies
+```bash
+npm install
+```
+
+### 3. Start the development server
+```bash
+npm start
+```
+The application will run locally in your browser.
+
+📁 Project Structure
+plaintext
+Copy code
+src/
+ ├─ components/     — Reusable UI components
+ ├─ pages/          — Application screens/views
+ ├─ services/       — API request handling
+ ├─ App.js          — Root component
+ └─ index.js        — Application entry point
+
+ 
+## 🔗 Backend Integration
+
+This frontend is designed to connect with a backend API that handles:
+
+- Skill data storage  
+- Data retrieval  
+- Optional authentication and authorization  
+
+Ensure the correct **API base URL** is configured before running the project.
+
+---
+
+## 🧪 Testing
+
+You can test frontend functionality by:
+
+- Adding and viewing skills through the UI  
+- Checking API requests using browser DevTools (Network tab)  
+- Verifying error handling for failed requests  
+
+---
+
+## 💡 Possible Enhancements
+
+Future improvements may include:
+
+- User authentication  
+- Skill categories and filtering  
+- Improved UI responsiveness  
+- Role-based access  
+- Better form validation and feedback  
+
+---
+
+## 📌 Purpose of This Project
+
+This project was built to:
+
+- Practice frontend development with React  
+- Work with component-based architecture  
+- Integrate frontend applications with APIs  
+- Improve UI structure and data flow understanding  
+
+---
+
+## 📞 Contact
+
+For questions or collaboration:
+
+- **GitHub:** https://github.com/patel192  
+- **LinkedIn:** https://www.linkedin.com/in/patel-muhammad-658952355/  
+- **Email:** patelmuhammad192@gmail.com  
