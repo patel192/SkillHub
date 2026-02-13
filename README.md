@@ -1,5 +1,8 @@
 # SkillHub — Frontend
 
+![Frontend CI](https://github.com/patel192/SkillHub/actions/workflows/frontend-ci.yml/badge.svg)
+
+
 A frontend web application that allows users to **explore, add, and manage skills** through a simple and user-friendly interface.  
 This project represents the client-side of the SkillHub platform and is designed to work with a backend API.
 
@@ -20,10 +23,12 @@ The application focuses on clarity, usability, and correct data handling from th
 
 ## 🛠️ Tech Stack
 
-- **React.js** — Component-based UI development  
-- **JavaScript (ES6+)**  
-- **HTML5 & CSS3** — Layout and styling  
-- **Axios / Fetch** — API communication  
+- React.js — Component-based UI development  
+- Vite — Fast build tool and dev server  
+- JavaScript (ES6+)  
+- HTML5 & CSS3 — Layout and styling  
+- Axios / Fetch — API communication  
+
 
 ---
 
@@ -45,10 +50,17 @@ npm install
 
 ### 3. Start the development server
 ```bash
-npm start
+npm run dev
 ```
-The application will run locally in your browser.
+# 🏆 Final Result — Your Repo Will Show
 
+✔ Real CI/CD practice  
+✔ Automated testing  
+✔ Production build verification  
+✔ Professional documentation  
+✔ Strong portfolio signal  
+
+---
 📁 Project Structure
 plaintext
 Copy code
