@@ -1,4 +1,4 @@
-name: SkillHub Frontend CI
+name: SkillHub Frontend CI/CD
 
 on:
   push:
@@ -7,23 +7,39 @@ on:
     branches: [ main ]
 
 jobs:
-  frontend-ci:
+  frontend-ci-cd:
     runs-on: ubuntu-latest
 
     steps:
+      #  Checkout repository
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      #  Setup Node.js
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 20
 
+      #  Install dependencies
       - name: Install dependencies
         run: npm install
 
+      #  Run tests
       - name: Run tests
         run: npm test
 
+      # Build project
       - name: Build project
         run: npm run build
+
+      #  Deploy ONLY on push to main (not PR)
+      - name: Deploy to Vercel
+        if: github.event_name == 'push'
+        run: |
+          npx vercel deploy --prod \
+          --token=${{ secrets.VERCEL_TOKEN }} \
+          --scope=${{ secrets.VERCEL_ORG_ID }} \
+          --confirm
+        env:
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
