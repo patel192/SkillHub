@@ -2,9 +2,9 @@ name: SkillHub Frontend CI/CD
 
 on:
   push:
-    branches: [ main ]
+    branches: [main]
   pull_request:
-    branches: [ main ]
+    branches: [main]
 
 jobs:
   frontend-ci-cd:
@@ -33,13 +33,10 @@ jobs:
       - name: Build project
         run: npm run build
 
-      #  Deploy ONLY on push to main (not PR)
+      #  Deploy to Vercel
       - name: Deploy to Vercel
         if: github.event_name == 'push'
-        run: |
-          npx vercel deploy --prod \
-          --token=${{ secrets.VERCEL_TOKEN }} \
-          --scope=${{ secrets.VERCEL_ORG_ID }} \
-          --confirm
+        run: npx vercel deploy --prod --yes --token=${{ secrets.VERCEL_TOKEN }}
         env:
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
           VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
