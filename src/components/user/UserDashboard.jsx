@@ -18,6 +18,7 @@ import {
   Trophy,
   Star,
   Activity,
+  Bell        
   BarChart3,
   GraduationCap
 } from "lucide-react";
