@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { Link as ScrollLink } from "react-scroll";
 import { 
   Menu, X, ArrowRight, Rocket, Map, Bot, Users, Award, BookOpen, 
-  GraduationCap, Code, Server, Database, Palette, Git, LayoutDashboard 
+  GraduationCap, Code, Server, Database, Palette, LayoutDashboard 
 } from "lucide-react";
 import {
   motion,
@@ -43,7 +43,7 @@ const BENEFITS = [
   {
     title: "Mentor Reviews",
     desc: "Get expert feedback and accelerate progress.",
-    img: "https://images.unsplash.com/photo-1522071820081-009f0129c71c?auto=format&fit=crop&w=1200&q=80",
+    img: "https://images.unsplash.com/photo-1522071820081-009",
     icon: BookOpen
   },
   {
