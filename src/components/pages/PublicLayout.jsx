@@ -162,7 +162,6 @@ export const PublicLayout = () => {
       'Node.js': Server,
       MongoDB: Database,
       'Tailwind CSS': Palette,
-      Git
     };
     
     const IconComponent = icons[name] || Code;
