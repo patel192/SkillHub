@@ -5,79 +5,97 @@
 import React, { useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import {
-  LayoutDashboard,
-  BookOpen,
-  User,
-  BadgeCheck,
-  MessageSquare,
-  Settings,
-  Trophy,
-  ChevronLeft,
-  ChevronRight,
-  LogOut,
-  Users,
-  HelpCircle,
-  Sparkles
+  LayoutDashboard, BookOpen, User, BadgeCheck,
+  MessageSquare, Settings, Trophy, ChevronLeft, ChevronRight,
+  LogOut, Users, HelpCircle, Code, Activity, Bell, Flag,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
-// Sidebar items configuration
+// ─────────────────────────────────────────
+// DESIGN TOKENS
+// ─────────────────────────────────────────
+const C = {
+  brand:      "#16A880",
+  brandDark:  "#0D7A5F",
+  brandLight: "#1FC99A",
+  accent:     "#F59E0B",
+  bg:         "#0A0F0D",
+  surface:    "#111814",
+  surface2:   "#182219",
+  surface3:   "#1E2B22",
+  border:     "rgba(22,168,128,0.15)",
+  borderHov:  "rgba(22,168,128,0.35)",
+  text:       "#E8F5F0",
+  textMuted:  "#7A9E8E",
+  textDim:    "#3D5C4E",
+  error:      "#F87171",
+};
+
+// ─────────────────────────────────────────
+// MENU ITEMS — matches App.jsx routes
+// ─────────────────────────────────────────
 const MENU_ITEMS = [
-  { label: "Dashboard", icon: LayoutDashboard, to: "/user/dashboard", badge: null },
-  { label: "My Courses", icon: BookOpen, to: "/user/mycourses", badge: "3" },
-  { label: "Communities", icon: Users, to: "/user/communities", badge: "New" },
-  { label: "Messages", icon: MessageSquare, to: "/user/messages", badge: "5" },
-  { label: "Certificates", icon: BadgeCheck, to: "/user/certificates", badge: null },
-  { label: "Leaderboard", icon: Trophy, to: "/user/leaderboard", badge: null },
-  { label: "Profile", icon: User, to: "/user/profile", badge: null },
-  { label: "Settings", icon: Settings, to: "/user/settings", badge: null },
+  { label: "Dashboard",    icon: LayoutDashboard, to: "/user/dashboard",    badge: null    },
+  { label: "My Courses",   icon: BookOpen,        to: "/user/mycourses",    badge: "3"     },
+  { label: "Communities",  icon: Users,           to: "/user/communities",  badge: "New"   },
+  { label: "Messages",     icon: MessageSquare,   to: "/user/messages",     badge: "5"     },
+  { label: "Certificates", icon: BadgeCheck,      to: "/user/certificates", badge: null    },
+  { label: "Leaderboard",  icon: Trophy,          to: "/user/leaderboard",  badge: null    },
+  { label: "Activities",   icon: Activity,        to: "/user/activities",   badge: null    },
+  { label: "Notifications",icon: Bell,            to: "/user/notifications",badge: null    },
+  { label: "Profile",      icon: User,            to: "/user/profile",      badge: null    },
+  { label: "Settings",     icon: Settings,        to: "/user/settings",     badge: null    },
 ];
 
+// ─────────────────────────────────────────
+// MAIN EXPORT
+// ─────────────────────────────────────────
 export const UserSidebar = ({ isOpen, toggle, isMobile }) => {
   const navigate = useNavigate();
   const location = useLocation();
 
-  const handleLogout = () => {
-    localStorage.clear();
-    navigate("/login");
-  };
+  const handleLogout = () => { localStorage.clear(); navigate("/login"); };
 
   return (
     <>
-      {/* Mobile Sidebar Drawer */}
+      {/* ── Mobile Drawer ───────────────── */}
       <AnimatePresence>
         {isMobile && isOpen && (
-          <>
-            <motion.aside
-              initial={{ x: "-100%" }}
-              animate={{ x: 0 }}
-              exit={{ x: "-100%" }}
-              transition={{ type: "spring", stiffness: 300, damping: 30 }}
-              className="fixed top-0 left-0 h-full w-72 bg-slate-900/98 backdrop-blur-xl border-r border-white/10 z-40 shadow-2xl"
-            >
-              <SidebarContent 
-                isOpen={true} 
-                toggle={toggle} 
-                currentPath={location.pathname}
-                onLogout={handleLogout}
-                isMobile={true}
-              />
-            </motion.aside>
-          </>
+          <motion.aside
+            initial={{ x: "-100%" }}
+            animate={{ x: 0 }}
+            exit={{ x: "-100%" }}
+            transition={{ type: "spring", stiffness: 320, damping: 32 }}
+            className="fixed top-0 left-0 h-full w-72 z-40 shadow-2xl"
+            style={{ background: `${C.surface}FA`, backdropFilter: "blur(20px)", borderRight: `1px solid ${C.border}` }}
+          >
+            <SidebarContent
+              isOpen={true}
+              toggle={toggle}
+              currentPath={location.pathname}
+              onLogout={handleLogout}
+              isMobile={true}
+            />
+          </motion.aside>
         )}
       </AnimatePresence>
 
-      {/* Desktop Sidebar */}
+      {/* ── Desktop Sidebar ─────────────── */}
       {!isMobile && (
         <motion.aside
           initial={false}
           animate={{ width: isOpen ? "16rem" : "5rem" }}
           transition={{ type: "spring", stiffness: 400, damping: 35 }}
-          className="fixed top-0 left-0 h-full bg-slate-900/90 backdrop-blur-xl border-r border-white/10 z-40"
+          className="fixed top-0 left-0 h-full z-40"
+          style={{
+            background: `${C.surface}EE`,
+            backdropFilter: "blur(20px)",
+            borderRight: `1px solid ${C.border}`,
+          }}
         >
-          <SidebarContent 
-            isOpen={isOpen} 
-            toggle={toggle} 
+          <SidebarContent
+            isOpen={isOpen}
+            toggle={toggle}
             currentPath={location.pathname}
             onLogout={handleLogout}
             isMobile={false}
@@ -88,89 +106,118 @@ export const UserSidebar = ({ isOpen, toggle, isMobile }) => {
   );
 };
 
-// Internal Sidebar Content Component
+// ─────────────────────────────────────────
+// INTERNAL SIDEBAR CONTENT
+// ─────────────────────────────────────────
 const SidebarContent = ({ isOpen, toggle, currentPath, onLogout, isMobile }) => {
-  const [hoveredIndex, setHoveredIndex] = useState(null);
+  const [hovered, setHovered] = useState(null);
 
   const isActive = (path) => currentPath === path;
 
   return (
     <div className="flex flex-col h-full">
-      {/* Header with Logo */}
-      <div className="h-16 border-b border-white/5 flex items-center justify-between px-4">
-        <Link to="/user/dashboard" className="flex items-center gap-3 overflow-hidden">
+
+      {/* ── Logo / Header ───────────────── */}
+      <div
+        className="h-16 flex items-center justify-between px-4 border-b"
+        style={{ borderColor: C.border }}
+      >
+        <Link to="/user/dashboard" className="flex items-center gap-3 overflow-hidden min-w-0">
           <motion.div
-            whileHover={{ rotate: 180 }}
-            transition={{ duration: 0.5 }}
-            className="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 flex items-center justify-center flex-shrink-0 shadow-lg shadow-indigo-500/20"
+            whileHover={{ rotate: 180, scale: 1.08 }}
+            transition={{ duration: 0.45 }}
+            className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0"
+            style={{
+              background: `linear-gradient(135deg, ${C.brand}, ${C.brandLight})`,
+              boxShadow: `0 0 18px ${C.brand}44`,
+            }}
           >
-            <Sparkles className="w-5 h-5 text-white" />
+            <Code className="w-4 h-4 text-white" />
           </motion.div>
-          
+
           <AnimatePresence mode="wait">
             {isOpen && (
-              <motion.div
+              <motion.span
                 initial={{ opacity: 0, x: -10 }}
                 animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: -10 }}
-                transition={{ duration: 0.2 }}
-                className="overflow-hidden"
+                exit={{ opacity: 0,  x: -10 }}
+                transition={{ duration: 0.18 }}
+                className="text-[19px] font-bold whitespace-nowrap overflow-hidden"
+                style={{
+                  fontFamily: "'Fraunces', serif",
+                  background: `linear-gradient(135deg, ${C.brand}, ${C.brandLight})`,
+                  WebkitBackgroundClip: "text",
+                  WebkitTextFillColor: "transparent",
+                }}
               >
-                <h1 className="text-xl font-bold bg-gradient-to-r from-indigo-400 via-purple-400 to-pink-400 bg-clip-text text-transparent whitespace-nowrap">
-                  SkillHub
-                </h1>
-              </motion.div>
+                SkillHub
+              </motion.span>
             )}
           </AnimatePresence>
         </Link>
 
-        {/* Toggle Button */}
+        {/* Collapse toggle */}
         <button
           onClick={toggle}
-          className="p-2 rounded-xl bg-white/5 hover:bg-white/10 transition-colors"
+          className="p-1.5 rounded-lg transition-colors flex-shrink-0"
+          style={{ color: C.textDim }}
+          onMouseEnter={(e) => { e.currentTarget.style.background = `${C.brand}18`; e.currentTarget.style.color = C.brand; }}
+          onMouseLeave={(e) => { e.currentTarget.style.background = "transparent"; e.currentTarget.style.color = C.textDim; }}
         >
-          {isOpen ? <ChevronLeft size={18} className="text-slate-400" /> : <ChevronRight size={18} className="text-slate-400" />}
+          {isOpen
+            ? <ChevronLeft size={17} />
+            : <ChevronRight size={17} />
+          }
         </button>
       </div>
 
-      {/* Navigation Menu */}
-      <nav className="flex-1 overflow-y-auto py-4 px-3 space-y-1">
-        {MENU_ITEMS.map((item, index) => {
+      {/* ── Navigation ──────────────────── */}
+      <nav className="flex-1 overflow-y-auto py-3 px-2.5 space-y-0.5">
+        {MENU_ITEMS.map((item, idx) => {
           const active = isActive(item.to);
-          const Icon = item.icon;
-          
+          const Icon   = item.icon;
+          const isNew  = item.badge === "New";
+
           return (
             <Link
               key={item.to}
               to={item.to}
               onClick={() => isMobile && toggle()}
-              onMouseEnter={() => setHoveredIndex(index)}
-              onMouseLeave={() => setHoveredIndex(null)}
-              className="relative group flex items-center gap-3 px-3 py-3 rounded-xl transition-all duration-200"
+              onMouseEnter={() => setHovered(idx)}
+              onMouseLeave={() => setHovered(null)}
+              className="relative flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-150 group"
+              style={{
+                background: active
+                  ? `${C.brand}18`
+                  : hovered === idx
+                  ? `${C.brand}0C`
+                  : "transparent",
+                border: active ? `1px solid ${C.border}` : "1px solid transparent",
+              }}
             >
-              {/* Active Background Indicator */}
+              {/* Active left accent bar */}
               {active && (
                 <motion.div
-                  layoutId="activeNavIndicator"
-                  className="absolute inset-0 bg-gradient-to-r from-indigo-500/20 to-purple-500/20 rounded-xl border border-indigo-500/20"
+                  layoutId="activeSidebarBar"
+                  className="absolute left-0 top-1/2 -translate-y-1/2 w-0.5 h-5 rounded-full"
+                  style={{ background: `linear-gradient(to bottom, ${C.brand}, ${C.brandLight})` }}
                   transition={{ type: "spring", stiffness: 400, damping: 30 }}
-                />
-              )}
-              
-              {/* Hover Background */}
-              {!active && (
-                <motion.div
-                  initial={false}
-                  animate={{ 
-                    opacity: hoveredIndex === index ? 1 : 0,
-                  }}
-                  className="absolute inset-0 bg-white/5 rounded-xl"
                 />
               )}
 
               {/* Icon */}
-              <div className={`relative z-10 transition-colors duration-200 ${active ? "text-indigo-400" : "text-slate-400 group-hover:text-slate-200"}`}>
-                <Icon size={20} />
+              <div
+                className="relative z-10 flex-shrink-0 transition-colors duration-150"
+                style={{ color: active ? C.brand : hovered === idx ? C.textMuted : C.textDim }}
+              >
+                <Icon size={19} />
+                {/* Active icon glow */}
+                {active && (
+                  <div
+                    className="absolute inset-0 rounded-full blur-md -z-10"
+                    style={{ background: `${C.brand}40` }}
+                  />
+                )}
               </div>
 
               {/* Label */}
@@ -179,11 +226,10 @@ const SidebarContent = ({ isOpen, toggle, currentPath, onLogout, isMobile }) => 
                   <motion.span
                     initial={{ opacity: 0, width: 0 }}
                     animate={{ opacity: 1, width: "auto" }}
-                    exit={{ opacity: 0, width: 0 }}
-                    transition={{ duration: 0.2 }}
-                    className={`relative z-10 text-sm font-medium whitespace-nowrap overflow-hidden transition-colors duration-200 ${
-                      active ? "text-white" : "text-slate-400 group-hover:text-slate-200"
-                    }`}
+                    exit={{ opacity: 0,  width: 0  }}
+                    transition={{ duration: 0.16 }}
+                    className="relative z-10 text-[13px] font-medium whitespace-nowrap overflow-hidden flex-1 transition-colors duration-150"
+                    style={{ color: active ? C.text : hovered === idx ? C.textMuted : C.textDim }}
                   >
                     {item.label}
                   </motion.span>
@@ -195,22 +241,39 @@ const SidebarContent = ({ isOpen, toggle, currentPath, onLogout, isMobile }) => 
                 <motion.span
                   initial={{ scale: 0 }}
                   animate={{ scale: 1 }}
-                  className={`relative z-10 ml-auto text-xs font-bold px-2 py-0.5 rounded-full ${
-                    item.badge === "New" 
-                      ? "bg-emerald-500/20 text-emerald-400 border border-emerald-500/20" 
-                      : "bg-indigo-500/20 text-indigo-400 border border-indigo-500/20"
-                  }`}
+                  className="relative z-10 ml-auto text-[10px] font-bold px-2 py-0.5 rounded-full"
+                  style={
+                    isNew
+                      ? { background: `${C.brand}20`, color: C.brand,  border: `1px solid ${C.border}` }
+                      : { background: `${C.accent}20`, color: C.accent, border: `1px solid rgba(245,158,11,0.2)` }
+                  }
                 >
                   {item.badge}
                 </motion.span>
               )}
 
-              {/* Tooltip for Collapsed State */}
+              {/* Tooltip when collapsed */}
               {!isOpen && !isMobile && (
-                <div className="absolute left-full ml-4 px-3 py-2 bg-slate-800 text-white text-sm rounded-xl opacity-0 group-hover:opacity-100 pointer-events-none whitespace-nowrap z-50 border border-white/10 shadow-xl transform group-hover:translate-x-1 transition-all duration-200">
-                  <div className="absolute left-0 top-1/2 -translate-x-1 -translate-y-1/2 w-2 h-2 bg-slate-800 rotate-45 border-l border-b border-white/10" />
+                <div
+                  className="absolute left-full ml-3 px-3 py-2 rounded-xl text-[12px] font-medium whitespace-nowrap z-50 shadow-xl border pointer-events-none
+                    opacity-0 group-hover:opacity-100 translate-x-1 group-hover:translate-x-0 transition-all duration-200"
+                  style={{
+                    background: C.surface2,
+                    borderColor: C.border,
+                    color: C.text,
+                  }}
+                >
+                  {/* Arrow */}
+                  <div
+                    className="absolute left-0 top-1/2 -translate-x-1 -translate-y-1/2 w-2 h-2 rotate-45 border-l border-b"
+                    style={{ background: C.surface2, borderColor: C.border }}
+                  />
                   {item.label}
-                  {item.badge && <span className="ml-2 text-indigo-400">{item.badge}</span>}
+                  {item.badge && (
+                    <span className="ml-2 font-bold" style={{ color: isNew ? C.brand : C.accent }}>
+                      {item.badge}
+                    </span>
+                  )}
                 </div>
               )}
             </Link>
@@ -218,21 +281,25 @@ const SidebarContent = ({ isOpen, toggle, currentPath, onLogout, isMobile }) => 
         })}
       </nav>
 
-      {/* Bottom Section */}
-      <div className="p-3 border-t border-white/5 space-y-2">
-        {/* Help Link */}
+      {/* ── Bottom Section ───────────────── */}
+      <div className="p-2.5 border-t space-y-0.5" style={{ borderColor: C.border }}>
+
+        {/* Help */}
         <Link
           to="/help"
-          className="flex items-center gap-3 px-3 py-3 rounded-xl hover:bg-white/5 transition-colors group"
+          className="flex items-center gap-3 px-3 py-2.5 rounded-xl transition-colors group"
+          style={{ color: C.textDim }}
+          onMouseEnter={(e) => { e.currentTarget.style.background = `${C.brand}0C`; e.currentTarget.style.color = C.textMuted; }}
+          onMouseLeave={(e) => { e.currentTarget.style.background = "transparent"; e.currentTarget.style.color = C.textDim; }}
         >
-          <HelpCircle size={20} className="text-slate-400 group-hover:text-slate-200 transition-colors" />
+          <HelpCircle size={18} className="flex-shrink-0" />
           <AnimatePresence>
             {isOpen && (
               <motion.span
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
-                className="text-sm text-slate-400 group-hover:text-slate-200 transition-colors"
+                className="text-[13px] font-medium"
               >
                 Help & Support
               </motion.span>
@@ -240,19 +307,22 @@ const SidebarContent = ({ isOpen, toggle, currentPath, onLogout, isMobile }) => 
           </AnimatePresence>
         </Link>
 
-        {/* Logout Button */}
+        {/* Logout */}
         <button
           onClick={onLogout}
-          className="w-full flex items-center gap-3 px-3 py-3 rounded-xl hover:bg-red-500/10 transition-colors group"
+          className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl transition-colors group"
+          style={{ color: C.error }}
+          onMouseEnter={(e) => (e.currentTarget.style.background = "rgba(248,113,113,0.08)")}
+          onMouseLeave={(e) => (e.currentTarget.style.background = "transparent")}
         >
-          <LogOut size={20} className="text-red-400 group-hover:text-red-300 transition-colors" />
+          <LogOut size={18} className="flex-shrink-0" />
           <AnimatePresence>
             {isOpen && (
               <motion.span
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
-                className="text-sm text-red-400 group-hover:text-red-300 font-medium transition-colors"
+                className="text-[13px] font-semibold"
               >
                 Sign out
               </motion.span>
@@ -260,24 +330,45 @@ const SidebarContent = ({ isOpen, toggle, currentPath, onLogout, isMobile }) => 
           </AnimatePresence>
         </button>
 
-        {/* Pro Plan Card (Expanded Only) */}
+        {/* Pro plan card — expanded only */}
         <AnimatePresence>
           {isOpen && (
             <motion.div
               initial={{ opacity: 0, height: 0 }}
               animate={{ opacity: 1, height: "auto" }}
-              exit={{ opacity: 0, height: 0 }}
-              className="pt-2"
+              exit={{ opacity: 0,  height: 0 }}
+              className="pt-1 overflow-hidden"
             >
-              <div className="p-3 rounded-xl bg-gradient-to-br from-indigo-500/10 via-purple-500/10 to-pink-500/10 border border-indigo-500/20">
+              <div
+                className="p-3 rounded-xl border"
+                style={{
+                  background: `linear-gradient(135deg, ${C.brand}10, ${C.brandLight}08)`,
+                  borderColor: C.border,
+                }}
+              >
                 <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 rounded-full bg-gradient-to-br from-indigo-500 to-purple-500 flex items-center justify-center text-xs font-bold text-white shadow-lg">
+                  <div
+                    className="w-8 h-8 rounded-lg flex items-center justify-center text-[11px] font-bold text-white flex-shrink-0"
+                    style={{
+                      background: `linear-gradient(135deg, ${C.brand}, ${C.brandLight})`,
+                      boxShadow: `0 0 12px ${C.brand}44`,
+                    }}
+                  >
                     Pro
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="text-xs text-slate-300 font-medium truncate">Pro Plan</p>
-                    <p className="text-[10px] text-slate-500">Valid until Dec 2025</p>
+                    <p className="text-[12px] font-semibold truncate" style={{ color: C.text }}>
+                      Pro Plan
+                    </p>
+                    <p className="text-[10px]" style={{ color: C.textDim }}>
+                      Valid until Dec 2025
+                    </p>
                   </div>
+                  {/* Active dot */}
+                  <div
+                    className="w-1.5 h-1.5 rounded-full flex-shrink-0"
+                    style={{ background: C.brand, boxShadow: `0 0 6px ${C.brand}` }}
+                  />
                 </div>
               </div>
             </motion.div>

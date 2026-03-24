@@ -3,209 +3,270 @@
 // ==========================================
 
 import React, { useEffect, useState, useRef } from "react";
-import { 
-  Menu, 
-  Bell, 
-  Search, 
-  LogOut, 
-  Settings, 
-  User,
-  ChevronDown,
-  X,
-  CheckCircle2,
-  Clock,
-  Sparkles
+import {
+  Menu, Bell, Search, LogOut, Settings,
+  User, ChevronDown, X, Code,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import axios from "axios";
 
-export const UserNavbar = ({ toggleSidebar, isSidebarOpen, isMobile }) => {
-  const navigate = useNavigate();
-  const [time, setTime] = useState(new Date());
-  const [notifOpen, setNotifOpen] = useState(false);
-  const [dropdownOpen, setDropdownOpen] = useState(false);
-  const [searchQuery, setSearchQuery] = useState("");
-  const [notifications, setNotifications] = useState([]);
-  const [avatar, setAvatar] = useState("");
-  const [userName, setUserName] = useState("");
-  const [unreadCount, setUnreadCount] = useState(0);
+// ─────────────────────────────────────────
+// DESIGN TOKENS
+// ─────────────────────────────────────────
+const C = {
+  brand:      "#16A880",
+  brandLight: "#1FC99A",
+  accent:     "#F59E0B",
+  bg:         "#0A0F0D",
+  surface:    "#111814",
+  surface2:   "#182219",
+  surface3:   "#1E2B22",
+  border:     "rgba(22,168,128,0.15)",
+  borderHov:  "rgba(22,168,128,0.35)",
+  text:       "#E8F5F0",
+  textMuted:  "#7A9E8E",
+  textDim:    "#3D5C4E",
+  error:      "#F87171",
+};
 
-  const notifRef = useRef(null);
+// Route label map for the page title
+const ROUTE_LABELS = {
+  "/user/dashboard":    "Dashboard",
+  "/user/mycourses":    "My Courses",
+  "/user/communities":  "Communities",
+  "/user/messages":     "Messages",
+  "/user/certificates": "Certificates",
+  "/user/leaderboard":  "Leaderboard",
+  "/user/profile":      "Profile",
+  "/user/settings":     "Settings",
+  "/user/activities":   "Activities",
+  "/user/notifications":"Notifications",
+};
+
+export const UserNavbar = ({ toggleSidebar, isSidebarOpen, isMobile }) => {
+  const navigate  = useNavigate();
+  const location  = useLocation();
+
+  const [time,         setTime]         = useState(new Date());
+  const [notifOpen,    setNotifOpen]    = useState(false);
+  const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [searchQuery,  setSearchQuery]  = useState("");
+  const [searchFocused,setSearchFocused]= useState(false);
+  const [notifications,setNotifications]= useState([]);
+  const [avatar,       setAvatar]       = useState("");
+  const [userName,     setUserName]     = useState("");
+  const [unreadCount,  setUnreadCount]  = useState(0);
+
+  const notifRef    = useRef(null);
   const dropdownRef = useRef(null);
 
-  const userId = localStorage.getItem("userId");
-  const token = localStorage.getItem("token");
-  const fullname = localStorage.getItem("fullname") || "User";
+  const userId  = localStorage.getItem("userId");
+  const token   = localStorage.getItem("token");
+  const fullname= localStorage.getItem("fullname") || "User";
 
-  // Update time every second
+  const pageTitle = ROUTE_LABELS[location.pathname] || "SkillHub";
+
+  // Clock
   useEffect(() => {
-    const timer = setInterval(() => setTime(new Date()), 1000);
-    return () => clearInterval(timer);
+    const t = setInterval(() => setTime(new Date()), 1000);
+    return () => clearInterval(t);
   }, []);
 
-  // Click outside handlers
+  // Click-outside to close dropdowns
   useEffect(() => {
-    const handleClickOutside = (e) => {
-      if (notifRef.current && !notifRef.current.contains(e.target)) {
-        setNotifOpen(false);
-      }
-      if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
-        setDropdownOpen(false);
-      }
+    const handler = (e) => {
+      if (notifRef.current    && !notifRef.current.contains(e.target))    setNotifOpen(false);
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target)) setDropdownOpen(false);
     };
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
   }, []);
 
   // Fetch user data
   useEffect(() => {
-    const fetchUser = async () => {
-      try {
-        const res = await axios.get(`/user/${userId}`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
+    if (!userId) return;
+    axios
+      .get(`/user/${userId}`, { headers: { Authorization: `Bearer ${token}` } })
+      .then((res) => {
         setAvatar(res.data.data.avatar);
         setUserName(res.data.data.fullname || fullname);
-      } catch (err) {
-        setUserName(fullname);
-      }
-    };
-    if (userId) fetchUser();
+      })
+      .catch(() => setUserName(fullname));
   }, [userId, token, fullname]);
 
-  // Fetch notifications
+  // Fetch notifications when panel opens
   useEffect(() => {
-    if (!notifOpen) return;
-    const fetchNotifications = async () => {
-      try {
-        const res = await axios.get(`/notifications/${userId}`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
+    if (!notifOpen || !userId) return;
+    axios
+      .get(`/notifications/${userId}`, { headers: { Authorization: `Bearer ${token}` } })
+      .then((res) => {
         const notifs = res.data.data || [];
         setNotifications(notifs);
-        setUnreadCount(notifs.filter(n => !n.read).length);
-      } catch (err) {
-        console.error("Failed to fetch notifications");
-      }
-    };
-    fetchNotifications();
+        setUnreadCount(notifs.filter((n) => !n.read).length);
+      })
+      .catch(() => {});
   }, [notifOpen, userId, token]);
-
-  const formattedTime = time.toLocaleTimeString([], {
-    hour: "2-digit",
-    minute: "2-digit",
-  });
-
-  const formattedDate = time.toLocaleDateString([], {
-    weekday: "short",
-    month: "short",
-    day: "numeric",
-  });
 
   const markAllAsRead = async () => {
     try {
       await axios.put(`/notifications/read-all/${userId}`, {}, {
         headers: { Authorization: `Bearer ${token}` },
       });
-      setNotifications(prev => prev.map(n => ({ ...n, read: true })));
+      setNotifications((p) => p.map((n) => ({ ...n, read: true })));
       setUnreadCount(0);
-    } catch (err) {
-      console.error("Failed to mark notifications as read");
-    }
+    } catch {}
   };
 
-  const handleLogout = () => {
-    localStorage.clear();
-    navigate("/login");
-  };
+  const handleLogout = () => { localStorage.clear(); navigate("/login"); };
+
+  const formattedTime = time.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+  const formattedDate = time.toLocaleDateString([], { weekday: "short", month: "short", day: "numeric" });
 
   return (
     <motion.header
       initial={{ y: -20, opacity: 0 }}
-      animate={{ y: 0, opacity: 1 }}
+      animate={{ y: 0,   opacity: 1 }}
       transition={{ duration: 0.4, ease: "easeOut" }}
-      className="sticky top-0 z-30 h-16 bg-slate-900/80 backdrop-blur-xl border-b border-white/5"
+      className="sticky top-0 z-30 h-16"
+      style={{
+        background: `${C.surface}CC`,
+        backdropFilter: "blur(18px)",
+        borderBottom: `1px solid ${C.border}`,
+      }}
     >
       <div className="h-full px-4 sm:px-6 flex items-center justify-between gap-4">
-        {/* Left Section */}
+
+        {/* ── LEFT ──────────────────────────── */}
         <div className="flex items-center gap-3">
+          {/* Hamburger — mobile */}
           <motion.button
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
             onClick={toggleSidebar}
-            className="p-2.5 rounded-xl bg-white/5 hover:bg-white/10 transition-colors lg:hidden"
+            className="p-2.5 rounded-xl transition-colors lg:hidden"
+            style={{ background: `${C.brand}12`, border: `1px solid ${C.border}` }}
           >
-            <Menu size={20} className="text-slate-300" />
+            <Menu size={19} style={{ color: C.brand }} />
           </motion.button>
 
+          {/* Hamburger — desktop */}
           {!isMobile && (
             <button
               onClick={toggleSidebar}
-              className="hidden lg:flex p-2.5 rounded-xl bg-white/5 hover:bg-white/10 transition-colors"
+              className="hidden lg:flex p-2.5 rounded-xl transition-colors"
+              style={{ background: `${C.brand}12`, border: `1px solid ${C.border}` }}
             >
-              <Menu size={20} className={`text-slate-300 transition-transform duration-300 ${!isSidebarOpen ? "rotate-180" : ""}`} />
+              <Menu
+                size={19}
+                style={{
+                  color: C.brand,
+                  transform: `rotate(${!isSidebarOpen ? "180deg" : "0deg"})`,
+                  transition: "transform 0.3s",
+                }}
+              />
             </button>
           )}
 
-          {/* Title & Date */}
+          {/* Page title + date */}
           <div className="hidden md:block">
-            <h1 className="text-lg font-semibold text-white tracking-tight">Dashboard</h1>
-            <p className="text-xs text-slate-500">{formattedDate}</p>
+            <h1
+              className="text-[17px] font-bold tracking-tight"
+              style={{ fontFamily: "'Fraunces', serif", color: C.text }}
+            >
+              {pageTitle}
+            </h1>
+            <p className="text-[11px] uppercase tracking-wider" style={{ color: C.textDim }}>
+              {formattedDate}
+            </p>
           </div>
         </div>
 
-        {/* Center - Search */}
+        {/* ── CENTER — Search ───────────────── */}
         <div className="flex-1 max-w-md hidden sm:block">
-          <div className="relative group">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 group-focus-within:text-indigo-400 transition-colors" size={18} />
+          <motion.div
+            animate={{
+              boxShadow: searchFocused
+                ? `0 0 0 1.5px ${C.brand}88, 0 0 20px ${C.brand}14`
+                : `0 0 0 1px ${C.border}`,
+            }}
+            className="relative rounded-xl overflow-hidden"
+            style={{ background: C.surface2 }}
+          >
+            <Search
+              className="absolute left-3.5 top-1/2 -translate-y-1/2 transition-colors"
+              size={16}
+              style={{ color: searchFocused ? C.brand : C.textDim }}
+            />
             <input
               type="text"
               placeholder="Search courses, lessons..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-white/5 border border-white/10 text-sm text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/30 focus:border-indigo-500/30 transition-all"
+              onFocus={() => setSearchFocused(true)}
+              onBlur={() => setSearchFocused(false)}
+              className="w-full pl-10 pr-9 py-2.5 bg-transparent outline-none text-[14px] placeholder-[#3D5C4E]"
+              style={{ color: C.text }}
             />
-            {searchQuery && (
-              <button
-                onClick={() => setSearchQuery("")}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 hover:text-white"
-              >
-                <X size={14} />
-              </button>
-            )}
-          </div>
+            <AnimatePresence>
+              {searchQuery && (
+                <motion.button
+                  initial={{ opacity: 0, scale: 0.7 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.7 }}
+                  onClick={() => setSearchQuery("")}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 transition-colors"
+                  style={{ color: C.textDim }}
+                >
+                  <X size={14} />
+                </motion.button>
+              )}
+            </AnimatePresence>
+          </motion.div>
         </div>
 
-        {/* Right Section */}
-        <div className="flex items-center gap-2 sm:gap-4">
-          {/* Time - Desktop */}
-          <div className="hidden lg:flex flex-col items-end">
-            <span className="text-lg font-mono font-semibold text-white tabular-nums">{formattedTime}</span>
-            <span className="text-[10px] text-slate-500 uppercase tracking-wider">Local Time</span>
+        {/* ── RIGHT ─────────────────────────── */}
+        <div className="flex items-center gap-2 sm:gap-3">
+
+          {/* Live clock — desktop only */}
+          <div className="hidden lg:flex flex-col items-end mr-1">
+            <span
+              className="text-[17px] font-mono font-semibold tabular-nums"
+              style={{ color: C.text }}
+            >
+              {formattedTime}
+            </span>
+            <span
+              className="text-[10px] uppercase tracking-wider"
+              style={{ color: C.textDim }}
+            >
+              Local Time
+            </span>
           </div>
 
-          {/* Notifications */}
+          {/* ── Notifications ─────────────── */}
           <div className="relative" ref={notifRef}>
             <motion.button
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
-              onClick={() => {
-                setNotifOpen(!notifOpen);
-                setDropdownOpen(false);
-              }}
-              className="relative p-2.5 rounded-xl bg-white/5 hover:bg-white/10 transition-colors"
+              onClick={() => { setNotifOpen(!notifOpen); setDropdownOpen(false); }}
+              className="relative p-2.5 rounded-xl transition-colors"
+              style={{ background: `${C.brand}10`, border: `1px solid ${C.border}` }}
             >
-              <Bell size={20} className="text-slate-400" />
+              <Bell size={18} style={{ color: C.textMuted }} />
               <AnimatePresence>
                 {unreadCount > 0 && (
                   <motion.span
                     initial={{ scale: 0 }}
                     animate={{ scale: 1 }}
                     exit={{ scale: 0 }}
-                    className="absolute top-2 right-2 h-2.5 w-2.5 rounded-full bg-red-500 ring-2 ring-slate-900"
+                    className="absolute top-1.5 right-1.5 h-2.5 w-2.5 rounded-full ring-2"
+                    style={{ background: C.error, ringColor: C.surface }}
                   >
-                    <span className="absolute inset-0 rounded-full bg-red-500 animate-ping opacity-75" />
+                    <span
+                      className="absolute inset-0 rounded-full animate-ping opacity-70"
+                      style={{ background: C.error }}
+                    />
                   </motion.span>
                 )}
               </AnimatePresence>
@@ -215,23 +276,34 @@ export const UserNavbar = ({ toggleSidebar, isSidebarOpen, isMobile }) => {
               {notifOpen && (
                 <motion.div
                   initial={{ opacity: 0, y: 10, scale: 0.95 }}
-                  animate={{ opacity: 1, y: 0, scale: 1 }}
-                  exit={{ opacity: 0, y: 10, scale: 0.95 }}
-                  transition={{ duration: 0.2 }}
-                  className="absolute right-0 mt-3 w-80 sm:w-96 bg-slate-900 border border-white/10 rounded-2xl shadow-2xl overflow-hidden z-50"
+                  animate={{ opacity: 1, y: 0,  scale: 1 }}
+                  exit={{ opacity: 0, y: 10,  scale: 0.95 }}
+                  transition={{ duration: 0.18 }}
+                  className="absolute right-0 mt-3 w-80 sm:w-96 rounded-2xl shadow-2xl overflow-hidden z-50"
+                  style={{ background: C.surface, border: `1px solid ${C.border}` }}
                 >
-                  <div className="p-4 border-b border-white/5 flex items-center justify-between bg-white/5">
-                    <h3 className="font-semibold text-white">Notifications</h3>
+                  {/* Header */}
+                  <div
+                    className="p-4 flex items-center justify-between border-b"
+                    style={{ background: C.surface2, borderColor: C.border }}
+                  >
+                    <h3 className="font-semibold text-[15px]" style={{ color: C.text }}>
+                      Notifications
+                    </h3>
                     {unreadCount > 0 && (
                       <button
                         onClick={markAllAsRead}
-                        className="text-xs text-indigo-400 hover:text-indigo-300 transition-colors font-medium"
+                        className="text-[12px] font-semibold transition-colors"
+                        style={{ color: C.brand }}
+                        onMouseEnter={(e) => (e.target.style.color = C.brandLight)}
+                        onMouseLeave={(e) => (e.target.style.color = C.brand)}
                       >
                         Mark all read
                       </button>
                     )}
                   </div>
-                  
+
+                  {/* List */}
                   <div className="max-h-80 overflow-y-auto">
                     {notifications.length > 0 ? (
                       notifications.map((n, i) => (
@@ -239,26 +311,39 @@ export const UserNavbar = ({ toggleSidebar, isSidebarOpen, isMobile }) => {
                           key={n._id || i}
                           initial={{ opacity: 0, x: -10 }}
                           animate={{ opacity: 1, x: 0 }}
-                          transition={{ delay: i * 0.05 }}
-                          className={`p-4 border-b border-white/5 hover:bg-white/5 transition-colors cursor-pointer ${
-                            !n.read ? "bg-indigo-500/5" : ""
-                          }`}
+                          transition={{ delay: i * 0.04 }}
+                          className="p-4 border-b cursor-pointer transition-colors"
+                          style={{
+                            borderColor: C.border,
+                            background: !n.read ? `${C.brand}08` : "transparent",
+                          }}
+                          onMouseEnter={(e) => (e.currentTarget.style.background = `${C.brand}10`)}
+                          onMouseLeave={(e) => (e.currentTarget.style.background = !n.read ? `${C.brand}08` : "transparent")}
                         >
                           <div className="flex items-start gap-3">
-                            <div className={`w-2 h-2 mt-2 rounded-full flex-shrink-0 ${!n.read ? "bg-indigo-400" : "bg-slate-600"}`} />
+                            <div
+                              className="w-2 h-2 mt-2 rounded-full flex-shrink-0"
+                              style={{ background: !n.read ? C.brand : C.textDim }}
+                            />
                             <div className="flex-1 min-w-0">
-                              <p className="text-sm text-slate-200 leading-relaxed">{n.message}</p>
-                              <span className="text-xs text-slate-500 mt-1 block">
-                                {new Date(n.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                              <p className="text-[13px] leading-relaxed" style={{ color: C.text }}>
+                                {n.message}
+                              </p>
+                              <span className="text-[11px] mt-1 block" style={{ color: C.textDim }}>
+                                {new Date(n.createdAt).toLocaleTimeString([], {
+                                  hour: "2-digit", minute: "2-digit",
+                                })}
                               </span>
                             </div>
                           </div>
                         </motion.div>
                       ))
                     ) : (
-                      <div className="p-8 text-center text-slate-500">
-                        <Bell size={32} className="mx-auto mb-3 opacity-30" />
-                        <p className="text-sm">No notifications yet</p>
+                      <div className="p-8 text-center">
+                        <Bell size={30} className="mx-auto mb-3 opacity-20" style={{ color: C.textMuted }} />
+                        <p className="text-[13px]" style={{ color: C.textMuted }}>
+                          No notifications yet
+                        </p>
                       </div>
                     )}
                   </div>
@@ -267,67 +352,98 @@ export const UserNavbar = ({ toggleSidebar, isSidebarOpen, isMobile }) => {
             </AnimatePresence>
           </div>
 
-          {/* User Dropdown */}
+          {/* ── User dropdown ─────────────── */}
           <div className="relative" ref={dropdownRef}>
             <motion.button
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
-              onClick={() => {
-                setDropdownOpen(!dropdownOpen);
-                setNotifOpen(false);
-              }}
-              className="flex items-center gap-2 sm:gap-3 p-1.5 pr-3 rounded-full bg-white/5 hover:bg-white/10 transition-colors border border-white/10"
+              onClick={() => { setDropdownOpen(!dropdownOpen); setNotifOpen(false); }}
+              className="flex items-center gap-2 sm:gap-2.5 p-1.5 pr-3 rounded-full transition-colors border"
+              style={{ background: `${C.brand}10`, borderColor: C.border }}
             >
               <img
-                src={avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(userName)}&background=6366f1&color=fff`}
+                src={
+                  avatar ||
+                  `https://ui-avatars.com/api/?name=${encodeURIComponent(userName)}&background=16A880&color=fff`
+                }
                 alt={userName}
-                className="w-8 h-8 rounded-full object-cover ring-2 ring-white/10"
+                className="w-8 h-8 rounded-full object-cover ring-2"
+                style={{ ringColor: C.border }}
               />
-              <span className="hidden sm:block text-sm font-medium text-slate-200 max-w-[100px] truncate">
+              <span
+                className="hidden sm:block text-[13px] font-medium max-w-[100px] truncate"
+                style={{ color: C.text }}
+              >
                 {userName}
               </span>
-              <ChevronDown size={16} className={`text-slate-500 transition-transform duration-200 ${dropdownOpen ? "rotate-180" : ""}`} />
+              <ChevronDown
+                size={15}
+                style={{
+                  color: C.textMuted,
+                  transform: `rotate(${dropdownOpen ? "180deg" : "0deg"})`,
+                  transition: "transform 0.2s",
+                }}
+              />
             </motion.button>
 
             <AnimatePresence>
               {dropdownOpen && (
                 <motion.div
                   initial={{ opacity: 0, y: 10, scale: 0.95 }}
-                  animate={{ opacity: 1, y: 0, scale: 1 }}
-                  exit={{ opacity: 0, y: 10, scale: 0.95 }}
-                  transition={{ duration: 0.2 }}
-                  className="absolute right-0 mt-3 w-56 bg-slate-900 border border-white/10 rounded-2xl shadow-2xl overflow-hidden z-50"
+                  animate={{ opacity: 1, y: 0,  scale: 1 }}
+                  exit={{ opacity: 0, y: 10,  scale: 0.95 }}
+                  transition={{ duration: 0.18 }}
+                  className="absolute right-0 mt-3 w-56 rounded-2xl shadow-2xl overflow-hidden z-50"
+                  style={{ background: C.surface, border: `1px solid ${C.border}` }}
                 >
-                  <div className="p-4 border-b border-white/5 bg-white/5">
-                    <p className="font-semibold text-white truncate">{userName}</p>
-                    <p className="text-xs text-slate-500">Student Account</p>
+                  {/* User info */}
+                  <div
+                    className="p-4 border-b"
+                    style={{ background: C.surface2, borderColor: C.border }}
+                  >
+                    <p className="font-semibold text-[14px] truncate" style={{ color: C.text }}>
+                      {userName}
+                    </p>
+                    <p className="text-[12px]" style={{ color: C.textDim }}>Student Account</p>
                   </div>
-                  
+
+                  {/* Links */}
                   <div className="p-2">
-                    <Link
-                      to="/user/profile"
-                      onClick={() => setDropdownOpen(false)}
-                      className="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-white/5 text-slate-400 hover:text-white transition-colors text-sm"
-                    >
-                      <User size={16} />
-                      Profile
-                    </Link>
-                    <Link
-                      to="/user/settings"
-                      onClick={() => setDropdownOpen(false)}
-                      className="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-white/5 text-slate-400 hover:text-white transition-colors text-sm"
-                    >
-                      <Settings size={16} />
-                      Settings
-                    </Link>
+                    {[
+                      { to: "/user/profile",  Icon: User,     label: "Profile"  },
+                      { to: "/user/settings", Icon: Settings, label: "Settings" },
+                    ].map(({ to, Icon, label }) => (
+                      <Link
+                        key={to}
+                        to={to}
+                        onClick={() => setDropdownOpen(false)}
+                        className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-[13px] transition-colors"
+                        style={{ color: C.textMuted }}
+                        onMouseEnter={(e) => {
+                          e.currentTarget.style.background = `${C.brand}12`;
+                          e.currentTarget.style.color = C.text;
+                        }}
+                        onMouseLeave={(e) => {
+                          e.currentTarget.style.background = "transparent";
+                          e.currentTarget.style.color = C.textMuted;
+                        }}
+                      >
+                        <Icon size={15} />
+                        {label}
+                      </Link>
+                    ))}
                   </div>
-                  
-                  <div className="p-2 border-t border-white/5">
+
+                  {/* Logout */}
+                  <div className="p-2 border-t" style={{ borderColor: C.border }}>
                     <button
                       onClick={handleLogout}
-                      className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-red-500/10 text-red-400 hover:text-red-300 transition-colors text-sm"
+                      className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-[13px] transition-colors"
+                      style={{ color: C.error }}
+                      onMouseEnter={(e) => (e.currentTarget.style.background = "rgba(248,113,113,0.08)")}
+                      onMouseLeave={(e) => (e.currentTarget.style.background = "transparent")}
                     >
-                      <LogOut size={16} />
+                      <LogOut size={15} />
                       Sign out
                     </button>
                   </div>
