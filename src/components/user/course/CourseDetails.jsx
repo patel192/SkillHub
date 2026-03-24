@@ -1,34 +1,55 @@
 import React, { useEffect, useState } from "react";
-import { motion } from "framer-motion";
-import { useParams } from "react-router-dom";
+import { motion, AnimatePresence } from "framer-motion";
+import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
-import toast from "react-hot-toast";
-import { Spinner } from "../../../utils/Spinner";
 import {
-  BadgeCheck,
+  BookOpen,
   Clock,
   DollarSign,
-  BookOpen,
   User,
   Sparkles,
   Star,
   Bookmark,
   Share2,
   Flag,
+  Play,
+  ChevronRight,
+  Award,
+  Target,
+  Users,
+  CheckCircle2,
+  ArrowLeft,
+  MoreHorizontal,
+  Calendar
 } from "lucide-react";
 import { ReportModal } from "../report/ReportModal";
+import { Spinner } from "../../../utils/Spinner";
 
-/**
- * CourseDetails (modern / tabbed)
- * - Option A: functional tabs
- * - Keeps all backend logic (enroll/check/enrollment)
- * - Uses course.instructors if provided; otherwise fallback to sample built from course.instructor
- */
+// ==========================================
+// DESIGN TOKENS (Matching MyCourses Theme)
+// ==========================================
+const C = {
+  brand: "#16A880",
+  brandDark: "#0D7A5F",
+  brandLight: "#1FC99A",
+  accent: "#F59E0B",
+  bg: "#0A0F0D",
+  surface: "#111814",
+  surface2: "#182219",
+  surface3: "#1E2B22",
+  border: "rgba(22,168,128,0.15)",
+  borderHov: "rgba(22,168,128,0.35)",
+  text: "#E8F5F0",
+  textMuted: "#7A9E8E",
+  textDim: "#3D5C4E",
+  error: "#F87171",
+};
 
 const TAB_KEYS = ["about", "instructors", "syllabus", "reviews"];
 
 export const CourseDetails = () => {
   const { courseId } = useParams();
+  const navigate = useNavigate();
   const [course, setCourse] = useState(null);
   const [overview, setOverview] = useState([]);
   const [enrolled, setEnrolled] = useState(false);
@@ -36,32 +57,27 @@ export const CourseDetails = () => {
   const [activeTab, setActiveTab] = useState("about");
   const [loading, setLoading] = useState(true);
   const [savingBookmark, setSavingBookmark] = useState(false);
+  const [isBookmarked, setIsBookmarked] = useState(false);
 
   const userId = localStorage.getItem("userId");
   const token = localStorage.getItem("token");
 
-  // Fetch course, overview and enrollment status
   useEffect(() => {
     let mounted = true;
 
     const load = async () => {
       setLoading(true);
       try {
-        // parallel calls
-        const courseReq = axios.get(`/course/${courseId}`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        const overviewReq = axios.get(`/overview/${courseId}`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        const enrollReq = axios.get(`/enrollment/${userId}`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-
         const [courseRes, overviewRes, enrollRes] = await Promise.all([
-          courseReq,
-          overviewReq,
-          enrollReq,
+          axios.get(`/course/${courseId}`, {
+            headers: { Authorization: `Bearer ${token}` },
+          }),
+          axios.get(`/overview/${courseId}`, {
+            headers: { Authorization: `Bearer ${token}` },
+          }),
+          axios.get(`/enrollment/${userId}`, {
+            headers: { Authorization: `Bearer ${token}` },
+          }),
         ]);
 
         if (!mounted) return;
@@ -69,23 +85,22 @@ export const CourseDetails = () => {
         const c = courseRes.data.data || {};
         setCourse(c);
 
-        // Normalize overview: array of lines or array already
         let ov = overviewRes.data.data?.overview || [];
         if (typeof ov === "string") {
           ov = ov.split("\n").map((s) => s.trim()).filter(Boolean);
         }
         setOverview(Array.isArray(ov) ? ov : []);
 
-        // check enrollment
         const enrollments = enrollRes.data.data || [];
         const isEnrolled = enrollments.some(
-          (e) =>
-            String(e.courseId?._id || e.courseId) === String(courseId)
+          (e) => String(e.courseId?._id || e.courseId) === String(courseId)
         );
         setEnrolled(isEnrolled);
+
+        const bookmarkKey = `bookmark_${userId}_${courseId}`;
+        setIsBookmarked(!!localStorage.getItem(bookmarkKey));
       } catch (err) {
         console.error("Error loading course details:", err);
-        toast.error("Failed to load course data.");
       } finally {
         if (mounted) setLoading(false);
       }
@@ -97,7 +112,6 @@ export const CourseDetails = () => {
     };
   }, [courseId, token, userId]);
 
-  // enroll action (preserves your existing logic)
   const handleEnroll = async () => {
     try {
       await axios.post(
@@ -106,301 +120,723 @@ export const CourseDetails = () => {
         { headers: { Authorization: `Bearer ${token}` } }
       );
       setEnrolled(true);
-      toast.success("Successfully enrolled in this course!");
     } catch (error) {
       console.error("Failed to enroll", error);
-      toast.error("Enrollment failed. Please try again.");
     }
   };
 
-  // Bookmark action (client-side demo)
   const toggleBookmark = async () => {
     setSavingBookmark(true);
     try {
-      // Example: POST /bookmarks (if you have one). Fallback: localStorage toggle
-      // await axios.post('/bookmarks', { userId, courseId }, { headers:{ Authorization:`Bearer ${token}` } });
       const key = `bookmark_${userId}_${courseId}`;
-      if (localStorage.getItem(key)) localStorage.removeItem(key);
-      else localStorage.setItem(key, "1");
-      toast.success("Bookmark updated");
+      if (localStorage.getItem(key)) {
+        localStorage.removeItem(key);
+        setIsBookmarked(false);
+      } else {
+        localStorage.setItem(key, "1");
+        setIsBookmarked(true);
+      }
     } catch (err) {
       console.error(err);
-      toast.error("Could not update bookmark");
     } finally {
       setSavingBookmark(false);
     }
   };
 
+  const handleShare = () => {
+    navigator.clipboard?.writeText(window.location.href);
+  };
+
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-screen text-white bg-gradient-to-br from-[#0f172a] to-[#111827]">
-        <Spinner />
+      <div className="flex items-center justify-center h-screen" style={{ background: C.bg }}>
+        <motion.div
+          animate={{ rotate: 360 }}
+          transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+          className="w-8 h-8 border-2 rounded-full"
+          style={{ borderColor: C.brand, borderTopColor: "transparent" }}
+        />
       </div>
     );
   }
 
   if (!course) {
     return (
-      <div className="min-h-screen flex items-center justify-center text-gray-300 bg-gradient-to-br from-[#0f172a] to-[#111827] p-6">
-        <div className="max-w-xl text-center">
-          <h2 className="text-2xl font-semibold mb-2">Course not found</h2>
-          <p className="text-sm">The course you are looking for couldn't be found.</p>
+      <div className="min-h-screen flex items-center justify-center p-6" style={{ background: C.bg }}>
+        <div className="text-center max-w-md">
+          <div
+            className="w-20 h-20 mx-auto mb-4 rounded-full flex items-center justify-center"
+            style={{ background: C.surface }}
+          >
+            <Sparkles className="w-10 h-10" style={{ color: C.textDim }} />
+          </div>
+          <h2
+            className="text-2xl font-bold mb-2"
+            style={{ color: C.text, fontFamily: "Fraunces, serif" }}
+          >
+            Course not found
+          </h2>
+          <p style={{ color: C.textMuted }}>
+            The course you're looking for doesn't exist or has been removed.
+          </p>
+          <button
+            onClick={() => navigate("/user/courses")}
+            className="mt-6 px-6 py-3 rounded-xl font-medium flex items-center gap-2 mx-auto"
+            style={{ background: C.surface, color: C.text, border: `1px solid ${C.border}` }}
+          >
+            <ArrowLeft size={18} />
+            Back to Courses
+          </button>
         </div>
       </div>
     );
   }
 
-  // build instructors array — prefer course.instructors, else fall back to course.instructor string
-  const instructors = Array.isArray(course.instructors) && course.instructors.length > 0
-    ? course.instructors
-    : (course.instructor ? [
-        {
-          name: course.instructor,
-          title: "Lead Instructor",
-          bio: "Experienced professional and subject matter expert.",
-          avatar: course.instructorAvatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(course.instructor)}&background=random`,
-        }
-      ] : []);
+  const instructors =
+    Array.isArray(course.instructors) && course.instructors.length > 0
+      ? course.instructors
+      : course.instructor
+      ? [
+          {
+            name: course.instructor,
+            title: "Lead Instructor",
+            bio: "Experienced professional and subject matter expert.",
+            avatar:
+              course.instructorAvatar ||
+              `https://ui-avatars.com/api/?name=${encodeURIComponent(
+                course.instructor
+              )}&background=16A880&color=fff`,
+          },
+        ]
+      : [];
 
-  // rating placeholder (if you have rating in course object use that)
   const rating = course.rating || 4.0;
   const reviewsCount = course.reviewsCount || 1200;
 
-  // tab content renderers
-  const renderAbout = () => (
-    <div className="space-y-6">
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div className="bg-[#11121a] p-4 rounded-xl border border-purple-600/20">
-          <h4 className="text-sm text-gray-300 mb-2">What you'll learn</h4>
-          <ul className="list-disc pl-5 text-gray-300 space-y-1">
-            {overview.length > 0 ? (
-              overview.slice(0, 6).map((o, i) => <li key={i}>{o}</li>)
-            ) : (
-              <li>No specifics provided for this course.</li>
-            )}
-          </ul>
-        </div>
+  const renderTabContent = () => {
+    switch (activeTab) {
+      case "about":
+        return (
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="space-y-6"
+          >
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+              <div className="lg:col-span-2 space-y-6">
+                <div
+                  className="p-6 rounded-2xl"
+                  style={{ background: C.surface, border: `1px solid ${C.border}` }}
+                >
+                  <h3
+                    className="text-lg font-semibold mb-4 flex items-center gap-2"
+                    style={{ color: C.text, fontFamily: "Fraunces, serif" }}
+                  >
+                    <Target size={20} style={{ color: C.brand }} />
+                    What you'll learn
+                  </h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    {overview.length > 0 ? (
+                      overview.slice(0, 6).map((item, idx) => (
+                        <motion.div
+                          key={idx}
+                          initial={{ opacity: 0, x: -10 }}
+                          animate={{ opacity: 1, x: 0 }}
+                          transition={{ delay: idx * 0.05 }}
+                          className="flex items-start gap-3 p-3 rounded-xl"
+                          style={{ background: C.surface2 }}
+                        >
+                          <CheckCircle2
+                            size={18}
+                            style={{ color: C.brand, flexShrink: 0, marginTop: 2 }}
+                          />
+                          <span style={{ color: C.textMuted }}>{item}</span>
+                        </motion.div>
+                      ))
+                    ) : (
+                      <p style={{ color: C.textDim }}>No learning objectives specified.</p>
+                    )}
+                  </div>
+                </div>
 
-        <div className="bg-[#11121a] p-4 rounded-xl border border-purple-600/20">
-          <h4 className="text-sm text-gray-300 mb-2">Course details</h4>
-          <div className="text-gray-300 text-sm space-y-2">
-            <div><strong>Duration:</strong> {course.duration || "—"}</div>
-            <div><strong>Level:</strong> {course.level || "—"}</div>
-            <div><strong>Category:</strong> {course.category || "—"}</div>
-            <div><strong>Language:</strong> {course.language || "English"}</div>
-            <div><strong>Price:</strong> {course.price > 0 ? `₹${course.price}` : "Free"}</div>
-          </div>
-        </div>
-      </div>
-
-      <div className="bg-[#0f1116] p-4 rounded-xl border border-purple-600/20">
-        <h4 className="text-lg font-semibold mb-2">About this course</h4>
-        <p className="text-gray-300 leading-relaxed">{course.description || "No description provided."}</p>
-      </div>
-    </div>
-  );
-
-  const renderInstructors = () => (
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-      {instructors.map((ins, idx) => (
-        <motion.div key={idx} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: idx * 0.05 }} className="flex gap-4 items-start bg-[#0f1116] p-4 rounded-xl border border-purple-600/20">
-          <img src={ins.avatar} alt={ins.name} className="w-16 h-16 rounded-full object-cover border-2 border-indigo-400" />
-          <div className="flex-1">
-            <div className="flex items-center justify-between">
-              <div>
-                <h5 className="text-white font-semibold">{ins.name}</h5>
-                <div className="text-xs text-gray-400">{ins.title || "Instructor"}</div>
+                <div
+                  className="p-6 rounded-2xl"
+                  style={{ background: C.surface, border: `1px solid ${C.border}` }}
+                >
+                  <h3
+                    className="text-lg font-semibold mb-4"
+                    style={{ color: C.text, fontFamily: "Fraunces, serif" }}
+                  >
+                    About this course
+                  </h3>
+                  <p style={{ color: C.textMuted, lineHeight: 1.7 }}>
+                    {course.description || "No description provided."}
+                  </p>
+                </div>
               </div>
-              <div className="text-sm text-gray-400">10+ yrs</div>
+
+              <div className="space-y-4">
+                <div
+                  className="p-5 rounded-2xl"
+                  style={{ background: C.surface, border: `1px solid ${C.border}` }}
+                >
+                  <h4 className="font-semibold mb-4" style={{ color: C.text }}>
+                    Course Details
+                  </h4>
+                  <div className="space-y-4">
+                    {[
+                      { icon: Clock, label: "Duration", value: course.duration || "Self-paced" },
+                      { icon: Award, label: "Level", value: course.level || "All Levels" },
+                      { icon: BookOpen, label: "Category", value: course.category || "General" },
+                      {
+                        icon: Users,
+                        label: "Students",
+                        value: `${course.students || "1.2k"} enrolled`,
+                      },
+                      {
+                        icon: Calendar,
+                        label: "Last Updated",
+                        value: course.updatedAt
+                          ? new Date(course.updatedAt).toLocaleDateString()
+                          : "Recently",
+                      },
+                    ].map((detail, idx) => (
+                      <div
+                        key={idx}
+                        className="flex items-center justify-between py-2 border-b last:border-0"
+                        style={{ borderColor: C.border }}
+                      >
+                        <div className="flex items-center gap-3">
+                          <detail.icon size={16} style={{ color: C.textDim }} />
+                          <span style={{ color: C.textMuted }}>{detail.label}</span>
+                        </div>
+                        <span style={{ color: C.text }} className="font-medium">
+                          {detail.value}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                <div
+                  className="p-5 rounded-2xl"
+                  style={{ background: C.surface, border: `1px solid ${C.border}` }}
+                >
+                  <div className="flex items-center justify-between mb-3">
+                    <span style={{ color: C.textMuted }}>Price</span>
+                    <span
+                      className="text-2xl font-bold"
+                      style={{ color: C.brand, fontFamily: "Fraunces, serif" }}
+                    >
+                      {course.price > 0 ? `₹${course.price}` : "Free"}
+                    </span>
+                  </div>
+                  {!enrolled ? (
+                    <motion.button
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
+                      onClick={handleEnroll}
+                      className="w-full py-3 rounded-xl font-semibold flex items-center justify-center gap-2"
+                      style={{
+                        background: `linear-gradient(135deg, ${C.brand}, ${C.brandLight})`,
+                        color: C.bg,
+                        boxShadow: `0 4px 20px ${C.brand}40`,
+                      }}
+                    >
+                      <Play size={18} fill="currentColor" />
+                      Enroll Now
+                    </motion.button>
+                  ) : (
+                    <motion.button
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
+                      onClick={() => navigate(`/user/learn/${courseId}`)}
+                      className="w-full py-3 rounded-xl font-semibold flex items-center justify-center gap-2"
+                      style={{
+                        background: C.surface2,
+                        color: C.text,
+                        border: `1px solid ${C.border}`,
+                      }}
+                    >
+                      <Play size={18} />
+                      Continue Learning
+                    </motion.button>
+                  )}
+                </div>
+              </div>
             </div>
-            <p className="mt-2 text-sm text-gray-300">{ins.bio || "Experienced instructor with strong domain knowledge and practical experience in delivering high quality learning."}</p>
+          </motion.div>
+        );
+
+      case "instructors":
+        return (
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="grid grid-cols-1 md:grid-cols-2 gap-4"
+          >
+            {instructors.map((ins, idx) => (
+              <motion.div
+                key={idx}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: idx * 0.1 }}
+                whileHover={{ y: -4 }}
+                className="p-6 rounded-2xl transition-all"
+                style={{ background: C.surface, border: `1px solid ${C.border}` }}
+              >
+                <div className="flex items-start gap-4">
+                  <img
+                    src={ins.avatar}
+                    alt={ins.name}
+                    className="w-16 h-16 rounded-full object-cover border-2"
+                    style={{ borderColor: C.brand }}
+                  />
+                  <div className="flex-1">
+                    <h4 className="font-semibold text-lg" style={{ color: C.text }}>
+                      {ins.name}
+                    </h4>
+                    <p style={{ color: C.brand }} className="text-sm mb-2">
+                      {ins.title || "Instructor"}
+                    </p>
+                    <p style={{ color: C.textMuted }} className="text-sm leading-relaxed">
+                      {ins.bio}
+                    </p>
+                  </div>
+                </div>
+              </motion.div>
+            ))}
+          </motion.div>
+        );
+
+      case "syllabus":
+        return (
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="space-y-3"
+          >
+            {overview.length > 0 ? (
+              overview.map((point, i) => (
+                <motion.div
+                  key={i}
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: i * 0.05 }}
+                  className="p-4 rounded-xl flex items-center gap-4 group cursor-pointer"
+                  style={{ background: C.surface, border: `1px solid ${C.border}` }}
+                  whileHover={{ x: 4, borderColor: C.borderHov }}
+                >
+                  <div
+                    className="w-10 h-10 rounded-lg flex items-center justify-center font-bold"
+                    style={{ background: C.surface2, color: C.brand }}
+                  >
+                    {i + 1}
+                  </div>
+                  <div className="flex-1">
+                    <h4 style={{ color: C.text }} className="font-medium">
+                      Module {i + 1}
+                    </h4>
+                    <p style={{ color: C.textMuted }} className="text-sm">
+                      {point}
+                    </p>
+                  </div>
+                  <ChevronRight
+                    size={18}
+                    style={{ color: C.textDim }}
+                    className="group-hover:text-white transition-colors"
+                  />
+                </motion.div>
+              ))
+            ) : (
+              <div
+                className="text-center py-12 rounded-2xl"
+                style={{ background: C.surface, border: `1px solid ${C.border}` }}
+              >
+                <BookOpen size={48} style={{ color: C.textDim }} className="mx-auto mb-4" />
+                <p style={{ color: C.textMuted }}>Syllabus not available</p>
+              </div>
+            )}
+          </motion.div>
+        );
+
+      case "reviews":
+        return (
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="space-y-6"
+          >
+            <div
+              className="flex items-center gap-6 p-6 rounded-2xl"
+              style={{ background: C.surface, border: `1px solid ${C.border}` }}
+            >
+              <div className="text-center">
+                <div
+                  className="text-5xl font-bold mb-1"
+                  style={{ color: C.brand, fontFamily: "Fraunces, serif" }}
+                >
+                  {rating}
+                </div>
+                <div className="flex gap-1 justify-center mb-1">
+                  {[1, 2, 3, 4, 5].map((star) => (
+                    <Star
+                      key={star}
+                      size={16}
+                      style={{
+                        color: star <= Math.floor(rating) ? C.accent : C.textDim,
+                      }}
+                      fill={star <= Math.floor(rating) ? C.accent : "transparent"}
+                    />
+                  ))}
+                </div>
+                <div style={{ color: C.textMuted }} className="text-sm">
+                  {reviewsCount} reviews
+                </div>
+              </div>
+              <div className="flex-1 space-y-2">
+                {[5, 4, 3, 2, 1].map((stars) => (
+                  <div key={stars} className="flex items-center gap-3">
+                    <span style={{ color: C.textDim }} className="text-sm w-8">
+                      {stars}★
+                    </span>
+                    <div
+                      className="flex-1 h-2 rounded-full overflow-hidden"
+                      style={{ background: C.surface2 }}
+                    >
+                      <motion.div
+                        initial={{ width: 0 }}
+                        animate={{ width: `${Math.random() * 60 + 10}%` }}
+                        transition={{ duration: 1, delay: 0.2 }}
+                        style={{ background: C.brand, height: "100%" }}
+                      />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {["Excellent course structure", "Great practical examples", "Very informative"].map(
+                (review, i) => (
+                  <motion.div
+                    key={i}
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: i * 0.1 }}
+                    className="p-5 rounded-2xl"
+                    style={{ background: C.surface, border: `1px solid ${C.border}` }}
+                  >
+                    <div className="flex items-center gap-3 mb-3">
+                      <div
+                        className="w-10 h-10 rounded-full flex items-center justify-center font-semibold"
+                        style={{ background: C.surface2, color: C.brand }}
+                      >
+                        {String.fromCharCode(65 + i)}
+                      </div>
+                      <div>
+                        <div style={{ color: C.text }} className="font-medium">
+                          Student {i + 1}
+                        </div>
+                        <div style={{ color: C.textDim }} className="text-xs">
+                          2 days ago
+                        </div>
+                      </div>
+                      <div className="ml-auto flex">
+                        {[...Array(5)].map((_, j) => (
+                          <Star key={j} size={12} style={{ color: C.accent }} fill={C.accent} />
+                        ))}
+                      </div>
+                    </div>
+                    <p style={{ color: C.textMuted }}>{review}</p>
+                  </motion.div>
+                )
+              )}
+            </div>
+          </motion.div>
+        );
+
+      default:
+        return null;
+    }
+  };
+
+  return (
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      style={{ background: C.bg, minHeight: "100vh" }}
+      className="pb-12"
+    >
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 py-6 space-y-6">
+        {/* Header */}
+        <motion.div
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="flex items-center justify-between"
+        >
+          <button
+            onClick={() => navigate("/user/courses")}
+            className="flex items-center gap-2 px-4 py-2 rounded-xl transition-all"
+            style={{ color: C.textMuted }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.color = C.text;
+              e.currentTarget.style.background = C.surface;
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.color = C.textMuted;
+              e.currentTarget.style.background = "transparent";
+            }}
+          >
+            <ArrowLeft size={18} />
+            <span>Back to Courses</span>
+          </button>
+
+          <div className="flex items-center gap-2">
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={toggleBookmark}
+              disabled={savingBookmark}
+              className="p-3 rounded-xl transition-all"
+              style={{
+                background: isBookmarked ? `${C.brand}20` : C.surface,
+                border: `1px solid ${isBookmarked ? C.brand : C.border}`,
+                color: isBookmarked ? C.brand : C.textMuted,
+              }}
+            >
+              <Bookmark size={20} fill={isBookmarked ? C.brand : "transparent"} />
+            </motion.button>
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={handleShare}
+              className="p-3 rounded-xl"
+              style={{ background: C.surface, border: `1px solid ${C.border}`, color: C.textMuted }}
+            >
+              <Share2 size={20} />
+            </motion.button>
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={() => setShowReportModal(true)}
+              className="p-3 rounded-xl"
+              style={{ background: C.surface, border: `1px solid ${C.border}`, color: C.error }}
+            >
+              <Flag size={20} />
+            </motion.button>
           </div>
         </motion.div>
-      ))}
-    </div>
-  );
 
-  const renderSyllabus = () => (
-    <div className="space-y-4">
-      {overview.length > 0 ? overview.map((point, i) => (
-        <div key={i} className="bg-[#0f1116] p-4 rounded-xl border border-purple-600/10 flex items-start gap-3">
-          <div className="mt-1 text-indigo-300">
-            <BookOpen size={18} />
+        {/* Hero Section */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.1 }}
+          className="relative rounded-3xl overflow-hidden"
+          style={{ border: `1px solid ${C.border}` }}
+        >
+          <div className="absolute inset-0">
+            <img
+              src={course.imageUrl}
+              alt={course.title}
+              className="w-full h-full object-cover opacity-40"
+            />
+            <div
+              style={{
+                background: `linear-gradient(to top, ${C.bg} 0%, ${C.bg}cc 50%, transparent 100%)`,
+              }}
+              className="absolute inset-0"
+            />
           </div>
-          <div>
-            <div className="font-semibold text-white">Module {i + 1}</div>
-            <div className="text-sm text-gray-300">{point}</div>
-          </div>
-          <div className="ml-auto text-sm text-gray-400">{Math.floor(Math.random() * 10) + 5} mins</div>
-        </div>
-      )) : (
-        <div className="text-gray-400">Syllabus is not available.</div>
-      )}
-    </div>
-  );
 
-  const renderReviews = () => (
-    <div className="space-y-4">
-      <div className="flex items-center gap-4">
-        <div className="flex items-center gap-1">
-          <Star size={18} className="text-yellow-400" />
-          <span className="font-semibold text-white">{rating}</span>
-        </div>
-        <div className="text-sm text-gray-400">({reviewsCount} reviews)</div>
-      </div>
-
-      {/* simple review examples */}
-      <div className="space-y-3">
-        {["Fantastic course — very practical.", "Well structured and great instructor.", "Loved the real world projects."].map((r, i) => (
-          <div key={i} className="bg-[#0f1116] p-4 rounded-xl border border-purple-600/10">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <div className="w-9 h-9 rounded-full bg-indigo-400/20 flex items-center justify-center text-white font-semibold">
-                  {String.fromCharCode(65 + i)}
-                </div>
-                <div>
-                  <div className="font-medium text-white">User {i + 1}</div>
-                  <div className="text-xs text-gray-400">2 days ago</div>
-                </div>
-              </div>
-              <div className="text-sm text-yellow-400">★ ★ ★ ★ ☆</div>
-            </div>
-            <div className="mt-2 text-sm text-gray-300">{r}</div>
-          </div>
-        ))}
-      </div>
-    </div>
-  );
-
-  // UI: Hero and metadata
-  return (
-    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="min-h-screen p-6 bg-gradient-to-br from-[#0f172a] via-[#121226] to-[#0b0f17] text-white">
-      <div className="max-w-6xl mx-auto space-y-6">
-
-        {/* Breadcrumb + header area */}
-        <div className="flex items-center justify-between gap-4">
-          <div className="text-sm text-gray-400">Courses › <span className="text-gray-200">{course.title}</span></div>
-
-          <div className="flex items-center gap-3">
-            <button onClick={toggleBookmark} disabled={savingBookmark} className="p-2 rounded-full bg-[#0f1116] border border-white/6 hover:bg-white/5 transition">
-              <Bookmark size={18} />
-            </button>
-            <button onClick={() => { navigator.clipboard?.writeText(window.location.href); toast.success("Link copied"); }} className="p-2 rounded-full bg-[#0f1116] border border-white/6 hover:bg-white/5 transition">
-              <Share2 size={18} />
-            </button>
-          </div>
-        </div>
-
-        {/* HERO CARD */}
-        <div className="bg-gradient-to-r from-indigo-600 to-blue-500 rounded-2xl overflow-hidden shadow-2xl border border-white/8">
-          <div className="relative">
-            <img src={course.imageUrl} alt={course.title} className="w-full h-64 object-cover mix-blend-overlay opacity-80" />
-            <div className="absolute inset-0 bg-gradient-to-b from-transparent to-[#0b1220]/60"></div>
-
-            <div className="absolute inset-0 p-6 flex flex-col justify-end">
-              <div className="max-w-3xl">
-                <h1 className="text-3xl md:text-4xl font-extrabold text-white leading-tight">{course.title}</h1>
-                <p className="mt-2 text-gray-100/90 max-w-2xl">{course.shortDesc || course.description?.slice(0, 140)}</p>
-
-                <div className="mt-4 flex items-center gap-4">
-                  <div className="flex items-center gap-2 bg-white/10 px-3 py-2 rounded-full">
-                    <Star size={16} className="text-yellow-400" /> <span className="text-white font-semibold">{rating}</span>
-                    <span className="text-gray-200 text-xs ml-2">({reviewsCount} reviews)</span>
+          <div className="relative p-8 md:p-12">
+            <div className="flex flex-col md:flex-row gap-8 items-end">
+              <div className="flex-1">
+                <motion.div
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: 0.2 }}
+                  className="flex items-center gap-3 mb-4"
+                >
+                  <span
+                    className="px-3 py-1 rounded-full text-xs font-medium"
+                    style={{
+                      background: `${C.brand}20`,
+                      color: C.brand,
+                      border: `1px solid ${C.border}`,
+                    }}
+                  >
+                    {course.category || "Course"}
+                  </span>
+                  <div className="flex items-center gap-1" style={{ color: C.accent }}>
+                    <Star size={14} fill={C.accent} />
+                    <span className="text-sm font-medium">{rating}</span>
+                    <span style={{ color: C.textDim }}>({reviewsCount})</span>
                   </div>
+                </motion.div>
 
+                <motion.h1
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.3 }}
+                  className="text-3xl md:text-5xl font-bold mb-4 leading-tight"
+                  style={{ color: C.text, fontFamily: "Fraunces, serif" }}
+                >
+                  {course.title}
+                </motion.h1>
+
+                <motion.p
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.4 }}
+                  className="text-lg max-w-2xl mb-6"
+                  style={{ color: C.textMuted }}
+                >
+                  {course.shortDesc || course.description?.slice(0, 200)}
+                </motion.p>
+
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.5 }}
+                  className="flex flex-wrap items-center gap-6"
+                >
                   <div className="flex items-center gap-3">
-                    <button onClick={handleEnroll} disabled={enrolled} className={`px-4 py-2 rounded-full font-semibold transition ${enrolled ? "bg-green-600 text-white cursor-not-allowed" : "bg-white text-indigo-700 hover:scale-[1.02]"}`}>
-                      {enrolled ? "Enrolled" : "Enroll this course"}
-                    </button>
+                    <img
+                      src={instructors[0]?.avatar}
+                      alt=""
+                      className="w-10 h-10 rounded-full border-2"
+                      style={{ borderColor: C.brand }}
+                    />
+                    <div>
+                      <div style={{ color: C.textMuted }} className="text-xs">
+                        Instructor
+                      </div>
+                      <div style={{ color: C.text }} className="font-medium">
+                        {instructors[0]?.name}
+                      </div>
+                    </div>
                   </div>
-                </div>
+                  <div className="h-8 w-px" style={{ background: C.border }} />
+                  <div className="flex items-center gap-2" style={{ color: C.textMuted }}>
+                    <Users size={18} />
+                    <span>{course.students || "1.2k"} students</span>
+                  </div>
+                  <div className="h-8 w-px" style={{ background: C.border }} />
+                  <div className="flex items-center gap-2" style={{ color: C.textMuted }}>
+                    <Clock size={18} />
+                    <span>{course.duration || "Self-paced"}</span>
+                  </div>
+                </motion.div>
               </div>
-            </div>
-          </div>
-        </div>
 
-        {/* Features row */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-          <div className="bg-[#0f1116] p-3 rounded-xl border border-white/6 flex items-center gap-3">
-            <div className="p-2 rounded bg-indigo-500/10"><BookOpen size={18} className="text-indigo-300" /></div>
-            <div>
-              <div className="text-xs text-gray-400">Learn by Doing</div>
-              <div className="text-sm text-white">Hands-on projects</div>
+              <motion.div
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ delay: 0.6 }}
+                className="flex flex-col gap-3"
+              >
+                {!enrolled ? (
+                  <>
+                    <div className="text-center mb-2">
+                      <span
+                        className="text-3xl font-bold"
+                        style={{ color: C.brand, fontFamily: "Fraunces, serif" }}
+                      >
+                        {course.price > 0 ? `₹${course.price}` : "Free"}
+                      </span>
+                    </div>
+                    <motion.button
+                      whileHover={{ scale: 1.02, boxShadow: `0 10px 40px ${C.brand}40` }}
+                      whileTap={{ scale: 0.98 }}
+                      onClick={handleEnroll}
+                      className="px-8 py-4 rounded-2xl font-bold text-lg flex items-center gap-2"
+                      style={{
+                        background: `linear-gradient(135deg, ${C.brand}, ${C.brandLight})`,
+                        color: C.bg,
+                      }}
+                    >
+                      <Play size={20} fill="currentColor" />
+                      Enroll Now
+                    </motion.button>
+                  </>
+                ) : (
+                  <motion.button
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                    onClick={() => navigate(`/user/learn/${courseId}`)}
+                    className="px-8 py-4 rounded-2xl font-bold text-lg flex items-center gap-2"
+                    style={{
+                      background: C.surface2,
+                      color: C.text,
+                      border: `1px solid ${C.brand}`,
+                    }}
+                  >
+                    <Play size={20} />
+                    Continue Learning
+                  </motion.button>
+                )}
+              </motion.div>
             </div>
           </div>
-
-          <div className="bg-[#0f1116] p-3 rounded-xl border border-white/6 flex items-center gap-3">
-            <div className="p-2 rounded bg-cyan-400/10"><BadgeCheck size={18} className="text-cyan-300" /></div>
-            <div>
-              <div className="text-xs text-gray-400">End-to-end</div>
-              <div className="text-sm text-white">Syllabus & projects</div>
-            </div>
-          </div>
-
-          <div className="bg-[#0f1116] p-3 rounded-xl border border-white/6 flex items-center gap-3">
-            <div className="p-2 rounded bg-violet-400/10"><Clock size={18} className="text-violet-300" /></div>
-            <div>
-              <div className="text-xs text-gray-400">Duration</div>
-              <div className="text-sm text-white">{course.duration || "—"}</div>
-            </div>
-          </div>
-
-          <div className="bg-[#0f1116] p-3 rounded-xl border border-white/6 flex items-center gap-3">
-            <div className="p-2 rounded bg-amber-400/10"><DollarSign size={18} className="text-amber-300" /></div>
-            <div>
-              <div className="text-xs text-gray-400">Price</div>
-              <div className="text-sm text-white">{course.price > 0 ? `₹${course.price}` : "Free"}</div>
-            </div>
-          </div>
-        </div>
+        </motion.div>
 
         {/* Tabs */}
-        <div className="bg-[#07101a]/40 rounded-xl border border-white/6 p-1">
-          <div className="flex gap-1 px-1">
-            {TAB_KEYS.map((key) => {
-              const label = key[0].toUpperCase() + key.slice(1);
-              const active = activeTab === key;
-              return (
-                <button
-                  key={key}
-                  onClick={() => setActiveTab(key)}
-                  className={`px-4 py-2 rounded-lg text-sm font-medium transition ${active ? "bg-gradient-to-r from-indigo-500 to-cyan-400 text-black shadow" : "text-gray-300 hover:text-white"}`}
-                >
-                  {label}
-                </button>
-              );
-            })}
-          </div>
-        </div>
-
-        {/* Tab content */}
-        <div className="mt-4">
-          {activeTab === "about" && renderAbout()}
-          {activeTab === "instructors" && renderInstructors()}
-          {activeTab === "syllabus" && renderSyllabus()}
-          {activeTab === "reviews" && renderReviews()}
-        </div>
-
-        {/* Continue Button + Report */}
-        <div className="flex items-center justify-between gap-4">
-          <div />
-          <div className="flex items-center gap-3">
-            <button onClick={() => setShowReportModal(true)} className="px-4 py-2 rounded-full bg-red-600 hover:bg-red-700 text-white flex items-center gap-2">
-              <Flag size={16} /> Report
-            </button>
-
-            {enrolled && (
-              <button onClick={() => window.location.href = `/user/learn/${courseId}`} className="px-5 py-2 rounded-full bg-gradient-to-r from-indigo-500 to-cyan-400 text-black font-semibold">
-                Continue Learning
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.7 }}
+          className="flex gap-1 p-1 rounded-2xl w-fit"
+          style={{ background: C.surface, border: `1px solid ${C.border}` }}
+        >
+          {TAB_KEYS.map((key) => {
+            const active = activeTab === key;
+            const labels = {
+              about: "About",
+              instructors: "Instructors",
+              syllabus: "Syllabus",
+              reviews: "Reviews",
+            };
+            return (
+              <button
+                key={key}
+                onClick={() => setActiveTab(key)}
+                className="relative px-6 py-3 rounded-xl text-sm font-medium transition-colors"
+                style={{ color: active ? C.bg : C.textMuted }}
+              >
+                {active && (
+                  <motion.div
+                    layoutId="activeTab"
+                    className="absolute inset-0 rounded-xl"
+                    style={{
+                      background: `linear-gradient(135deg, ${C.brand}, ${C.brandLight})`,
+                    }}
+                    transition={{ type: "spring", stiffness: 400, damping: 30 }}
+                  />
+                )}
+                <span className="relative z-10">{labels[key]}</span>
               </button>
-            )}
-          </div>
-        </div>
+            );
+          })}
+        </motion.div>
+
+        {/* Tab Content */}
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={activeTab}
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -10 }}
+            transition={{ duration: 0.2 }}
+          >
+            {renderTabContent()}
+          </motion.div>
+        </AnimatePresence>
 
         {showReportModal && (
           <ReportModal courseId={courseId} onClose={() => setShowReportModal(false)} />
         )}
-
       </div>
     </motion.div>
   );

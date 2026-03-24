@@ -1,16 +1,13 @@
 import React, { useEffect, useState, useMemo } from "react";
 import { motion, AnimatePresence, LayoutGroup } from "framer-motion";
 import axios from "axios";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import {
   BookOpen,
   Flame,
   Play,
   Search,
-  Filter,
   Clock,
-  BarChart3,
-  MoreVertical,
   ChevronRight,
   Star,
   Users,
@@ -18,8 +15,31 @@ import {
   TrendingUp,
   Grid3X3,
   List,
-  Sparkles
+  Sparkles,
+  ChevronLeft,
+  ChevronRight as ChevronRightIcon,
+  Target
 } from "lucide-react";
+
+// ==========================================
+// DESIGN TOKENS (Matching Your Theme)
+// ==========================================
+const C = {
+  brand: "#16A880",
+  brandDark: "#0D7A5F",
+  brandLight: "#1FC99A",
+  accent: "#F59E0B",
+  bg: "#0A0F0D",
+  surface: "#111814",
+  surface2: "#182219",
+  surface3: "#1E2B22",
+  border: "rgba(22,168,128,0.15)",
+  borderHov: "rgba(22,168,128,0.35)",
+  text: "#E8F5F0",
+  textMuted: "#7A9E8E",
+  textDim: "#3D5C4E",
+  error: "#F87171",
+};
 
 // ==========================================
 // UTILITY COMPONENTS
@@ -47,7 +67,7 @@ const AnimatedCounter = ({ value }) => {
   return <span>{count}</span>;
 };
 
-const ProgressRing = ({ progress, size = 40, strokeWidth = 4 }) => {
+const ProgressRing = ({ progress, size = 44, strokeWidth = 4 }) => {
   const radius = (size - strokeWidth) / 2;
   const circumference = radius * 2 * Math.PI;
   const offset = circumference - (progress / 100) * circumference;
@@ -62,7 +82,7 @@ const ProgressRing = ({ progress, size = 40, strokeWidth = 4 }) => {
           stroke="currentColor"
           strokeWidth={strokeWidth}
           fill="transparent"
-          className="text-slate-800"
+          style={{ color: C.surface3 }}
         />
         <motion.circle
           cx={size / 2}
@@ -75,12 +95,12 @@ const ProgressRing = ({ progress, size = 40, strokeWidth = 4 }) => {
           initial={{ strokeDashoffset: circumference }}
           animate={{ strokeDashoffset: offset }}
           transition={{ duration: 1, ease: "easeOut" }}
-          className="text-indigo-500"
           strokeLinecap="round"
+          style={{ color: C.brand }}
         />
       </svg>
       <div className="absolute inset-0 flex items-center justify-center">
-        <span className="text-xs font-bold text-white">{progress}%</span>
+        <span className="text-xs font-bold" style={{ color: C.text }}>{progress}%</span>
       </div>
     </div>
   );
@@ -101,38 +121,61 @@ const CourseCard = ({ course, isMyCourse, viewMode = "grid" }) => {
         animate={{ opacity: 1, y: 0 }}
         whileHover={{ scale: 1.01, x: 4 }}
         onClick={() => navigate(`/user/course/${course._id}`)}
-        className="group relative flex items-center gap-4 p-4 rounded-2xl bg-slate-900/50 border border-white/5 hover:border-indigo-500/30 hover:bg-slate-900/80 transition-all cursor-pointer"
+        className="group relative flex items-center gap-4 p-4 rounded-2xl transition-all cursor-pointer"
+        style={{ 
+          background: C.surface,
+          border: `1px solid ${C.border}`,
+        }}
+        onMouseEnter={(e) => {
+          e.currentTarget.style.borderColor = C.borderHov;
+          e.currentTarget.style.background = C.surface2;
+        }}
+        onMouseLeave={(e) => {
+          e.currentTarget.style.borderColor = C.border;
+          e.currentTarget.style.background = C.surface;
+        }}
       >
         <div className="relative w-24 h-24 rounded-xl overflow-hidden flex-shrink-0">
           <img src={course.imageUrl} alt={course.title} className="w-full h-full object-cover" />
-          <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+          <div 
+            className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity"
+            style={{ background: 'linear-gradient(to top, rgba(10,15,13,0.8), transparent)' }}
+          />
         </div>
         
         <div className="flex-1 min-w-0">
           <div className="flex items-start justify-between gap-4">
             <div>
-              <h3 className="font-semibold text-white group-hover:text-indigo-300 transition-colors line-clamp-1">
+              <h3 
+                className="font-semibold line-clamp-1 transition-colors"
+                style={{ fontFamily: "'Fraunces', serif", color: C.text }}
+              >
                 {course.title}
               </h3>
-              <p className="text-sm text-slate-400 mt-1 line-clamp-1">{course.description}</p>
+              <p className="text-sm mt-1 line-clamp-1" style={{ color: C.textMuted }}>{course.description}</p>
             </div>
             {isMyCourse && course.progress !== undefined && (
-              <div className="flex items-center gap-3">
-                <ProgressRing progress={course.progress} size={44} />
-              </div>
+              <ProgressRing progress={course.progress} />
             )}
           </div>
           
           <div className="flex items-center gap-4 mt-3">
-            <span className="flex items-center gap-1 text-xs text-slate-500">
+            <span className="flex items-center gap-1 text-xs" style={{ color: C.textDim }}>
               <Clock size={12} />
               {course.duration || "8 weeks"}
             </span>
-            <span className="flex items-center gap-1 text-xs text-slate-500">
+            <span className="flex items-center gap-1 text-xs" style={{ color: C.textDim }}>
               <Users size={12} />
               {course.students || "1.2k"} students
             </span>
-            <span className="px-2 py-0.5 rounded-full bg-indigo-500/20 text-indigo-300 text-xs">
+            <span 
+              className="px-2 py-0.5 rounded-full text-xs"
+              style={{ 
+                background: `${C.brand}20`,
+                color: C.brand,
+                border: `1px solid ${C.border}`,
+              }}
+            >
               {course.level || "Beginner"}
             </span>
           </div>
@@ -141,9 +184,13 @@ const CourseCard = ({ course, isMyCourse, viewMode = "grid" }) => {
         <motion.button
           whileHover={{ scale: 1.1 }}
           whileTap={{ scale: 0.9 }}
-          className="p-2 rounded-xl bg-indigo-500/10 text-indigo-400 opacity-0 group-hover:opacity-100 transition-opacity"
+          className="p-2 rounded-xl opacity-0 group-hover:opacity-100 transition-all"
+          style={{ 
+            background: `${C.brand}15`,
+            color: C.brand,
+          }}
         >
-          <ChevronRight size={20} />
+          <ChevronRightIcon size={20} />
         </motion.button>
       </motion.div>
     );
@@ -156,8 +203,20 @@ const CourseCard = ({ course, isMyCourse, viewMode = "grid" }) => {
       animate={{ opacity: 1, scale: 1 }}
       whileHover={{ y: -8, scale: 1.02 }}
       transition={{ duration: 0.3 }}
-      className="group relative bg-slate-900/50 rounded-2xl overflow-hidden border border-white/5 hover:border-indigo-500/30 hover:shadow-2xl hover:shadow-indigo-500/10 transition-all cursor-pointer"
+      className="group relative rounded-2xl overflow-hidden transition-all cursor-pointer"
+      style={{ 
+        background: C.surface,
+        border: `1px solid ${C.border}`,
+      }}
       onClick={() => navigate(`/user/course/${course._id}`)}
+      onMouseEnter={(e) => {
+        e.currentTarget.style.borderColor = C.borderHov;
+        e.currentTarget.style.boxShadow = `0 20px 40px ${C.brand}15`;
+      }}
+      onMouseLeave={(e) => {
+        e.currentTarget.style.borderColor = C.border;
+        e.currentTarget.style.boxShadow = 'none';
+      }}
     >
       {/* Image Section */}
       <div className="relative h-48 overflow-hidden">
@@ -168,23 +227,40 @@ const CourseCard = ({ course, isMyCourse, viewMode = "grid" }) => {
           whileHover={{ scale: 1.1 }}
           transition={{ duration: 0.6 }}
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-slate-900 via-slate-900/20 to-transparent" />
+        <div 
+          className="absolute inset-0"
+          style={{ background: 'linear-gradient(to top, #111814, transparent)' }}
+        />
         
         {/* Badges */}
         <div className="absolute top-3 left-3 flex gap-2">
           {course.level && (
-            <span className="px-2 py-1 rounded-lg bg-black/50 backdrop-blur-sm text-white text-xs font-medium border border-white/10">
+            <span 
+              className="px-2 py-1 rounded-lg backdrop-blur-sm text-xs font-medium"
+              style={{ 
+                background: 'rgba(10,15,13,0.8)',
+                color: C.text,
+                border: `1px solid ${C.border}`,
+              }}
+            >
               {course.level}
             </span>
           )}
           {!isMyCourse && course.isNew && (
-            <span className="px-2 py-1 rounded-lg bg-emerald-500/20 backdrop-blur-sm text-emerald-300 text-xs font-medium border border-emerald-500/20">
+            <span 
+              className="px-2 py-1 rounded-lg backdrop-blur-sm text-xs font-medium"
+              style={{ 
+                background: `${C.brand}30`,
+                color: C.brandLight,
+                border: `1px solid ${C.border}`,
+              }}
+            >
               New
             </span>
           )}
         </div>
 
-        {/* Progress Ring (for my courses) */}
+        {/* Progress Ring */}
         {isMyCourse && course.progress !== undefined && (
           <div className="absolute bottom-3 right-3">
             <ProgressRing progress={course.progress} size={48} strokeWidth={5} />
@@ -194,15 +270,18 @@ const CourseCard = ({ course, isMyCourse, viewMode = "grid" }) => {
 
       {/* Content Section */}
       <div className="p-5">
-        <h3 className="text-lg font-semibold text-white mb-2 group-hover:text-indigo-300 transition-colors line-clamp-1">
+        <h3 
+          className="text-lg font-semibold mb-2 line-clamp-1 transition-colors group-hover:text-emerald-300"
+          style={{ fontFamily: "'Fraunces', serif", color: C.text }}
+        >
           {course.title}
         </h3>
-        <p className="text-sm text-slate-400 mb-4 line-clamp-2">
+        <p className="text-sm mb-4 line-clamp-2" style={{ color: C.textMuted }}>
           {course.description || "Master the fundamentals with hands-on projects and expert guidance."}
         </p>
 
         {/* Meta Info */}
-        <div className="flex items-center gap-4 text-xs text-slate-500 mb-4">
+        <div className="flex items-center gap-4 text-xs mb-4" style={{ color: C.textDim }}>
           <span className="flex items-center gap-1">
             <Clock size={14} />
             {course.duration || "8 weeks"}
@@ -212,7 +291,7 @@ const CourseCard = ({ course, isMyCourse, viewMode = "grid" }) => {
             {course.students || "1.2k"}
           </span>
           <span className="flex items-center gap-1">
-            <Star size={14} className="text-amber-400" />
+            <Star size={14} style={{ color: C.accent }} />
             {course.rating || "4.8"}
           </span>
         </div>
@@ -221,11 +300,16 @@ const CourseCard = ({ course, isMyCourse, viewMode = "grid" }) => {
         <motion.button
           whileHover={{ scale: 1.02 }}
           whileTap={{ scale: 0.98 }}
-          className={`w-full py-2.5 rounded-xl font-medium text-sm flex items-center justify-center gap-2 transition-all ${
-            isMyCourse
-              ? "bg-gradient-to-r from-indigo-500 to-purple-500 text-white shadow-lg shadow-indigo-500/25"
-              : "bg-white/5 text-white hover:bg-white/10 border border-white/10"
-          }`}
+          className="w-full py-2.5 rounded-xl font-medium text-sm flex items-center justify-center gap-2 transition-all"
+          style={isMyCourse ? {
+            background: `linear-gradient(135deg, ${C.brand}, ${C.brandLight})`,
+            color: C.bg,
+            boxShadow: `0 4px 20px ${C.brand}40`,
+          } : {
+            background: C.surface2,
+            color: C.text,
+            border: `1px solid ${C.border}`,
+          }}
         >
           <Play size={16} fill="currentColor" />
           {isMyCourse ? (course.progress > 0 ? "Continue" : "Start") : "Start Learning"}
@@ -243,7 +327,6 @@ export const MyCourses = () => {
   const [activeTab, setActiveTab] = useState("my");
   const [viewMode, setViewMode] = useState("grid");
   const [searchQuery, setSearchQuery] = useState("");
-  const [filterOpen, setFilterOpen] = useState(false);
   const [myCourses, setMyCourses] = useState([]);
   const [discoverCourses, setDiscoverCourses] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -307,18 +390,19 @@ export const MyCourses = () => {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-[calc(100vh-4rem)]">
+      <div className="flex items-center justify-center h-[calc(100vh-4rem)]" style={{ background: C.bg }}>
         <motion.div
           animate={{ rotate: 360 }}
           transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
-          className="w-8 h-8 border-2 border-indigo-500 border-t-transparent rounded-full"
+          className="w-8 h-8 border-2 rounded-full"
+          style={{ borderColor: C.brand, borderTopColor: 'transparent' }}
         />
       </div>
     );
   }
 
   return (
-    <div className="space-y-8 pb-8">
+    <div className="space-y-8 pb-8" style={{ color: C.text }}>
       {/* Header Section */}
       <motion.div
         initial={{ opacity: 0, y: -20 }}
@@ -326,10 +410,13 @@ export const MyCourses = () => {
         className="flex flex-col md:flex-row md:items-end justify-between gap-6"
       >
         <div>
-          <h1 className="text-3xl md:text-4xl font-bold text-white mb-2">
+          <h1 
+            className="text-3xl md:text-4xl font-bold mb-2"
+            style={{ fontFamily: "'Fraunces', serif", color: C.text }}
+          >
             {activeTab === "my" ? "My Learning" : "Discover Courses"}
           </h1>
-          <p className="text-slate-400">
+          <p style={{ color: C.textMuted }}>
             {activeTab === "my" 
               ? `You have ${stats.total} courses in your library`
               : "Explore new skills and expand your knowledge"
@@ -337,26 +424,33 @@ export const MyCourses = () => {
           </p>
         </div>
 
-        {/* Stats Cards - Only show on My Courses tab */}
+        {/* Stats Cards */}
         {activeTab === "my" && (
-          <div className="flex gap-4">
+          <div className="flex gap-3">
             {[
-              { label: "Completed", value: stats.completed, icon: Award, color: "emerald" },
-              { label: "In Progress", value: stats.inProgress, icon: TrendingUp, color: "indigo" },
-              { label: "Hours", value: stats.hours, icon: Clock, color: "amber" }
+              { label: "Completed", value: stats.completed, icon: Award, color: C.brand },
+              { label: "In Progress", value: stats.inProgress, icon: Target, color: C.accent },
+              { label: "Hours", value: stats.hours, icon: Clock, color: C.textMuted }
             ].map((stat, idx) => (
               <motion.div
                 key={stat.label}
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: idx * 0.1 }}
-                className="px-4 py-3 rounded-xl bg-slate-900/50 border border-white/5"
+                className="px-4 py-3 rounded-xl"
+                style={{ 
+                  background: C.surface,
+                  border: `1px solid ${C.border}`,
+                }}
               >
                 <div className="flex items-center gap-2 mb-1">
-                  <stat.icon size={14} className={`text-${stat.color}-400`} />
-                  <span className="text-xs text-slate-500">{stat.label}</span>
+                  <stat.icon size={14} style={{ color: stat.color }} />
+                  <span className="text-xs" style={{ color: C.textDim }}>{stat.label}</span>
                 </div>
-                <div className="text-xl font-bold text-white">
+                <div 
+                  className="text-xl font-bold"
+                  style={{ fontFamily: "'Fraunces', serif", color: C.text }}
+                >
                   <AnimatedCounter value={stat.value} />
                 </div>
               </motion.div>
@@ -366,64 +460,119 @@ export const MyCourses = () => {
       </motion.div>
 
       {/* Controls Bar */}
-      <div className="flex flex-col sm:flex-row gap-4 items-center justify-between p-4 rounded-2xl bg-slate-900/30 border border-white/5">
+      <div 
+        className="flex flex-col sm:flex-row gap-4 items-center justify-between p-4 rounded-2xl"
+        style={{ 
+          background: C.surface,
+          border: `1px solid ${C.border}`,
+        }}
+      >
         {/* Tab Switcher */}
         <LayoutGroup>
-          <div className="relative flex bg-slate-900/50 rounded-xl p-1 border border-white/5">
-            {tabs.map((tab) => (
-              <button
-                key={tab.id}
-                onClick={() => setActiveTab(tab.id)}
-                className={`relative flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium transition-colors ${
-                  activeTab === tab.id ? "text-white" : "text-slate-400 hover:text-slate-200"
-                }`}
-              >
-                {activeTab === tab.id && (
-                  <motion.div
-                    layoutId="activeTab"
-                    className="absolute inset-0 bg-gradient-to-r from-indigo-500 to-purple-500 rounded-lg shadow-lg shadow-indigo-500/25"
-                    transition={{ type: "spring", stiffness: 400, damping: 30 }}
-                  />
-                )}
-                <span className="relative z-10 flex items-center gap-2">
-                  <tab.icon size={16} />
-                  {tab.label}
-                  {tab.count !== null && (
-                    <span className={`px-1.5 py-0.5 rounded-md text-xs ${
-                      activeTab === tab.id ? "bg-white/20" : "bg-white/5"
-                    }`}>
-                      {tab.count}
-                    </span>
+          <div 
+            className="relative flex rounded-xl p-1"
+            style={{ 
+              background: C.surface2,
+              border: `1px solid ${C.border}`,
+            }}
+          >
+            {tabs.map((tab) => {
+              const isActive = activeTab === tab.id;
+              const Icon = tab.icon;
+              
+              return (
+                <button
+                  key={tab.id}
+                  onClick={() => setActiveTab(tab.id)}
+                  className="relative flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium transition-colors"
+                  style={{ color: isActive ? C.bg : C.textMuted }}
+                >
+                  {isActive && (
+                    <motion.div
+                      layoutId="activeTab"
+                      className="absolute inset-0 rounded-lg"
+                      style={{ 
+                        background: `linear-gradient(135deg, ${C.brand}, ${C.brandLight})`,
+                        boxShadow: `0 4px 20px ${C.brand}40`,
+                      }}
+                      transition={{ type: "spring", stiffness: 400, damping: 30 }}
+                    />
                   )}
-                </span>
-              </button>
-            ))}
+                  <span className="relative z-10 flex items-center gap-2">
+                    <Icon size={16} />
+                    {tab.label}
+                    {tab.count !== null && (
+                      <span 
+                        className="px-1.5 py-0.5 rounded-md text-xs"
+                        style={{ 
+                          background: isActive ? 'rgba(10,15,13,0.2)' : C.surface3,
+                          color: isActive ? C.bg : C.textMuted,
+                        }}
+                      >
+                        {tab.count}
+                      </span>
+                    )}
+                  </span>
+                </button>
+              );
+            })}
           </div>
         </LayoutGroup>
 
         {/* Search & View Toggle */}
         <div className="flex items-center gap-3 w-full sm:w-auto">
           <div className="relative flex-1 sm:flex-none">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" size={16} />
+            <Search 
+              className="absolute left-3 top-1/2 -translate-y-1/2" 
+              size={16} 
+              style={{ color: C.textDim }} 
+            />
             <input
               type="text"
               placeholder="Search courses..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full sm:w-64 pl-10 pr-4 py-2.5 rounded-xl bg-slate-900/50 border border-white/10 text-sm text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/30 focus:border-indigo-500/30 transition-all"
+              className="w-full sm:w-64 pl-10 pr-4 py-2.5 rounded-xl text-sm outline-none transition-all"
+              style={{ 
+                background: C.surface2,
+                border: `1px solid ${C.border}`,
+                color: C.text,
+              }}
+              onFocus={(e) => {
+                e.target.style.borderColor = C.brand;
+                e.target.style.boxShadow = `0 0 0 3px ${C.brand}20`;
+              }}
+              onBlur={(e) => {
+                e.target.style.borderColor = C.border;
+                e.target.style.boxShadow = 'none';
+              }}
             />
           </div>
           
-          <div className="flex bg-slate-900/50 rounded-xl p-1 border border-white/10">
+          <div 
+            className="flex rounded-xl p-1"
+            style={{ 
+              background: C.surface2,
+              border: `1px solid ${C.border}`,
+            }}
+          >
             <button
               onClick={() => setViewMode("grid")}
-              className={`p-2 rounded-lg transition-colors ${viewMode === "grid" ? "bg-white/10 text-white" : "text-slate-400 hover:text-white"}`}
+              className="p-2 rounded-lg transition-colors"
+              style={{ 
+                background: viewMode === "grid" ? C.surface3 : 'transparent',
+                color: viewMode === "grid" ? C.text : C.textDim,
+              }}
             >
               <Grid3X3 size={18} />
             </button>
             <button
               onClick={() => setViewMode("list")}
-              className={`p-2 rounded-lg transition-colors ${viewMode === "list" ? "bg-white/10 text-white" : "text-slate-400 hover:text-white"}`}
+              className="p-2 rounded-lg transition-colors"
+              style={{ 
+                background: viewMode === "list" ? C.surface3 : 'transparent',
+                color: viewMode === "list" ? C.text : C.textDim,
+              }}
             >
               <List size={18} />
             </button>
@@ -445,7 +594,7 @@ export const MyCourses = () => {
           }
         >
           {filteredCourses.length > 0 ? (
-            filteredCourses.map((course, idx) => (
+            filteredCourses.map((course) => (
               <CourseCard
                 key={course._id}
                 course={course}
@@ -455,11 +604,19 @@ export const MyCourses = () => {
             ))
           ) : (
             <div className="col-span-full py-20 text-center">
-              <div className="w-20 h-20 mx-auto mb-4 rounded-full bg-slate-900/50 flex items-center justify-center">
-                <Sparkles className="w-10 h-10 text-slate-600" />
+              <div 
+                className="w-20 h-20 mx-auto mb-4 rounded-full flex items-center justify-center"
+                style={{ background: C.surface2 }}
+              >
+                <Sparkles className="w-10 h-10" style={{ color: C.textDim }} />
               </div>
-              <h3 className="text-lg font-semibold text-white mb-2">No courses found</h3>
-              <p className="text-slate-400 text-sm">
+              <h3 
+                className="text-lg font-semibold mb-2"
+                style={{ fontFamily: "'Fraunces', serif", color: C.text }}
+              >
+                No courses found
+              </h3>
+              <p className="text-sm" style={{ color: C.textMuted }}>
                 {searchQuery ? "Try adjusting your search terms" : "Start exploring to find your next learning adventure"}
               </p>
             </div>
