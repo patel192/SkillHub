@@ -2,461 +2,535 @@ import React, { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence, useAnimation } from "framer-motion";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
-import { 
-  Eye, 
-  EyeOff, 
-  ArrowRight, 
-  Mail, 
-  Lock, 
-  AlertCircle, 
-  CheckCircle2,
-  Sparkles,
-  Shield,
-  Zap,
-  Github,
-  Chrome,
-  ChevronLeft,
-  Loader2
+import {
+  Eye, EyeOff, ArrowRight, Mail, Lock, AlertCircle,
+  CheckCircle2, Shield, Zap, Github, Chrome, ChevronLeft,
+  Loader2, Code, TrendingUp, Users,
 } from "lucide-react";
 
-// ==========================================
+// ─────────────────────────────────────────
+// DESIGN TOKENS — identical to PublicLayout & SignUp
+// ─────────────────────────────────────────
+const C = {
+  brand:       "#16A880",
+  brandDark:   "#0D7A5F",
+  brandLight:  "#1FC99A",
+  accent:      "#F59E0B",
+  bg:          "#0A0F0D",
+  surface:     "#111814",
+  surface2:    "#182219",
+  surface3:    "#1E2B22",
+  border:      "rgba(22,168,128,0.15)",
+  borderHov:   "rgba(22,168,128,0.40)",
+  text:        "#E8F5F0",
+  textMuted:   "#7A9E8E",
+  textDim:     "#3D5C4E",
+  error:       "#F87171",
+  errorBg:     "rgba(248,113,113,0.08)",
+  errorBorder: "rgba(248,113,113,0.25)",
+  success:     "#34D399",
+};
+
+// ─────────────────────────────────────────
 // ANIMATION VARIANTS
-// ==========================================
-
+// ─────────────────────────────────────────
 const containerVariants = {
-  hidden: { opacity: 0 },
-  visible: {
-    opacity: 1,
-    transition: {
-      staggerChildren: 0.08,
-      delayChildren: 0.1
-    }
-  }
+  hidden:  { opacity: 0 },
+  visible: { opacity: 1, transition: { staggerChildren: 0.08, delayChildren: 0.1 } },
 };
-
 const itemVariants = {
-  hidden: { opacity: 0, y: 15 },
-  visible: {
-    opacity: 1,
-    y: 0,
-    transition: {
-      type: "spring",
-      stiffness: 100,
-      damping: 15
-    }
-  }
+  hidden:  { opacity: 0, y: 16 },
+  visible: { opacity: 1, y: 0, transition: { type: "spring", stiffness: 110, damping: 15 } },
 };
-
 const shakeVariants = {
-  shake: {
-    x: [0, -8, 8, -8, 8, 0],
-    transition: { duration: 0.4 }
-  }
+  shake: { x: [0, -9, 9, -7, 7, 0], transition: { duration: 0.42 } },
 };
 
-// ==========================================
-// UTILITY COMPONENTS
-// ==========================================
-
-const FloatingBlob = ({ color, delay = 0, className }) => (
+// ─────────────────────────────────────────
+// FLOATING AMBIENT BLOB
+// ─────────────────────────────────────────
+const FloatingBlob = ({ style, delay = 0 }) => (
   <motion.div
-    animate={{ 
-      scale: [1, 1.2, 1],
-      opacity: [0.2, 0.4, 0.2],
-      x: [0, 20, -20, 0],
-      y: [0, -20, 20, 0]
+    initial={{ opacity: 0, scale: 0.75 }}
+    animate={{
+      scale:   [1, 1.18, 1],
+      opacity: [0.3, 0.5, 0.3],
+      x: [0, 22, -22, 0],
+      y: [0, -22, 22, 0],
     }}
-    transition={{ 
-      duration: 10,
-      repeat: Infinity,
-      delay,
-      ease: "easeInOut"
-    }}
-    className={`absolute rounded-full blur-[120px] pointer-events-none ${className}`}
-    style={{ background: color }}
+    transition={{ duration: 10, repeat: Infinity, delay, ease: "easeInOut" }}
+    className="absolute rounded-full blur-[120px] pointer-events-none"
+    style={style}
   />
 );
 
-const InputField = ({ 
-  icon: Icon, 
-  label, 
-  type = "text", 
-  name, 
-  value, 
-  onChange, 
-  error, 
-  showPasswordToggle = false,
-  showPassword,
-  onTogglePassword,
-  placeholder,
-  autoComplete
+// ─────────────────────────────────────────
+// INPUT FIELD
+// ─────────────────────────────────────────
+const InputField = ({
+  icon: Icon, label, type = "text", name, value,
+  onChange, error, showPasswordToggle, showPassword,
+  onTogglePassword, placeholder, autoComplete,
+  rightSlot,
 }) => {
-  const [isFocused, setIsFocused] = useState(false);
+  const [focused, setFocused] = useState(false);
 
   return (
-    <motion.div variants={itemVariants} className="space-y-2">
+    <motion.div variants={itemVariants} className="space-y-1.5">
+      {/* Label + error row */}
       <div className="flex items-center justify-between">
-        <label className="text-sm font-medium text-slate-300">
+        <label
+          className="text-[13px] font-semibold uppercase tracking-wider"
+          style={{ color: C.textMuted }}
+        >
           {label}
         </label>
-        {error && (
-          <motion.span 
-            initial={{ opacity: 0, x: 10 }}
-            animate={{ opacity: 1, x: 0 }}
-            className="text-red-400 text-xs flex items-center gap-1"
-          >
-            <AlertCircle size={12} />
-            {error}
-          </motion.span>
-        )}
+        <AnimatePresence>
+          {error && (
+            <motion.span
+              initial={{ opacity: 0, x: 8 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0 }}
+              className="text-[12px] flex items-center gap-1"
+              style={{ color: C.error }}
+            >
+              <AlertCircle size={11} />
+              {error}
+            </motion.span>
+          )}
+        </AnimatePresence>
       </div>
-      
+
+      {/* Input wrapper */}
       <motion.div
         animate={{
-          boxShadow: isFocused 
-            ? "0 0 0 2px rgba(99, 102, 241, 0.5), 0 0 20px rgba(99, 102, 241, 0.15)"
-            : error 
-              ? "0 0 0 1px rgba(239, 68, 68, 0.5)"
-              : "0 0 0 1px rgba(255, 255, 255, 0.1)"
+          boxShadow: error
+            ? `0 0 0 1.5px ${C.errorBorder}`
+            : focused
+            ? `0 0 0 1.5px ${C.brand}88, 0 0 22px ${C.brand}18`
+            : `0 0 0 1px ${C.border}`,
         }}
-        className="relative rounded-xl overflow-hidden bg-slate-900/50 backdrop-blur-sm transition-all duration-200"
+        transition={{ duration: 0.2 }}
+        className="relative rounded-xl overflow-hidden"
+        style={{ background: C.surface2 }}
       >
-        <div className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400">
-          <Icon size={18} />
+        {/* Left icon */}
+        <div
+          className="absolute left-4 top-1/2 -translate-y-1/2 transition-colors duration-200"
+          style={{ color: focused ? C.brand : C.textDim }}
+        >
+          <Icon size={17} />
         </div>
-        
+
         <input
           type={showPasswordToggle ? (showPassword ? "text" : "password") : type}
           name={name}
           value={value}
           onChange={onChange}
-          onFocus={() => setIsFocused(true)}
-          onBlur={() => setIsFocused(false)}
+          onFocus={() => setFocused(true)}
+          onBlur={() => setFocused(false)}
           placeholder={placeholder}
           autoComplete={autoComplete}
-          className="w-full pl-12 pr-12 py-3.5 bg-transparent text-white placeholder-slate-500 outline-none text-sm"
+          className="w-full pl-11 pr-12 py-4 bg-transparent outline-none text-[15px] placeholder-[#3D5C4E]"
+          style={{ color: C.text }}
         />
-        
+
+        {/* Right slot — eye toggle */}
         {showPasswordToggle && (
           <button
             type="button"
             onClick={onTogglePassword}
-            className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-indigo-400 transition-colors p-1"
+            className="absolute right-4 top-1/2 -translate-y-1/2 transition-colors duration-200"
+            style={{ color: focused ? C.brand : C.textDim }}
           >
-            {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+            {showPassword ? <EyeOff size={17} /> : <Eye size={17} />}
           </button>
         )}
       </motion.div>
+
+      {/* Optional slot below (e.g. remember me / forgot) */}
+      {rightSlot}
     </motion.div>
   );
 };
 
-const SocialButton = ({ icon: Icon, label, onClick }) => (
+// ─────────────────────────────────────────
+// SOCIAL BUTTON
+// ─────────────────────────────────────────
+const SocialButton = ({ icon: Icon, label }) => (
   <motion.button
     variants={itemVariants}
-    whileHover={{ scale: 1.02, y: -2 }}
-    whileTap={{ scale: 0.98 }}
-    onClick={onClick}
-    className="w-full flex items-center justify-center gap-3 px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white font-medium hover:bg-white/10 hover:border-white/20 transition-all duration-300 text-sm"
+    whileHover={{ y: -2, boxShadow: `0 6px 22px ${C.brand}18` }}
+    whileTap={{ scale: 0.97 }}
+    type="button"
+    className="w-full flex items-center justify-center gap-2.5 py-3 rounded-xl text-[14px] font-medium border transition-all duration-200"
+    style={{ background: C.surface3, borderColor: C.border, color: C.textMuted }}
+    onMouseEnter={(e) => {
+      e.currentTarget.style.borderColor = C.borderHov;
+      e.currentTarget.style.color = C.text;
+    }}
+    onMouseLeave={(e) => {
+      e.currentTarget.style.borderColor = C.border;
+      e.currentTarget.style.color = C.textMuted;
+    }}
   >
-    <Icon size={18} />
-    <span>{label}</span>
+    <Icon size={17} />
+    {label}
   </motion.button>
 );
 
-// ==========================================
+// ─────────────────────────────────────────
+// LEFT PANEL DATA
+// ─────────────────────────────────────────
+const QUICK_STATS = [
+  { value: "120K+", label: "Active Learners",  icon: Users },
+  { value: "98%",   label: "Placement Rate",   icon: TrendingUp },
+];
+const FEATURES = [
+  { icon: Zap,    text: "Pick up exactly where you left off" },
+  { icon: Shield, text: "Secure, end-to-end encrypted session" },
+];
+
+// ─────────────────────────────────────────
 // MAIN COMPONENT
-// ==========================================
-
+// ─────────────────────────────────────────
 export const Login = () => {
-  const navigate = useNavigate();
-  const controls = useAnimation();
-  const formRef = useRef(null);
-  
-  const [form, setForm] = useState({ 
-    email: "", 
-    password: "",
-    rememberMe: false 
-  });
-  
-  const [showPassword, setShowPassword] = useState(false);
-  const [loading, setLoading] = useState(false);
-  const [errors, setErrors] = useState({});
-  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
+  const navigate  = useNavigate();
+  const controls  = useAnimation();
+  const formRef   = useRef(null);
 
-  // Mouse parallax effect
+  const [form, setForm] = useState({ email: "", password: "", rememberMe: false });
+  const [showPassword, setShowPassword] = useState(false);
+  const [loading,      setLoading]      = useState(false);
+  const [errors,       setErrors]       = useState({});
+  const [success,      setSuccess]      = useState(false);
+  const [mousePos,     setMousePos]     = useState({ x: 0, y: 0 });
+
+  // Load remembered email
   useEffect(() => {
-    const handleMouseMove = (e) => {
-      setMousePosition({
-        x: (e.clientX / window.innerWidth - 0.5) * 15,
-        y: (e.clientY / window.innerHeight - 0.5) * 15
-      });
-    };
-    window.addEventListener("mousemove", handleMouseMove);
-    return () => window.removeEventListener("mousemove", handleMouseMove);
+    const remembered = localStorage.getItem("rememberedEmail");
+    if (remembered) setForm((p) => ({ ...p, email: remembered, rememberMe: true }));
   }, []);
 
-  const validateForm = () => {
-    const newErrors = {};
-    if (!form.email.trim()) {
-      newErrors.email = "Email is required";
-    } else if (!/\S+@\S+\.\S+/.test(form.email)) {
-      newErrors.email = "Please enter a valid email";
-    }
-    
-    if (!form.password) {
-      newErrors.password = "Password is required";
-    }
-    
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
+  // Parallax for left panel
+  useEffect(() => {
+    const onMove = (e) =>
+      setMousePos({
+        x: (e.clientX / window.innerWidth  - 0.5) * 16,
+        y: (e.clientY / window.innerHeight - 0.5) * 16,
+      });
+    window.addEventListener("mousemove", onMove);
+    return () => window.removeEventListener("mousemove", onMove);
+  }, []);
+
+  const validate = () => {
+    const errs = {};
+    if (!form.email.trim())                           errs.email    = "Required";
+    else if (!/\S+@\S+\.\S+/.test(form.email))       errs.email    = "Invalid email";
+    if (!form.password)                               errs.password = "Required";
+    setErrors(errs);
+    return Object.keys(errs).length === 0;
   };
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
-    setForm(prev => ({ 
-      ...prev, 
-      [name]: type === 'checkbox' ? checked : value 
-    }));
-    // Clear error when user types
-    if (errors[name]) {
-      setErrors(prev => ({ ...prev, [name]: null }));
-    }
+    setForm((p) => ({ ...p, [name]: type === "checkbox" ? checked : value }));
+    if (errors[name]) setErrors((p) => ({ ...p, [name]: null }));
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
-    if (!validateForm()) {
-      controls.start("shake");
-      return;
-    }
-
+    if (!validate()) { controls.start("shake"); return; }
     setLoading(true);
-
     try {
       const res = await axios.post("/loginuser", form);
-      
       if (res.status === 200) {
         const { data, token } = res.data;
-
-        // Store auth data
-        localStorage.setItem("token", token);
-        localStorage.setItem("userId", data.id);
+        localStorage.setItem("token",    token);
+        localStorage.setItem("userId",   data.id);
         localStorage.setItem("fullname", data.fullname);
-        localStorage.setItem("role", data.role);
-        
-        // Remember me functionality
-        if (form.rememberMe) {
-          localStorage.setItem("rememberedEmail", form.email);
-        } else {
-          localStorage.removeItem("rememberedEmail");
-        }
+        localStorage.setItem("role",     data.role);
+        if (form.rememberMe) localStorage.setItem("rememberedEmail", form.email);
+        else                 localStorage.removeItem("rememberedEmail");
 
-        // Success animation before redirect
-        await new Promise(resolve => setTimeout(resolve, 600));
-        
-        // Redirect based on role
-        navigate(
-          data.role === "admin"
-            ? "/admin/admindashboard"
-            : "/user/dashboard"
-        );
+        setSuccess(true);
+        await new Promise((r) => setTimeout(r, 900));
+        navigate(data.role === "admin" ? "/admin/admindashboard" : "/user/dashboard");
       }
     } catch (err) {
-      const errorMessage = err.response?.data?.message || "Invalid email or password";
-      setErrors({ 
-        submit: errorMessage 
-      });
+      setErrors({ submit: err.response?.data?.message || "Invalid email or password." });
       controls.start("shake");
     } finally {
       setLoading(false);
     }
   };
 
-  // Load remembered email on mount
-  useEffect(() => {
-    const rememberedEmail = localStorage.getItem("rememberedEmail");
-    if (rememberedEmail) {
-      setForm(prev => ({ ...prev, email: rememberedEmail, rememberMe: true }));
-    }
-  }, []);
-
   return (
-    <div className="min-h-screen bg-slate-950 flex overflow-hidden relative">
-      
-      {/* Animated Background */}
-      <div className="fixed inset-0 overflow-hidden pointer-events-none">
-        <FloatingBlob 
-          color="radial-gradient(circle, rgba(99,102,241,0.4) 0%, transparent 70%)"
+    <div
+      className="min-h-screen flex overflow-hidden relative"
+      style={{ background: C.bg, fontFamily: "'DM Sans', sans-serif", color: C.text }}
+    >
+      {/* Google Fonts */}
+      <style>{`@import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,700&family=DM+Sans:wght@400;500;600&display=swap');`}</style>
+
+      {/* ── AMBIENT BACKGROUND ─────────────────── */}
+      <div className="fixed inset-0 pointer-events-none overflow-hidden">
+        <FloatingBlob
           delay={0}
-          className="w-[500px] h-[500px] -top-20 -left-20"
+          style={{ width: 500, height: 500, top: -100, left: -100,
+            background: `radial-gradient(circle, ${C.brand}28 0%, transparent 70%)` }}
         />
-        <FloatingBlob 
-          color="radial-gradient(circle, rgba(236,72,153,0.3) 0%, transparent 70%)"
-          delay={2}
-          className="w-[400px] h-[400px] bottom-0 right-0"
+        <FloatingBlob
+          delay={2.5}
+          style={{ width: 400, height: 400, bottom: 0, right: 0,
+            background: "radial-gradient(circle, #6366F128 0%, transparent 70%)" }}
         />
-        <FloatingBlob 
-          color="radial-gradient(circle, rgba(34,211,238,0.25) 0%, transparent 70%)"
-          delay={4}
-          className="w-[300px] h-[300px] top-1/2 left-1/3"
+        <FloatingBlob
+          delay={5}
+          style={{ width: 300, height: 300, top: "50%", left: "35%",
+            background: `radial-gradient(circle, ${C.accent}18 0%, transparent 70%)` }}
         />
-        
-        {/* Grid Pattern */}
-        <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.02)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.02)_1px,transparent_1px)] bg-[size:4rem_4rem] [mask-image:radial-gradient(ellipse_80%_50%_at_50%_50%,#000_70%,transparent_100%)]" />
+        {/* Dot grid */}
+        <div
+          className="absolute inset-0"
+          style={{
+            backgroundImage: `radial-gradient(${C.brand}14 1px, transparent 1px)`,
+            backgroundSize: "36px 36px",
+            maskImage: "radial-gradient(ellipse 80% 60% at 50% 40%, black 50%, transparent 100%)",
+          }}
+        />
       </div>
 
-      {/* Left Panel - Branding */}
-      <motion.div 
+      {/* ── LEFT PANEL ─────────────────────────── */}
+      <motion.div
         initial={{ x: -80, opacity: 0 }}
-        animate={{ x: 0, opacity: 1 }}
-        transition={{ duration: 0.8, ease: "easeOut" }}
-        className="hidden lg:flex lg:w-1/2 relative flex-col justify-between p-12 border-r border-white/5"
+        animate={{ x: 0,   opacity: 1 }}
+        transition={{ duration: 0.85, ease: [0.22, 1, 0.36, 1] }}
+        className="hidden lg:flex lg:w-[48%] relative flex-col justify-between p-12 xl:p-16 border-r"
         style={{
-          transform: `translate(${mousePosition.x * 0.3}px, ${mousePosition.y * 0.3}px)`
+          borderColor: C.border,
+          transform: `translate(${mousePos.x * 0.35}px, ${mousePos.y * 0.35}px)`,
         }}
       >
-        <div className="relative z-10">
-          <Link to="/" className="inline-flex items-center gap-3 group">
-            <motion.div 
-              whileHover={{ scale: 1.05, rotate: 5 }}
-              className="w-12 h-12 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center shadow-lg shadow-indigo-500/25"
-            >
-              <Sparkles className="w-6 h-6 text-white" />
-            </motion.div>
-            <span className="text-2xl font-bold text-white">SkillHub</span>
-          </Link>
-        </div>
+        {/* Logo */}
+        <Link to="/" className="inline-flex items-center gap-3 group z-10 relative">
+          <motion.div
+            whileHover={{ scale: 1.06, rotate: 6 }}
+            className="w-11 h-11 rounded-xl flex items-center justify-center"
+            style={{
+              background: `linear-gradient(135deg, ${C.brand}, ${C.brandLight})`,
+              boxShadow: `0 0 24px ${C.brand}44`,
+            }}
+          >
+            <Code className="w-5 h-5 text-white" />
+          </motion.div>
+          <span
+            className="text-xl font-bold"
+            style={{ fontFamily: "'Fraunces', serif", color: C.text }}
+          >
+            SkillHub
+          </span>
+        </Link>
 
+        {/* Hero copy */}
         <div className="relative z-10 space-y-8 max-w-md">
           <motion.div
-            initial={{ y: 20, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            transition={{ delay: 0.3, duration: 0.8 }}
+            initial={{ y: 22, opacity: 0 }}
+            animate={{ y: 0,  opacity: 1 }}
+            transition={{ delay: 0.3 }}
           >
-            <h1 className="text-5xl font-bold leading-tight mb-4">
-              Welcome back to{" "}
-              <span className="bg-gradient-to-r from-indigo-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">
+            <h1
+              className="text-5xl xl:text-[52px] font-bold leading-[1.1] tracking-tight mb-4"
+              style={{ fontFamily: "'Fraunces', serif" }}
+            >
+              Welcome back{" "}
+              <br />
+              to{" "}
+              <span
+                style={{
+                  background: `linear-gradient(135deg, ${C.brand}, ${C.brandLight})`,
+                  WebkitBackgroundClip: "text",
+                  WebkitTextFillColor: "transparent",
+                }}
+              >
                 SkillHub
               </span>
             </h1>
-            <p className="text-lg text-slate-400">
-              Continue your journey to mastery. Your next project awaits.
+            <p className="text-[17px] leading-relaxed" style={{ color: C.textMuted }}>
+              Continue your journey to mastery. Your next project awaits — pick
+              up right where you left off.
             </p>
           </motion.div>
 
-          {/* Quick Stats */}
-          <motion.div 
+          {/* Quick stats */}
+          <motion.div
             initial={{ y: 20, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
-            transition={{ delay: 0.5, duration: 0.8 }}
+            transition={{ delay: 0.5 }}
             className="grid grid-cols-2 gap-4"
           >
-            {[
-              { value: "120K+", label: "Learners" },
-              { value: "500+", label: "Projects" }
-            ].map((stat, idx) => (
-              <div key={idx} className="p-4 rounded-2xl bg-white/5 border border-white/10">
-                <div className="text-2xl font-bold text-white">{stat.value}</div>
-                <div className="text-sm text-slate-400">{stat.label}</div>
+            {QUICK_STATS.map((stat, idx) => (
+              <div
+                key={idx}
+                className="p-4 rounded-2xl border flex flex-col gap-1"
+                style={{ background: C.surface2, borderColor: C.border }}
+              >
+                <div className="flex items-center gap-2">
+                  <stat.icon size={14} style={{ color: C.brand }} />
+                </div>
+                <div
+                  className="text-2xl font-bold"
+                  style={{ fontFamily: "'Fraunces', serif", color: C.text }}
+                >
+                  {stat.value}
+                </div>
+                <div className="text-[13px]" style={{ color: C.textMuted }}>{stat.label}</div>
               </div>
             ))}
           </motion.div>
 
-          {/* Feature List */}
-          <motion.div 
+          {/* Feature list */}
+          <motion.div
             initial={{ y: 20, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
-            transition={{ delay: 0.6, duration: 0.8 }}
+            transition={{ delay: 0.65 }}
             className="space-y-3"
           >
-            {[
-              { icon: Zap, text: "Pick up where you left off" },
-              { icon: Shield, text: "Secure, encrypted connection" }
-            ].map((feature, idx) => (
-              <motion.div 
+            {FEATURES.map((f, idx) => (
+              <motion.div
                 key={idx}
-                initial={{ x: -20, opacity: 0 }}
-                animate={{ x: 0, opacity: 1 }}
-                transition={{ delay: 0.7 + idx * 0.1 }}
-                className="flex items-center gap-3 text-slate-300 text-sm"
+                initial={{ x: -18, opacity: 0 }}
+                animate={{ x: 0,   opacity: 1 }}
+                transition={{ delay: 0.72 + idx * 0.1 }}
+                className="flex items-center gap-3 text-[15px]"
+                style={{ color: C.textMuted }}
               >
-                <div className="w-8 h-8 rounded-lg bg-white/5 flex items-center justify-center">
-                  <feature.icon size={16} className="text-indigo-400" />
+                <div
+                  className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0"
+                  style={{ background: `${C.brand}18`, border: `1px solid ${C.border}` }}
+                >
+                  <f.icon size={14} style={{ color: C.brand }} />
                 </div>
-                {feature.text}
+                {f.text}
               </motion.div>
             ))}
           </motion.div>
         </div>
 
-        {/* Testimonial */}
-        <motion.div 
-          initial={{ y: 20, opacity: 0 }}
+        {/* Testimonial card */}
+        <motion.div
+          initial={{ y: 24, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
-          transition={{ delay: 0.8, duration: 0.8 }}
-          className="relative z-10 p-6 rounded-2xl bg-white/5 backdrop-blur-sm border border-white/10"
+          transition={{ delay: 0.95 }}
+          className="relative z-10 p-5 rounded-2xl border"
+          style={{ background: C.surface2, borderColor: C.border }}
         >
-          <p className="text-slate-300 mb-4 text-sm leading-relaxed">"SkillHub's project-based approach helped me land my dream job at a Fortune 500 company. The mentorship was invaluable."</p>
+          <span className="text-3xl font-bold leading-none" style={{ color: `${C.brand}44` }}>"</span>
+          <p className="text-[14px] leading-relaxed -mt-1 mb-4" style={{ color: C.textMuted }}>
+            SkillHub's project-based approach helped me land my dream job at a
+            Fortune 500 company. The mentorship was invaluable.
+          </p>
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white font-bold text-sm">
+            <div
+              className="w-9 h-9 rounded-full flex items-center justify-center text-white text-[12px] font-bold flex-shrink-0"
+              style={{ background: `linear-gradient(135deg, #6366F1, #818CF8)` }}
+            >
               SM
             </div>
             <div>
-              <div className="text-white font-medium text-sm">Sarah Miller</div>
-              <div className="text-xs text-slate-500">Senior Developer at Microsoft</div>
+              <p className="text-[13px] font-semibold" style={{ color: C.text }}>Sarah Miller</p>
+              <p className="text-[12px]" style={{ color: C.textDim }}>Senior Developer at Microsoft</p>
+            </div>
+            <div className="ml-auto flex gap-0.5">
+              {[...Array(5)].map((_, i) => (
+                <span key={i} className="text-[12px]" style={{ color: C.accent }}>★</span>
+              ))}
             </div>
           </div>
         </motion.div>
       </motion.div>
 
-      {/* Right Panel - Form */}
-      <div className="w-full lg:w-1/2 flex items-center justify-center p-6 sm:p-8 lg:p-12 relative">
+      {/* ── RIGHT PANEL — Form ─────────────────── */}
+      <div className="w-full lg:w-[52%] flex items-center justify-center p-6 sm:p-10 lg:p-14 relative">
         <motion.div
           ref={formRef}
           variants={shakeVariants}
           animate={controls}
-          initial="hidden"
-          className="w-full max-w-md"
+          className="w-full max-w-[420px]"
         >
-          {/* Mobile Header */}
-          <div className="lg:hidden mb-8 flex items-center justify-between">
-            <Link to="/" className="flex items-center gap-2">
-              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center">
-                <Sparkles className="w-5 h-5 text-white" />
+          {/* Mobile logo */}
+          <div className="lg:hidden mb-8">
+            <Link to="/" className="inline-flex items-center gap-2.5">
+              <div
+                className="w-10 h-10 rounded-xl flex items-center justify-center"
+                style={{ background: `linear-gradient(135deg, ${C.brand}, ${C.brandLight})` }}
+              >
+                <Code className="w-5 h-5 text-white" />
               </div>
-              <span className="text-xl font-bold text-white">SkillHub</span>
+              <span className="text-xl font-bold" style={{ fontFamily: "'Fraunces', serif" }}>
+                SkillHub
+              </span>
             </Link>
           </div>
 
+          {/* Card */}
           <motion.div
             variants={containerVariants}
             initial="hidden"
             animate="visible"
-            className="bg-slate-900/50 backdrop-blur-xl rounded-3xl p-8 border border-white/10 shadow-2xl shadow-black/50"
+            className="rounded-2xl p-7 sm:p-8 border shadow-2xl"
+            style={{
+              background: C.surface,
+              borderColor: C.border,
+              boxShadow: `0 32px 64px ${C.bg}88, 0 0 0 1px ${C.border}`,
+            }}
           >
+            {/* Heading */}
             <motion.div variants={itemVariants} className="mb-6 text-center">
-              <h2 className="text-3xl font-bold text-white mb-2">Welcome back</h2>
-              <p className="text-slate-400 text-sm">Sign in to continue your learning journey</p>
+              {/* Avatar icon */}
+              <div
+                className="w-14 h-14 rounded-2xl flex items-center justify-center mx-auto mb-4"
+                style={{
+                  background: `linear-gradient(135deg, ${C.brand}22, ${C.brandLight}22)`,
+                  border: `1px solid ${C.border}`,
+                }}
+              >
+                <Code className="w-6 h-6" style={{ color: C.brand }} />
+              </div>
+              <h2
+                className="text-[28px] font-bold mb-1"
+                style={{ fontFamily: "'Fraunces', serif", color: C.text }}
+              >
+                Welcome back
+              </h2>
+              <p className="text-[14px]" style={{ color: C.textMuted }}>
+                Sign in to continue your learning journey
+              </p>
             </motion.div>
 
-            {/* Social Login */}
-            <motion.div variants={itemVariants} className="grid grid-cols-2 gap-3 mb-6">
+            {/* Social buttons */}
+            <div className="grid grid-cols-2 gap-3 mb-6">
               <SocialButton icon={Github} label="GitHub" />
               <SocialButton icon={Chrome} label="Google" />
-            </motion.div>
+            </div>
 
+            {/* Divider */}
             <motion.div variants={itemVariants} className="relative mb-6">
               <div className="absolute inset-0 flex items-center">
-                <div className="w-full border-t border-white/10"></div>
+                <div className="w-full border-t" style={{ borderColor: C.border }} />
               </div>
-              <div className="relative flex justify-center text-xs">
-                <span className="px-2 bg-slate-900/50 text-slate-500">Or continue with email</span>
+              <div className="relative flex justify-center">
+                <span
+                  className="px-3 text-[12px] font-medium uppercase tracking-wider"
+                  style={{ background: C.surface, color: C.textDim }}
+                >
+                  Or continue with email
+                </span>
               </div>
             </motion.div>
 
-            <form onSubmit={handleSubmit} className="space-y-5">
+            {/* Form */}
+            <form onSubmit={handleSubmit} className="space-y-4">
               <InputField
                 icon={Mail}
                 label="Email Address"
@@ -469,104 +543,171 @@ export const Login = () => {
                 autoComplete="username"
               />
 
-              <div className="space-y-2">
-                <InputField
-                  icon={Lock}
-                  label="Password"
-                  name="password"
-                  type="password"
-                  value={form.password}
-                  onChange={handleChange}
-                  error={errors.password}
-                  showPasswordToggle
-                  showPassword={showPassword}
-                  onTogglePassword={() => setShowPassword(!showPassword)}
-                  placeholder="••••••••"
-                  autoComplete="current-password"
-                />
-                
-                <div className="flex items-center justify-between text-sm">
-                  <label className="flex items-center gap-2 cursor-pointer group">
+              <InputField
+                icon={Lock}
+                label="Password"
+                name="password"
+                type="password"
+                value={form.password}
+                onChange={handleChange}
+                error={errors.password}
+                showPasswordToggle
+                showPassword={showPassword}
+                onTogglePassword={() => setShowPassword((p) => !p)}
+                placeholder="••••••••"
+                autoComplete="current-password"
+              />
+
+              {/* Remember me + forgot password */}
+              <motion.div
+                variants={itemVariants}
+                className="flex items-center justify-between text-[13px]"
+              >
+                <label
+                  className="flex items-center gap-2 cursor-pointer group select-none"
+                  style={{ color: C.textMuted }}
+                >
+                  <div
+                    className="relative w-4 h-4 rounded flex items-center justify-center border transition-all"
+                    style={{
+                      background: form.rememberMe ? C.brand : "transparent",
+                      borderColor: form.rememberMe ? C.brand : C.textDim,
+                    }}
+                  >
+                    {form.rememberMe && <CheckCircle2 size={10} className="text-white" />}
                     <input
                       type="checkbox"
                       name="rememberMe"
                       checked={form.rememberMe}
                       onChange={handleChange}
-                      className="w-4 h-4 rounded border-white/20 bg-slate-900 text-indigo-500 focus:ring-indigo-500/20"
+                      className="absolute inset-0 opacity-0 cursor-pointer"
                     />
-                    <span className="text-slate-400 group-hover:text-slate-300 transition-colors">Remember me</span>
-                  </label>
-                  
-                  <Link 
-                    to="/forgot-password" 
-                    className="text-indigo-400 hover:text-indigo-300 transition-colors font-medium"
-                  >
-                    Forgot password?
-                  </Link>
-                </div>
-              </div>
+                  </div>
+                  Remember me
+                </label>
+                <Link
+                  to="/forgot-password"
+                  className="font-semibold transition-colors"
+                  style={{ color: C.brand }}
+                  onMouseEnter={(e) => (e.currentTarget.style.color = C.brandLight)}
+                  onMouseLeave={(e) => (e.currentTarget.style.color = C.brand)}
+                >
+                  Forgot password?
+                </Link>
+              </motion.div>
 
-              {/* Error Alert */}
+              {/* Submit error */}
               <AnimatePresence>
                 {errors.submit && (
                   <motion.div
-                    initial={{ opacity: 0, y: -10, height: 0 }}
+                    initial={{ opacity: 0, y: -8, height: 0 }}
                     animate={{ opacity: 1, y: 0, height: "auto" }}
-                    exit={{ opacity: 0, y: -10, height: 0 }}
-                    className="p-4 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 text-sm flex items-center gap-2"
+                    exit={{ opacity: 0, y: -8, height: 0 }}
+                    className="p-3.5 rounded-xl flex items-center gap-2.5 text-[13px]"
+                    style={{
+                      background: C.errorBg,
+                      border: `1px solid ${C.errorBorder}`,
+                      color: C.error,
+                    }}
                   >
-                    <AlertCircle size={16} />
+                    <AlertCircle size={15} className="flex-shrink-0" />
                     {errors.submit}
                   </motion.div>
                 )}
               </AnimatePresence>
 
+              {/* Submit button */}
               <motion.button
                 variants={itemVariants}
                 type="submit"
                 disabled={loading}
-                whileHover={{ scale: 1.02, boxShadow: "0 0 30px rgba(99,102,241,0.4)" }}
+                whileHover={{
+                  scale: 1.02,
+                  boxShadow: success
+                    ? `0 0 32px ${C.success}55`
+                    : `0 0 32px ${C.brand}55`,
+                }}
                 whileTap={{ scale: 0.98 }}
-                className="w-full py-3.5 rounded-xl bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 text-white font-bold shadow-lg shadow-indigo-500/25 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 group text-sm"
+                className="w-full py-4 rounded-xl font-bold text-[16px] text-white flex items-center justify-center gap-2 group transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
+                style={{
+                  background: success
+                    ? C.success
+                    : `linear-gradient(135deg, ${C.brand}, ${C.brandLight})`,
+                  boxShadow: `0 0 24px ${C.brand}44`,
+                }}
               >
                 {loading ? (
                   <Loader2 className="w-5 h-5 animate-spin" />
+                ) : success ? (
+                  <>
+                    <CheckCircle2 className="w-5 h-5" />
+                    Signed In!
+                  </>
                 ) : (
                   <>
                     Sign In
-                    <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                    <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
                   </>
                 )}
               </motion.button>
             </form>
 
-            <motion.p variants={itemVariants} className="mt-6 text-center text-slate-400 text-sm">
+            {/* Sign up link */}
+            <motion.p
+              variants={itemVariants}
+              className="mt-5 text-center text-[13px]"
+              style={{ color: C.textMuted }}
+            >
               Don't have an account?{" "}
-              <Link 
-                to="/signup" 
-                className="text-indigo-400 hover:text-indigo-300 font-semibold transition-colors inline-flex items-center gap-1 group"
+              <Link
+                to="/signup"
+                className="font-semibold inline-flex items-center gap-1 group transition-colors"
+                style={{ color: C.brand }}
+                onMouseEnter={(e) => (e.currentTarget.style.color = C.brandLight)}
+                onMouseLeave={(e) => (e.currentTarget.style.color = C.brand)}
               >
                 Create account
-                <ArrowRight className="w-3 h-3 group-hover:translate-x-1 transition-transform" />
+                <ArrowRight className="w-3 h-3 group-hover:translate-x-0.5 transition-transform" />
               </Link>
             </motion.p>
 
-            <motion.p variants={itemVariants} className="mt-6 text-center text-xs text-slate-600">
+            {/* Legal */}
+            <motion.p
+              variants={itemVariants}
+              className="mt-5 text-center text-[11px]"
+              style={{ color: C.textDim }}
+            >
               Protected by reCAPTCHA and subject to our{" "}
-              <a href="#" className="text-slate-500 hover:text-slate-400 transition-colors">Privacy Policy</a>
-              {" "}and{" "}
-              <a href="#" className="text-slate-500 hover:text-slate-400 transition-colors">Terms of Service</a>
+              <a
+                href="#"
+                className="transition-colors"
+                style={{ color: C.textMuted }}
+                onMouseEnter={(e) => (e.target.style.color = C.text)}
+                onMouseLeave={(e) => (e.target.style.color = C.textMuted)}
+              >
+                Privacy Policy
+              </a>{" "}
+              and{" "}
+              <a
+                href="#"
+                className="transition-colors"
+                style={{ color: C.textMuted }}
+                onMouseEnter={(e) => (e.target.style.color = C.text)}
+                onMouseLeave={(e) => (e.target.style.color = C.textMuted)}
+              >
+                Terms of Service
+              </a>
             </motion.p>
           </motion.div>
 
-          {/* Back to Home */}
-          <motion.div 
-            variants={itemVariants}
-            className="mt-6 text-center"
-          >
-            <Link 
-              to="/" 
-              className="inline-flex items-center gap-2 text-slate-500 hover:text-white transition-colors text-sm"
+          {/* Back to home */}
+          <motion.div variants={itemVariants} className="mt-6 text-center">
+            <Link
+              to="/"
+              className="inline-flex items-center gap-2 text-[13px] transition-colors"
+              style={{ color: C.textDim }}
+              onMouseEnter={(e) => (e.currentTarget.style.color = C.text)}
+              onMouseLeave={(e) => (e.currentTarget.style.color = C.textDim)}
             >
               <ChevronLeft className="w-4 h-4" />
               Back to home
