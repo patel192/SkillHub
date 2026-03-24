@@ -11,17 +11,37 @@ import {
   Flame,
   Play,
   TrendingUp,
-  Calendar,
   Zap,
   ChevronRight,
-  MoreHorizontal,
   Trophy,
   Star,
   Activity,
-  Bell,       
+  Bell,
   BarChart3,
-  GraduationCap
+  GraduationCap,
+  Code,
+  MoreHorizontal
 } from "lucide-react";
+
+// ==========================================
+// DESIGN TOKENS (Matching Your Theme)
+// ==========================================
+const C = {
+  brand: "#16A880",
+  brandDark: "#0D7A5F",
+  brandLight: "#1FC99A",
+  accent: "#F59E0B",
+  bg: "#0A0F0D",
+  surface: "#111814",
+  surface2: "#182219",
+  surface3: "#1E2B22",
+  border: "rgba(22,168,128,0.15)",
+  borderHov: "rgba(22,168,128,0.35)",
+  text: "#E8F5F0",
+  textMuted: "#7A9E8E",
+  textDim: "#3D5C4E",
+  error: "#F87171",
+};
 
 // ==========================================
 // UTILITY COMPONENTS
@@ -53,73 +73,98 @@ const AnimatedCounter = ({ value, suffix = "" }) => {
   return <span>{count}{suffix}</span>;
 };
 
-const ProgressBar = ({ progress, color = "from-indigo-500 to-purple-500" }) => (
-  <div className="h-2 w-full bg-slate-800 rounded-full overflow-hidden">
+const ProgressBar = ({ progress, color = C.brand }) => (
+  <div className="h-2 w-full rounded-full overflow-hidden" style={{ background: C.surface3 }}>
     <motion.div
       initial={{ width: 0 }}
       animate={{ width: `${progress}%` }}
       transition={{ duration: 1, ease: "easeOut" }}
-      className={`h-full bg-gradient-to-r ${color} rounded-full`}
+      className="h-full rounded-full"
+      style={{ background: `linear-gradient(90deg, ${C.brand}, ${C.brandLight})` }}
     />
   </div>
 );
 
-const GlowCard = ({ children, className = "", onClick, gradient = "from-indigo-500/10 to-purple-500/10" }) => (
+const GlowCard = ({ children, className = "", onClick, gradient = true }) => (
   <motion.div
     whileHover={{ scale: 1.01, y: -2 }}
     whileTap={{ scale: 0.99 }}
     onClick={onClick}
-    className={`relative group cursor-pointer overflow-hidden rounded-2xl bg-slate-900/50 backdrop-blur-sm border border-white/5 ${className}`}
+    className={`relative group cursor-pointer overflow-hidden rounded-2xl ${className}`}
+    style={{ 
+      background: C.surface,
+      border: `1px solid ${C.border}`,
+    }}
   >
-    {/* Glow Effect */}
-    <div className={`absolute inset-0 bg-gradient-to-br ${gradient} opacity-0 group-hover:opacity-100 transition-opacity duration-500`} />
-    <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,_var(--tw-gradient-stops))] from-white/5 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+    {/* Hover Glow Effect */}
+    <div 
+      className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500"
+      style={{ 
+        background: gradient 
+          ? `radial-gradient(circle at top left, ${C.brand}15, transparent 60%)` 
+          : 'none'
+      }} 
+    />
     
     <div className="relative z-10">{children}</div>
   </motion.div>
 );
 
-const StatCard = ({ icon: Icon, label, value, subtext, trend, color = "indigo", delay = 0 }) => {
-  const colorVariants = {
-    indigo: "from-indigo-500 to-purple-500",
-    emerald: "from-emerald-500 to-teal-500",
-    amber: "from-amber-500 to-orange-500",
-    rose: "from-rose-500 to-pink-500"
-  };
-
-  return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ delay, duration: 0.5 }}
-      className="relative group"
+const StatCard = ({ icon: Icon, label, value, subtext, trend, delay = 0 }) => (
+  <motion.div
+    initial={{ opacity: 0, y: 20 }}
+    animate={{ opacity: 1, y: 0 }}
+    transition={{ delay, duration: 0.5 }}
+    className="relative group"
+  >
+    <div 
+      className="absolute -inset-0.5 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity blur-sm"
+      style={{ background: `linear-gradient(135deg, ${C.brand}20, transparent)` }}
+    />
+    <div 
+      className="relative p-6 rounded-2xl transition-all duration-300 hover:border-opacity-35"
+      style={{ 
+        background: C.surface,
+        border: `1px solid ${C.border}`,
+      }}
     >
-      <div className="absolute -inset-0.5 bg-gradient-to-r from-white/5 to-white/0 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity blur-sm" />
-      <div className="relative p-6 rounded-2xl bg-slate-900/80 border border-white/5 hover:border-white/10 transition-colors">
-        <div className="flex items-start justify-between">
-          <div className={`p-3 rounded-xl bg-gradient-to-br ${colorVariants[color]} shadow-lg`}>
-            <Icon size={20} className="text-white" />
-          </div>
-          {trend && (
-            <span className={`text-xs font-medium px-2 py-1 rounded-full ${
-              trend > 0 ? "bg-emerald-500/20 text-emerald-400" : "bg-rose-500/20 text-rose-400"
-            }`}>
-              {trend > 0 ? "+" : ""}{trend}%
-            </span>
-          )}
+      <div className="flex items-start justify-between">
+        <div 
+          className="p-3 rounded-xl"
+          style={{ 
+            background: `linear-gradient(135deg, ${C.brand}20, ${C.brand}10)`,
+            border: `1px solid ${C.border}`,
+          }}
+        >
+          <Icon size={20} style={{ color: C.brand }} />
         </div>
-        
-        <div className="mt-4">
-          <h3 className="text-2xl font-bold text-white">
-            <AnimatedCounter value={value} />
-          </h3>
-          <p className="text-sm text-slate-400 mt-1">{label}</p>
-          {subtext && <p className="text-xs text-slate-500 mt-1">{subtext}</p>}
-        </div>
+        {trend && (
+          <span 
+            className="text-xs font-medium px-2 py-1 rounded-full"
+            style={{ 
+              background: trend > 0 ? `${C.brand}20` : 'rgba(248,113,113,0.2)',
+              color: trend > 0 ? C.brand : C.error,
+              border: `1px solid ${trend > 0 ? C.border : 'rgba(248,113,113,0.3)'}`,
+            }}
+          >
+            {trend > 0 ? "+" : ""}{trend}%
+          </span>
+        )}
       </div>
-    </motion.div>
-  );
-};
+      
+      <div className="mt-4">
+        <h3 className="text-2xl font-bold" style={{ 
+          color: C.text,
+          fontFamily: "'Fraunces', serif" 
+        }}>
+          <AnimatedCounter value={value} />
+        </h3>
+        <p className="text-sm mt-1" style={{ color: C.textMuted }}>{label}</p>
+        {subtext && <p className="text-xs mt-1" style={{ color: C.textDim }}>{subtext}</p>}
+      </div>
+    </div>
+  </motion.div>
+);
 
 // ==========================================
 // MAIN COMPONENT
@@ -150,7 +195,6 @@ export const UserDashboard = () => {
       try {
         setLoading(true);
         
-        // Parallel data fetching
         const [userRes, coursesRes, certRes, actRes, notifRes, recRes] = await Promise.all([
           axios.get(`/user/${userId}`, { headers: { Authorization: `Bearer ${token}` } }),
           axios.get(`/enrollment/${userId}`, { headers: { Authorization: `Bearer ${token}` } }),
@@ -204,7 +248,7 @@ export const UserDashboard = () => {
           recentActivity: actRes.data.data.slice(0, 5),
           recommended: recRes.data.data.slice(0, 3),
           topCourse,
-          weeklyGoal: 75 // percentage
+          weeklyGoal: 75
         });
       } catch (err) {
         console.error("Dashboard loading error:", err);
@@ -216,7 +260,6 @@ export const UserDashboard = () => {
     fetchData();
   }, [userId, token]);
 
-  // Format time
   const formatTime = (minutes) => {
     const hours = Math.floor(minutes / 60);
     const mins = minutes % 60;
@@ -230,32 +273,40 @@ export const UserDashboard = () => {
 
   if (loading || !dashboard) {
     return (
-      <div className="flex items-center justify-center h-[calc(100vh-4rem)]">
+      <div className="flex items-center justify-center h-[calc(100vh-4rem)]" style={{ background: C.bg }}>
         <motion.div
           animate={{ rotate: 360 }}
           transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
-          className="w-8 h-8 border-2 border-indigo-500 border-t-transparent rounded-full"
+          className="w-8 h-8 border-2 rounded-full"
+          style={{ borderColor: C.brand, borderTopColor: 'transparent' }}
         />
       </div>
     );
   }
 
   return (
-    <div className="space-y-8 pb-8">
+    <div className="space-y-8 pb-8" style={{ color: C.text }}>
       {/* Header Section */}
       <motion.div
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="flex flex-col md:flex-row md:items-center justify-between gap-4"
+        className="flex flex-col md:flex-row md:items-end justify-between gap-6"
       >
         <div>
-          <h1 className="text-3xl md:text-4xl font-bold text-white">
+          <h1 
+            className="text-3xl md:text-4xl font-bold mb-2"
+            style={{ fontFamily: "'Fraunces', serif", color: C.text }}
+          >
             {greeting},{" "}
-            <span className="bg-gradient-to-r from-indigo-400 to-purple-400 bg-clip-text text-transparent">
+            <span style={{ 
+              background: `linear-gradient(135deg, ${C.brand}, ${C.brandLight})`,
+              WebkitBackgroundClip: "text",
+              WebkitTextFillColor: "transparent",
+            }}>
               {userName.split(" ")[0]}
             </span>
           </h1>
-          <p className="text-slate-400 mt-1">Here's your learning progress today</p>
+          <p style={{ color: C.textMuted }}>Here's your learning progress today</p>
         </div>
         
         <div className="flex items-center gap-3">
@@ -263,7 +314,12 @@ export const UserDashboard = () => {
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
             onClick={() => navigate("/user/mycourses")}
-            className="px-4 py-2 rounded-xl bg-white/5 border border-white/10 text-sm font-medium text-slate-300 hover:text-white hover:bg-white/10 transition-colors flex items-center gap-2"
+            className="px-4 py-2.5 rounded-xl text-sm font-medium transition-all flex items-center gap-2"
+            style={{ 
+              background: C.surface2,
+              border: `1px solid ${C.border}`,
+              color: C.textMuted,
+            }}
           >
             <BookOpen size={16} />
             My Courses
@@ -272,7 +328,12 @@ export const UserDashboard = () => {
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
             onClick={() => navigate("/user/leaderboard")}
-            className="px-4 py-2 rounded-xl bg-gradient-to-r from-indigo-500 to-purple-500 text-white text-sm font-medium shadow-lg shadow-indigo-500/25 flex items-center gap-2"
+            className="px-4 py-2.5 rounded-xl text-sm font-medium shadow-lg flex items-center gap-2"
+            style={{ 
+              background: `linear-gradient(135deg, ${C.brand}, ${C.brandLight})`,
+              color: C.bg,
+              boxShadow: `0 4px 20px ${C.brand}40`,
+            }}
           >
             <Trophy size={16} />
             Leaderboard
@@ -287,7 +348,6 @@ export const UserDashboard = () => {
           label="Courses Enrolled"
           value={dashboard.coursesCount}
           subtext="Active learning"
-          color="indigo"
           delay={0}
         />
         <StatCard
@@ -296,7 +356,6 @@ export const UserDashboard = () => {
           value={dashboard.certificatesCount}
           subtext="Earned credentials"
           trend={12}
-          color="emerald"
           delay={0.1}
         />
         <StatCard
@@ -305,7 +364,6 @@ export const UserDashboard = () => {
           value={dashboard.challenges}
           subtext="Completed this month"
           trend={8}
-          color="amber"
           delay={0.2}
         />
         <StatCard
@@ -313,7 +371,6 @@ export const UserDashboard = () => {
           label="Learning Time"
           value={timeData.hours}
           subtext={`${timeData.mins} mins total`}
-          color="rose"
           delay={0.3}
         />
       </div>
@@ -325,7 +382,6 @@ export const UserDashboard = () => {
           <GlowCard 
             onClick={() => navigate(`/user/learn/${dashboard.topCourse.id}`)}
             className="lg:col-span-2 p-6"
-            gradient="from-indigo-500/20 to-purple-500/20"
           >
             <div className="flex flex-col md:flex-row gap-6">
               <div className="relative w-full md:w-48 h-32 rounded-xl overflow-hidden flex-shrink-0">
@@ -334,8 +390,11 @@ export const UserDashboard = () => {
                   alt={dashboard.topCourse.name}
                   className="w-full h-full object-cover"
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
-                <div className="absolute bottom-2 left-2 flex items-center gap-1 text-xs text-white/80">
+                <div 
+                  className="absolute inset-0"
+                  style={{ background: 'linear-gradient(to top, rgba(10,15,13,0.8), transparent)' }}
+                />
+                <div className="absolute bottom-2 left-2 flex items-center gap-1 text-xs" style={{ color: C.text }}>
                   <Play size={12} fill="currentColor" />
                   <span>Continue</span>
                 </div>
@@ -343,26 +402,37 @@ export const UserDashboard = () => {
               
               <div className="flex-1 flex flex-col justify-center">
                 <div className="flex items-center gap-2 mb-2">
-                  <span className="px-2 py-0.5 rounded-full bg-indigo-500/20 text-indigo-300 text-xs font-medium">
+                  <span 
+                    className="px-2 py-0.5 rounded-full text-xs font-medium"
+                    style={{ 
+                      background: `${C.brand}20`,
+                      color: C.brand,
+                      border: `1px solid ${C.border}`,
+                    }}
+                  >
                     In Progress
                   </span>
-                  <span className="text-xs text-slate-500">{dashboard.topCourse.progress}% complete</span>
+                  <span style={{ color: C.textDim }}>{dashboard.topCourse.progress}% complete</span>
                 </div>
                 
-                <h3 className="text-xl font-bold text-white mb-2 line-clamp-1">
+                <h3 
+                  className="text-xl font-bold mb-2 line-clamp-1"
+                  style={{ fontFamily: "'Fraunces', serif", color: C.text }}
+                >
                   {dashboard.topCourse.name}
                 </h3>
                 
                 <ProgressBar progress={dashboard.topCourse.progress} />
                 
                 <div className="flex items-center justify-between mt-4">
-                  <div className="flex items-center gap-2 text-sm text-slate-400">
+                  <div className="flex items-center gap-2 text-sm" style={{ color: C.textMuted }}>
                     <Clock size={14} />
                     <span>Resume where you left off</span>
                   </div>
                   <motion.div
                     whileHover={{ x: 5 }}
-                    className="flex items-center gap-1 text-indigo-400 text-sm font-medium"
+                    className="flex items-center gap-1 text-sm font-medium"
+                    style={{ color: C.brand }}
                   >
                     Continue <ArrowRight size={16} />
                   </motion.div>
@@ -373,24 +443,36 @@ export const UserDashboard = () => {
         )}
 
         {/* Weekly Goal Card */}
-        <GlowCard className="p-6" gradient="from-emerald-500/10 to-teal-500/10">
+        <GlowCard className="p-6" gradient={false}>
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-2">
-              <div className="p-2 rounded-lg bg-emerald-500/20">
-                <Target size={20} className="text-emerald-400" />
+              <div 
+                className="p-2 rounded-lg"
+                style={{ background: `${C.brand}20` }}
+              >
+                <Target size={20} style={{ color: C.brand }} />
               </div>
               <div>
-                <h3 className="font-semibold text-white">Weekly Goal</h3>
-                <p className="text-xs text-slate-400">5 hours target</p>
+                <h3 className="font-semibold" style={{ color: C.text }}>Weekly Goal</h3>
+                <p className="text-xs" style={{ color: C.textDim }}>5 hours target</p>
               </div>
             </div>
-            <span className="text-2xl font-bold text-emerald-400">{dashboard.weeklyGoal}%</span>
+            <span 
+              className="text-2xl font-bold"
+              style={{ 
+                background: `linear-gradient(135deg, ${C.brand}, ${C.brandLight})`,
+                WebkitBackgroundClip: "text",
+                WebkitTextFillColor: "transparent",
+              }}
+            >
+              {dashboard.weeklyGoal}%
+            </span>
           </div>
           
-          <ProgressBar progress={dashboard.weeklyGoal} color="from-emerald-500 to-teal-500" />
+          <ProgressBar progress={dashboard.weeklyGoal} />
           
-          <div className="mt-4 flex items-center gap-2 text-sm text-slate-400">
-            <Flame size={16} className="text-orange-400" />
+          <div className="mt-4 flex items-center gap-2 text-sm" style={{ color: C.textMuted }}>
+            <Flame size={16} style={{ color: C.accent }} />
             <span>3 day streak! Keep it up!</span>
           </div>
         </GlowCard>
@@ -398,18 +480,22 @@ export const UserDashboard = () => {
 
       {/* Main Content Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Left Column - 2/3 width */}
+        {/* Left Column */}
         <div className="lg:col-span-2 space-y-6">
           {/* Recommended Courses */}
           <section>
             <div className="flex items-center justify-between mb-4">
-              <h2 className="text-xl font-bold text-white flex items-center gap-2">
-                <Star size={20} className="text-indigo-400" />
+              <h2 
+                className="text-xl font-bold flex items-center gap-2"
+                style={{ fontFamily: "'Fraunces', serif", color: C.text }}
+              >
+                <Star size={20} style={{ color: C.brand }} />
                 Recommended for You
               </h2>
               <button 
                 onClick={() => navigate("/user/mycourses")}
-                className="text-sm text-indigo-400 hover:text-indigo-300 flex items-center gap-1 transition-colors"
+                className="text-sm flex items-center gap-1 transition-colors hover:opacity-80"
+                style={{ color: C.brand }}
               >
                 View all <ChevronRight size={16} />
               </button>
@@ -421,7 +507,6 @@ export const UserDashboard = () => {
                   key={course._id}
                   onClick={() => navigate(`/user/course/${course._id}`)}
                   className="p-4"
-                  delay={idx * 0.1}
                 >
                   <div className="flex gap-4">
                     <img
@@ -430,17 +515,27 @@ export const UserDashboard = () => {
                       className="w-20 h-20 rounded-xl object-cover flex-shrink-0"
                     />
                     <div className="flex-1 min-w-0">
-                      <h3 className="font-semibold text-white line-clamp-1 mb-1">
+                      <h3 
+                        className="font-semibold line-clamp-1 mb-1"
+                        style={{ fontFamily: "'Fraunces', serif", color: C.text }}
+                      >
                         {course.title}
                       </h3>
-                      <p className="text-sm text-slate-400 line-clamp-2 mb-2">
+                      <p className="text-sm line-clamp-2 mb-2" style={{ color: C.textMuted }}>
                         {course.shortDesc || "Learn essential skills with hands-on projects"}
                       </p>
                       <div className="flex items-center gap-2">
-                        <span className="px-2 py-0.5 rounded-full bg-indigo-500/20 text-indigo-300 text-xs">
+                        <span 
+                          className="px-2 py-0.5 rounded-full text-xs"
+                          style={{ 
+                            background: `${C.brand}20`,
+                            color: C.brand,
+                            border: `1px solid ${C.border}`,
+                          }}
+                        >
                           {course.level || "Beginner"}
                         </span>
-                        <span className="text-xs text-slate-500 flex items-center gap-1">
+                        <span className="text-xs flex items-center gap-1" style={{ color: C.textDim }}>
                           <Clock size={12} />
                           {course.duration || "8 weeks"}
                         </span>
@@ -454,13 +549,16 @@ export const UserDashboard = () => {
 
           {/* Recent Activity */}
           <section>
-            <h2 className="text-xl font-bold text-white flex items-center gap-2 mb-4">
-              <Activity size={20} className="text-indigo-400" />
+            <h2 
+              className="text-xl font-bold flex items-center gap-2 mb-4"
+              style={{ fontFamily: "'Fraunces', serif", color: C.text }}
+            >
+              <Activity size={20} style={{ color: C.brand }} />
               Recent Activity
             </h2>
             
-            <GlowCard className="p-0 overflow-hidden">
-              <div className="divide-y divide-white/5">
+            <GlowCard className="p-0 overflow-hidden" gradient={false}>
+              <div className="divide-y" style={{ borderColor: C.border }}>
                 {dashboard.recentActivity.length > 0 ? (
                   dashboard.recentActivity.map((activity, idx) => (
                     <motion.div
@@ -470,12 +568,15 @@ export const UserDashboard = () => {
                       transition={{ delay: idx * 0.05 }}
                       className="p-4 flex items-start gap-4 hover:bg-white/5 transition-colors"
                     >
-                      <div className="w-10 h-10 rounded-full bg-indigo-500/20 flex items-center justify-center flex-shrink-0">
-                        <Zap size={18} className="text-indigo-400" />
+                      <div 
+                        className="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0"
+                        style={{ background: `${C.brand}20` }}
+                      >
+                        <Zap size={18} style={{ color: C.brand }} />
                       </div>
                       <div className="flex-1 min-w-0">
-                        <p className="text-sm text-slate-200">{activity.message}</p>
-                        <p className="text-xs text-slate-500 mt-1">
+                        <p style={{ color: C.text }}>{activity.message}</p>
+                        <p className="text-xs mt-1" style={{ color: C.textDim }}>
                           {new Date(activity.createdAt).toLocaleDateString(undefined, {
                             month: "short",
                             day: "numeric",
@@ -487,7 +588,7 @@ export const UserDashboard = () => {
                     </motion.div>
                   ))
                 ) : (
-                  <div className="p-8 text-center text-slate-500">
+                  <div className="p-8 text-center" style={{ color: C.textDim }}>
                     <Activity size={32} className="mx-auto mb-2 opacity-50" />
                     <p>No recent activity</p>
                   </div>
@@ -497,17 +598,22 @@ export const UserDashboard = () => {
           </section>
         </div>
 
-        {/* Right Column - 1/3 width */}
+        {/* Right Column */}
         <div className="space-y-6">
           {/* Quick Actions */}
           <section>
-            <h2 className="text-lg font-bold text-white mb-4">Quick Actions</h2>
+            <h2 
+              className="text-lg font-bold mb-4"
+              style={{ fontFamily: "'Fraunces', serif", color: C.text }}
+            >
+              Quick Actions
+            </h2>
             <div className="space-y-2">
               {[
-                { icon: Play, label: "Resume Learning", color: "indigo", action: () => dashboard.topCourse && navigate(`/user/learn/${dashboard.topCourse.id}`) },
-                { icon: Trophy, label: "View Achievements", color: "amber", action: () => navigate("/user/certificates") },
-                { icon: BarChart3, label: "Progress Report", color: "emerald", action: () => {} },
-                { icon: GraduationCap, label: "Browse Catalog", color: "purple", action: () => navigate("/user/mycourses") }
+                { icon: Play, label: "Resume Learning", action: () => dashboard.topCourse && navigate(`/user/learn/${dashboard.topCourse.id}`) },
+                { icon: Trophy, label: "View Achievements", action: () => navigate("/user/certificates") },
+                { icon: BarChart3, label: "Progress Report", action: () => {} },
+                { icon: GraduationCap, label: "Browse Catalog", action: () => navigate("/user/mycourses") }
               ].map((item, idx) => (
                 <motion.button
                   key={idx}
@@ -517,13 +623,20 @@ export const UserDashboard = () => {
                   whileHover={{ scale: 1.02, x: 5 }}
                   whileTap={{ scale: 0.98 }}
                   onClick={item.action}
-                  className="w-full flex items-center gap-3 p-3 rounded-xl bg-white/5 hover:bg-white/10 border border-white/5 hover:border-white/10 transition-all text-left group"
+                  className="w-full flex items-center gap-3 p-3 rounded-xl transition-all text-left group"
+                  style={{ 
+                    background: C.surface2,
+                    border: `1px solid ${C.border}`,
+                  }}
                 >
-                  <div className={`p-2 rounded-lg bg-${item.color}-500/20 text-${item.color}-400 group-hover:scale-110 transition-transform`}>
+                  <div 
+                    className="p-2 rounded-lg transition-transform group-hover:scale-110"
+                    style={{ background: `${C.brand}20`, color: C.brand }}
+                  >
                     <item.icon size={18} />
                   </div>
-                  <span className="text-sm font-medium text-slate-300 group-hover:text-white">{item.label}</span>
-                  <ChevronRight size={16} className="ml-auto text-slate-500 group-hover:text-white transition-colors" />
+                  <span className="text-sm font-medium" style={{ color: C.textMuted }}>{item.label}</span>
+                  <ChevronRight size={16} className="ml-auto transition-colors" style={{ color: C.textDim }} />
                 </motion.button>
               ))}
             </div>
@@ -532,19 +645,28 @@ export const UserDashboard = () => {
           {/* Notifications */}
           <section>
             <div className="flex items-center justify-between mb-4">
-              <h2 className="text-lg font-bold text-white flex items-center gap-2">
-                <Bell size={18} className="text-indigo-400" />
+              <h2 
+                className="text-lg font-bold flex items-center gap-2"
+                style={{ fontFamily: "'Fraunces', serif", color: C.text }}
+              >
+                <Bell size={18} style={{ color: C.brand }} />
                 Notifications
               </h2>
               {notifications.length > 0 && (
-                <span className="text-xs text-indigo-400 cursor-pointer hover:text-indigo-300">
+                <span 
+                  className="text-xs cursor-pointer hover:opacity-80 transition-opacity"
+                  style={{ color: C.brand }}
+                >
                   Mark all read
                 </span>
               )}
             </div>
             
-            <GlowCard className="p-0 max-h-80 overflow-hidden">
-              <div className="divide-y divide-white/5 max-h-80 overflow-y-auto">
+            <GlowCard className="p-0 max-h-80 overflow-hidden" gradient={false}>
+              <div 
+                className="divide-y max-h-80 overflow-y-auto"
+                style={{ borderColor: C.border }}
+              >
                 {notifications.length > 0 ? (
                   notifications.slice(0, 5).map((notification, idx) => (
                     <motion.div
@@ -553,11 +675,15 @@ export const UserDashboard = () => {
                       animate={{ opacity: 1 }}
                       transition={{ delay: idx * 0.05 }}
                       className={`p-4 hover:bg-white/5 transition-colors cursor-pointer ${
-                        !notification.read ? "bg-indigo-500/5 border-l-2 border-indigo-500" : ""
+                        !notification.read ? "border-l-2" : ""
                       }`}
+                      style={{ 
+                        background: !notification.read ? `${C.brand}08` : 'transparent',
+                        borderColor: !notification.read ? C.brand : 'transparent',
+                      }}
                     >
-                      <p className="text-sm text-slate-200 line-clamp-2">{notification.message}</p>
-                      <p className="text-xs text-slate-500 mt-1">
+                      <p className="text-sm line-clamp-2" style={{ color: C.text }}>{notification.message}</p>
+                      <p className="text-xs mt-1" style={{ color: C.textDim }}>
                         {new Date(notification.createdAt).toLocaleTimeString([], {
                           hour: "2-digit",
                           minute: "2-digit"
@@ -566,7 +692,7 @@ export const UserDashboard = () => {
                     </motion.div>
                   ))
                 ) : (
-                  <div className="p-6 text-center text-slate-500">
+                  <div className="p-6 text-center" style={{ color: C.textDim }}>
                     <Bell size={24} className="mx-auto mb-2 opacity-30" />
                     <p className="text-sm">No notifications</p>
                   </div>
@@ -576,25 +702,29 @@ export const UserDashboard = () => {
           </section>
 
           {/* Learning Streak */}
-          <GlowCard className="p-6 bg-gradient-to-br from-orange-500/10 to-red-500/10 border-orange-500/20">
+          <GlowCard className="p-6" gradient={false}>
             <div className="flex items-center gap-3 mb-3">
-              <div className="p-2 rounded-lg bg-orange-500/20">
-                <Flame size={20} className="text-orange-400" />
+              <div 
+                className="p-2 rounded-lg"
+                style={{ background: `${C.accent}20` }}
+              >
+                <Flame size={20} style={{ color: C.accent }} />
               </div>
               <div>
-                <h3 className="font-semibold text-white">3 Day Streak!</h3>
-                <p className="text-xs text-slate-400">Keep learning daily</p>
+                <h3 className="font-semibold" style={{ color: C.text }}>3 Day Streak!</h3>
+                <p className="text-xs" style={{ color: C.textDim }}>Keep learning daily</p>
               </div>
             </div>
             <div className="flex gap-1">
               {["M", "T", "W", "T", "F", "S", "S"].map((day, idx) => (
                 <div
                   key={idx}
-                  className={`flex-1 h-8 rounded-lg flex items-center justify-center text-xs font-medium ${
-                    idx < 3 
-                      ? "bg-orange-500 text-white" 
-                      : "bg-white/5 text-slate-500"
-                  }`}
+                  className="flex-1 h-8 rounded-lg flex items-center justify-center text-xs font-medium"
+                  style={{ 
+                    background: idx < 3 ? C.brand : C.surface2,
+                    color: idx < 3 ? C.bg : C.textDim,
+                    border: `1px solid ${idx < 3 ? C.brand : C.border}`,
+                  }}
                 >
                   {day}
                 </div>
