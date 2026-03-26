@@ -1,6 +1,7 @@
-import React, { useEffect, useState, useRef } from "react";
+import React, { useEffect, useState, useRef, useCallback } from "react";
 import axios from "axios";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
+import io from "socket.io-client";
 import {
   Send,
   Search,
@@ -12,24 +13,61 @@ import {
   Reply,
   Edit,
   Trash2,
+  MoreVertical,
+  ArrowLeft,
+  Wifi,
+  WifiOff,
+  CheckCheck
 } from "lucide-react";
 import toast from "react-hot-toast";
-import { MoreVertical } from "lucide-react";
+
+// ==========================================
+// DESIGN TOKENS (Matching MyCourses Theme)
+// ==========================================
+const C = {
+  brand: "#16A880",
+  brandDark: "#0D7A5F",
+  brandLight: "#1FC99A",
+  accent: "#F59E0B",
+  bg: "#0A0F0D",
+  surface: "#111814",
+  surface2: "#182219",
+  surface3: "#1E2B22",
+  border: "rgba(22,168,128,0.15)",
+  borderHov: "rgba(22,168,128,0.35)",
+  text: "#E8F5F0",
+  textMuted: "#7A9E8E",
+  textDim: "#3D5C4E",
+  error: "#F87171",
+  success: "#22C55E"
+};
+
+// WebSocket singleton
+let socket = null;
+
 export const Messages = () => {
   const currentUserId = localStorage.getItem("userId");
   const token = localStorage.getItem("token");
+  
+  // Connection state
+  const [isConnected, setIsConnected] = useState(false);
+  const [isConnecting, setIsConnecting] = useState(true);
+  
+  // UI State
   const [isReportOpen, setIsReportOpen] = useState(false);
-  const [reportTarget, setReportTarget] = useState(null); // { type, id }
+  const [reportTarget, setReportTarget] = useState(null);
   const [reportType, setReportType] = useState("");
   const [reportMessage, setReportMessage] = useState("");
   const [menuOpen, setMenuOpen] = useState(null);
-  // existing state (kept)
+  
+  // Data State
   const [friends, setFriends] = useState([]);
   const [incoming, setIncoming] = useState([]);
   const [outgoing, setOutgoing] = useState([]);
   const [selectedUserId, setSelectedUserId] = useState(null);
   const [messages, setMessages] = useState([]);
   const [activeMessage, setActiveMessage] = useState(null);
+  const [typingUsers, setTypingUsers] = useState(new Set());
 
   const [activeSidebarTab, setActiveSidebarTab] = useState("friends");
   const [sidebarOpen, setSidebarOpen] = useState(true);
@@ -37,46 +75,160 @@ export const Messages = () => {
   const [replyTo, setReplyTo] = useState(null);
   const [editMsg, setEditMsg] = useState(null);
   const [newMessage, setNewMessage] = useState("");
-  const [showReactions, setShowReactions] = useState(null); // messageId for reactions
-
-  const messagesEndRef = useRef(null);
-  const inputRef = useRef(null);
-
-  // new states for search/add friend
+  const [showReactions, setShowReactions] = useState(null);
+  
+  // Search states
   const [searchQuery, setSearchQuery] = useState("");
   const [searchResults, setSearchResults] = useState([]);
   const [searchLoading, setSearchLoading] = useState(false);
   const [addingRequestIds, setAddingRequestIds] = useState(new Set());
-  const handleReportSubmit = async (e) => {
-    e.preventDefault();
-    if (!reportTarget) return;
-    try {
-      await axios.post(
-        "/report",
-        {
-          reporter: currentUserId,
-          type: reportType,
-          description: reportMessage,
-          targetType: reportTarget.type,
-          targetId: reportTarget.id,
-        },
-        {
-          headers: { Authorization: `Bearer ${token}` },
+
+  const messagesEndRef = useRef(null);
+  const inputRef = useRef(null);
+  const typingTimeoutRef = useRef(null);
+
+  // ===============================
+  // WebSocket Connection Setup
+  // ===============================
+  useEffect(() => {
+    const initSocket = () => {
+      setIsConnecting(true);
+      
+      socket = io(process.env.REACT_APP_WS_URL || "http://localhost:5000", {
+        auth: { token },
+        query: { userId: currentUserId },
+        transports: ["websocket", "polling"],
+        reconnection: true,
+        reconnectionAttempts: 10,
+        reconnectionDelay: 1000,
+        reconnectionDelayMax: 5000,
+      });
+
+      socket.on("connect", () => {
+        console.log("WebSocket connected");
+        setIsConnected(true);
+        setIsConnecting(false);
+        toast.success("Connected to chat server");
+        socket.emit("join", currentUserId);
+      });
+
+      socket.on("disconnect", (reason) => {
+        console.log("WebSocket disconnected:", reason);
+        setIsConnected(false);
+        if (reason === "io server disconnect") {
+          socket.connect();
         }
-      );
+      });
 
-      toast.success(`${reportTarget.type} reported successfully ✅`);
-      setReportType("");
-      setReportMessage("");
-      setReportTarget(null);
-      setIsReportOpen(false);
-    } catch (err) {
-      console.error("report error", err);
-      toast.error("Failed to report ❌");
-    }
-  };
+      socket.on("connect_error", (error) => {
+        console.error("Connection error:", error);
+        setIsConnected(false);
+        setIsConnecting(false);
+        toast.error("Failed to connect to chat server");
+      });
 
-  // --- Fetch Functions (unchanged endpoints used) ---
+      socket.on("reconnect", (attemptNumber) => {
+        console.log("Reconnected after", attemptNumber, "attempts");
+        setIsConnected(true);
+        toast.success("Reconnected to chat server");
+        socket.emit("join", currentUserId);
+        if (selectedUserId) fetchMessages(selectedUserId);
+      });
+
+      // Real-time events
+      socket.on("new_message", (data) => {
+        const { message } = data;
+        
+        if (
+          (message.senderId === selectedUserId && message.receiverId === currentUserId) ||
+          (message.senderId === currentUserId && message.receiverId === selectedUserId)
+        ) {
+          setMessages((prev) => {
+            const exists = prev.find(m => m._id === message._id || m.tempId === message.tempId);
+            if (exists) {
+              return prev.map(m => 
+                (m._id === message._id || m.tempId === message.tempId) ? message : m
+              );
+            }
+            return [...prev, message];
+          });
+          
+          if (message.senderId === selectedUserId) {
+            socket.emit("mark_read", { messageId: message._id });
+          }
+        } else if (message.receiverId === currentUserId) {
+          toast.success(`New message from ${message.senderName || "Someone"}`);
+        }
+      });
+
+      socket.on("message_edited", (data) => {
+        const { message } = data;
+        setMessages((prev) =>
+          prev.map((m) => (m._id === message._id ? { ...m, ...message } : m))
+        );
+      });
+
+      socket.on("message_deleted", (data) => {
+        const { messageId } = data;
+        setMessages((prev) => prev.filter((m) => m._id !== messageId));
+      });
+
+      socket.on("reaction_updated", (data) => {
+        const { message } = data;
+        setMessages((prev) =>
+          prev.map((m) => (m._id === message._id ? { ...m, reactions: message.reactions } : m))
+        );
+      });
+
+      socket.on("user_typing", (data) => {
+        const { userId } = data;
+        if (userId !== currentUserId) {
+          setTypingUsers((prev) => new Set(prev).add(userId));
+        }
+      });
+
+      socket.on("user_stop_typing", (data) => {
+        const { userId } = data;
+        setTypingUsers((prev) => {
+          const next = new Set(prev);
+          next.delete(userId);
+          return next;
+        });
+      });
+
+      socket.on("friend_request_received", () => {
+        fetchIncoming();
+        toast.success("New friend request received");
+      });
+
+      socket.on("friend_request_accepted", () => {
+        fetchFriends();
+        fetchOutgoing();
+        toast.success("Friend request accepted");
+      });
+    };
+
+    initSocket();
+
+    return () => {
+      if (socket) {
+        socket.off("connect");
+        socket.off("disconnect");
+        socket.off("new_message");
+        socket.off("message_edited");
+        socket.off("message_deleted");
+        socket.off("reaction_updated");
+        socket.off("user_typing");
+        socket.off("user_stop_typing");
+        socket.close();
+        socket = null;
+      }
+    };
+  }, [currentUserId, token, selectedUserId]);
+
+  // ===============================
+  // Data Fetching
+  // ===============================
   const fetchFriends = async () => {
     try {
       const res = await axios.get(`/friends/${currentUserId}`, {
@@ -118,46 +270,86 @@ export const Messages = () => {
       const res = await axios.get(`/messages/${currentUserId}/${friendId}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
-      // controller returns { success, messages } so try both shapes
       setMessages(res.data?.messages ?? res.data?.data ?? []);
     } catch {
       setMessages([]);
     }
   };
 
-  // --- Utility sets ---
-  const requestedSet = new Set(
-    (outgoing || []).map((r) => String(r.recipient?._id ?? r.recipient ?? ""))
-  );
-  const friendIdsSet = new Set((friends || []).map((f) => String(f._id)));
+  useEffect(() => {
+    fetchFriends();
+    fetchIncoming();
+    fetchOutgoing();
+  }, []);
 
-  // --- Message Handlers ---
+  useEffect(() => {
+    fetchMessages(selectedUserId);
+    if (socket && selectedUserId) {
+      socket.emit("join_conversation", { userId: currentUserId, friendId: selectedUserId });
+    }
+  }, [selectedUserId]);
+
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [messages, typingUsers]);
+
+  // ===============================
+  // Typing Indicator
+  // ===============================
+  const handleTyping = useCallback(() => {
+    if (!socket || !selectedUserId) return;
+    
+    socket.emit("typing", { senderId: currentUserId, receiverId: selectedUserId });
+    
+    if (typingTimeoutRef.current) {
+      clearTimeout(typingTimeoutRef.current);
+    }
+    
+    typingTimeoutRef.current = setTimeout(() => {
+      socket.emit("stop_typing", { senderId: currentUserId, receiverId: selectedUserId });
+    }, 2000);
+  }, [currentUserId, selectedUserId]);
+
+  // ===============================
+  // Message Handlers with Optimistic Updates
+  // ===============================
   const handleSend = async () => {
     if (!selectedUserId || !newMessage.trim()) return;
 
-    // If editing an existing message
+    const tempId = `temp-${Date.now()}`;
+    const messageText = newMessage.trim();
+
     if (editMsg) {
       try {
+        setMessages((prev) =>
+          prev.map((m) =>
+            m._id === editMsg._id ? { ...m, text: messageText, isEditing: true } : m
+          )
+        );
+
+        socket.emit("edit_message", {
+          messageId: editMsg._id,
+          text: messageText,
+          senderId: currentUserId,
+          receiverId: selectedUserId,
+        });
+
         const res = await axios.patch(
           `/message/${editMsg._id}`,
-          {
-            text: newMessage,
-          },
-          {
-            headers: { Authorization: `Bearer ${token}` },
-          }
+          { text: messageText },
+          { headers: { Authorization: `Bearer ${token}` } }
         );
+
         const updated = res.data?.message ?? res.data ?? null;
         if (updated) {
           setMessages((prev) =>
-            prev.map((m) =>
-              String(m._id) === String(editMsg._id) ? updated : m
-            )
+            prev.map((m) => (m._id === editMsg._id ? { ...updated, isEditing: false } : m))
           );
         }
       } catch (err) {
         console.error("edit error", err);
-        alert("Failed to edit message");
+        toast.error("Failed to edit message");
+        fetchMessages(selectedUserId);
       } finally {
         setEditMsg(null);
         setNewMessage("");
@@ -167,77 +359,101 @@ export const Messages = () => {
       return;
     }
 
-    // Optimistic send for new messages
-    const tempId = `tmp-${Date.now()}`;
+    // New message with optimistic update
     const optimisticMsg = {
       _id: tempId,
+      tempId,
       senderId: currentUserId,
       receiverId: selectedUserId,
-      text: newMessage,
+      text: messageText,
       replyTo,
       createdAt: new Date().toISOString(),
       reactions: [],
+      isPending: true,
     };
+
     setMessages((prev) => [...prev, optimisticMsg]);
+    setNewMessage("");
+    setReplyTo(null);
 
     try {
+      socket.emit("send_message", {
+        tempId,
+        senderId: currentUserId,
+        receiverId: selectedUserId,
+        text: messageText,
+        replyTo: replyTo?._id ?? null,
+      });
+
       const res = await axios.post(
         "/message",
         {
           senderId: currentUserId,
           receiverId: selectedUserId,
-          text: newMessage,
+          text: messageText,
           replyTo: replyTo?._id ?? null,
         },
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
+        { headers: { Authorization: `Bearer ${token}` } }
       );
-      const newMsg =
-        res.data?.message ?? res.data?.message ?? res.data?.data ?? null;
+
+      const newMsg = res.data?.message ?? res.data?.data ?? null;
       if (newMsg) {
-        setMessages((prev) => prev.map((m) => (m._id === tempId ? newMsg : m)));
+        setMessages((prev) =>
+          prev.map((m) => (m.tempId === tempId ? { ...newMsg, isPending: false } : m))
+        );
       }
     } catch (err) {
       console.error("send error", err);
-      setMessages((prev) => prev.filter((m) => m._id !== tempId));
-      alert("Message failed to send.");
+      toast.error("Message failed to send");
+      setMessages((prev) =>
+        prev.map((m) => (m.tempId === tempId ? { ...m, isFailed: true, isPending: false } : m))
+      );
     }
 
-    setReplyTo(null);
-    setNewMessage("");
     inputRef.current?.focus();
   };
 
   const handleReaction = async (msgId, emoji) => {
     try {
-      const res = await axios.patch(
-        `/message/${msgId}/reaction`,
-        {
-          userId: currentUserId,
-          emoji,
-        },
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
+      setMessages((prev) =>
+        prev.map((m) => {
+          if (m._id !== msgId) return m;
+          const existingReaction = m.reactions?.find(r => r.userId === currentUserId);
+          let newReactions;
+          
+          if (existingReaction) {
+            if (existingReaction.emoji === emoji) {
+              newReactions = m.reactions.filter(r => r.userId !== currentUserId);
+            } else {
+              newReactions = m.reactions.map(r => 
+                r.userId === currentUserId ? { ...r, emoji } : r
+              );
+            }
+          } else {
+            newReactions = [...(m.reactions || []), { userId: currentUserId, emoji }];
+          }
+          
+          return { ...m, reactions: newReactions };
+        })
       );
-      const updated = res.data?.message ?? res.data?.data ?? res.data ?? null;
-      if (updated) {
-        setMessages((prev) =>
-          prev.map((m) => (String(m._id) === String(msgId) ? updated : m))
-        );
-      }
+
+      socket.emit("add_reaction", { messageId: msgId, userId: currentUserId, emoji });
+
+      await axios.patch(
+        `/message/${msgId}/reaction`,
+        { userId: currentUserId, emoji },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
     } catch (err) {
       console.error("reaction error", err);
-      alert("Failed to react");
+      toast.error("Failed to react");
+      fetchMessages(selectedUserId);
     }
     setShowReactions(null);
   };
 
-  // restore missing action handlers (reply/edit/delete/forward)
   const handleReply = (msg) => {
     setReplyTo(msg);
-    // bring focus to input
     setTimeout(() => inputRef.current?.focus(), 50);
   };
 
@@ -249,45 +465,43 @@ export const Messages = () => {
 
   const handleDelete = async (messageId) => {
     try {
+      setMessages((prev) => prev.filter((m) => m._id !== messageId));
+      socket.emit("delete_message", { messageId, senderId: currentUserId });
       await axios.delete(`/message/${messageId}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
-      setMessages((prev) =>
-        prev.filter((m) => String(m._id) !== String(messageId))
-      );
     } catch (err) {
       console.error("delete error", err);
-      alert("Failed to delete message");
+      toast.error("Failed to delete message");
+      fetchMessages(selectedUserId);
     }
   };
 
   const handleForward = (msg) => {
-    alert(
-      `Forwarding is not implemented yet. (Would open friend picker for: "${msg.text?.slice(
-        0,
-        60
-      )}...")`
-    );
+    toast.success("Forward feature coming soon!");
   };
 
-  // --- Friends / Requests Handlers ---
+  // ===============================
+  // Friend Handlers
+  // ===============================
   const handleIncomingAction = async (requestId, action) => {
     try {
-      // keeping your existing route shape
       await axios.patch(
         `/friends/request/${requestId}`,
-        {
-          status: action,
-        },
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
+        { status: action },
+        { headers: { Authorization: `Bearer ${token}` } }
       );
+      
+      if (socket) {
+        socket.emit("friend_request_response", { requestId, status: action });
+      }
+      
       await fetchIncoming();
       await fetchFriends();
       await fetchOutgoing();
     } catch (err) {
       console.error("handleIncomingAction error", err);
+      toast.error("Failed to process request");
     }
   };
 
@@ -297,19 +511,19 @@ export const Messages = () => {
     try {
       await axios.post(
         `/friends/request`,
-        {
-          requesterId: currentUserId,
-          recipientId: id,
-        },
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
+        { requesterId: currentUserId, recipientId: id },
+        { headers: { Authorization: `Bearer ${token}` } }
       );
-      // update outgoing list
+      
+      if (socket) {
+        socket.emit("send_friend_request", { recipientId: id });
+      }
+      
       await fetchOutgoing();
+      toast.success("Friend request sent");
     } catch (err) {
       console.error("send request error", err);
-      alert("Failed to send friend request");
+      toast.error("Failed to send friend request");
     } finally {
       setAddingRequestIds((prev) => {
         const copy = new Set(prev);
@@ -319,7 +533,9 @@ export const Messages = () => {
     }
   };
 
-  // --- Search users (debounced) ---
+  // ===============================
+  // Search
+  // ===============================
   useEffect(() => {
     const t = setTimeout(() => {
       const q = (searchQuery || "").trim();
@@ -331,13 +547,9 @@ export const Messages = () => {
       (async () => {
         setSearchLoading(true);
         try {
-          // backend user search endpoint — adjust if your route differs
-          const res = await axios.get(
-            `/users/search?q=${encodeURIComponent(q)}`,
-            {
-              headers: { Authorization: `Bearer ${token}` },
-            }
-          );
+          const res = await axios.get(`/users/search?q=${encodeURIComponent(q)}`, {
+            headers: { Authorization: `Bearer ${token}` },
+          });
           setSearchResults(res.data?.data ?? res.data ?? []);
         } catch (err) {
           setSearchResults([]);
@@ -349,100 +561,194 @@ export const Messages = () => {
     return () => clearTimeout(t);
   }, [searchQuery]);
 
-  // --- Effects ---
-  useEffect(() => {
-    fetchFriends();
-    fetchIncoming();
-    fetchOutgoing();
-  }, []);
+  // ===============================
+  // Report Handler
+  // ===============================
+  const handleReportSubmit = async (e) => {
+    e.preventDefault();
+    if (!reportTarget) return;
+    try {
+      await axios.post(
+        "/report",
+        {
+          reporter: currentUserId,
+          type: reportType,
+          description: reportMessage,
+          targetType: reportTarget.type,
+          targetId: reportTarget.id,
+        },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
 
-  useEffect(() => {
-    fetchMessages(selectedUserId);
-  }, [selectedUserId]);
+      toast.success(`${reportTarget.type} reported successfully`);
+      setReportType("");
+      setReportMessage("");
+      setReportTarget(null);
+      setIsReportOpen(false);
+    } catch (err) {
+      console.error("report error", err);
+      toast.error("Failed to report");
+    }
+  };
 
-  useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages]);
-
-  // small helper for display name
+  // ===============================
+  // Helpers
+  // ===============================
   const nameOf = (u) => u?.fullname || u?.name || u?.email || "Unknown";
-
-  // emojis for picker
   const emojis = ["👍", "❤️", "😂", "😮", "😢", "🔥"];
+  
+  const requestedSet = new Set((outgoing || []).map((r) => String(r.recipient?._id ?? r.recipient ?? "")));
+  const friendIdsSet = new Set((friends || []).map((f) => String(f._id)));
+  
+  const selectedUser = friends.find((f) => String(f._id) === String(selectedUserId));
+  const isTyping = selectedUserId && typingUsers.has(selectedUserId);
 
+  // ===============================
+  // Render
+  // ===============================
   return (
-    <div className="flex h-screen bg-gray-950 text-white">
-      {/* Sidebar animated with framer-motion */}
-      <motion.div
+    <div className="flex h-screen" style={{ background: C.bg, color: C.text }}>
+      {/* Connection Status Bar */}
+      <AnimatePresence>
+        {!isConnected && (
+          <motion.div
+            initial={{ y: -50 }}
+            animate={{ y: 0 }}
+            exit={{ y: -50 }}
+            className="fixed top-0 left-0 right-0 z-50 px-4 py-2 flex items-center justify-center gap-2"
+            style={{ background: isConnecting ? C.accent : C.error }}
+          >
+            {isConnecting ? (
+              <>
+                <motion.div
+                  animate={{ rotate: 360 }}
+                  transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                  className="w-4 h-4 border-2 border-white border-t-transparent rounded-full"
+                />
+                <span className="text-sm font-medium" style={{ color: C.bg }}>
+                  Connecting to chat server...
+                </span>
+              </>
+            ) : (
+              <>
+                <WifiOff size={16} style={{ color: C.bg }} />
+                <span className="text-sm font-medium" style={{ color: C.bg }}>
+                  Disconnected. Trying to reconnect...
+                </span>
+              </>
+            )}
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* SIDEBAR */}
+      <motion.aside
         initial={false}
         animate={{
-          width: sidebarOpen ? "33.333%" : "0px",
+          width: sidebarOpen ? "320px" : "0px",
           opacity: sidebarOpen ? 1 : 0,
         }}
-        transition={{ duration: 0.24 }}
-        style={{ overflow: "hidden" }}
-        className="bg-gray-900 flex flex-col border-r border-gray-800"
+        transition={{ duration: 0.3, ease: "easeInOut" }}
+        className="flex flex-col overflow-hidden"
+        style={{ 
+          background: C.surface, 
+          borderRight: `1px solid ${C.border}` 
+        }}
       >
-        {/* keep visual gap even when collapsed: content uses pointer events only when open */}
-        <div style={{ pointerEvents: sidebarOpen ? "auto" : "none" }}>
-          <div className="flex border-b border-gray-800 items-center px-2">
-            <button
-              onClick={() => setActiveSidebarTab("friends")}
-              className={`flex-1 p-3 text-center ${
-                activeSidebarTab === "friends" ? "bg-violet-700" : "bg-gray-800"
-              }`}
+        <div style={{ pointerEvents: sidebarOpen ? "auto" : "none" }} className="h-full flex flex-col">
+          {/* Header */}
+          <div className="p-4 border-b" style={{ borderColor: C.border }}>
+            <h2 
+              className="text-xl font-bold mb-4"
+              style={{ color: C.text, fontFamily: "Fraunces, serif" }}
             >
-              Friends
-            </button>
-            <button
-              onClick={() => setActiveSidebarTab("requests")}
-              className={`flex-1 p-3 text-center ${
-                activeSidebarTab === "requests"
-                  ? "bg-violet-700"
-                  : "bg-gray-800"
-              }`}
+              Messages
+            </h2>
+            
+            {/* Tabs */}
+            <div 
+              className="flex rounded-xl p-1"
+              style={{ background: C.surface2, border: `1px solid ${C.border}` }}
             >
-              Requests
-              {incoming.length > 0 && (
-                <span className="ml-1 bg-red-500 text-xs px-2 py-0.5 rounded-full">
-                  {incoming.length}
-                </span>
-              )}
-            </button>
+              <button
+                onClick={() => setActiveSidebarTab("friends")}
+                className="flex-1 py-2 px-3 rounded-lg text-sm font-medium transition-all"
+                style={{
+                  background: activeSidebarTab === "friends" ? C.brand : "transparent",
+                  color: activeSidebarTab === "friends" ? C.bg : C.textMuted
+                }}
+              >
+                Friends
+              </button>
+              <button
+                onClick={() => setActiveSidebarTab("requests")}
+                className="flex-1 py-2 px-3 rounded-lg text-sm font-medium transition-all flex items-center justify-center gap-2"
+                style={{
+                  background: activeSidebarTab === "requests" ? C.brand : "transparent",
+                  color: activeSidebarTab === "requests" ? C.bg : C.textMuted
+                }}
+              >
+                Requests
+                {incoming.length > 0 && (
+                  <span 
+                    className="px-1.5 py-0.5 rounded-full text-xs"
+                    style={{ background: C.error, color: "white" }}
+                  >
+                    {incoming.length}
+                  </span>
+                )}
+              </button>
+            </div>
           </div>
 
-          {/* small search / add-friend UI (visible in friends tab) */}
+          {/* Search */}
           {activeSidebarTab === "friends" && (
-            <div className="p-3 border-b border-gray-800">
-              <div className="flex gap-2">
-                <div className="relative flex-1">
-                  <input
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    placeholder="Search users to add (min 2 chars)"
-                    className="w-full bg-gray-800 p-2 rounded-md outline-none pr-10"
-                  />
-                  <div className="absolute right-2 top-1/2 -translate-y-1/2">
-                    <Search size={16} />
-                  </div>
-                </div>
-                <button
-                  onClick={() => {
-                    setSearchQuery("");
-                    setSearchResults([]);
+            <div className="p-4 border-b" style={{ borderColor: C.border }}>
+              <div className="relative">
+                <Search 
+                  size={16} 
+                  className="absolute left-3 top-1/2 -translate-y-1/2"
+                  style={{ color: C.textDim }}
+                />
+                <input
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  placeholder="Search users..."
+                  className="w-full pl-10 pr-10 py-2.5 rounded-xl text-sm outline-none transition-all"
+                  style={{ 
+                    background: C.surface2, 
+                    border: `1px solid ${C.border}`,
+                    color: C.text
                   }}
-                  className="p-2 bg-gray-800 rounded-md"
-                >
-                  <X size={16} />
-                </button>
+                />
+                {searchQuery && (
+                  <button
+                    onClick={() => { setSearchQuery(""); setSearchResults([]); }}
+                    className="absolute right-3 top-1/2 -translate-y-1/2"
+                    style={{ color: C.textDim }}
+                  >
+                    <X size={16} />
+                  </button>
+                )}
               </div>
 
-              {/* showing search results */}
-              {searchLoading ? (
-                <div className="text-xs text-gray-400 mt-2">Searching...</div>
-              ) : (
-                searchResults.length > 0 && (
-                  <div className="mt-2 space-y-2 max-h-40 overflow-y-auto">
+              {/* Search Results */}
+              <AnimatePresence>
+                {searchLoading ? (
+                  <motion.div 
+                    initial={{ opacity: 0 }} 
+                    animate={{ opacity: 1 }}
+                    className="mt-3 text-sm"
+                    style={{ color: C.textMuted }}
+                  >
+                    Searching...
+                  </motion.div>
+                ) : searchResults.length > 0 ? (
+                  <motion.div
+                    initial={{ opacity: 0, y: -10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="mt-3 space-y-2 max-h-48 overflow-y-auto"
+                  >
                     {searchResults.map((u) => {
                       const id = String(u._id ?? u.id ?? "");
                       const alreadyFriend = friendIdsSet.has(id);
@@ -453,437 +759,728 @@ export const Messages = () => {
                       return (
                         <div
                           key={id}
-                          className="flex items-center justify-between p-2 bg-gray-800 rounded-lg"
+                          className="flex items-center justify-between p-3 rounded-xl"
+                          style={{ background: C.surface2, border: `1px solid ${C.border}` }}
                         >
-                          <div className="flex items-center gap-2">
+                          <div className="flex items-center gap-3">
                             <img
-                              src={u.avatar || "/default-avatar.png"}
-                              className="w-8 h-8 rounded-full"
+                              src={u.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(nameOf(u))}&background=16A880&color=fff`}
+                              className="w-10 h-10 rounded-full"
                               alt={nameOf(u)}
                             />
-                            <div className="text-sm">{nameOf(u)}</div>
+                            <div>
+                              <div className="text-sm font-medium" style={{ color: C.text }}>
+                                {nameOf(u)}
+                              </div>
+                              <div className="text-xs" style={{ color: C.textDim }}>
+                                {u.email}
+                              </div>
+                            </div>
                           </div>
                           <div>
                             {isSelf ? (
-                              <div className="text-xs text-gray-500">You</div>
+                              <span className="text-xs" style={{ color: C.textDim }}>You</span>
                             ) : alreadyFriend ? (
-                              <div className="text-xs text-green-400">
-                                Friend
-                              </div>
+                              <span className="text-xs" style={{ color: C.brand }}>Friend</span>
                             ) : alreadyRequested ? (
-                              <div className="text-xs text-yellow-300">
-                                Requested
-                              </div>
+                              <span className="text-xs" style={{ color: C.accent }}>Pending</span>
                             ) : (
-                              <button
+                              <motion.button
+                                whileHover={{ scale: 1.05 }}
+                                whileTap={{ scale: 0.95 }}
                                 disabled={adding}
                                 onClick={() => sendFriendRequest(id)}
-                                className="px-3 py-1 bg-violet-600 rounded-md text-sm"
+                                className="px-3 py-1.5 rounded-lg text-xs font-medium"
+                                style={{ background: C.brand, color: C.bg }}
                               >
-                                {adding ? "Sending..." : "Add"}
-                              </button>
+                                {adding ? "..." : "Add"}
+                              </motion.button>
                             )}
                           </div>
                         </div>
                       );
                     })}
-                  </div>
-                )
-              )}
+                  </motion.div>
+                ) : null}
+              </AnimatePresence>
             </div>
           )}
 
-          {/* Friends list */}
-          {activeSidebarTab === "friends" && (
-            <div className="flex-1 overflow-y-auto p-3">
-              {friends.length === 0 ? (
-                <div className="text-center text-gray-400 mt-10">
-                  No friends yet. Add some to start chatting.
+          {/* Content */}
+          <div className="flex-1 overflow-y-auto p-3">
+            {activeSidebarTab === "friends" ? (
+              friends.length === 0 ? (
+                <div className="text-center mt-10" style={{ color: C.textMuted }}>
+                  <div 
+                    className="w-16 h-16 mx-auto mb-4 rounded-full flex items-center justify-center"
+                    style={{ background: C.surface2 }}
+                  >
+                    <UserPlus size={24} style={{ color: C.textDim }} />
+                  </div>
+                  <p className="text-sm">No friends yet</p>
+                  <p className="text-xs mt-1" style={{ color: C.textDim }}>
+                    Search users to add friends
+                  </p>
                 </div>
               ) : (
-                friends.map((f) => (
+                friends.map((f, idx) => (
                   <motion.div
                     key={f._id}
-                    whileHover={{ scale: 1.02 }}
-                    className={`relative flex items-center justify-between p-3 mb-2 rounded-xl cursor-pointer ${
-                      String(selectedUserId) === String(f._id)
-                        ? "bg-violet-700"
-                        : "bg-gray-800 hover:bg-gray-700"
-                    }`}
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: idx * 0.05 }}
+                    whileHover={{ x: 4 }}
+                    onClick={() => setSelectedUserId(f._id)}
+                    className="relative flex items-center p-3 mb-2 rounded-xl cursor-pointer transition-all group"
+                    style={{
+                      background: String(selectedUserId) === String(f._id) ? C.surface2 : "transparent",
+                      border: `1px solid ${String(selectedUserId) === String(f._id) ? C.borderHov : "transparent"}`
+                    }}
                   >
-                    {/* Avatar + Name */}
-                    <div
-                      className="flex items-center gap-3 flex-1"
-                      onClick={() => setSelectedUserId(f._id)}
-                    >
+                    <div className="relative">
                       <img
-                        src={f.avatar || "/default-avatar.png"}
+                        src={f.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(nameOf(f))}&background=16A880&color=fff`}
                         alt={nameOf(f)}
-                        className="w-10 h-10 rounded-full"
+                        className="w-12 h-12 rounded-full"
+                        style={{ border: `2px solid ${String(selectedUserId) === String(f._id) ? C.brand : "transparent"}` }}
                       />
-                      <div>
-                        <div className="font-medium">{nameOf(f)}</div>
-                        <div className="text-xs text-gray-400">Tap to chat</div>
+                      {typingUsers.has(f._id) && (
+                        <span 
+                          className="absolute -bottom-1 -right-1 w-4 h-4 rounded-full border-2 flex items-center justify-center"
+                          style={{ background: C.brand, borderColor: C.surface }}
+                        >
+                          <span className="w-1.5 h-1.5 bg-white rounded-full animate-pulse" />
+                        </span>
+                      )}
+                    </div>
+                    <div className="ml-3 flex-1 min-w-0">
+                      <div className="font-medium truncate" style={{ color: C.text }}>
+                        {nameOf(f)}
+                      </div>
+                      <div className="text-xs truncate" style={{ color: typingUsers.has(f._id) ? C.brand : C.textDim }}>
+                        {typingUsers.has(f._id) ? "typing..." : "Tap to chat"}
                       </div>
                     </div>
-
-                    {/* 3 Dots Menu */}
-                    <div className="relative">
+                    
+                    {/* Menu */}
+                    <div className="relative opacity-0 group-hover:opacity-100 transition-opacity">
                       <button
-                        onClick={() =>
-                          setMenuOpen(menuOpen === f._id ? null : f._id)
-                        }
-                        className="p-2 text-gray-400 hover:text-white"
+                        onClick={(e) => { e.stopPropagation(); setMenuOpen(menuOpen === f._id ? null : f._id); }}
+                        className="p-2 rounded-lg transition-colors"
+                        style={{ color: C.textDim }}
                       >
-                        <MoreVertical size={18} />
+                        <MoreVertical size={16} />
                       </button>
 
-                      {menuOpen === f._id && (
-                        <div className="absolute right-0 mt-2 w-32 bg-gray-900 border border-gray-700 rounded-lg shadow-lg z-20">
-                          <button
-                            onClick={() => {
-                              setReportTarget({ type: "User", id: f._id });
-                              setIsReportOpen(true);
-                              setMenuOpen(null);
-                            }}
-                            className="block w-full text-left px-4 py-2 text-sm hover:bg-gray-700 text-red-400"
+                      <AnimatePresence>
+                        {menuOpen === f._id && (
+                          <motion.div
+                            initial={{ opacity: 0, scale: 0.95 }}
+                            animate={{ opacity: 1, scale: 1 }}
+                            exit={{ opacity: 0, scale: 0.95 }}
+                            className="absolute right-0 top-full mt-2 w-40 rounded-xl shadow-xl z-20 overflow-hidden"
+                            style={{ background: C.surface2, border: `1px solid ${C.border}` }}
                           >
-                            Report User
-                          </button>
-                        </div>
-                      )}
+                            <button
+                              onClick={() => {
+                                setReportTarget({ type: "User", id: f._id });
+                                setIsReportOpen(true);
+                                setMenuOpen(null);
+                              }}
+                              className="w-full text-left px-4 py-3 text-sm transition-colors flex items-center gap-2"
+                              style={{ color: C.error }}
+                            >
+                              <span>Report User</span>
+                            </button>
+                          </motion.div>
+                        )}
+                      </AnimatePresence>
                     </div>
                   </motion.div>
                 ))
-              )}
-            </div>
-          )}
-
-          {/* Requests tab */}
-          {activeSidebarTab === "requests" && (
-            <div className="flex-1 overflow-y-auto p-3 space-y-3">
-              <h3 className="font-semibold">Incoming</h3>
-              {incoming.map((r) => (
-                <div
-                  key={r._id}
-                  className="flex items-center justify-between p-2 bg-gray-800 rounded-lg"
-                >
-                  <span>{nameOf(r.requester)}</span>
-                  <div className="flex gap-2">
-                    <button
-                      onClick={() => handleIncomingAction(r._id, "accepted")}
-                      title="Accept"
-                      className="p-1 rounded bg-green-600"
-                    >
-                      <Check size={16} />
-                    </button>
-                    <button
-                      onClick={() => handleIncomingAction(r._id, "rejected")}
-                      title="Reject"
-                      className="p-1 rounded bg-red-600"
-                    >
-                      <X size={16} />
-                    </button>
-                  </div>
-                </div>
-              ))}
-
-              <h3 className="font-semibold mt-4">Outgoing</h3>
-              {outgoing.map((r) => (
-                <div key={r._id} className="p-2 bg-gray-800 rounded-lg">
-                  To: {nameOf(r.recipient)}
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
-      </motion.div>
-
-      {/* Chat Section */}
-      <div className="flex-1 flex flex-col">
-        {/* Top bar */}
-        <div className="flex items-center justify-between p-3 border-b border-gray-800">
-          <button onClick={() => setSidebarOpen((s) => !s)}>
-            <Menu />
-          </button>
-          <div className="flex-1 text-center">
-            {selectedUserId ? (
-              <span className="font-semibold">{`Chat with ${nameOf(
-                friends.find((f) => String(f._id) === String(selectedUserId))
-              )}`}</span>
+              )
             ) : (
-              <span className="text-gray-400">
-                Select a friend to start chatting
-              </span>
-            )}
-          </div>
-          <div style={{ width: 36 }} /> {/* spacer */}
-        </div>
-
-        {/* Messages */}
-        <div className="flex-1 overflow-y-auto p-4 space-y-2">
-          {messages.map((msg) => {
-            const senderId =
-              typeof msg.senderId === "string"
-                ? msg.senderId
-                : msg.senderId?._id ?? String(msg.senderId);
-
-            const isMine = String(senderId) === String(currentUserId);
-
-            const time = msg.createdAt
-              ? new Date(msg.createdAt).toLocaleTimeString([], {
-                  hour: "2-digit",
-                  minute: "2-digit",
-                })
-              : "";
-
-            return (
-              <div
-                key={msg._id}
-                className={`relative group p-3 rounded-lg max-w-md mb-8 cursor-pointer ${
-                  isMine ? "bg-gray-800 ml-auto" : "bg-violet-600"
-                }`}
-                onClick={() => {
-                  setActiveMessage(msg._id);
-                  // Auto-hide after 2s if no hover
-                  clearTimeout(window.actionTimeout);
-                  window.actionTimeout = setTimeout(() => {
-                    setActiveMessage(null);
-                  }, 2000);
-                }}
-              >
-                {/* Reply preview */}
-                {msg.replyTo && (
-                  <div className="text-xs text-gray-300 border-l-2 border-gray-400 pl-2 mb-1">
-                    Replying to: {msg.replyTo.text}
-                  </div>
-                )}
-
-                {/* Message text */}
-                <div>{msg.text}</div>
-
-                {/* Timestamp */}
-                <div className="text-[10px] text-gray-400 mt-1 text-right">
-                  {time}
-                </div>
-
-                {/* Actions menu (click + auto-hide) */}
-                {activeMessage === msg._id && (
-                  <div
-                    className="absolute -top-7 right-0 flex gap-2 text-xs bg-gray-900 px-2 py-1 rounded-lg shadow-lg"
-                    onMouseEnter={() => clearTimeout(window.actionTimeout)}
-                    onMouseLeave={() => {
-                      clearTimeout(window.actionTimeout);
-                      window.actionTimeout = setTimeout(() => {
-                        setActiveMessage(null);
-                      }, 2000);
-                    }}
-                  >
-                    <button
-                      onClick={() =>
-                        setShowReactions(
-                          showReactions === msg._id ? null : msg._id
-                        )
-                      }
-                      className="hover:scale-110 transition"
-                      title="React"
-                    >
-                      <Smile size={14} />
-                    </button>
-                    <button
-                      onClick={() => handleReply(msg)}
-                      className="hover:scale-110 transition"
-                      title="Reply"
-                    >
-                      <Reply size={14} />
-                    </button>
-
-                    {isMine && (
-                      <>
-                        <button
-                          onClick={() => handleEdit(msg)}
-                          className="hover:scale-110 transition"
-                          title="Edit"
-                        >
-                          <Edit size={14} />
-                        </button>
-                        <button
-                          onClick={() => handleDelete(msg._id)}
-                          className="hover:scale-110 transition"
-                          title="Delete"
-                        >
-                          <Trash2 size={14} />
-                        </button>
-                      </>
-                    )}
-
-                    <button
-                      onClick={() => handleForward(msg)}
-                      className="hover:scale-110 transition"
-                      title="Forward"
-                    >
-                      <Send size={14} />
-                    </button>
-                  </div>
-                )}
-
-                {/* Reaction picker */}
-                {showReactions === msg._id && (
-                  <div
-                    className="absolute bottom-full right-0 mb-1 flex gap-2 bg-gray-700 p-2 rounded-lg shadow-lg"
-                    onMouseEnter={() => setShowReactions(msg._id)}
-                    onMouseLeave={() => setShowReactions(null)}
-                  >
-                    {["👍", "❤️", "😂", "😮", "😢", "🔥"].map((e) => (
-                      <button
-                        key={e}
-                        onClick={() => handleReaction(msg._id, e)}
-                      >
-                        {e}
-                      </button>
-                    ))}
-                  </div>
-                )}
-
-                {/* Reactions bubble under message */}
-                {msg.reactions?.length > 0 && (
-                  <div className="absolute -bottom-4 left-2 flex gap-1 bg-gray-700 px-2 py-0.5 rounded-full shadow">
-                    {msg.reactions.map((r, i) => (
-                      <span key={i} className="text-sm">
-                        {r.emoji}
-                      </span>
-                    ))}
-                  </div>
-                )}
-              </div>
-            );
-          })}
-          <div ref={messagesEndRef} />
-        </div>
-
-        {/* Reply/Edit indicator (stylized) */}
-        {(replyTo || editMsg) && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            className="px-3 pb-2"
-          >
-            <div className="flex items-center justify-between bg-gray-800 p-2 rounded">
-              <div className="flex items-center gap-3">
-                <div className="w-8 h-8 rounded-full bg-gray-700 flex items-center justify-center text-xs">
-                  {replyTo
-                    ? String((replyTo.text || "").slice(0, 1)).toUpperCase()
-                    : "E"}
-                </div>
-                <div className="text-sm">
-                  {replyTo ? (
-                    <div>
-                      <div className="text-xs text-gray-300">Replying to</div>
-                      <div className="truncate max-w-md">{replyTo.text}</div>
-                    </div>
+              <div className="space-y-6">
+                {/* Incoming */}
+                <div>
+                  <h3 className="text-sm font-semibold mb-3 px-1" style={{ color: C.textMuted }}>
+                    Incoming Requests
+                  </h3>
+                  {incoming.length === 0 ? (
+                    <p className="text-sm px-1" style={{ color: C.textDim }}>No pending requests</p>
                   ) : (
-                    <div>
-                      <div className="text-xs text-gray-300">Editing</div>
-                      <div className="truncate max-w-md">{editMsg?.text}</div>
-                    </div>
+                    incoming.map((r) => (
+                      <motion.div
+                        key={r._id}
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        className="flex items-center justify-between p-3 rounded-xl mb-2"
+                        style={{ background: C.surface2, border: `1px solid ${C.border}` }}
+                      >
+                        <div className="flex items-center gap-3">
+                          <img
+                            src={r.requester?.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(nameOf(r.requester))}&background=16A880&color=fff`}
+                            className="w-10 h-10 rounded-full"
+                            alt={nameOf(r.requester)}
+                          />
+                          <span className="text-sm" style={{ color: C.text }}>
+                            {nameOf(r.requester)}
+                          </span>
+                        </div>
+                        <div className="flex gap-2">
+                          <motion.button
+                            whileHover={{ scale: 1.1 }}
+                            whileTap={{ scale: 0.9 }}
+                            onClick={() => handleIncomingAction(r._id, "accepted")}
+                            className="p-2 rounded-lg"
+                            style={{ background: `${C.success}20`, color: C.success }}
+                          >
+                            <Check size={16} />
+                          </motion.button>
+                          <motion.button
+                            whileHover={{ scale: 1.1 }}
+                            whileTap={{ scale: 0.9 }}
+                            onClick={() => handleIncomingAction(r._id, "rejected")}
+                            className="p-2 rounded-lg"
+                            style={{ background: `${C.error}20`, color: C.error }}
+                          >
+                            <X size={16} />
+                          </motion.button>
+                        </div>
+                      </motion.div>
+                    ))
+                  )}
+                </div>
+
+                {/* Outgoing */}
+                <div>
+                  <h3 className="text-sm font-semibold mb-3 px-1" style={{ color: C.textMuted }}>
+                    Sent Requests
+                  </h3>
+                  {outgoing.length === 0 ? (
+                    <p className="text-sm px-1" style={{ color: C.textDim }}>No sent requests</p>
+                  ) : (
+                    outgoing.map((r) => (
+                      <div
+                        key={r._id}
+                        className="flex items-center gap-3 p-3 rounded-xl mb-2"
+                        style={{ background: C.surface2, border: `1px solid ${C.border}` }}
+                      >
+                        <img
+                          src={r.recipient?.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(nameOf(r.recipient))}&background=16A880&color=fff`}
+                          className="w-10 h-10 rounded-full"
+                          alt={nameOf(r.recipient)}
+                        />
+                        <div>
+                          <div className="text-sm" style={{ color: C.text }}>
+                            {nameOf(r.recipient)}
+                          </div>
+                          <div className="text-xs" style={{ color: C.accent }}>
+                            Pending...
+                          </div>
+                        </div>
+                      </div>
+                    ))
                   )}
                 </div>
               </div>
+            )}
+          </div>
+        </div>
+      </motion.aside>
 
-              <button
-                onClick={() => {
-                  setReplyTo(null);
-                  setEditMsg(null);
-                }}
-                className="p-1"
-                title="Cancel"
-              >
-                <X />
-              </button>
+      {/* CHAT AREA */}
+      <div className="flex-1 flex flex-col" style={{ background: C.bg }}>
+        {/* Header */}
+        <div 
+          className="flex items-center justify-between px-6 py-4 border-b"
+          style={{ borderColor: C.border }}
+        >
+          <div className="flex items-center gap-4">
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={() => setSidebarOpen(!sidebarOpen)}
+              className="p-2 rounded-lg transition-colors"
+              style={{ color: C.textMuted }}
+            >
+              <Menu size={20} />
+            </motion.button>
+            
+            {selectedUser ? (
+              <div className="flex items-center gap-3">
+                <div className="relative">
+                  <img
+                    src={selectedUser.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(nameOf(selectedUser))}&background=16A880&color=fff`}
+                    alt={nameOf(selectedUser)}
+                    className="w-10 h-10 rounded-full"
+                    style={{ border: `2px solid ${isTyping ? C.brand : "transparent"}` }}
+                  />
+                  {isTyping && (
+                    <span 
+                      className="absolute -bottom-1 -right-1 w-3 h-3 rounded-full border-2"
+                      style={{ background: C.brand, borderColor: C.bg }}
+                    />
+                  )}
+                </div>
+                <div>
+                  <div className="font-semibold" style={{ color: C.text }}>
+                    {nameOf(selectedUser)}
+                  </div>
+                  <div className="text-xs flex items-center gap-1" style={{ color: isTyping ? C.brand : C.textDim }}>
+                    {isTyping ? (
+                      <>
+                        <span className="w-1.5 h-1.5 rounded-full animate-pulse" style={{ background: C.brand }} />
+                        typing...
+                      </>
+                    ) : isConnected ? (
+                      <>
+                        <Wifi size={12} />
+                        Online
+                      </>
+                    ) : (
+                      <>
+                        <WifiOff size={12} />
+                        Offline
+                      </>
+                    )}
+                  </div>
+                </div>
+              </div>
+            ) : (
+              <span style={{ color: C.textMuted }}>Select a friend to start chatting</span>
+            )}
+          </div>
+          
+          {selectedUser && (
+            <div className="flex items-center gap-2">
+              <div 
+                className="w-2 h-2 rounded-full"
+                style={{ background: isConnected ? C.success : C.error }}
+              />
             </div>
-          </motion.div>
-        )}
+          )}
+        </div>
+
+        {/* Messages */}
+        <div className="flex-1 overflow-y-auto px-6 py-4 space-y-4">
+          {selectedUserId ? (
+            messages.length === 0 ? (
+              <div className="h-full flex flex-col items-center justify-center" style={{ color: C.textDim }}>
+                <div 
+                  className="w-20 h-20 rounded-full flex items-center justify-center mb-4"
+                  style={{ background: C.surface }}
+                >
+                  <Send size={32} style={{ color: C.textDim }} />
+                </div>
+                <p>No messages yet</p>
+                <p className="text-sm mt-1">Start the conversation!</p>
+              </div>
+            ) : (
+              <>
+                {messages.map((msg, idx) => {
+                  const senderId = typeof msg.senderId === "string" ? msg.senderId : msg.senderId?._id ?? String(msg.senderId);
+                  const isMine = String(senderId) === String(currentUserId);
+                  const time = msg.createdAt
+                    ? new Date(msg.createdAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })
+                    : "";
+                  const showAvatar = idx === 0 || messages[idx - 1]?.senderId !== senderId;
+
+                  return (
+                    <motion.div
+                      key={msg._id}
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      className={`flex ${isMine ? "justify-end" : "justify-start"}`}
+                    >
+                      <div className={`flex items-end gap-2 max-w-[70%] ${isMine ? "flex-row-reverse" : ""}`}>
+                        {!isMine && showAvatar && (
+                          <img
+                            src={selectedUser?.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(nameOf(selectedUser))}&background=16A880&color=fff`}
+                            className="w-8 h-8 rounded-full mb-1"
+                            alt=""
+                          />
+                        )}
+                        
+                        <div className="relative group">
+                          {/* Reply preview */}
+                          {msg.replyTo && (
+                            <div 
+                              className="text-xs px-3 py-1.5 rounded-t-lg border-l-2"
+                              style={{ 
+                                background: C.surface2,
+                                borderColor: C.brand,
+                                color: C.textMuted
+                              }}
+                            >
+                              <span className="font-medium" style={{ color: C.brand }}>Replying to:</span>{" "}
+                              {msg.replyTo.text?.slice(0, 50)}
+                              {msg.replyTo.text?.length > 50 && "..."}
+                            </div>
+                          )}
+                          
+                          {/* Message bubble */}
+                          <div
+                            onClick={() => setActiveMessage(activeMessage === msg._id ? null : msg._id)}
+                            className={`px-4 py-2.5 rounded-2xl cursor-pointer transition-all ${
+                              msg.replyTo ? "rounded-tl-none" : ""
+                            }`}
+                            style={{
+                              background: isMine 
+                                ? `linear-gradient(135deg, ${C.brand}, ${C.brandLight})` 
+                                : C.surface2,
+                              color: isMine ? C.bg : C.text,
+                              border: isMine ? "none" : `1px solid ${C.border}`,
+                              opacity: msg.isPending ? 0.7 : 1
+                            }}
+                          >
+                            <div className="text-sm">{msg.text}</div>
+                            
+                            {/* Status indicators */}
+                            <div className="flex items-center justify-end gap-1 mt-1">
+                              <span className="text-[10px] opacity-70">{time}</span>
+                              {isMine && (
+                                <>
+                                  {msg.isPending ? (
+                                    <motion.div
+                                      animate={{ rotate: 360 }}
+                                      transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                                      className="w-3 h-3 border border-current border-t-transparent rounded-full"
+                                    />
+                                  ) : msg.isFailed ? (
+                                    <span style={{ color: C.error }}>!</span>
+                                  ) : (
+                                    <CheckCheck size={12} />
+                                  )}
+                                </>
+                              )}
+                            </div>
+                          </div>
+
+                          {/* Reactions */}
+                          {msg.reactions?.length > 0 && (
+                            <div 
+                              className="absolute -bottom-3 left-2 flex gap-1 px-2 py-0.5 rounded-full shadow-lg"
+                              style={{ background: C.surface, border: `1px solid ${C.border}` }}
+                            >
+                              {msg.reactions.map((r, i) => (
+                                <span key={i} className="text-sm">{r.emoji}</span>
+                              ))}
+                            </div>
+                          )}
+
+                          {/* Actions */}
+                          <AnimatePresence>
+                            {activeMessage === msg._id && (
+                              <motion.div
+                                initial={{ opacity: 0, y: 10 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                exit={{ opacity: 0, y: 10 }}
+                                className={`absolute ${isMine ? "right-0" : "left-0"} bottom-full mb-2 flex gap-1 p-1 rounded-xl shadow-xl`}
+                                style={{ background: C.surface2, border: `1px solid ${C.border}` }}
+                              >
+                                <button
+                                  onClick={() => setShowReactions(showReactions === msg._id ? null : msg._id)}
+                                  className="p-2 rounded-lg transition-colors hover:bg-white/10"
+                                  style={{ color: C.textMuted }}
+                                  title="React"
+                                >
+                                  <Smile size={16} />
+                                </button>
+                                <button
+                                  onClick={() => handleReply(msg)}
+                                  className="p-2 rounded-lg transition-colors hover:bg-white/10"
+                                  style={{ color: C.textMuted }}
+                                  title="Reply"
+                                >
+                                  <Reply size={16} />
+                                </button>
+                                {isMine && (
+                                  <>
+                                    <button
+                                      onClick={() => handleEdit(msg)}
+                                      className="p-2 rounded-lg transition-colors hover:bg-white/10"
+                                      style={{ color: C.textMuted }}
+                                      title="Edit"
+                                    >
+                                      <Edit size={16} />
+                                    </button>
+                                    <button
+                                      onClick={() => handleDelete(msg._id)}
+                                      className="p-2 rounded-lg transition-colors hover:bg-white/10"
+                                      style={{ color: C.error }}
+                                      title="Delete"
+                                    >
+                                      <Trash2 size={16} />
+                                    </button>
+                                  </>
+                                )}
+                              </motion.div>
+                            )}
+                          </AnimatePresence>
+
+                          {/* Reaction picker */}
+                          <AnimatePresence>
+                            {showReactions === msg._id && (
+                              <motion.div
+                                initial={{ opacity: 0, scale: 0.8 }}
+                                animate={{ opacity: 1, scale: 1 }}
+                                exit={{ opacity: 0, scale: 0.8 }}
+                                className="absolute left-1/2 -translate-x-1/2 bottom-full mb-2 flex gap-1 p-2 rounded-xl shadow-xl"
+                                style={{ background: C.surface2, border: `1px solid ${C.border}` }}
+                              >
+                                {emojis.map((e) => (
+                                  <button
+                                    key={e}
+                                    onClick={() => handleReaction(msg._id, e)}
+                                    className="text-xl hover:scale-125 transition-transform"
+                                  >
+                                    {e}
+                                  </button>
+                                ))}
+                              </motion.div>
+                            )}
+                          </AnimatePresence>
+                        </div>
+                      </div>
+                    </motion.div>
+                  );
+                })}
+                
+                {/* Typing indicator */}
+                <AnimatePresence>
+                  {isTyping && (
+                    <motion.div
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: 10 }}
+                      className="flex items-center gap-2"
+                    >
+                      <img
+                        src={selectedUser?.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(nameOf(selectedUser))}&background=16A880&color=fff`}
+                        className="w-8 h-8 rounded-full"
+                        alt=""
+                      />
+                      <div 
+                        className="px-4 py-2 rounded-2xl flex items-center gap-1"
+                        style={{ background: C.surface2, border: `1px solid ${C.border}` }}
+                      >
+                        <motion.span
+                          animate={{ opacity: [0.4, 1, 0.4] }}
+                          transition={{ duration: 1.5, repeat: Infinity }}
+                          className="w-2 h-2 rounded-full"
+                          style={{ background: C.brand }}
+                        />
+                        <motion.span
+                          animate={{ opacity: [0.4, 1, 0.4] }}
+                          transition={{ duration: 1.5, repeat: Infinity, delay: 0.2 }}
+                          className="w-2 h-2 rounded-full"
+                          style={{ background: C.brand }}
+                        />
+                        <motion.span
+                          animate={{ opacity: [0.4, 1, 0.4] }}
+                          transition={{ duration: 1.5, repeat: Infinity, delay: 0.4 }}
+                          className="w-2 h-2 rounded-full"
+                          style={{ background: C.brand }}
+                        />
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+                
+                <div ref={messagesEndRef} />
+              </>
+            )
+          ) : (
+            <div className="h-full flex flex-col items-center justify-center" style={{ color: C.textDim }}>
+              <div 
+                className="w-24 h-24 rounded-full flex items-center justify-center mb-6"
+                style={{ background: C.surface, border: `2px dashed ${C.border}` }}
+              >
+                <ArrowLeft size={32} style={{ color: C.textDim }} />
+              </div>
+              <p className="text-lg font-medium" style={{ color: C.textMuted }}>
+                Select a conversation
+              </p>
+              <p className="text-sm mt-2">Choose a friend from the sidebar to start messaging</p>
+            </div>
+          )}
+        </div>
+
+        {/* Reply/Edit indicator */}
+        <AnimatePresence>
+          {(replyTo || editMsg) && (
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: 20 }}
+              className="px-6 py-3 border-t"
+              style={{ borderColor: C.border, background: C.surface }}
+            >
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div 
+                    className="w-10 h-10 rounded-lg flex items-center justify-center"
+                    style={{ background: replyTo ? `${C.brand}20` : `${C.accent}20` }}
+                  >
+                    {replyTo ? <Reply size={18} style={{ color: C.brand }} /> : <Edit size={18} style={{ color: C.accent }} />}
+                  </div>
+                  <div className="text-sm">
+                    <div style={{ color: C.textMuted }} className="text-xs mb-0.5">
+                      {replyTo ? "Replying to" : "Editing message"}
+                    </div>
+                    <div style={{ color: C.text }} className="truncate max-w-md">
+                      {(replyTo || editMsg)?.text}
+                    </div>
+                  </div>
+                </div>
+                <button
+                  onClick={() => { setReplyTo(null); setEditMsg(null); }}
+                  className="p-2 rounded-lg transition-colors hover:bg-white/10"
+                  style={{ color: C.textDim }}
+                >
+                  <X size={18} />
+                </button>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
 
         {/* Input */}
         {selectedUserId && (
-          <div className="p-3 border-t border-gray-800 flex gap-2">
-            <input
-              ref={inputRef}
-              value={newMessage}
-              onChange={(e) => setNewMessage(e.target.value)}
-              onKeyDown={(e) => e.key === "Enter" && handleSend()}
-              placeholder="Type a message..."
-              className="flex-1 bg-gray-800 p-2 rounded-md outline-none"
-            />
-            <button
-              onClick={handleSend}
-              disabled={!newMessage.trim()}
-              className="bg-violet-600 hover:bg-violet-700 px-4 py-2 rounded-md disabled:opacity-50"
-            >
-              <Send size={18} />
-            </button>
+          <div 
+            className="px-6 py-4 border-t"
+            style={{ borderColor: C.border }}
+          >
+            <div className="flex items-end gap-3">
+              <div className="flex-1 relative">
+                <input
+                  ref={inputRef}
+                  value={newMessage}
+                  onChange={(e) => { setNewMessage(e.target.value); handleTyping(); }}
+                  onKeyDown={(e) => e.key === "Enter" && !e.shiftKey && handleSend()}
+                  placeholder="Type a message..."
+                  className="w-full px-4 py-3 pr-12 rounded-2xl outline-none transition-all"
+                  style={{ 
+                    background: C.surface, 
+                    border: `1px solid ${C.border}`,
+                    color: C.text
+                  }}
+                />
+                <button
+                  onClick={() => setShowReactions("input")}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 p-1.5 rounded-lg transition-colors"
+                  style={{ color: C.textDim }}
+                >
+                  <Smile size={18} />
+                </button>
+              </div>
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={handleSend}
+                disabled={!newMessage.trim() || !isConnected}
+                className="p-3 rounded-2xl transition-all disabled:opacity-50"
+                style={{ 
+                  background: `linear-gradient(135deg, ${C.brand}, ${C.brandLight})`,
+                  color: C.bg
+                }}
+              >
+                <Send size={20} />
+              </motion.button>
+            </div>
           </div>
         )}
       </div>
-      {isReportOpen && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+
+      {/* Report Modal */}
+      <AnimatePresence>
+        {isReportOpen && (
           <motion.div
-            initial={{ scale: 0.8, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-lg w-full max-w-md relative"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4"
           >
-            <button
-              onClick={() => setIsReportOpen(false)}
-              className="absolute top-3 right-3 text-gray-500 hover:text-gray-800 dark:hover:text-white"
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+              className="w-full max-w-md rounded-2xl p-6"
+              style={{ background: C.surface, border: `1px solid ${C.border}` }}
             >
-              <X size={20} />
-            </button>
-
-            <h2 className="text-xl font-semibold mb-4">
-              Report {reportTarget?.type}
-            </h2>
-            <form onSubmit={handleReportSubmit} className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium mb-1">
-                  Report Type
-                </label>
-                <select
-                  value={reportType}
-                  onChange={(e) => setReportType(e.target.value)}
-                  required
-                  className="w-full p-2 rounded-md border bg-gray-100 dark:bg-gray-700"
+              <div className="flex items-center justify-between mb-6">
+                <h2 className="text-xl font-bold" style={{ color: C.text, fontFamily: "Fraunces, serif" }}>
+                  Report {reportTarget?.type}
+                </h2>
+                <button
+                  onClick={() => setIsReportOpen(false)}
+                  className="p-2 rounded-lg transition-colors"
+                  style={{ color: C.textDim }}
                 >
-                  <option value="">-- Select an issue --</option>
-                  <option value="abuse">🚨 Abuse</option>
-                  <option value="inappropriate">⚠️ Inappropriate</option>
-                  <option value="bug">🐞 Bug</option>
-                </select>
+                  <X size={20} />
+                </button>
               </div>
+              
+              <form onSubmit={handleReportSubmit} className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium mb-2" style={{ color: C.textMuted }}>
+                    Report Type
+                  </label>
+                  <select
+                    value={reportType}
+                    onChange={(e) => setReportType(e.target.value)}
+                    required
+                    className="w-full px-4 py-3 rounded-xl outline-none"
+                    style={{ background: C.surface2, border: `1px solid ${C.border}`, color: C.text }}
+                  >
+                    <option value="">Select an issue</option>
+                    <option value="abuse">Abuse</option>
+                    <option value="inappropriate">Inappropriate Content</option>
+                    <option value="spam">Spam</option>
+                    <option value="bug">Bug</option>
+                  </select>
+                </div>
 
-              <div>
-                <label className="block text-sm font-medium mb-1">
-                  Details
-                </label>
-                <textarea
-                  value={reportMessage}
-                  onChange={(e) => setReportMessage(e.target.value)}
-                  required
-                  rows="3"
-                  className="w-full p-2 rounded-md border bg-gray-100 dark:bg-gray-700"
-                  placeholder="Describe the issue..."
-                />
-              </div>
+                <div>
+                  <label className="block text-sm font-medium mb-2" style={{ color: C.textMuted }}>
+                    Details
+                  </label>
+                  <textarea
+                    value={reportMessage}
+                    onChange={(e) => setReportMessage(e.target.value)}
+                    required
+                    rows={4}
+                    className="w-full px-4 py-3 rounded-xl outline-none resize-none"
+                    style={{ background: C.surface2, border: `1px solid ${C.border}`, color: C.text }}
+                    placeholder="Describe the issue..."
+                  />
+                </div>
 
-              <button
-                type="submit"
-                className="w-full bg-gradient-to-r from-red-500 to-pink-600 text-white py-2 rounded-lg shadow hover:scale-105 transition"
-              >
-                Submit Report
-              </button>
-            </form>
+                <div className="flex gap-3 pt-2">
+                  <button
+                    type="button"
+                    onClick={() => setIsReportOpen(false)}
+                    className="flex-1 py-3 rounded-xl font-medium transition-colors"
+                    style={{ background: C.surface2, color: C.text }}
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    className="flex-1 py-3 rounded-xl font-medium transition-all"
+                    style={{ background: C.error, color: "white" }}
+                  >
+                    Submit Report
+                  </button>
+                </div>
+              </form>
+            </motion.div>
           </motion.div>
-        </div>
-      )}
+        )}
+      </AnimatePresence>
     </div>
   );
 };
+
+export default Messages;
