@@ -576,7 +576,7 @@ export const CourseDetails = () => {
           className="flex items-center justify-between"
         >
           <button
-            onClick={() => navigate("/user/courses")}
+            onClick={() => navigate("/user/mycourses")}
             className="flex items-center gap-2 px-4 py-2 rounded-xl transition-all"
             style={{ color: C.textMuted }}
             onMouseEnter={(e) => {
