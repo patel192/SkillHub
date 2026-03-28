@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence, useAnimation } from "framer-motion";
 import { Link, useNavigate } from "react-router-dom";
-import axios from "axios";
+import apiClient from "../../api/axiosConfig";
 import {
   Eye, EyeOff, ArrowRight, CheckCircle2, Sparkles,
   Shield, Zap, Mail, Lock, User, AlertCircle,
@@ -313,7 +313,7 @@ export const SignUp = () => {
     if (!validate()) { controls.start("shake"); return; }
     setLoading(true);
     try {
-      const res = await axios.post("/user", form);
+      const res = await apiClient.post("/user", form);
       localStorage.setItem("token", res.data.token);
       localStorage.setItem("user", JSON.stringify(res.data.user));
       setSubmitted(true);
