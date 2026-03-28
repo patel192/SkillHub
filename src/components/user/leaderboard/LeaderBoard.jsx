@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Crown, Award, Trophy, Medal, Target, Zap, Flame, Star, TrendingUp } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import apiClient from "../../../api/axiosConfig";
-
+import { useMemo } from "react";
 // ==========================================
 // DESIGN TOKENS (Matching Dashboard Theme)
 // ==========================================
