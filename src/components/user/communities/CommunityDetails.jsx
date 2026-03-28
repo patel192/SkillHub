@@ -28,7 +28,7 @@ import {
 } from "lucide-react";
 
 // ==========================================
-// DESIGN TOKENS (Matching Dashboard Theme)
+// DESIGN TOKENS
 // ==========================================
 const C = {
   brand: "#16A880",
@@ -40,12 +40,10 @@ const C = {
   surface2: "#182219",
   surface3: "#1E2B22",
   border: "rgba(22,168,128,0.15)",
-  borderHov: "rgba(22,168,128,0.35)",
   text: "#E8F5F0",
   textMuted: "#7A9E8E",
   textDim: "#3D5C4E",
   error: "#F87171",
-  success: "#22C55E",
 };
 
 // ==========================================
@@ -63,8 +61,19 @@ const formatDate = (date) => {
   return d.toLocaleDateString();
 };
 
+// Safe array helper - ensures data is always an array
+const safeArray = (data) => {
+  if (!data) return [];
+  if (Array.isArray(data)) return data;
+  if (data.posts && Array.isArray(data.posts)) return data.posts;
+  if (data.data && Array.isArray(data.data)) return data.data;
+  if (data.data?.posts && Array.isArray(data.data.posts)) return data.data.posts;
+  console.warn("Expected array but got:", typeof data, data);
+  return [];
+};
+
 // ==========================================
-// API CLIENT WITH INTERCEPTORS
+// API CLIENT
 // ==========================================
 const apiClient = axios.create({ timeout: 10000 });
 apiClient.interceptors.request.use((config) => {
@@ -74,10 +83,9 @@ apiClient.interceptors.request.use((config) => {
 });
 
 // ==========================================
-// CUSTOM HOOKS (Defined within component file)
+// CUSTOM HOOKS
 // ==========================================
 
-// useCommunity - Manage community data
 const useCommunity = (communityId) => {
   const [community, setCommunity] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -85,16 +93,19 @@ const useCommunity = (communityId) => {
 
   const fetchCommunity = useCallback(async () => {
     try {
+      setLoading(true);
       const res = await apiClient.get(`/communities/${communityId}`);
+      // Handle different response structures
       const data = res.data?.data || res.data;
       setCommunity(data);
       setEditData({
-        name: data.name || "",
-        description: data.description || "",
-        coverImage: data.coverImage || "",
+        name: data?.name || "",
+        description: data?.description || "",
+        coverImage: data?.coverImage || "",
       });
     } catch (err) {
       toast.error("Failed to load community");
+      console.error("Community fetch error:", err);
     } finally {
       setLoading(false);
     }
@@ -118,7 +129,6 @@ const useCommunity = (communityId) => {
   return { community, loading, editData, setEditData, updateCommunity, refresh: fetchCommunity };
 };
 
-// useMembership - Handle join/leave/admin actions
 const useMembership = (community, communityId, refreshCommunity) => {
   const userId = localStorage.getItem("userId");
   
@@ -185,7 +195,6 @@ const useMembership = (community, communityId, refreshCommunity) => {
   return { isMember, isAdmin, join, leave, removeMember, promoteMember, addMember, userId };
 };
 
-// usePosts - Manage posts with optimistic updates
 const usePosts = (communityId, refreshCommunity) => {
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -193,11 +202,14 @@ const usePosts = (communityId, refreshCommunity) => {
 
   const fetchPosts = useCallback(async () => {
     try {
+      setLoading(true);
       const res = await apiClient.get(`/communities/${communityId}/posts?sort=new&limit=50`);
-      const data = res.data?.data || res.data || [];
-      setPosts(data.posts || data);
+      // Use safeArray to handle different response structures
+      const data = safeArray(res.data);
+      setPosts(data);
     } catch (err) {
-      console.error("Failed to fetch posts");
+      console.error("Failed to fetch posts:", err);
+      setPosts([]); // Ensure posts is always an array
     } finally {
       setLoading(false);
     }
@@ -229,7 +241,6 @@ const usePosts = (communityId, refreshCommunity) => {
     const post = posts.find((p) => p._id === postId);
     const isLiked = post?.likes?.some((l) => extractId(l) === userId);
     
-    // Optimistic update
     setPosts((prev) =>
       prev.map((p) => {
         if (p._id !== postId) return p;
@@ -243,7 +254,6 @@ const usePosts = (communityId, refreshCommunity) => {
     try {
       await apiClient.post(`/posts/${postId}/like`, { userId });
     } catch (err) {
-      // Revert on error
       await fetchPosts();
       toast.error("Failed to update like");
     }
@@ -265,7 +275,6 @@ const usePosts = (communityId, refreshCommunity) => {
   return { posts, loading, createPost, deletePost, toggleLike, pinPost, refresh: fetchPosts };
 };
 
-// useComments - Handle comments and replies
 const useComments = (communityId, refreshPosts) => {
   const userId = localStorage.getItem("userId");
 
@@ -462,6 +471,9 @@ const CommentSection = ({ post, userId, onComment, onReply }) => {
   const [replyText, setReplyText] = useState({});
   const [showReplyInput, setShowReplyInput] = useState({});
 
+  // Ensure comments is always an array
+  const comments = safeArray(post.comments);
+
   const handleSubmitReply = (commentId) => {
     const text = replyText[commentId];
     if (!text?.trim()) return;
@@ -479,7 +491,7 @@ const CommentSection = ({ post, userId, onComment, onReply }) => {
       style={{ borderTop: `1px solid ${C.border}` }}
     >
       <div className="space-y-4 max-h-96 overflow-y-auto pr-2">
-        {(post.comments || []).map((comment) => (
+        {comments.map((comment) => (
           <div key={comment._id} className="space-y-3">
             <div className="flex gap-3">
               <img
@@ -532,7 +544,8 @@ const CommentSection = ({ post, userId, onComment, onReply }) => {
                   )}
                 </AnimatePresence>
 
-                {(comment.replies || []).length > 0 && (
+                {/* Safe array for replies */}
+                {safeArray(comment.replies).length > 0 && (
                   <div className="mt-3 space-y-2">
                     {comment.replies.map((reply) => (
                       <div key={reply._id} className="flex gap-2 ml-4">
@@ -595,8 +608,12 @@ const CommentSection = ({ post, userId, onComment, onReply }) => {
 const PostCard = ({ post, userId, isAdmin, onLike, onDelete, onPin, onComment, onReply }) => {
   const [showComments, setShowComments] = useState(false);
   const [showMenu, setShowMenu] = useState(false);
-  const isLiked = post.likes?.some((l) => extractId(l) === userId);
+  
+  // Safe array operations
+  const likes = safeArray(post.likes);
+  const isLiked = likes.some((l) => extractId(l) === userId);
   const isAuthor = extractId(post.userId) === userId;
+  const commentCount = safeArray(post.comments).length;
 
   return (
     <motion.div
@@ -697,7 +714,7 @@ const PostCard = ({ post, userId, isAdmin, onLike, onDelete, onPin, onComment, o
             style={{ color: isLiked ? C.error : C.textMuted }}
           >
             <Heart size={18} fill={isLiked ? C.error : "none"} strokeWidth={isLiked ? 0 : 2} />
-            <span>{post.likes?.length || 0}</span>
+            <span>{likes.length}</span>
           </motion.button>
 
           <motion.button
@@ -707,7 +724,7 @@ const PostCard = ({ post, userId, isAdmin, onLike, onDelete, onPin, onComment, o
             style={{ color: showComments ? C.brand : C.textMuted }}
           >
             <MessageCircle size={18} />
-            <span>{post.comments?.length || 0}</span>
+            <span>{commentCount}</span>
           </motion.button>
 
           <motion.button whileTap={{ scale: 0.9 }} className="flex items-center gap-2 text-sm font-medium ml-auto" style={{ color: C.textMuted }}>
@@ -726,7 +743,7 @@ const PostCard = ({ post, userId, isAdmin, onLike, onDelete, onPin, onComment, o
   );
 };
 
-const AdminPanel = ({ isOpen, onClose, community, editData, setEditData, onUpdate, onRemoveMember, onPromoteMember, onAddMember, isUpdating }) => {
+const AdminPanel = ({ isOpen, onClose, community, editData, setEditData, onUpdate, onRemoveMember, onPromoteMember, onAddMember }) => {
   const [activeTab, setActiveTab] = useState("general");
   const [newMemberId, setNewMemberId] = useState("");
 
@@ -737,6 +754,9 @@ const AdminPanel = ({ isOpen, onClose, community, editData, setEditData, onUpdat
     onAddMember(newMemberId);
     setNewMemberId("");
   };
+
+  // Safe array for members
+  const members = safeArray(community?.members);
 
   return (
     <AnimatePresence>
@@ -828,11 +848,10 @@ const AdminPanel = ({ isOpen, onClose, community, editData, setEditData, onUpdat
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
                   onClick={onUpdate}
-                  disabled={isUpdating}
-                  className="w-full py-3 rounded-xl font-medium disabled:opacity-50"
+                  className="w-full py-3 rounded-xl font-medium"
                   style={{ background: `linear-gradient(135deg, ${C.brand}, ${C.brandLight})`, color: C.bg }}
                 >
-                  {isUpdating ? "Saving..." : "Save Changes"}
+                  Save Changes
                 </motion.button>
               </div>
             )}
@@ -863,7 +882,7 @@ const AdminPanel = ({ isOpen, onClose, community, editData, setEditData, onUpdat
                 </div>
 
                 <div className="space-y-2 max-h-96 overflow-y-auto pr-2">
-                  {(community?.members || []).map((member, idx) => {
+                  {members.map((member, idx) => {
                     const user = member.userId || member;
                     const isAdminRole = member.role === "admin";
                     return (
@@ -939,11 +958,10 @@ export const CommunityDetails = () => {
   const { id: communityId } = useParams();
   const [isAdminOpen, setIsAdminOpen] = useState(false);
 
-  // Initialize hooks
   const { community, loading: loadingCommunity, editData, setEditData, updateCommunity, refresh: refreshCommunity } = useCommunity(communityId);
   const { isMember, isAdmin, join, leave, removeMember, promoteMember, addMember, userId } = useMembership(community, communityId, refreshCommunity);
-  const { posts, loading: loadingPosts, createPost, deletePost, toggleLike, pinPost, refresh: refreshPosts } = usePosts(communityId, refreshCommunity);
-  const { addComment, addReply } = useComments(communityId, refreshPosts);
+  const { posts, loading: loadingPosts, createPost, deletePost, toggleLike, pinPost } = usePosts(communityId, refreshCommunity);
+  const { addComment, addReply } = useComments(communityId, refreshCommunity);
 
   if (loadingCommunity) {
     return (
@@ -1025,7 +1043,6 @@ export const CommunityDetails = () => {
           onRemoveMember={removeMember}
           onPromoteMember={promoteMember}
           onAddMember={addMember}
-          isUpdating={false}
         />
       </div>
     </div>
