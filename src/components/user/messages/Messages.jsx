@@ -94,7 +94,7 @@ export const Messages = () => {
     const initSocket = () => {
       setIsConnecting(true);
       
-      socket = io(process.env.REACT_APP_WS_URL || "http://localhost:5000", {
+      socket = io("https://skillhub-backend-gs3t.onrender.com", {
         auth: { token },
         query: { userId: currentUserId },
         transports: ["websocket", "polling"],
