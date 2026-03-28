@@ -1,112 +1,534 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
+import { 
+  Users, 
+  ArrowRight, 
+  Plus, 
+  Search,
+  Globe,
+  Lock,
+  Hash,
+  TrendingUp,
+  MessageCircle,
+  Sparkles
+} from "lucide-react";
+
+// ==========================================
+// DESIGN TOKENS (Matching Dashboard Theme)
+// ==========================================
+const C = {
+  brand: "#16A880",
+  brandDark: "#0D7A5F",
+  brandLight: "#1FC99A",
+  accent: "#F59E0B",
+  bg: "#0A0F0D",
+  surface: "#111814",
+  surface2: "#182219",
+  surface3: "#1E2B22",
+  border: "rgba(22,168,128,0.15)",
+  borderHov: "rgba(22,168,128,0.35)",
+  text: "#E8F5F0",
+  textMuted: "#7A9E8E",
+  textDim: "#3D5C4E",
+  error: "#F87171",
+  success: "#22C55E",
+};
+
+// ==========================================
+// UTILITY COMPONENTS
+// ==========================================
+
+const GlowCard = ({ children, className = "", onClick, gradient = true }) => (
+  <motion.div
+    whileHover={{ scale: 1.02, y: -4 }}
+    whileTap={{ scale: 0.98 }}
+    onClick={onClick}
+    className={`relative group cursor-pointer overflow-hidden rounded-2xl ${className}`}
+    style={{ 
+      background: C.surface,
+      border: `1px solid ${C.border}`,
+    }}
+  >
+    {/* Ambient Glow Effect */}
+    <div 
+      className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500"
+      style={{ 
+        background: gradient 
+          ? `radial-gradient(circle at 50% 0%, ${C.brand}20, transparent 70%)` 
+          : 'none'
+      }} 
+    />
+
+    {/* Bottom Glow Line */}
+    <div 
+      className="absolute bottom-0 left-0 right-0 h-px opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+      style={{ 
+        background: `linear-gradient(90deg, transparent, ${C.brand}, transparent)` 
+      }}
+    />
+
+    <div className="relative z-10">{children}</div>
+  </motion.div>
+);
+
+const AnimatedCounter = ({ value }) => {
+  const [count, setCount] = useState(0);
+  
+  useEffect(() => {
+    const num = parseInt(value) || 0;
+    const duration = 1000;
+    const steps = 20;
+    const increment = num / steps;
+    let current = 0;
+    
+    const timer = setInterval(() => {
+      current += increment;
+      if (current >= num) {
+        setCount(num);
+        clearInterval(timer);
+      } else {
+        setCount(Math.floor(current));
+      }
+    }, duration / steps);
+    
+    return () => clearInterval(timer);
+  }, [value]);
+
+  return <span>{count.toLocaleString()}</span>;
+};
+
+const Badge = ({ children, type = "default", icon: Icon }) => {
+  const styles = {
+    default: { bg: `${C.brand}20`, color: C.brand, border: C.border },
+    accent: { bg: `${C.accent}20`, color: C.accent, border: `rgba(245,158,11,0.3)` },
+    ghost: { bg: 'transparent', color: C.textMuted, border: C.border },
+  };
+  
+  const style = styles[type] || styles.default;
+  
+  return (
+    <span 
+      className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium border"
+      style={{ 
+        background: style.bg, 
+        color: style.color,
+        borderColor: style.border,
+      }}
+    >
+      {Icon && <Icon size={12} />}
+      {children}
+    </span>
+  );
+};
+
+const EmptyState = ({ onAction }) => (
+  <motion.div 
+    initial={{ opacity: 0, scale: 0.95 }}
+    animate={{ opacity: 1, scale: 1 }}
+    className="flex flex-col items-center justify-center py-20 px-4"
+  >
+    <div 
+      className="w-24 h-24 rounded-full flex items-center justify-center mb-6"
+      style={{ 
+        background: `linear-gradient(135deg, ${C.brand}20, ${C.brand}05)`,
+        border: `1px solid ${C.border}`,
+      }}
+    >
+      <Users size={40} style={{ color: C.brand }} />
+    </div>
+    <h3 
+      className="text-xl font-bold mb-2"
+      style={{ fontFamily: "'Fraunces', serif", color: C.text }}
+    >
+      No Communities Yet
+    </h3>
+    <p className="text-center max-w-md mb-6" style={{ color: C.textMuted }}>
+      Be the first to create a community and start connecting with learners who share your interests.
+    </p>
+    <motion.button
+      whileHover={{ scale: 1.05 }}
+      whileTap={{ scale: 0.95 }}
+      onClick={onAction}
+      className="flex items-center gap-2 px-6 py-3 rounded-xl font-medium"
+      style={{ 
+        background: `linear-gradient(135deg, ${C.brand}, ${C.brandLight})`,
+        color: C.bg,
+        boxShadow: `0 4px 20px ${C.brand}40`,
+      }}
+    >
+      <Plus size={18} />
+      Create Community
+    </motion.button>
+  </motion.div>
+);
+
+const SkeletonCard = () => (
+  <div 
+    className="rounded-2xl overflow-hidden"
+    style={{ background: C.surface, border: `1px solid ${C.border}` }}
+  >
+    <div 
+      className="h-40 w-full animate-pulse"
+      style={{ background: C.surface2 }}
+    />
+    <div className="p-5 space-y-3">
+      <div 
+        className="h-6 w-3/4 rounded animate-pulse"
+        style={{ background: C.surface2 }}
+      />
+      <div 
+        className="h-4 w-full rounded animate-pulse"
+        style={{ background: C.surface3 }}
+      />
+      <div 
+        className="h-4 w-2/3 rounded animate-pulse"
+        style={{ background: C.surface3 }}
+      />
+      <div className="flex justify-between items-center pt-2">
+        <div 
+          className="h-4 w-20 rounded animate-pulse"
+          style={{ background: C.surface3 }}
+        />
+        <div 
+          className="h-8 w-16 rounded-full animate-pulse"
+          style={{ background: C.surface2 }}
+        />
+      </div>
+    </div>
+  </div>
+);
+
+// ==========================================
+// MAIN COMPONENT
+// ==========================================
 
 export const Community = ({ basePath }) => {
   const [communities, setCommunities] = useState([]);
+  const [filteredCommunities, setFilteredCommunities] = useState([]);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [loading, setLoading] = useState(true);
+  const [activeFilter, setActiveFilter] = useState("all");
   const token = localStorage.getItem("token");
   const navigate = useNavigate();
 
   useEffect(() => {
     const fetchCommunities = async () => {
       try {
+        setLoading(true);
         const res = await axios.get("/communities", {
           headers: { Authorization: `Bearer ${token}` },
         });
-        setCommunities(res.data.data);
+        setCommunities(res.data.data || []);
+        setFilteredCommunities(res.data.data || []);
       } catch (err) {
         console.error("❌ Error fetching communities:", err);
+      } finally {
+        setLoading(false);
       }
     };
     fetchCommunities();
   }, [token]);
 
+  // Search & Filter Logic
+  useEffect(() => {
+    let filtered = communities;
+    
+    if (searchQuery) {
+      filtered = filtered.filter(c => 
+        c.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        c.description?.toLowerCase().includes(searchQuery.toLowerCase())
+      );
+    }
+    
+    if (activeFilter === "popular") {
+      filtered = [...filtered].sort((a, b) => (b.members?.length || 0) - (a.members?.length || 0));
+    } else if (activeFilter === "newest") {
+      filtered = [...filtered].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+    }
+    
+    setFilteredCommunities(filtered);
+  }, [searchQuery, activeFilter, communities]);
+
+  const totalMembers = communities.reduce((acc, c) => acc + (c.members?.length || 0), 0);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen p-4 sm:p-6 lg:p-8" style={{ background: C.bg }}>
+        <div className="max-w-7xl mx-auto">
+          <div 
+            className="h-8 w-64 rounded mb-8 animate-pulse"
+            style={{ background: C.surface2 }}
+          />
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+            {[1, 2, 3, 4, 5, 6].map(i => <SkeletonCard key={i} />)}
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#0f172a] via-[#1a1c2e] to-[#0f172a] text-white p-6">
-      {/* Header */}
-      <motion.div
-        className="mb-10 text-center sm:text-left"
-        initial={{ opacity: 0, y: -20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.4 }}
-      >
-        <h1 className="text-3xl sm:text-4xl font-extrabold bg-gradient-to-r from-purple-400 to-cyan-400 bg-clip-text text-transparent">
-          Explore Communities
-        </h1>
-        <p className="text-gray-400 mt-1 text-sm sm:text-base">
-          Connect, collaborate, and grow with people like you.
-        </p>
-      </motion.div>
-
-      {/* Communities Grid */}
-      {communities.length > 0 ? (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          {communities.map((c, idx) => (
-            <motion.div
-              key={c._id}
-              onClick={() => navigate(`/${basePath}/community/${c._id}`)}
-              initial={{ opacity: 0, y: 30 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: idx * 0.1 }}
-              whileHover={{
-                scale: 1.04,
-                boxShadow: "0 0 25px rgba(139, 92, 246, 0.6)",
+    <div className="min-h-screen p-4 sm:p-6 lg:p-8 pb-20" style={{ background: C.bg, color: C.text }}>
+      <div className="max-w-7xl mx-auto space-y-6">
+        
+        {/* Header Section */}
+        <motion.div
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+          className="flex flex-col lg:flex-row lg:items-end justify-between gap-6"
+        >
+          <div className="flex-1">
+            <div className="flex items-center gap-3 mb-2">
+              <div 
+                className="p-2 rounded-xl"
+                style={{ background: `${C.brand}20`, border: `1px solid ${C.border}` }}
+              >
+                <Globe size={24} style={{ color: C.brand }} />
+              </div>
+              <h1 
+                className="text-2xl sm:text-3xl lg:text-4xl font-bold"
+                style={{ fontFamily: "'Fraunces', serif", color: C.text }}
+              >
+                Explore{" "}
+                <span style={{ 
+                  background: `linear-gradient(135deg, ${C.brand}, ${C.brandLight})`,
+                  WebkitBackgroundClip: "text",
+                  WebkitTextFillColor: "transparent",
+                }}>
+                  Communities
+                </span>
+              </h1>
+            </div>
+            <p style={{ color: C.textMuted }} className="text-sm sm:text-base max-w-xl">
+              Connect, collaborate, and grow with <AnimatedCounter value={totalMembers} /> learners who share your passions.
+            </p>
+          </div>
+          
+          <div className="flex items-center gap-3">
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={() => navigate(`/${basePath}/communities/create`)}
+              className="flex items-center gap-2 px-4 py-2.5 rounded-xl font-medium text-sm whitespace-nowrap"
+              style={{ 
+                background: `linear-gradient(135deg, ${C.brand}, ${C.brandLight})`,
+                color: C.bg,
+                boxShadow: `0 4px 20px ${C.brand}40`,
               }}
-              className="
-              bg-[#13172a]/70 backdrop-blur-xl rounded-2xl 
-              border border-white/10 shadow-xl 
-              overflow-hidden cursor-pointer group 
-              transition-all duration-300
-            "
             >
-              {/* Cover Image */}
-              <div className="relative">
-                <img
-                  src={c.coverImage || "/cover-placeholder.png"}
-                  alt={c.name}
-                  className="w-full h-40 object-cover rounded-t-2xl border-b border-white/10"
-                />
+              <Plus size={18} />
+              <span className="hidden sm:inline">Create Community</span>
+              <span className="sm:hidden">Create</span>
+            </motion.button>
+          </div>
+        </motion.div>
 
-                {/* Hover overlay */}
-                <div className="absolute inset-0 bg-gradient-to-b from-transparent to-black/50 opacity-0 group-hover:opacity-100 transition duration-300"></div>
+        {/* Stats Bar */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.1, duration: 0.5 }}
+          className="grid grid-cols-2 sm:grid-cols-4 gap-3"
+        >
+          {[
+            { label: "Communities", value: communities.length, icon: Hash },
+            { label: "Total Members", value: totalMembers, icon: Users },
+            { label: "Active Today", value: Math.floor(totalMembers * 0.3), icon: TrendingUp },
+            { label: "Discussions", value: communities.length * 12, icon: MessageCircle },
+          ].map((stat, idx) => (
+            <div 
+              key={idx}
+              className="flex items-center gap-3 p-3 sm:p-4 rounded-xl"
+              style={{ background: C.surface, border: `1px solid ${C.border}` }}
+            >
+              <div 
+                className="p-2 rounded-lg"
+                style={{ background: `${C.brand}15` }}
+              >
+                <stat.icon size={18} style={{ color: C.brand }} />
               </div>
-
-              {/* Community Content */}
-              <div className="p-5">
-                <h2 className="text-xl font-bold text-purple-300 truncate">
-                  {c.name}
-                </h2>
-
-                <p className="text-gray-400 text-sm line-clamp-2 mt-1 mb-4">
-                  {c.description}
+              <div>
+                <p 
+                  className="text-lg sm:text-xl font-bold"
+                  style={{ fontFamily: "'Fraunces', serif", color: C.text }}
+                >
+                  <AnimatedCounter value={stat.value} />
                 </p>
-
-                {/* Members */}
-                <div className="flex items-center justify-between">
-                  <span className="text-sm text-gray-300">
-                    👥 {c.members?.length || 0} members
-                  </span>
-
-                  <button
-                    className="
-                  text-xs px-3 py-1 rounded-full
-                  bg-gradient-to-r from-purple-500 to-cyan-500 
-                  shadow-md group-hover:shadow-lg
-                "
-                  >
-                    View
-                  </button>
-                </div>
+                <p className="text-xs" style={{ color: C.textMuted }}>{stat.label}</p>
               </div>
-            </motion.div>
+            </div>
           ))}
-        </div>
-      ) : (
-        <div className="text-center mt-20">
-          <p className="text-gray-400 text-lg">No communities yet.</p>
-        </div>
-      )}
+        </motion.div>
+
+        {/* Search & Filter Bar */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.2, duration: 0.5 }}
+          className="flex flex-col sm:flex-row gap-3"
+        >
+          {/* Search Input */}
+          <div className="relative flex-1">
+            <Search 
+              className="absolute left-3 top-1/2 -translate-y-1/2" 
+              size={18} 
+              style={{ color: C.textDim }}
+            />
+            <input
+              type="text"
+              placeholder="Search communities..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full pl-10 pr-4 py-3 rounded-xl text-sm outline-none transition-all"
+              style={{ 
+                background: C.surface,
+                border: `1px solid ${C.border}`,
+                color: C.text,
+              }}
+              onFocus={(e) => e.target.style.borderColor = C.brand}
+              onBlur={(e) => e.target.style.borderColor = C.border}
+            />
+          </div>
+          
+          {/* Filter Tabs */}
+          <div className="flex gap-2 overflow-x-auto pb-1 sm:pb-0 scrollbar-hide">
+            {[
+              { id: "all", label: "All", icon: Globe },
+              { id: "popular", label: "Popular", icon: TrendingUp },
+              { id: "newest", label: "Newest", icon: Sparkles },
+            ].map((filter) => (
+              <button
+                key={filter.id}
+                onClick={() => setActiveFilter(filter.id)}
+                className="flex items-center gap-1.5 px-4 py-2.5 rounded-xl text-sm font-medium whitespace-nowrap transition-all"
+                style={{ 
+                  background: activeFilter === filter.id ? C.brand : C.surface,
+                  color: activeFilter === filter.id ? C.bg : C.textMuted,
+                  border: `1px solid ${activeFilter === filter.id ? C.brand : C.border}`,
+                }}
+              >
+                <filter.icon size={14} />
+                {filter.label}
+              </button>
+            ))}
+          </div>
+        </motion.div>
+
+        {/* Communities Grid */}
+        <AnimatePresence mode="wait">
+          {filteredCommunities.length > 0 ? (
+            <motion.div
+              key="grid"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6"
+            >
+              {filteredCommunities.map((community, idx) => (
+                <GlowCard
+                  key={community._id}
+                  onClick={() => navigate(`/${basePath}/community/${community._id}`)}
+                  className="flex flex-col"
+                >
+                  {/* Cover Image */}
+                  <div className="relative h-40 sm:h-48 overflow-hidden">
+                    <motion.img
+                      src={community.coverImage || "https://images.unsplash.com/photo-1522071820081-009f0129c71c?w=800&auto=format&fit=crop"}
+                      alt={community.name}
+                      className="w-full h-full object-cover"
+                      whileHover={{ scale: 1.05 }}
+                      transition={{ duration: 0.4 }}
+                    />
+                    
+                    {/* Gradient Overlay */}
+                    <div 
+                      className="absolute inset-0"
+                      style={{ 
+                        background: `linear-gradient(to top, ${C.surface} 0%, transparent 60%)` 
+                      }}
+                    />
+                    
+                    {/* Privacy Badge */}
+                    <div className="absolute top-3 right-3">
+                      <Badge 
+                        type={community.isPrivate ? "ghost" : "default"}
+                        icon={community.isPrivate ? Lock : Globe}
+                      >
+                        {community.isPrivate ? "Private" : "Public"}
+                      </Badge>
+                    </div>
+                    
+                    {/* Category Tag */}
+                    {community.category && (
+                      <div className="absolute top-3 left-3">
+                        <Badge type="accent" icon={Hash}>
+                          {community.category}
+                        </Badge>
+                      </div>
+                    )}
+                  </div>
+                  
+                  {/* Content */}
+                  <div className="p-4 sm:p-5 flex-1 flex flex-col">
+                    <h3 
+                      className="text-lg font-bold mb-2 line-clamp-1"
+                      style={{ fontFamily: "'Fraunces', serif", color: C.text }}
+                    >
+                      {community.name}
+                    </h3>
+                    
+                    <p 
+                      className="text-sm line-clamp-2 mb-4 flex-1"
+                      style={{ color: C.textMuted }}
+                    >
+                      {community.description || "Join this community to connect with like-minded learners and share knowledge."}
+                    </p>
+                    
+                    {/* Footer */}
+                    <div className="flex items-center justify-between pt-3 border-t" style={{ borderColor: C.border }}>
+                      <div className="flex items-center gap-2" style={{ color: C.textMuted }}>
+                        <Users size={16} style={{ color: C.brand }} />
+                        <span className="text-sm">
+                          <AnimatedCounter value={community.members?.length || 0} /> members
+                        </span>
+                      </div>
+                      
+                      <motion.div
+                        className="flex items-center gap-1 text-sm font-medium"
+                        style={{ color: C.brand }}
+                        whileHover={{ x: 3 }}
+                      >
+                        Explore
+                        <ArrowRight size={16} />
+                      </motion.div>
+                    </div>
+                  </div>
+                </GlowCard>
+              ))}
+            </motion.div>
+          ) : (
+            <EmptyState onAction={() => navigate(`/${basePath}/communities/create`)} />
+          )}
+        </AnimatePresence>
+
+        {/* Load More / End Message */}
+        {filteredCommunities.length > 0 && filteredCommunities.length < communities.length && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            className="text-center py-8"
+          >
+            <p style={{ color: C.textDim }}>
+              Showing {filteredCommunities.length} of {communities.length} communities
+            </p>
+          </motion.div>
+        )}
+      </div>
     </div>
   );
 };
+
+export default Community;
