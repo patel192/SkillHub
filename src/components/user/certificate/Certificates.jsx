@@ -1,7 +1,30 @@
-import React from "react";
-import { motion } from "framer-motion";
-import { Award, Download } from "lucide-react";
+import React, { useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { Award, Download, Share2, ExternalLink, FileText, CheckCircle2, Lock } from "lucide-react";
 
+// ==========================================
+// DESIGN TOKENS (Matching Dashboard Theme)
+// ==========================================
+const C = {
+  brand: "#16A880",
+  brandDark: "#0D7A5F",
+  brandLight: "#1FC99A",
+  accent: "#F59E0B",
+  bg: "#0A0F0D",
+  surface: "#111814",
+  surface2: "#182219",
+  surface3: "#1E2B22",
+  border: "rgba(22,168,128,0.15)",
+  borderHov: "rgba(22,168,128,0.35)",
+  text: "#E8F5F0",
+  textMuted: "#7A9E8E",
+  textDim: "#3D5C4E",
+  gold: "#FFD700",
+};
+
+// ==========================================
+// MOCK DATA (Replace with API later)
+// ==========================================
 const mockCertificates = [
   {
     id: 1,
@@ -9,6 +32,8 @@ const mockCertificates = [
     issuedBy: "CodeAcademy",
     date: "May 2025",
     certificateUrl: "#",
+    verified: true,
+    skills: ["ES6+", "Async/Await", "DOM Manipulation"],
   },
   {
     id: 2,
@@ -16,6 +41,8 @@ const mockCertificates = [
     issuedBy: "NeoTech Academy",
     date: "June 2025",
     certificateUrl: "#",
+    verified: true,
+    skills: ["Hooks", "Redux", "Next.js"],
   },
   {
     id: 3,
@@ -23,72 +50,452 @@ const mockCertificates = [
     issuedBy: "FreeCodeCamp",
     date: "July 2025",
     certificateUrl: "#",
+    verified: true,
+    skills: ["HTML5", "CSS3", "Responsive Design"],
   },
 ];
 
-export const Certificates = () => {
+// ==========================================
+// UTILITY COMPONENTS
+// ==========================================
+
+const GlowCard = ({ children, className = "", onClick, verified = true }) => (
+  <motion.div
+    whileHover={{ scale: 1.02, y: -4 }}
+    whileTap={{ scale: 0.98 }}
+    onClick={onClick}
+    className={`relative group cursor-pointer overflow-hidden rounded-2xl ${className}`}
+    style={{
+      background: C.surface,
+      border: `1px solid ${verified ? C.border : "rgba(255,255,255,0.05)"}`,
+    }}
+  >
+    {/* Ambient Glow */}
+    <div
+      className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500"
+      style={{
+        background: verified
+          ? `radial-gradient(circle at 50% 0%, ${C.brand}20, transparent 70%)`
+          : "none",
+      }}
+    />
+    
+    {/* Bottom Glow Line */}
+    <div
+      className="absolute bottom-0 left-0 right-0 h-px opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+      style={{
+        background: `linear-gradient(90deg, transparent, ${verified ? C.brand : C.textDim}, transparent)`,
+      }}
+    />
+    
+    <div className="relative z-10">{children}</div>
+  </motion.div>
+);
+
+const Badge = ({ children, type = "default" }) => {
+  const styles = {
+    default: { bg: `${C.brand}20`, color: C.brand, border: C.border },
+    gold: { bg: "rgba(255,215,0,0.15)", color: C.gold, border: "rgba(255,215,0,0.3)" },
+    muted: { bg: C.surface2, color: C.textMuted, border: C.border },
+  };
+  
+  const style = styles[type] || styles.default;
+  
   return (
-    <div className="min-h-screen p-8 bg-gradient-to-br from-[#0f172a] via-[#1e1b4b] to-[#0f172a] text-white">
+    <span
+      className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium border"
+      style={{ background: style.bg, color: style.color, borderColor: style.border }}
+    >
+      {children}
+    </span>
+  );
+};
 
-      {/* Header */}
-      <div className="flex items-center justify-center gap-3 mb-12">
-        <Award size={30} className="text-purple-400 drop-shadow-[0_0_8px_rgba(168,85,247,0.8)]" />
-        <h1 className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-purple-400 to-cyan-300 text-transparent bg-clip-text">
-          My Certificates
-        </h1>
-      </div>
+const EmptyState = () => (
+  <motion.div
+    initial={{ opacity: 0, scale: 0.95 }}
+    animate={{ opacity: 1, scale: 1 }}
+    className="flex flex-col items-center justify-center py-20 px-4"
+  >
+    <div
+      className="w-24 h-24 rounded-full flex items-center justify-center mb-6"
+      style={{ background: `${C.brand}15`, border: `1px solid ${C.border}` }}
+    >
+      <Award size={40} style={{ color: C.brand }} />
+    </div>
+    <h3 className="text-xl font-bold mb-2" style={{ fontFamily: "'Fraunces', serif", color: C.text }}>
+      No Certificates Yet
+    </h3>
+    <p className="text-center max-w-md mb-6" style={{ color: C.textMuted }}>
+      Complete courses and challenges to earn verified certificates and showcase your skills.
+    </p>
+    <motion.button
+      whileHover={{ scale: 1.05 }}
+      whileTap={{ scale: 0.95 }}
+      className="flex items-center gap-2 px-6 py-3 rounded-xl font-medium"
+      style={{
+        background: `linear-gradient(135deg, ${C.brand}, ${C.brandLight})`,
+        color: C.bg,
+        boxShadow: `0 4px 20px ${C.brand}40`,
+      }}
+    >
+      <ExternalLink size={18} />
+      Browse Courses
+    </motion.button>
+  </motion.div>
+);
 
-      {/* Certificate Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-        {mockCertificates.map((cert, idx) => (
-          <motion.div
-            key={cert.id}
-            initial={{ opacity: 0, y: 40 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: idx * 0.15 }}
-            whileHover={{ scale: 1.03 }}
-            className="
-              relative rounded-2xl p-6
-              bg-[#15182a]/80 backdrop-blur-xl 
-              border border-white/10
-              hover:border-purple-400/40 
-              transition-all duration-300 shadow-xl
-            "
+// ==========================================
+// CERTIFICATE CARD COMPONENT
+// ==========================================
+
+const CertificateCard = ({ cert, index }) => {
+  const [showPreview, setShowPreview] = useState(false);
+
+  return (
+    <>
+      <GlowCard verified={cert.verified} className="p-5 sm:p-6">
+        {/* Header with Icon & Actions */}
+        <div className="flex items-start justify-between mb-4">
+          <div
+            className="p-3 rounded-xl"
+            style={{
+              background: cert.verified ? `${C.brand}20` : C.surface2,
+              border: `1px solid ${cert.verified ? C.border : "rgba(255,255,255,0.05)"}`,
+            }}
           >
-            {/* Glow */}
-            <div className="
-              absolute inset-0 rounded-2xl opacity-0 
-              hover:opacity-30 transition duration-500 
-              bg-gradient-to-r from-purple-600 to-cyan-400 blur-2xl
-            " />
+            <FileText size={24} style={{ color: cert.verified ? C.brand : C.textDim }} />
+          </div>
+          
+          <div className="flex items-center gap-2">
+            {cert.verified && (
+              <Badge type="gold">
+                <CheckCircle2 size={10} />
+                Verified
+              </Badge>
+            )}
+            <motion.button
+              whileHover={{ scale: 1.1 }}
+              whileTap={{ scale: 0.9 }}
+              onClick={(e) => {
+                e.stopPropagation();
+                setShowPreview(true);
+              }}
+              className="p-2 rounded-lg transition-colors hover:bg-white/5"
+              style={{ color: C.textMuted }}
+              title="Preview"
+            >
+              <ExternalLink size={18} />
+            </motion.button>
+          </div>
+        </div>
 
-            {/* Content */}
-            <div className="relative z-10">
+        {/* Title & Issuer */}
+        <h3
+          className="text-lg sm:text-xl font-bold mb-2 line-clamp-1"
+          style={{ fontFamily: "'Fraunces', serif", color: C.text }}
+        >
+          {cert.title}
+        </h3>
+        
+        <div className="flex items-center gap-2 mb-3">
+          <span className="text-sm" style={{ color: C.textMuted }}>Issued by</span>
+          <span className="text-sm font-medium" style={{ color: C.brand }}>{cert.issuedBy}</span>
+        </div>
 
-              {/* Title & Download */}
-              <div className="flex justify-between items-start mb-4">
-                <h3 className="text-xl font-semibold">{cert.title}</h3>
+        {/* Date */}
+        <div className="flex items-center gap-2 mb-4 text-xs" style={{ color: C.textDim }}>
+          <Award size={14} />
+          <span>{cert.date}</span>
+        </div>
 
-                <a
-                  href={cert.certificateUrl}
-                  download
-                  className="text-cyan-300 hover:text-cyan-200 transition"
-                  title="Download Certificate"
+        {/* Skills Tags */}
+        {cert.skills && (
+          <div className="flex flex-wrap gap-2 mb-4">
+            {cert.skills.map((skill, idx) => (
+              <span
+                key={idx}
+                className="px-2 py-1 rounded-lg text-xs"
+                style={{ background: C.surface2, color: C.textMuted, border: `1px solid ${C.border}` }}
+              >
+                {skill}
+              </span>
+            ))}
+          </div>
+        )}
+
+        {/* Actions */}
+        <div className="flex items-center gap-3 pt-4 border-t" style={{ borderColor: C.border }}>
+          <motion.a
+            href={cert.certificateUrl}
+            download
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
+            className="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-medium transition-colors"
+            style={{
+              background: C.surface2,
+              border: `1px solid ${C.border}`,
+              color: C.textMuted,
+            }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <Download size={16} />
+            <span className="hidden sm:inline">Download</span>
+          </motion.a>
+          
+          <motion.button
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
+            className="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-medium"
+            style={{
+              background: `linear-gradient(135deg, ${C.brand}, ${C.brandLight})`,
+              color: C.bg,
+            }}
+          >
+            <Share2 size={16} />
+            <span className="hidden sm:inline">Share</span>
+          </motion.button>
+        </div>
+      </GlowCard>
+
+      {/* Preview Modal */}
+      <AnimatePresence>
+        {showPreview && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black/80 flex items-center justify-center p-4 z-50"
+            onClick={() => setShowPreview(false)}
+          >
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.9 }}
+              onClick={(e) => e.stopPropagation()}
+              className="w-full max-w-3xl rounded-2xl overflow-hidden"
+              style={{ background: C.surface, border: `1px solid ${C.border}` }}
+            >
+              {/* Modal Header */}
+              <div className="flex items-center justify-between p-4 border-b" style={{ borderColor: C.border }}>
+                <h3 className="font-bold" style={{ color: C.text }}>{cert.title}</h3>
+                <button
+                  onClick={() => setShowPreview(false)}
+                  className="p-2 rounded-lg hover:bg-white/5 transition-colors"
+                  style={{ color: C.textMuted }}
                 >
-                  <Download size={20} />
-                </a>
+                  <Lock size={20} />
+                </button>
               </div>
-
-              <p className="text-gray-300 text-sm">
-                Issued by:{" "}
-                <span className="text-purple-300 font-medium">{cert.issuedBy}</span>
-              </p>
-
-              <p className="text-xs text-gray-500 mt-2">{cert.date}</p>
-            </div>
+              
+              {/* Certificate Preview Placeholder */}
+              <div className="p-8 flex flex-col items-center justify-center min-h-[400px]">
+                <div
+                  className="w-full max-w-2xl h-64 rounded-xl flex items-center justify-center mb-6"
+                  style={{ background: C.surface2, border: `2px dashed ${C.border}` }}
+                >
+                  <div className="text-center">
+                    <FileText size={48} style={{ color: C.textDim }} className="mx-auto mb-4" />
+                    <p style={{ color: C.textMuted }}>Certificate Preview</p>
+                    <p className="text-sm mt-1" style={{ color: C.textDim }}>
+                      Actual certificate will be displayed here
+                    </p>
+                  </div>
+                </div>
+                
+                <div className="flex gap-3">
+                  <motion.a
+                    href={cert.certificateUrl}
+                    download
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    className="flex items-center gap-2 px-6 py-3 rounded-xl font-medium"
+                    style={{
+                      background: `linear-gradient(135deg, ${C.brand}, ${C.brandLight})`,
+                      color: C.bg,
+                      boxShadow: `0 4px 20px ${C.brand}40`,
+                    }}
+                  >
+                    <Download size={18} />
+                    Download PDF
+                  </motion.a>
+                </div>
+              </div>
+            </motion.div>
           </motion.div>
-        ))}
+        )}
+      </AnimatePresence>
+    </>
+  );
+};
+
+// ==========================================
+// STATS COMPONENT
+// ==========================================
+
+const StatsBar = ({ certificates }) => {
+  const stats = [
+    { label: "Certificates", value: certificates.length, icon: Award },
+    { label: "Verified", value: certificates.filter(c => c.verified).length, icon: CheckCircle2 },
+    { label: "Skills", value: certificates.reduce((acc, c) => acc + (c.skills?.length || 0), 0), icon: FileText },
+  ];
+
+  return (
+    <div className="grid grid-cols-3 gap-3 mb-8">
+      {stats.map((stat, idx) => (
+        <motion.div
+          key={idx}
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: idx * 0.1 }}
+          className="flex items-center gap-3 p-3 sm:p-4 rounded-xl"
+          style={{ background: C.surface, border: `1px solid ${C.border}` }}
+        >
+          <div className="p-2 rounded-lg hidden sm:block" style={{ background: `${C.brand}15` }}>
+            <stat.icon size={18} style={{ color: C.brand }} />
+          </div>
+          <div>
+            <p className="text-lg sm:text-xl font-bold" style={{ fontFamily: "'Fraunces', serif", color: C.text }}>
+              {stat.value}
+            </p>
+            <p className="text-xs" style={{ color: C.textMuted }}>{stat.label}</p>
+          </div>
+        </motion.div>
+      ))}
+    </div>
+  );
+};
+
+// ==========================================
+// MAIN COMPONENT
+// ==========================================
+
+export const Certificates = () => {
+  const [filter, setFilter] = useState("all");
+
+  const filteredCerts = mockCertificates.filter(cert => {
+    if (filter === "verified") return cert.verified;
+    return true;
+  });
+
+  return (
+    <div className="min-h-screen p-4 sm:p-6 lg:p-8 pb-20" style={{ background: C.bg, color: C.text }}>
+      <div className="max-w-6xl mx-auto">
+        
+        {/* Header */}
+        <motion.div
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-8"
+        >
+          <div>
+            <div className="flex items-center gap-3 mb-2">
+              <div
+                className="p-2 rounded-xl"
+                style={{ background: `${C.brand}20`, border: `1px solid ${C.border}` }}
+              >
+                <Award size={24} style={{ color: C.brand }} />
+              </div>
+              <h1
+                className="text-2xl sm:text-3xl lg:text-4xl font-bold"
+                style={{ fontFamily: "'Fraunces', serif", color: C.text }}
+              >
+                <span
+                  style={{
+                    background: `linear-gradient(135deg, ${C.brand}, ${C.brandLight})`,
+                    WebkitBackgroundClip: "text",
+                    WebkitTextFillColor: "transparent",
+                  }}
+                >
+                  My Certificates
+                </span>
+              </h1>
+            </div>
+            <p className="text-sm sm:text-base max-w-lg" style={{ color: C.textMuted }}>
+              Showcase your achievements and verified skills. Download or share your certificates anytime.
+            </p>
+          </div>
+
+          {/* Add Certificate Button (Future Feature) */}
+          <motion.button
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            className="flex items-center gap-2 px-4 py-2.5 rounded-xl font-medium text-sm whitespace-nowrap"
+            style={{
+              background: C.surface2,
+              border: `1px solid ${C.border}`,
+              color: C.textMuted,
+            }}
+          >
+            <ExternalLink size={16} />
+            Import External
+          </motion.button>
+        </motion.div>
+
+        {/* Stats */}
+        <StatsBar certificates={mockCertificates} />
+
+        {/* Filter Tabs */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.1 }}
+          className="flex gap-2 mb-6 overflow-x-auto pb-2 scrollbar-hide"
+        >
+          {[
+            { id: "all", label: "All Certificates", count: mockCertificates.length },
+            { id: "verified", label: "Verified Only", count: mockCertificates.filter(c => c.verified).length },
+          ].map((tab) => (
+            <button
+              key={tab.id}
+              onClick={() => setFilter(tab.id)}
+              className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium whitespace-nowrap transition-all"
+              style={{
+                background: filter === tab.id ? C.brand : C.surface,
+                color: filter === tab.id ? C.bg : C.textMuted,
+                border: `1px solid ${filter === tab.id ? C.brand : C.border}`,
+              }}
+            >
+              {tab.label}
+              <span
+                className="px-1.5 py-0.5 rounded-full text-xs"
+                style={{
+                  background: filter === tab.id ? "rgba(0,0,0,0.2)" : C.surface2,
+                  color: filter === tab.id ? C.bg : C.textMuted,
+                }}
+              >
+                {tab.count}
+              </span>
+            </button>
+          ))}
+        </motion.div>
+
+        {/* Certificates Grid */}
+        {filteredCerts.length > 0 ? (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+            {filteredCerts.map((cert, idx) => (
+              <CertificateCard key={cert.id} cert={cert} index={idx} />
+            ))}
+          </div>
+        ) : (
+          <EmptyState />
+        )}
+
+        {/* Future Integration Note */}
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.5 }}
+          className="mt-12 p-4 rounded-xl text-center"
+          style={{ background: C.surface2, border: `1px dashed ${C.border}` }}
+        >
+          <p className="text-sm" style={{ color: C.textDim }}>
+            💡 <strong>Coming Soon:</strong> Automatic certificate generation upon course completion
+          </p>
+        </motion.div>
       </div>
     </div>
   );
 };
+
+export default Certificates;
