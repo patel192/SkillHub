@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import axios from "axios";
+import apiClient from "../../api/axiosConfig"
 import { useNavigate } from "react-router-dom";
 import {
   BookOpen,
@@ -196,12 +196,12 @@ export const UserDashboard = () => {
         setLoading(true);
         
         const [userRes, coursesRes, certRes, actRes, notifRes, recRes] = await Promise.all([
-          axios.get(`/user/${userId}`, { headers: { Authorization: `Bearer ${token}` } }),
-          axios.get(`/enrollment/${userId}`, { headers: { Authorization: `Bearer ${token}` } }),
-          axios.get(`/certificates/${userId}`, { headers: { Authorization: `Bearer ${token}` } }),
-          axios.get(`/activities/${userId}`, { headers: { Authorization: `Bearer ${token}` } }),
-          axios.get(`/notifications/${userId}`, { headers: { Authorization: `Bearer ${token}` } }),
-          axios.get("/courses", { headers: { Authorization: `Bearer ${token}` } })
+          apiClient.get(`/user/${userId}`),
+          apiClient.get(`/enrollment/${userId}`),
+          apiClient.get(`/certificates/${userId}`),
+          apiClient.get(`/activities/${userId}`),
+          apiClient.get(`/notifications/${userId}`),
+          apiClient.get("/courses")
         ]);
 
         setUserName(userRes.data.data.fullname);
@@ -228,9 +228,7 @@ export const UserDashboard = () => {
           courseTimes.sort((a, b) => b.seconds - a.seconds);
           const topCourseId = courseTimes[0].courseId;
           try {
-            const c = await axios.get(`/course/${topCourseId}`, {
-              headers: { Authorization: `Bearer ${token}` },
-            });
+            const c = await apiClient.get(`/course/${topCourseId}`);
             topCourse = {
               id: topCourseId,
               name: c.data.data.title,
