@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import apiClient from "../../../api/axiosConfig";
+import apiClient from "../../api/axiosConfig"
 import toast from "react-hot-toast";
 import { 
   User, 
