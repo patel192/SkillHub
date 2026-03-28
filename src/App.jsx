@@ -36,8 +36,6 @@ import { EditCourse } from "./components/admin/course/EditCourse";
 import { AddCourse } from "./components/admin/course/AddCourse";
 
 function App() {
-  const token = localStorage.getItem("token");
-  axios.defaults.baseURL = "https://skillhub-backend-gs3t.onrender.com";
   return (
     <>
       <Routes>

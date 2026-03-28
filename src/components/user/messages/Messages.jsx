@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef, useCallback } from "react";
-import axios from "axios";
+import apiClient from "../../../api/axiosConfig";
 import { motion, AnimatePresence } from "framer-motion";
 import io from "socket.io-client";
 import {
@@ -298,9 +298,7 @@ export const Messages = () => {
   // ===============================
   const fetchFriends = async () => {
     try {
-      const res = await axios.get(`/friends/${currentUserId}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const res = await apiClient.get(`/friends/${currentUserId}`);
       const list = res.data?.data ?? [];
       setFriends(list);
       if (!selectedUserId && list.length > 0) setSelectedUserId(list[0]._id);
@@ -311,9 +309,7 @@ export const Messages = () => {
 
   const fetchIncoming = async () => {
     try {
-      const res = await axios.get(`/friends/requests/${currentUserId}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const res = await apiClient.get(`/friends/requests/${currentUserId}`);
       setIncoming(res.data?.data ?? []);
     } catch {
       setIncoming([]);
@@ -322,9 +318,7 @@ export const Messages = () => {
 
   const fetchOutgoing = async () => {
     try {
-      const res = await axios.get(`/friends/requests/sent/${currentUserId}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const res = await apiClient.get(`/friends/requests/sent/${currentUserId}`);
       setOutgoing(res.data?.data ?? []);
     } catch {
       setOutgoing([]);
@@ -334,9 +328,7 @@ export const Messages = () => {
   const fetchMessages = async (friendId) => {
     if (!friendId) return setMessages([]);
     try {
-      const res = await axios.get(`/messages/${currentUserId}/${friendId}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const res = await apiClient.get(`/messages/${currentUserId}/${friendId}`);
       setMessages(res.data?.messages ?? res.data?.data ?? []);
     } catch {
       setMessages([]);
@@ -412,10 +404,9 @@ export const Messages = () => {
           receiverId: selectedUserId,
         });
 
-        const res = await axios.patch(
+        const res = await apiClient.patch(
           `/message/${editMsg._id}`,
-          { text: messageText },
-          { headers: { Authorization: `Bearer ${token}` } },
+          { text: messageText }
         );
 
         const updated = res.data?.message ?? res.data ?? null;
@@ -465,15 +456,14 @@ export const Messages = () => {
         replyTo: replyTo?._id ?? null,
       });
 
-      const res = await axios.post(
+      const res = await apiClient.post(
         "/message",
         {
           senderId: currentUserId,
           receiverId: selectedUserId,
           text: messageText,
           replyTo: replyTo?._id ?? null,
-        },
-        { headers: { Authorization: `Bearer ${token}` } },
+        }
       );
 
       const newMsg = res.data?.message ?? res.data?.data ?? null;
@@ -534,10 +524,9 @@ export const Messages = () => {
         emoji,
       });
 
-      await axios.patch(
+      await apiClient.patch(
         `/message/${msgId}/reaction`,
         { userId: currentUserId, emoji },
-        { headers: { Authorization: `Bearer ${token}` } },
       );
     } catch (err) {
       console.error("reaction error", err);
@@ -562,9 +551,7 @@ export const Messages = () => {
     try {
       setMessages((prev) => prev.filter((m) => m._id !== messageId));
       socket.emit("delete_message", { messageId, senderId: currentUserId });
-      await axios.delete(`/message/${messageId}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      await apiClient.delete(`/message/${messageId}`);
     } catch (err) {
       console.error("delete error", err);
       toast.error("Failed to delete message");
@@ -581,10 +568,9 @@ export const Messages = () => {
   // ===============================
   const handleIncomingAction = async (requestId, action) => {
     try {
-      await axios.patch(
+      await apiClient.patch(
         `/friends/request/${requestId}`,
-        { status: action },
-        { headers: { Authorization: `Bearer ${token}` } },
+        { status: action }
       );
 
       if (socket) {
@@ -604,10 +590,9 @@ export const Messages = () => {
     const id = String(recipientId);
     setAddingRequestIds((prev) => new Set(prev).add(id));
     try {
-      await axios.post(
+      await apiClient.post(
         `/friends/request`,
         { requesterId: currentUserId, recipientId: id },
-        { headers: { Authorization: `Bearer ${token}` } },
       );
 
       if (socket) {
@@ -642,11 +627,8 @@ export const Messages = () => {
       (async () => {
         setSearchLoading(true);
         try {
-          const res = await axios.get(
+          const res = await apiClient.get(
             `/users/search?q=${encodeURIComponent(q)}`,
-            {
-              headers: { Authorization: `Bearer ${token}` },
-            },
           );
           setSearchResults(res.data?.data ?? res.data ?? []);
         } catch (err) {
@@ -666,7 +648,7 @@ export const Messages = () => {
     e.preventDefault();
     if (!reportTarget) return;
     try {
-      await axios.post(
+      await apiClient.post(
         "/report",
         {
           reporter: currentUserId,
@@ -674,8 +656,7 @@ export const Messages = () => {
           description: reportMessage,
           targetType: reportTarget.type,
           targetId: reportTarget.id,
-        },
-        { headers: { Authorization: `Bearer ${token}` } },
+        }
       );
 
       toast.success(`${reportTarget.type} reported successfully`);

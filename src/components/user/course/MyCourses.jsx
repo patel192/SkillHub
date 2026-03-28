@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useMemo } from "react";
 import { motion, AnimatePresence, LayoutGroup } from "framer-motion";
-import axios from "axios";
+import apiClient from "../../../api/axiosConfig";
 import { useNavigate } from "react-router-dom";
 import {
   BookOpen,
@@ -331,8 +331,6 @@ export const MyCourses = () => {
   const [discoverCourses, setDiscoverCourses] = useState([]);
   const [loading, setLoading] = useState(true);
   const [stats, setStats] = useState({ total: 0, completed: 0, inProgress: 0, hours: 0 });
-
-  const token = localStorage.getItem("token");
   const userId = localStorage.getItem("userId");
 
   useEffect(() => {
@@ -343,8 +341,8 @@ export const MyCourses = () => {
     setLoading(true);
     try {
       const [myRes, discoverRes] = await Promise.all([
-        axios.get(`/enrollment/${userId}`, { headers: { Authorization: `Bearer ${token}` } }),
-        axios.get("/courses", { headers: { Authorization: `Bearer ${token}` } })
+        apiClient.get(`/enrollment/${userId}`),
+        apiClient.get("/courses")
       ]);
 
       const mappedMyCourses = (myRes.data.data || []).map((e) => ({

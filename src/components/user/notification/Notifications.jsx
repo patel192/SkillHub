@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { motion } from "framer-motion";
-import axios from "axios";
+import apiClient from "../../../api/axiosConfig";
 import { FaBook, FaCertificate, FaCheckCircle, FaBell } from "react-icons/fa";
 export const Notifications = () => {
   const [notifications, setNotifications] = useState([]);
@@ -9,9 +9,7 @@ export const Notifications = () => {
   useEffect(() => {
     const fetchNotifications = async () => {
       try {
-        const res = await axios.get(`/notifications/${userId}`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
+        const res = await apiClient.get(`/notifications/${userId}`);
         setNotifications(res.data.data || []);
       } catch (err) {
         console.error("❌ Error fetching notifications:", err);

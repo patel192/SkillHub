@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import axios from "axios";
+import apiClient from "../../../api/axiosConfig";
 import { motion, AnimatePresence } from "framer-motion";
 import { 
   Users, 
@@ -217,9 +217,7 @@ export const Community = ({ basePath }) => {
     const fetchCommunities = async () => {
       try {
         setLoading(true);
-        const res = await axios.get("/communities", {
-          headers: { Authorization: `Bearer ${token}` },
-        });
+        const res = await apiClient.get("/communities");
         setCommunities(res.data.data || []);
         setFilteredCommunities(res.data.data || []);
       } catch (err) {

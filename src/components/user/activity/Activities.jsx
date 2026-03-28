@@ -1,23 +1,19 @@
 import React, { useEffect, useState } from "react";
 import { motion } from "framer-motion";
-import axios from "axios";
+import apiClient from "../../../api/axiosConfig";
 import {
   FaBookOpen,
   FaCertificate,
   FaCheckCircle,
   FaClock,
 } from "react-icons/fa";
-import { useParams } from "react-router-dom";
 export const Activities = () => {
   const [activities, setActivities] = useState([]);
   const userId = localStorage.getItem("userId");
-  const token = localStorage.getItem("token");
   useEffect(() => {
     const fetchActivities = async () => {
       try {
-        const res = await axios.get(`/activities/${userId}`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
+        const res = await apiClient.get(`/activities/${userId}`);
         setActivities(res.data.data || []);
       } catch (err) {
         console.error("❌ Error fetching activities:", err);

@@ -3,7 +3,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import { vscDarkPlus } from "react-syntax-highlighter/dist/esm/styles/prism";
 import { motion, AnimatePresence } from "framer-motion";
-import axios from "axios";
+import apiClient from "../../../api/axiosConfig";
 
 import {
   Clock,
@@ -85,9 +85,7 @@ export const LearningPage = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const lessonsRes = await axios.get(`/lessons/${courseId}`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
+        const lessonsRes = await apiClient.get(`/lessons/${courseId}`);
 
         if (Array.isArray(lessonsRes.data.data)) {
           setLessons(lessonsRes.data.data);
@@ -96,9 +94,7 @@ export const LearningPage = () => {
           }
         }
 
-        const quizRes = await axios.get(`/questions/${courseId}`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
+        const quizRes = await apiClient.get(`/questions/${courseId}`);
 
         if (Array.isArray(quizRes.data.data)) {
           setQuizQuestions(quizRes.data.data);

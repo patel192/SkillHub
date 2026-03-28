@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useParams, useNavigate } from "react-router-dom";
-import axios from "axios";
+import apiClient from "../../../api/axiosConfig";
 import {
   BookOpen,
   Clock,
@@ -23,8 +23,6 @@ import {
   Calendar
 } from "lucide-react";
 import { ReportModal } from "../report/ReportModal";
-import { Spinner } from "../../../utils/Spinner";
-
 // ==========================================
 // DESIGN TOKENS (Matching MyCourses Theme)
 // ==========================================
@@ -69,15 +67,9 @@ export const CourseDetails = () => {
       setLoading(true);
       try {
         const [courseRes, overviewRes, enrollRes] = await Promise.all([
-          axios.get(`/course/${courseId}`, {
-            headers: { Authorization: `Bearer ${token}` },
-          }),
-          axios.get(`/overview/${courseId}`, {
-            headers: { Authorization: `Bearer ${token}` },
-          }),
-          axios.get(`/enrollment/${userId}`, {
-            headers: { Authorization: `Bearer ${token}` },
-          }),
+          apiClient.get(`/course/${courseId}`),
+          apiClient.get(`/overview/${courseId}`),
+          apiClient.get(`/enrollment/${userId}`),
         ]);
 
         if (!mounted) return;
@@ -114,10 +106,9 @@ export const CourseDetails = () => {
 
   const handleEnroll = async () => {
     try {
-      await axios.post(
+      await apiClient.post(
         "/enrollment",
-        { userId, courseId, status: "Registered", progress: 0 },
-        { headers: { Authorization: `Bearer ${token}` } }
+        { userId, courseId, status: "Registered", progress: 0 }
       );
       setEnrolled(true);
     } catch (error) {

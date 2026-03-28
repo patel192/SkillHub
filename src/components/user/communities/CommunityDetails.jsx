@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback, useMemo } from "react";
 import { useParams } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import axios from "axios";
+import apiClient from "../../../api/axiosConfig";
 import { toast } from "react-hot-toast";
 import {
   Heart,
@@ -45,7 +45,6 @@ const C = {
   textDim: "#3D5C4E",
   error: "#F87171",
 };
-const token = localStorage.getItem("token");
 // ==========================================
 // UTILITY FUNCTIONS
 // ==========================================
@@ -74,16 +73,6 @@ const safeArray = (data) => {
   return [];
 };
 
-// ==========================================
-// API CLIENT
-// ==========================================
-const apiClient = axios.create(
-  {
-    baseURL: "https://skillhub-backend-gs3t.onrender.com",
-    timeout: 10000,
-  },
-  { headers: { Authorization: `Bearer ${token}` } },
-);
 
 // ==========================================
 // CUSTOM HOOKS
