@@ -137,29 +137,62 @@ export const Messages = () => {
 
       // Real-time events
       socket.on("new_message", (data) => {
-        const { message } = data;
-        
-        if (
-          (message.senderId === selectedUserId && message.receiverId === currentUserId) ||
-          (message.senderId === currentUserId && message.receiverId === selectedUserId)
-        ) {
-          setMessages((prev) => {
-            const exists = prev.find(m => m._id === message._id || m.tempId === message.tempId);
-            if (exists) {
-              return prev.map(m => 
-                (m._id === message._id || m.tempId === message.tempId) ? message : m
-              );
-            }
-            return [...prev, message];
-          });
-          
-          if (message.senderId === selectedUserId) {
-            socket.emit("mark_read", { messageId: message._id });
-          }
-        } else if (message.receiverId === currentUserId) {
-          toast.success(`New message from ${message.senderName || "Someone"}`);
-        }
-      });
+  const { message, tempId } = data;
+  const senderId = message.senderId._id?.toString() || message.senderId.toString();
+  const receiverId = message.receiverId._id?.toString() || message.receiverId.toString();
+  
+  // Case 1: Message is for current conversation - add it immediately
+  const isCurrentConversation = 
+    (senderId === selectedUserId && receiverId === currentUserId) ||
+    (senderId === currentUserId && receiverId === selectedUserId);
+
+  if (isCurrentConversation) {
+    setMessages((prev) => {
+      // Check if already exists (optimistic update)
+      const exists = prev.find(m => 
+        m._id === message._id || 
+        m.tempId === tempId ||
+        (m.tempId && tempId && m.tempId === tempId)
+      );
+      
+      if (exists) {
+        return prev.map(m => 
+          (m._id === message._id || m.tempId === tempId) ? message : m
+        );
+      }
+      return [...prev, message];
+    });
+    
+    // Mark as read immediately since we're viewing it
+    if (receiverId === currentUserId) {
+      socket.emit("mark_read", { messageId: message._id });
+    }
+  } 
+  // Case 2: Message is from someone else while we're in another chat
+  else if (receiverId === currentUserId) {
+    // Show notification with action
+    toast.success(
+      <div 
+        className="cursor-pointer" 
+        onClick={() => {
+          // Auto-switch to that conversation
+          setSelectedUserId(senderId);
+          fetchMessages(senderId);
+        }}
+      >
+        <strong>New message from {message.senderId.fullname || "Someone"}</strong>
+        <br />
+        <span className="text-sm">{message.text.slice(0, 50)}...</span>
+        <br />
+        <span className="text-xs text-blue-400">Click to view</span>
+      </div>,
+      { duration: 5000 }
+    );
+    
+    // Also update friends list to show unread indicator
+    fetchFriends(); // Refresh to show unread count
+  }
+});
 
       socket.on("message_edited", (data) => {
         const { message } = data;
