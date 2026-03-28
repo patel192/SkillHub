@@ -17,7 +17,7 @@ import {
   ArrowLeft,
   Wifi,
   WifiOff,
-  CheckCheck
+  CheckCheck,
 } from "lucide-react";
 import toast from "react-hot-toast";
 
@@ -39,7 +39,7 @@ const C = {
   textMuted: "#7A9E8E",
   textDim: "#3D5C4E",
   error: "#F87171",
-  success: "#22C55E"
+  success: "#22C55E",
 };
 
 // WebSocket singleton
@@ -48,18 +48,18 @@ let socket = null;
 export const Messages = () => {
   const currentUserId = localStorage.getItem("userId");
   const token = localStorage.getItem("token");
-  
+
   // Connection state
   const [isConnected, setIsConnected] = useState(false);
   const [isConnecting, setIsConnecting] = useState(true);
-  
+
   // UI State
   const [isReportOpen, setIsReportOpen] = useState(false);
   const [reportTarget, setReportTarget] = useState(null);
   const [reportType, setReportType] = useState("");
   const [reportMessage, setReportMessage] = useState("");
   const [menuOpen, setMenuOpen] = useState(null);
-  
+
   // Data State
   const [friends, setFriends] = useState([]);
   const [incoming, setIncoming] = useState([]);
@@ -76,7 +76,7 @@ export const Messages = () => {
   const [editMsg, setEditMsg] = useState(null);
   const [newMessage, setNewMessage] = useState("");
   const [showReactions, setShowReactions] = useState(null);
-  
+
   // Search states
   const [searchQuery, setSearchQuery] = useState("");
   const [searchResults, setSearchResults] = useState([]);
@@ -93,7 +93,7 @@ export const Messages = () => {
   useEffect(() => {
     const initSocket = () => {
       setIsConnecting(true);
-      
+
       socket = io("https://skillhub-backend-gs3t.onrender.com", {
         auth: { token },
         query: { userId: currentUserId },
@@ -137,67 +137,93 @@ export const Messages = () => {
 
       // Real-time events
       socket.on("new_message", (data) => {
-  const { message, tempId } = data;
-  const senderId = message.senderId._id?.toString() || message.senderId.toString();
-  const receiverId = message.receiverId._id?.toString() || message.receiverId.toString();
-  
-  // Case 1: Message is for current conversation - add it immediately
-  const isCurrentConversation = 
-    (senderId === selectedUserId && receiverId === currentUserId) ||
-    (senderId === currentUserId && receiverId === selectedUserId);
+        const { message, tempId } = data;
+        const msgSenderId =
+          message.senderId?._id?.toString() ||
+          message.senderId?.toString() ||
+          message.senderId;
+        const msgReceiverId =
+          message.receiverId?._id?.toString() ||
+          message.receiverId?.toString() ||
+          message.receiverId;
 
-  if (isCurrentConversation) {
-    setMessages((prev) => {
-      // Check if already exists (optimistic update)
-      const exists = prev.find(m => 
-        m._id === message._id || 
-        m.tempId === tempId ||
-        (m.tempId && tempId && m.tempId === tempId)
-      );
-      
-      if (exists) {
-        return prev.map(m => 
-          (m._id === message._id || m.tempId === tempId) ? message : m
-        );
-      }
-      return [...prev, message];
-    });
-    
-    // Mark as read immediately since we're viewing it
-    if (receiverId === currentUserId) {
-      socket.emit("mark_read", { messageId: message._id });
-    }
-  } 
-  // Case 2: Message is from someone else while we're in another chat
-  else if (receiverId === currentUserId) {
-    // Show notification with action
-    toast.success(
-      <div 
-        className="cursor-pointer" 
-        onClick={() => {
-          // Auto-switch to that conversation
-          setSelectedUserId(senderId);
-          fetchMessages(senderId);
-        }}
-      >
-        <strong>New message from {message.senderId.fullname || "Someone"}</strong>
-        <br />
-        <span className="text-sm">{message.text.slice(0, 50)}...</span>
-        <br />
-        <span className="text-xs text-blue-400">Click to view</span>
-      </div>,
-      { duration: 5000 }
-    );
-    
-    // Also update friends list to show unread indicator
-    fetchFriends(); // Refresh to show unread count
-  }
-});
+        // Check if this message belongs to current conversation
+        const isCurrentConversation =
+          (msgSenderId === selectedUserId && msgReceiverId === currentUserId) ||
+          (msgSenderId === currentUserId && msgReceiverId === selectedUserId);
+
+        // Check if message already exists (prevent duplicates)
+        setMessages((prev) => {
+          // Check by _id or tempId
+          const existsById = prev.find((m) => m._id === message._id);
+          const existsByTemp = tempId && prev.find((m) => m.tempId === tempId);
+          const existsByContent = prev.find(
+            (m) =>
+              m.text === message.text &&
+              m.senderId?.toString() === msgSenderId &&
+              Math.abs(new Date(m.createdAt) - new Date(message.createdAt)) <
+                5000,
+          );
+
+          if (existsById || existsByTemp || existsByContent) {
+            // Update existing message (replace temp with real)
+            return prev.map((m) => {
+              if (m._id === message._id) return message;
+              if (tempId && m.tempId === tempId)
+                return { ...message, tempId: null };
+              if (
+                m.text === message.text &&
+                m.senderId?.toString() === msgSenderId &&
+                Math.abs(new Date(m.createdAt) - new Date(message.createdAt)) <
+                  5000
+              ) {
+                return { ...message, tempId: m.tempId };
+              }
+              return m;
+            });
+          }
+
+          // Only add if it's for current conversation
+          if (isCurrentConversation) {
+            return [...prev, message];
+          }
+
+          return prev;
+        });
+
+        // Show notification for messages from other users in different conversations
+        if (
+          msgReceiverId === currentUserId &&
+          msgSenderId !== selectedUserId &&
+          msgSenderId !== currentUserId
+        ) {
+          toast.success(
+            <div
+              className="cursor-pointer"
+              onClick={() => {
+                setSelectedUserId(msgSenderId);
+              }}
+            >
+              <strong>
+                New message from {message.senderId?.fullname || "Someone"}
+              </strong>
+              <br />
+              <span className="text-sm">{message.text?.slice(0, 50)}...</span>
+            </div>,
+            { duration: 3000, id: `msg-${message._id}` },
+          );
+        }
+
+        // Mark as read if viewing
+        if (msgReceiverId === currentUserId && isCurrentConversation) {
+          socket.emit("mark_read", { messageId: message._id });
+        }
+      });
 
       socket.on("message_edited", (data) => {
         const { message } = data;
         setMessages((prev) =>
-          prev.map((m) => (m._id === message._id ? { ...m, ...message } : m))
+          prev.map((m) => (m._id === message._id ? { ...m, ...message } : m)),
         );
       });
 
@@ -209,7 +235,9 @@ export const Messages = () => {
       socket.on("reaction_updated", (data) => {
         const { message } = data;
         setMessages((prev) =>
-          prev.map((m) => (m._id === message._id ? { ...m, reactions: message.reactions } : m))
+          prev.map((m) =>
+            m._id === message._id ? { ...m, reactions: message.reactions } : m,
+          ),
         );
       });
 
@@ -247,13 +275,19 @@ export const Messages = () => {
       if (socket) {
         socket.off("connect");
         socket.off("disconnect");
+        socket.off("connect_error");
+        socket.off("reconnect");
         socket.off("new_message");
         socket.off("message_edited");
         socket.off("message_deleted");
         socket.off("reaction_updated");
         socket.off("user_typing");
         socket.off("user_stop_typing");
-        socket.close();
+        socket.off("friend_request_received");
+        socket.off("friend_request_accepted");
+        socket.off("message_sent");
+        socket.off("error");
+        socket.disconnect();
         socket = null;
       }
     };
@@ -318,7 +352,10 @@ export const Messages = () => {
   useEffect(() => {
     fetchMessages(selectedUserId);
     if (socket && selectedUserId) {
-      socket.emit("join_conversation", { userId: currentUserId, friendId: selectedUserId });
+      socket.emit("join_conversation", {
+        userId: currentUserId,
+        friendId: selectedUserId,
+      });
     }
   }, [selectedUserId]);
 
@@ -331,15 +368,21 @@ export const Messages = () => {
   // ===============================
   const handleTyping = useCallback(() => {
     if (!socket || !selectedUserId) return;
-    
-    socket.emit("typing", { senderId: currentUserId, receiverId: selectedUserId });
-    
+
+    socket.emit("typing", {
+      senderId: currentUserId,
+      receiverId: selectedUserId,
+    });
+
     if (typingTimeoutRef.current) {
       clearTimeout(typingTimeoutRef.current);
     }
-    
+
     typingTimeoutRef.current = setTimeout(() => {
-      socket.emit("stop_typing", { senderId: currentUserId, receiverId: selectedUserId });
+      socket.emit("stop_typing", {
+        senderId: currentUserId,
+        receiverId: selectedUserId,
+      });
     }, 2000);
   }, [currentUserId, selectedUserId]);
 
@@ -356,8 +399,10 @@ export const Messages = () => {
       try {
         setMessages((prev) =>
           prev.map((m) =>
-            m._id === editMsg._id ? { ...m, text: messageText, isEditing: true } : m
-          )
+            m._id === editMsg._id
+              ? { ...m, text: messageText, isEditing: true }
+              : m,
+          ),
         );
 
         socket.emit("edit_message", {
@@ -370,13 +415,15 @@ export const Messages = () => {
         const res = await axios.patch(
           `/message/${editMsg._id}`,
           { text: messageText },
-          { headers: { Authorization: `Bearer ${token}` } }
+          { headers: { Authorization: `Bearer ${token}` } },
         );
 
         const updated = res.data?.message ?? res.data ?? null;
         if (updated) {
           setMessages((prev) =>
-            prev.map((m) => (m._id === editMsg._id ? { ...updated, isEditing: false } : m))
+            prev.map((m) =>
+              m._id === editMsg._id ? { ...updated, isEditing: false } : m,
+            ),
           );
         }
       } catch (err) {
@@ -426,20 +473,24 @@ export const Messages = () => {
           text: messageText,
           replyTo: replyTo?._id ?? null,
         },
-        { headers: { Authorization: `Bearer ${token}` } }
+        { headers: { Authorization: `Bearer ${token}` } },
       );
 
       const newMsg = res.data?.message ?? res.data?.data ?? null;
       if (newMsg) {
         setMessages((prev) =>
-          prev.map((m) => (m.tempId === tempId ? { ...newMsg, isPending: false } : m))
+          prev.map((m) =>
+            m.tempId === tempId ? { ...newMsg, isPending: false } : m,
+          ),
         );
       }
     } catch (err) {
       console.error("send error", err);
       toast.error("Message failed to send");
       setMessages((prev) =>
-        prev.map((m) => (m.tempId === tempId ? { ...m, isFailed: true, isPending: false } : m))
+        prev.map((m) =>
+          m.tempId === tempId ? { ...m, isFailed: true, isPending: false } : m,
+        ),
       );
     }
 
@@ -451,31 +502,42 @@ export const Messages = () => {
       setMessages((prev) =>
         prev.map((m) => {
           if (m._id !== msgId) return m;
-          const existingReaction = m.reactions?.find(r => r.userId === currentUserId);
+          const existingReaction = m.reactions?.find(
+            (r) => r.userId === currentUserId,
+          );
           let newReactions;
-          
+
           if (existingReaction) {
             if (existingReaction.emoji === emoji) {
-              newReactions = m.reactions.filter(r => r.userId !== currentUserId);
+              newReactions = m.reactions.filter(
+                (r) => r.userId !== currentUserId,
+              );
             } else {
-              newReactions = m.reactions.map(r => 
-                r.userId === currentUserId ? { ...r, emoji } : r
+              newReactions = m.reactions.map((r) =>
+                r.userId === currentUserId ? { ...r, emoji } : r,
               );
             }
           } else {
-            newReactions = [...(m.reactions || []), { userId: currentUserId, emoji }];
+            newReactions = [
+              ...(m.reactions || []),
+              { userId: currentUserId, emoji },
+            ];
           }
-          
+
           return { ...m, reactions: newReactions };
-        })
+        }),
       );
 
-      socket.emit("add_reaction", { messageId: msgId, userId: currentUserId, emoji });
+      socket.emit("add_reaction", {
+        messageId: msgId,
+        userId: currentUserId,
+        emoji,
+      });
 
       await axios.patch(
         `/message/${msgId}/reaction`,
         { userId: currentUserId, emoji },
-        { headers: { Authorization: `Bearer ${token}` } }
+        { headers: { Authorization: `Bearer ${token}` } },
       );
     } catch (err) {
       console.error("reaction error", err);
@@ -522,13 +584,13 @@ export const Messages = () => {
       await axios.patch(
         `/friends/request/${requestId}`,
         { status: action },
-        { headers: { Authorization: `Bearer ${token}` } }
+        { headers: { Authorization: `Bearer ${token}` } },
       );
-      
+
       if (socket) {
         socket.emit("friend_request_response", { requestId, status: action });
       }
-      
+
       await fetchIncoming();
       await fetchFriends();
       await fetchOutgoing();
@@ -545,13 +607,13 @@ export const Messages = () => {
       await axios.post(
         `/friends/request`,
         { requesterId: currentUserId, recipientId: id },
-        { headers: { Authorization: `Bearer ${token}` } }
+        { headers: { Authorization: `Bearer ${token}` } },
       );
-      
+
       if (socket) {
         socket.emit("send_friend_request", { recipientId: id });
       }
-      
+
       await fetchOutgoing();
       toast.success("Friend request sent");
     } catch (err) {
@@ -580,9 +642,12 @@ export const Messages = () => {
       (async () => {
         setSearchLoading(true);
         try {
-          const res = await axios.get(`/users/search?q=${encodeURIComponent(q)}`, {
-            headers: { Authorization: `Bearer ${token}` },
-          });
+          const res = await axios.get(
+            `/users/search?q=${encodeURIComponent(q)}`,
+            {
+              headers: { Authorization: `Bearer ${token}` },
+            },
+          );
           setSearchResults(res.data?.data ?? res.data ?? []);
         } catch (err) {
           setSearchResults([]);
@@ -610,7 +675,7 @@ export const Messages = () => {
           targetType: reportTarget.type,
           targetId: reportTarget.id,
         },
-        { headers: { Authorization: `Bearer ${token}` } }
+        { headers: { Authorization: `Bearer ${token}` } },
       );
 
       toast.success(`${reportTarget.type} reported successfully`);
@@ -629,11 +694,15 @@ export const Messages = () => {
   // ===============================
   const nameOf = (u) => u?.fullname || u?.name || u?.email || "Unknown";
   const emojis = ["👍", "❤️", "😂", "😮", "😢", "🔥"];
-  
-  const requestedSet = new Set((outgoing || []).map((r) => String(r.recipient?._id ?? r.recipient ?? "")));
+
+  const requestedSet = new Set(
+    (outgoing || []).map((r) => String(r.recipient?._id ?? r.recipient ?? "")),
+  );
   const friendIdsSet = new Set((friends || []).map((f) => String(f._id)));
-  
-  const selectedUser = friends.find((f) => String(f._id) === String(selectedUserId));
+
+  const selectedUser = friends.find(
+    (f) => String(f._id) === String(selectedUserId),
+  );
   const isTyping = selectedUserId && typingUsers.has(selectedUserId);
 
   // ===============================
@@ -683,32 +752,39 @@ export const Messages = () => {
         }}
         transition={{ duration: 0.3, ease: "easeInOut" }}
         className="flex flex-col overflow-hidden"
-        style={{ 
-          background: C.surface, 
-          borderRight: `1px solid ${C.border}` 
+        style={{
+          background: C.surface,
+          borderRight: `1px solid ${C.border}`,
         }}
       >
-        <div style={{ pointerEvents: sidebarOpen ? "auto" : "none" }} className="h-full flex flex-col">
+        <div
+          style={{ pointerEvents: sidebarOpen ? "auto" : "none" }}
+          className="h-full flex flex-col"
+        >
           {/* Header */}
           <div className="p-4 border-b" style={{ borderColor: C.border }}>
-            <h2 
+            <h2
               className="text-xl font-bold mb-4"
               style={{ color: C.text, fontFamily: "Fraunces, serif" }}
             >
               Messages
             </h2>
-            
+
             {/* Tabs */}
-            <div 
+            <div
               className="flex rounded-xl p-1"
-              style={{ background: C.surface2, border: `1px solid ${C.border}` }}
+              style={{
+                background: C.surface2,
+                border: `1px solid ${C.border}`,
+              }}
             >
               <button
                 onClick={() => setActiveSidebarTab("friends")}
                 className="flex-1 py-2 px-3 rounded-lg text-sm font-medium transition-all"
                 style={{
-                  background: activeSidebarTab === "friends" ? C.brand : "transparent",
-                  color: activeSidebarTab === "friends" ? C.bg : C.textMuted
+                  background:
+                    activeSidebarTab === "friends" ? C.brand : "transparent",
+                  color: activeSidebarTab === "friends" ? C.bg : C.textMuted,
                 }}
               >
                 Friends
@@ -717,13 +793,14 @@ export const Messages = () => {
                 onClick={() => setActiveSidebarTab("requests")}
                 className="flex-1 py-2 px-3 rounded-lg text-sm font-medium transition-all flex items-center justify-center gap-2"
                 style={{
-                  background: activeSidebarTab === "requests" ? C.brand : "transparent",
-                  color: activeSidebarTab === "requests" ? C.bg : C.textMuted
+                  background:
+                    activeSidebarTab === "requests" ? C.brand : "transparent",
+                  color: activeSidebarTab === "requests" ? C.bg : C.textMuted,
                 }}
               >
                 Requests
                 {incoming.length > 0 && (
-                  <span 
+                  <span
                     className="px-1.5 py-0.5 rounded-full text-xs"
                     style={{ background: C.error, color: "white" }}
                   >
@@ -738,8 +815,8 @@ export const Messages = () => {
           {activeSidebarTab === "friends" && (
             <div className="p-4 border-b" style={{ borderColor: C.border }}>
               <div className="relative">
-                <Search 
-                  size={16} 
+                <Search
+                  size={16}
                   className="absolute left-3 top-1/2 -translate-y-1/2"
                   style={{ color: C.textDim }}
                 />
@@ -748,15 +825,18 @@ export const Messages = () => {
                   onChange={(e) => setSearchQuery(e.target.value)}
                   placeholder="Search users..."
                   className="w-full pl-10 pr-10 py-2.5 rounded-xl text-sm outline-none transition-all"
-                  style={{ 
-                    background: C.surface2, 
+                  style={{
+                    background: C.surface2,
                     border: `1px solid ${C.border}`,
-                    color: C.text
+                    color: C.text,
                   }}
                 />
                 {searchQuery && (
                   <button
-                    onClick={() => { setSearchQuery(""); setSearchResults([]); }}
+                    onClick={() => {
+                      setSearchQuery("");
+                      setSearchResults([]);
+                    }}
                     className="absolute right-3 top-1/2 -translate-y-1/2"
                     style={{ color: C.textDim }}
                   >
@@ -768,8 +848,8 @@ export const Messages = () => {
               {/* Search Results */}
               <AnimatePresence>
                 {searchLoading ? (
-                  <motion.div 
-                    initial={{ opacity: 0 }} 
+                  <motion.div
+                    initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     className="mt-3 text-sm"
                     style={{ color: C.textMuted }}
@@ -793,30 +873,57 @@ export const Messages = () => {
                         <div
                           key={id}
                           className="flex items-center justify-between p-3 rounded-xl"
-                          style={{ background: C.surface2, border: `1px solid ${C.border}` }}
+                          style={{
+                            background: C.surface2,
+                            border: `1px solid ${C.border}`,
+                          }}
                         >
                           <div className="flex items-center gap-3">
                             <img
-                              src={u.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(nameOf(u))}&background=16A880&color=fff`}
+                              src={
+                                u.avatar ||
+                                `https://ui-avatars.com/api/?name=${encodeURIComponent(nameOf(u))}&background=16A880&color=fff`
+                              }
                               className="w-10 h-10 rounded-full"
                               alt={nameOf(u)}
                             />
                             <div>
-                              <div className="text-sm font-medium" style={{ color: C.text }}>
+                              <div
+                                className="text-sm font-medium"
+                                style={{ color: C.text }}
+                              >
                                 {nameOf(u)}
                               </div>
-                              <div className="text-xs" style={{ color: C.textDim }}>
+                              <div
+                                className="text-xs"
+                                style={{ color: C.textDim }}
+                              >
                                 {u.email}
                               </div>
                             </div>
                           </div>
                           <div>
                             {isSelf ? (
-                              <span className="text-xs" style={{ color: C.textDim }}>You</span>
+                              <span
+                                className="text-xs"
+                                style={{ color: C.textDim }}
+                              >
+                                You
+                              </span>
                             ) : alreadyFriend ? (
-                              <span className="text-xs" style={{ color: C.brand }}>Friend</span>
+                              <span
+                                className="text-xs"
+                                style={{ color: C.brand }}
+                              >
+                                Friend
+                              </span>
                             ) : alreadyRequested ? (
-                              <span className="text-xs" style={{ color: C.accent }}>Pending</span>
+                              <span
+                                className="text-xs"
+                                style={{ color: C.accent }}
+                              >
+                                Pending
+                              </span>
                             ) : (
                               <motion.button
                                 whileHover={{ scale: 1.05 }}
@@ -843,8 +950,11 @@ export const Messages = () => {
           <div className="flex-1 overflow-y-auto p-3">
             {activeSidebarTab === "friends" ? (
               friends.length === 0 ? (
-                <div className="text-center mt-10" style={{ color: C.textMuted }}>
-                  <div 
+                <div
+                  className="text-center mt-10"
+                  style={{ color: C.textMuted }}
+                >
+                  <div
                     className="w-16 h-16 mx-auto mb-4 rounded-full flex items-center justify-center"
                     style={{ background: C.surface2 }}
                   >
@@ -866,39 +976,61 @@ export const Messages = () => {
                     onClick={() => setSelectedUserId(f._id)}
                     className="relative flex items-center p-3 mb-2 rounded-xl cursor-pointer transition-all group"
                     style={{
-                      background: String(selectedUserId) === String(f._id) ? C.surface2 : "transparent",
-                      border: `1px solid ${String(selectedUserId) === String(f._id) ? C.borderHov : "transparent"}`
+                      background:
+                        String(selectedUserId) === String(f._id)
+                          ? C.surface2
+                          : "transparent",
+                      border: `1px solid ${String(selectedUserId) === String(f._id) ? C.borderHov : "transparent"}`,
                     }}
                   >
                     <div className="relative">
                       <img
-                        src={f.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(nameOf(f))}&background=16A880&color=fff`}
+                        src={
+                          f.avatar ||
+                          `https://ui-avatars.com/api/?name=${encodeURIComponent(nameOf(f))}&background=16A880&color=fff`
+                        }
                         alt={nameOf(f)}
                         className="w-12 h-12 rounded-full"
-                        style={{ border: `2px solid ${String(selectedUserId) === String(f._id) ? C.brand : "transparent"}` }}
+                        style={{
+                          border: `2px solid ${String(selectedUserId) === String(f._id) ? C.brand : "transparent"}`,
+                        }}
                       />
                       {typingUsers.has(f._id) && (
-                        <span 
+                        <span
                           className="absolute -bottom-1 -right-1 w-4 h-4 rounded-full border-2 flex items-center justify-center"
-                          style={{ background: C.brand, borderColor: C.surface }}
+                          style={{
+                            background: C.brand,
+                            borderColor: C.surface,
+                          }}
                         >
                           <span className="w-1.5 h-1.5 bg-white rounded-full animate-pulse" />
                         </span>
                       )}
                     </div>
                     <div className="ml-3 flex-1 min-w-0">
-                      <div className="font-medium truncate" style={{ color: C.text }}>
+                      <div
+                        className="font-medium truncate"
+                        style={{ color: C.text }}
+                      >
                         {nameOf(f)}
                       </div>
-                      <div className="text-xs truncate" style={{ color: typingUsers.has(f._id) ? C.brand : C.textDim }}>
+                      <div
+                        className="text-xs truncate"
+                        style={{
+                          color: typingUsers.has(f._id) ? C.brand : C.textDim,
+                        }}
+                      >
                         {typingUsers.has(f._id) ? "typing..." : "Tap to chat"}
                       </div>
                     </div>
-                    
+
                     {/* Menu */}
                     <div className="relative opacity-0 group-hover:opacity-100 transition-opacity">
                       <button
-                        onClick={(e) => { e.stopPropagation(); setMenuOpen(menuOpen === f._id ? null : f._id); }}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setMenuOpen(menuOpen === f._id ? null : f._id);
+                        }}
                         className="p-2 rounded-lg transition-colors"
                         style={{ color: C.textDim }}
                       >
@@ -912,7 +1044,10 @@ export const Messages = () => {
                             animate={{ opacity: 1, scale: 1 }}
                             exit={{ opacity: 0, scale: 0.95 }}
                             className="absolute right-0 top-full mt-2 w-40 rounded-xl shadow-xl z-20 overflow-hidden"
-                            style={{ background: C.surface2, border: `1px solid ${C.border}` }}
+                            style={{
+                              background: C.surface2,
+                              border: `1px solid ${C.border}`,
+                            }}
                           >
                             <button
                               onClick={() => {
@@ -936,11 +1071,16 @@ export const Messages = () => {
               <div className="space-y-6">
                 {/* Incoming */}
                 <div>
-                  <h3 className="text-sm font-semibold mb-3 px-1" style={{ color: C.textMuted }}>
+                  <h3
+                    className="text-sm font-semibold mb-3 px-1"
+                    style={{ color: C.textMuted }}
+                  >
                     Incoming Requests
                   </h3>
                   {incoming.length === 0 ? (
-                    <p className="text-sm px-1" style={{ color: C.textDim }}>No pending requests</p>
+                    <p className="text-sm px-1" style={{ color: C.textDim }}>
+                      No pending requests
+                    </p>
                   ) : (
                     incoming.map((r) => (
                       <motion.div
@@ -948,11 +1088,17 @@ export const Messages = () => {
                         initial={{ opacity: 0, y: 10 }}
                         animate={{ opacity: 1, y: 0 }}
                         className="flex items-center justify-between p-3 rounded-xl mb-2"
-                        style={{ background: C.surface2, border: `1px solid ${C.border}` }}
+                        style={{
+                          background: C.surface2,
+                          border: `1px solid ${C.border}`,
+                        }}
                       >
                         <div className="flex items-center gap-3">
                           <img
-                            src={r.requester?.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(nameOf(r.requester))}&background=16A880&color=fff`}
+                            src={
+                              r.requester?.avatar ||
+                              `https://ui-avatars.com/api/?name=${encodeURIComponent(nameOf(r.requester))}&background=16A880&color=fff`
+                            }
                             className="w-10 h-10 rounded-full"
                             alt={nameOf(r.requester)}
                           />
@@ -964,18 +1110,28 @@ export const Messages = () => {
                           <motion.button
                             whileHover={{ scale: 1.1 }}
                             whileTap={{ scale: 0.9 }}
-                            onClick={() => handleIncomingAction(r._id, "accepted")}
+                            onClick={() =>
+                              handleIncomingAction(r._id, "accepted")
+                            }
                             className="p-2 rounded-lg"
-                            style={{ background: `${C.success}20`, color: C.success }}
+                            style={{
+                              background: `${C.success}20`,
+                              color: C.success,
+                            }}
                           >
                             <Check size={16} />
                           </motion.button>
                           <motion.button
                             whileHover={{ scale: 1.1 }}
                             whileTap={{ scale: 0.9 }}
-                            onClick={() => handleIncomingAction(r._id, "rejected")}
+                            onClick={() =>
+                              handleIncomingAction(r._id, "rejected")
+                            }
                             className="p-2 rounded-lg"
-                            style={{ background: `${C.error}20`, color: C.error }}
+                            style={{
+                              background: `${C.error}20`,
+                              color: C.error,
+                            }}
                           >
                             <X size={16} />
                           </motion.button>
@@ -987,20 +1143,31 @@ export const Messages = () => {
 
                 {/* Outgoing */}
                 <div>
-                  <h3 className="text-sm font-semibold mb-3 px-1" style={{ color: C.textMuted }}>
+                  <h3
+                    className="text-sm font-semibold mb-3 px-1"
+                    style={{ color: C.textMuted }}
+                  >
                     Sent Requests
                   </h3>
                   {outgoing.length === 0 ? (
-                    <p className="text-sm px-1" style={{ color: C.textDim }}>No sent requests</p>
+                    <p className="text-sm px-1" style={{ color: C.textDim }}>
+                      No sent requests
+                    </p>
                   ) : (
                     outgoing.map((r) => (
                       <div
                         key={r._id}
                         className="flex items-center gap-3 p-3 rounded-xl mb-2"
-                        style={{ background: C.surface2, border: `1px solid ${C.border}` }}
+                        style={{
+                          background: C.surface2,
+                          border: `1px solid ${C.border}`,
+                        }}
                       >
                         <img
-                          src={r.recipient?.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(nameOf(r.recipient))}&background=16A880&color=fff`}
+                          src={
+                            r.recipient?.avatar ||
+                            `https://ui-avatars.com/api/?name=${encodeURIComponent(nameOf(r.recipient))}&background=16A880&color=fff`
+                          }
                           className="w-10 h-10 rounded-full"
                           alt={nameOf(r.recipient)}
                         />
@@ -1025,7 +1192,7 @@ export const Messages = () => {
       {/* CHAT AREA */}
       <div className="flex-1 flex flex-col" style={{ background: C.bg }}>
         {/* Header */}
-        <div 
+        <div
           className="flex items-center justify-between px-6 py-4 border-b"
           style={{ borderColor: C.border }}
         >
@@ -1039,18 +1206,23 @@ export const Messages = () => {
             >
               <Menu size={20} />
             </motion.button>
-            
+
             {selectedUser ? (
               <div className="flex items-center gap-3">
                 <div className="relative">
                   <img
-                    src={selectedUser.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(nameOf(selectedUser))}&background=16A880&color=fff`}
+                    src={
+                      selectedUser.avatar ||
+                      `https://ui-avatars.com/api/?name=${encodeURIComponent(nameOf(selectedUser))}&background=16A880&color=fff`
+                    }
                     alt={nameOf(selectedUser)}
                     className="w-10 h-10 rounded-full"
-                    style={{ border: `2px solid ${isTyping ? C.brand : "transparent"}` }}
+                    style={{
+                      border: `2px solid ${isTyping ? C.brand : "transparent"}`,
+                    }}
                   />
                   {isTyping && (
-                    <span 
+                    <span
                       className="absolute -bottom-1 -right-1 w-3 h-3 rounded-full border-2"
                       style={{ background: C.brand, borderColor: C.bg }}
                     />
@@ -1060,10 +1232,16 @@ export const Messages = () => {
                   <div className="font-semibold" style={{ color: C.text }}>
                     {nameOf(selectedUser)}
                   </div>
-                  <div className="text-xs flex items-center gap-1" style={{ color: isTyping ? C.brand : C.textDim }}>
+                  <div
+                    className="text-xs flex items-center gap-1"
+                    style={{ color: isTyping ? C.brand : C.textDim }}
+                  >
                     {isTyping ? (
                       <>
-                        <span className="w-1.5 h-1.5 rounded-full animate-pulse" style={{ background: C.brand }} />
+                        <span
+                          className="w-1.5 h-1.5 rounded-full animate-pulse"
+                          style={{ background: C.brand }}
+                        />
                         typing...
                       </>
                     ) : isConnected ? (
@@ -1081,13 +1259,15 @@ export const Messages = () => {
                 </div>
               </div>
             ) : (
-              <span style={{ color: C.textMuted }}>Select a friend to start chatting</span>
+              <span style={{ color: C.textMuted }}>
+                Select a friend to start chatting
+              </span>
             )}
           </div>
-          
+
           {selectedUser && (
             <div className="flex items-center gap-2">
-              <div 
+              <div
                 className="w-2 h-2 rounded-full"
                 style={{ background: isConnected ? C.success : C.error }}
               />
@@ -1099,8 +1279,11 @@ export const Messages = () => {
         <div className="flex-1 overflow-y-auto px-6 py-4 space-y-4">
           {selectedUserId ? (
             messages.length === 0 ? (
-              <div className="h-full flex flex-col items-center justify-center" style={{ color: C.textDim }}>
-                <div 
+              <div
+                className="h-full flex flex-col items-center justify-center"
+                style={{ color: C.textDim }}
+              >
+                <div
                   className="w-20 h-20 rounded-full flex items-center justify-center mb-4"
                   style={{ background: C.surface }}
                 >
@@ -1112,12 +1295,19 @@ export const Messages = () => {
             ) : (
               <>
                 {messages.map((msg, idx) => {
-                  const senderId = typeof msg.senderId === "string" ? msg.senderId : msg.senderId?._id ?? String(msg.senderId);
+                  const senderId =
+                    typeof msg.senderId === "string"
+                      ? msg.senderId
+                      : (msg.senderId?._id ?? String(msg.senderId));
                   const isMine = String(senderId) === String(currentUserId);
                   const time = msg.createdAt
-                    ? new Date(msg.createdAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })
+                    ? new Date(msg.createdAt).toLocaleTimeString([], {
+                        hour: "2-digit",
+                        minute: "2-digit",
+                      })
                     : "";
-                  const showAvatar = idx === 0 || messages[idx - 1]?.senderId !== senderId;
+                  const showAvatar =
+                    idx === 0 || messages[idx - 1]?.senderId !== senderId;
 
                   return (
                     <motion.div
@@ -1126,58 +1316,78 @@ export const Messages = () => {
                       animate={{ opacity: 1, y: 0 }}
                       className={`flex ${isMine ? "justify-end" : "justify-start"}`}
                     >
-                      <div className={`flex items-end gap-2 max-w-[70%] ${isMine ? "flex-row-reverse" : ""}`}>
+                      <div
+                        className={`flex items-end gap-2 max-w-[70%] ${isMine ? "flex-row-reverse" : ""}`}
+                      >
                         {!isMine && showAvatar && (
                           <img
-                            src={selectedUser?.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(nameOf(selectedUser))}&background=16A880&color=fff`}
+                            src={
+                              selectedUser?.avatar ||
+                              `https://ui-avatars.com/api/?name=${encodeURIComponent(nameOf(selectedUser))}&background=16A880&color=fff`
+                            }
                             className="w-8 h-8 rounded-full mb-1"
                             alt=""
                           />
                         )}
-                        
+
                         <div className="relative group">
                           {/* Reply preview */}
                           {msg.replyTo && (
-                            <div 
+                            <div
                               className="text-xs px-3 py-1.5 rounded-t-lg border-l-2"
-                              style={{ 
+                              style={{
                                 background: C.surface2,
                                 borderColor: C.brand,
-                                color: C.textMuted
+                                color: C.textMuted,
                               }}
                             >
-                              <span className="font-medium" style={{ color: C.brand }}>Replying to:</span>{" "}
+                              <span
+                                className="font-medium"
+                                style={{ color: C.brand }}
+                              >
+                                Replying to:
+                              </span>{" "}
                               {msg.replyTo.text?.slice(0, 50)}
                               {msg.replyTo.text?.length > 50 && "..."}
                             </div>
                           )}
-                          
+
                           {/* Message bubble */}
                           <div
-                            onClick={() => setActiveMessage(activeMessage === msg._id ? null : msg._id)}
+                            onClick={() =>
+                              setActiveMessage(
+                                activeMessage === msg._id ? null : msg._id,
+                              )
+                            }
                             className={`px-4 py-2.5 rounded-2xl cursor-pointer transition-all ${
                               msg.replyTo ? "rounded-tl-none" : ""
                             }`}
                             style={{
-                              background: isMine 
-                                ? `linear-gradient(135deg, ${C.brand}, ${C.brandLight})` 
+                              background: isMine
+                                ? `linear-gradient(135deg, ${C.brand}, ${C.brandLight})`
                                 : C.surface2,
                               color: isMine ? C.bg : C.text,
                               border: isMine ? "none" : `1px solid ${C.border}`,
-                              opacity: msg.isPending ? 0.7 : 1
+                              opacity: msg.isPending ? 0.7 : 1,
                             }}
                           >
                             <div className="text-sm">{msg.text}</div>
-                            
+
                             {/* Status indicators */}
                             <div className="flex items-center justify-end gap-1 mt-1">
-                              <span className="text-[10px] opacity-70">{time}</span>
+                              <span className="text-[10px] opacity-70">
+                                {time}
+                              </span>
                               {isMine && (
                                 <>
                                   {msg.isPending ? (
                                     <motion.div
                                       animate={{ rotate: 360 }}
-                                      transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                                      transition={{
+                                        duration: 1,
+                                        repeat: Infinity,
+                                        ease: "linear",
+                                      }}
                                       className="w-3 h-3 border border-current border-t-transparent rounded-full"
                                     />
                                   ) : msg.isFailed ? (
@@ -1192,12 +1402,17 @@ export const Messages = () => {
 
                           {/* Reactions */}
                           {msg.reactions?.length > 0 && (
-                            <div 
+                            <div
                               className="absolute -bottom-3 left-2 flex gap-1 px-2 py-0.5 rounded-full shadow-lg"
-                              style={{ background: C.surface, border: `1px solid ${C.border}` }}
+                              style={{
+                                background: C.surface,
+                                border: `1px solid ${C.border}`,
+                              }}
                             >
                               {msg.reactions.map((r, i) => (
-                                <span key={i} className="text-sm">{r.emoji}</span>
+                                <span key={i} className="text-sm">
+                                  {r.emoji}
+                                </span>
                               ))}
                             </div>
                           )}
@@ -1210,10 +1425,19 @@ export const Messages = () => {
                                 animate={{ opacity: 1, y: 0 }}
                                 exit={{ opacity: 0, y: 10 }}
                                 className={`absolute ${isMine ? "right-0" : "left-0"} bottom-full mb-2 flex gap-1 p-1 rounded-xl shadow-xl`}
-                                style={{ background: C.surface2, border: `1px solid ${C.border}` }}
+                                style={{
+                                  background: C.surface2,
+                                  border: `1px solid ${C.border}`,
+                                }}
                               >
                                 <button
-                                  onClick={() => setShowReactions(showReactions === msg._id ? null : msg._id)}
+                                  onClick={() =>
+                                    setShowReactions(
+                                      showReactions === msg._id
+                                        ? null
+                                        : msg._id,
+                                    )
+                                  }
                                   className="p-2 rounded-lg transition-colors hover:bg-white/10"
                                   style={{ color: C.textMuted }}
                                   title="React"
@@ -1260,7 +1484,10 @@ export const Messages = () => {
                                 animate={{ opacity: 1, scale: 1 }}
                                 exit={{ opacity: 0, scale: 0.8 }}
                                 className="absolute left-1/2 -translate-x-1/2 bottom-full mb-2 flex gap-1 p-2 rounded-xl shadow-xl"
-                                style={{ background: C.surface2, border: `1px solid ${C.border}` }}
+                                style={{
+                                  background: C.surface2,
+                                  border: `1px solid ${C.border}`,
+                                }}
                               >
                                 {emojis.map((e) => (
                                   <button
@@ -1279,7 +1506,7 @@ export const Messages = () => {
                     </motion.div>
                   );
                 })}
-                
+
                 {/* Typing indicator */}
                 <AnimatePresence>
                   {isTyping && (
@@ -1290,13 +1517,19 @@ export const Messages = () => {
                       className="flex items-center gap-2"
                     >
                       <img
-                        src={selectedUser?.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(nameOf(selectedUser))}&background=16A880&color=fff`}
+                        src={
+                          selectedUser?.avatar ||
+                          `https://ui-avatars.com/api/?name=${encodeURIComponent(nameOf(selectedUser))}&background=16A880&color=fff`
+                        }
                         className="w-8 h-8 rounded-full"
                         alt=""
                       />
-                      <div 
+                      <div
                         className="px-4 py-2 rounded-2xl flex items-center gap-1"
-                        style={{ background: C.surface2, border: `1px solid ${C.border}` }}
+                        style={{
+                          background: C.surface2,
+                          border: `1px solid ${C.border}`,
+                        }}
                       >
                         <motion.span
                           animate={{ opacity: [0.4, 1, 0.4] }}
@@ -1306,13 +1539,21 @@ export const Messages = () => {
                         />
                         <motion.span
                           animate={{ opacity: [0.4, 1, 0.4] }}
-                          transition={{ duration: 1.5, repeat: Infinity, delay: 0.2 }}
+                          transition={{
+                            duration: 1.5,
+                            repeat: Infinity,
+                            delay: 0.2,
+                          }}
                           className="w-2 h-2 rounded-full"
                           style={{ background: C.brand }}
                         />
                         <motion.span
                           animate={{ opacity: [0.4, 1, 0.4] }}
-                          transition={{ duration: 1.5, repeat: Infinity, delay: 0.4 }}
+                          transition={{
+                            duration: 1.5,
+                            repeat: Infinity,
+                            delay: 0.4,
+                          }}
                           className="w-2 h-2 rounded-full"
                           style={{ background: C.brand }}
                         />
@@ -1320,22 +1561,30 @@ export const Messages = () => {
                     </motion.div>
                   )}
                 </AnimatePresence>
-                
+
                 <div ref={messagesEndRef} />
               </>
             )
           ) : (
-            <div className="h-full flex flex-col items-center justify-center" style={{ color: C.textDim }}>
-              <div 
+            <div
+              className="h-full flex flex-col items-center justify-center"
+              style={{ color: C.textDim }}
+            >
+              <div
                 className="w-24 h-24 rounded-full flex items-center justify-center mb-6"
-                style={{ background: C.surface, border: `2px dashed ${C.border}` }}
+                style={{
+                  background: C.surface,
+                  border: `2px dashed ${C.border}`,
+                }}
               >
                 <ArrowLeft size={32} style={{ color: C.textDim }} />
               </div>
               <p className="text-lg font-medium" style={{ color: C.textMuted }}>
                 Select a conversation
               </p>
-              <p className="text-sm mt-2">Choose a friend from the sidebar to start messaging</p>
+              <p className="text-sm mt-2">
+                Choose a friend from the sidebar to start messaging
+              </p>
             </div>
           )}
         </div>
@@ -1352,23 +1601,38 @@ export const Messages = () => {
             >
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                  <div 
+                  <div
                     className="w-10 h-10 rounded-lg flex items-center justify-center"
-                    style={{ background: replyTo ? `${C.brand}20` : `${C.accent}20` }}
+                    style={{
+                      background: replyTo ? `${C.brand}20` : `${C.accent}20`,
+                    }}
                   >
-                    {replyTo ? <Reply size={18} style={{ color: C.brand }} /> : <Edit size={18} style={{ color: C.accent }} />}
+                    {replyTo ? (
+                      <Reply size={18} style={{ color: C.brand }} />
+                    ) : (
+                      <Edit size={18} style={{ color: C.accent }} />
+                    )}
                   </div>
                   <div className="text-sm">
-                    <div style={{ color: C.textMuted }} className="text-xs mb-0.5">
+                    <div
+                      style={{ color: C.textMuted }}
+                      className="text-xs mb-0.5"
+                    >
                       {replyTo ? "Replying to" : "Editing message"}
                     </div>
-                    <div style={{ color: C.text }} className="truncate max-w-md">
+                    <div
+                      style={{ color: C.text }}
+                      className="truncate max-w-md"
+                    >
                       {(replyTo || editMsg)?.text}
                     </div>
                   </div>
                 </div>
                 <button
-                  onClick={() => { setReplyTo(null); setEditMsg(null); }}
+                  onClick={() => {
+                    setReplyTo(null);
+                    setEditMsg(null);
+                  }}
                   className="p-2 rounded-lg transition-colors hover:bg-white/10"
                   style={{ color: C.textDim }}
                 >
@@ -1381,23 +1645,25 @@ export const Messages = () => {
 
         {/* Input */}
         {selectedUserId && (
-          <div 
-            className="px-6 py-4 border-t"
-            style={{ borderColor: C.border }}
-          >
+          <div className="px-6 py-4 border-t" style={{ borderColor: C.border }}>
             <div className="flex items-end gap-3">
               <div className="flex-1 relative">
                 <input
                   ref={inputRef}
                   value={newMessage}
-                  onChange={(e) => { setNewMessage(e.target.value); handleTyping(); }}
-                  onKeyDown={(e) => e.key === "Enter" && !e.shiftKey && handleSend()}
+                  onChange={(e) => {
+                    setNewMessage(e.target.value);
+                    handleTyping();
+                  }}
+                  onKeyDown={(e) =>
+                    e.key === "Enter" && !e.shiftKey && handleSend()
+                  }
                   placeholder="Type a message..."
                   className="w-full px-4 py-3 pr-12 rounded-2xl outline-none transition-all"
-                  style={{ 
-                    background: C.surface, 
+                  style={{
+                    background: C.surface,
                     border: `1px solid ${C.border}`,
-                    color: C.text
+                    color: C.text,
                   }}
                 />
                 <button
@@ -1414,9 +1680,9 @@ export const Messages = () => {
                 onClick={handleSend}
                 disabled={!newMessage.trim() || !isConnected}
                 className="p-3 rounded-2xl transition-all disabled:opacity-50"
-                style={{ 
+                style={{
                   background: `linear-gradient(135deg, ${C.brand}, ${C.brandLight})`,
-                  color: C.bg
+                  color: C.bg,
                 }}
               >
                 <Send size={20} />
@@ -1443,7 +1709,10 @@ export const Messages = () => {
               style={{ background: C.surface, border: `1px solid ${C.border}` }}
             >
               <div className="flex items-center justify-between mb-6">
-                <h2 className="text-xl font-bold" style={{ color: C.text, fontFamily: "Fraunces, serif" }}>
+                <h2
+                  className="text-xl font-bold"
+                  style={{ color: C.text, fontFamily: "Fraunces, serif" }}
+                >
                   Report {reportTarget?.type}
                 </h2>
                 <button
@@ -1454,10 +1723,13 @@ export const Messages = () => {
                   <X size={20} />
                 </button>
               </div>
-              
+
               <form onSubmit={handleReportSubmit} className="space-y-4">
                 <div>
-                  <label className="block text-sm font-medium mb-2" style={{ color: C.textMuted }}>
+                  <label
+                    className="block text-sm font-medium mb-2"
+                    style={{ color: C.textMuted }}
+                  >
                     Report Type
                   </label>
                   <select
@@ -1465,7 +1737,11 @@ export const Messages = () => {
                     onChange={(e) => setReportType(e.target.value)}
                     required
                     className="w-full px-4 py-3 rounded-xl outline-none"
-                    style={{ background: C.surface2, border: `1px solid ${C.border}`, color: C.text }}
+                    style={{
+                      background: C.surface2,
+                      border: `1px solid ${C.border}`,
+                      color: C.text,
+                    }}
                   >
                     <option value="">Select an issue</option>
                     <option value="abuse">Abuse</option>
@@ -1476,7 +1752,10 @@ export const Messages = () => {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium mb-2" style={{ color: C.textMuted }}>
+                  <label
+                    className="block text-sm font-medium mb-2"
+                    style={{ color: C.textMuted }}
+                  >
                     Details
                   </label>
                   <textarea
@@ -1485,7 +1764,11 @@ export const Messages = () => {
                     required
                     rows={4}
                     className="w-full px-4 py-3 rounded-xl outline-none resize-none"
-                    style={{ background: C.surface2, border: `1px solid ${C.border}`, color: C.text }}
+                    style={{
+                      background: C.surface2,
+                      border: `1px solid ${C.border}`,
+                      color: C.text,
+                    }}
                     placeholder="Describe the issue..."
                   />
                 </div>
