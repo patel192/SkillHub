@@ -973,7 +973,7 @@ export const Settings = () => {
           transition={{ duration: 0.2 }}
         >
           {activeTab === "account" && renderAccountTab()}
-          {activeTab === "privacy" && renderPrivacySettings()}
+          {activeTab === "privacy" && renderPrivacyTab()}
           {activeTab === "appearance" && renderAppearanceTab()}
           {activeTab === "notifications" && renderNotificationsTab()}
           {activeTab === "integrations" && renderIntegrationsTab()}
