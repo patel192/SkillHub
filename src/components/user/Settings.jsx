@@ -392,35 +392,77 @@ export const Settings = () => {
   };
 
   const changePassword = async () => {
-    if (security.newPassword !== security.confirmPassword) {
-      showToast("Passwords do not match", "error");
-      return;
-    }
-    if (security.newPassword.length < 8) {
-      showToast("Password must be at least 8 characters", "error");
-      return;
+  // Client-side validation
+  if (!security.currentPassword || !security.newPassword || !security.confirmPassword) {
+    showToast("All password fields are required", "error");
+    return;
+  }
+
+  if (security.newPassword !== security.confirmPassword) {
+    showToast("New passwords do not match", "error");
+    return;
+  }
+
+  if (security.newPassword.length < 8) {
+    showToast("Password must be at least 8 characters", "error");
+    return;
+  }
+
+  // Password strength check
+  const hasUpperCase = /[A-Z]/.test(security.newPassword);
+  const hasLowerCase = /[a-z]/.test(security.newPassword);
+  const hasNumbers = /\d/.test(security.newPassword);
+  const hasSpecial = /[!@#$%^&*(),.?":{}|<>]/.test(security.newPassword);
+
+  if (!hasUpperCase || !hasLowerCase || !hasNumbers) {
+    showToast("Password must contain uppercase, lowercase, and numbers", "error");
+    return;
+  }
+
+  try {
+    setSaving(true);
+    const response = await apiClient.post(`/user/${userId}/change-password`, {
+      currentPassword: security.currentPassword,
+      newPassword: security.newPassword
+    });
+
+    showToast(response.data.message || "Password changed successfully");
+    
+    // Clear form
+    setSecurity({
+      currentPassword: "",
+      newPassword: "",
+      confirmPassword: "",
+      showCurrent: false,
+      showNew: false,
+      showConfirm: false
+    });
+
+    // Optional: Log out other devices
+    const logoutOthers = window.confirm("Keep other devices logged in?");
+    if (!logoutOthers) {
+      await apiClient.post(`/user/${userId}/logout-all`);
+      showToast("Logged out from all other devices");
     }
 
-    try {
-      setSaving(true);
-      await apiClient.post(`/user/${userId}/change-password`, {
-        currentPassword: security.currentPassword,
-        newPassword: security.newPassword
-      });
-      showToast("Password changed successfully");
-      setSecurity({
-        currentPassword: "",
-        newPassword: "",
-        confirmPassword: "",
-        showCurrent: false,
-        showNew: false
-      });
-    } catch (err) {
-      showToast(err.response?.data?.message || "Failed to change password", "error");
-    } finally {
-      setSaving(false);
+  } catch (err) {
+    const message = err.response?.data?.message || "Failed to change password";
+    const status = err.response?.status;
+    
+    // Specific error messages
+    if (status === 401) {
+      showToast("Current password is incorrect", "error");
+    } else if (status === 429) {
+      showToast("Too many attempts. Please try again later.", "error");
+    } else if (status === 400 && message.includes("reuse")) {
+      showToast("Cannot reuse a previous password", "error");
+    } else {
+      showToast(message, "error");
     }
-  };
+  } finally {
+    setSaving(false);
+  }
+};
 
   const handleAvatarUpload = async (e) => {
     const file = e.target.files[0];
