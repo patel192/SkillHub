@@ -36,6 +36,7 @@ export const AuthProvider = ({ children }) => {
       value={{
         user,
         token,
+        userId,
         role: user?.role,
         isAuthenticated: !!token,
         loading,
