@@ -270,6 +270,7 @@ export const SignUp = () => {
   const [form, setForm] = useState({
     fullname: "", email: "", password: "",
     role: "user", avatar: "", isActive: "true",
+    
   });
   const [loading,      setLoading]      = useState(false);
   const [showPassword, setShowPassword] = useState(false);
