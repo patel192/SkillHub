@@ -1,25 +1,40 @@
-import { createContext, useContext, useEffect, useState } from "react";
+import { createContext, useRef, useContext, useEffect, useState } from "react";
 const AuthContext = createContext();
+const INACTIVE_TIME = 30 * 60 * 1000;
 export const AuthProvider = ({ children }) => {
+  const timerRef = useRef(null);
   const [user, setuser] = useState(null);
   const [token, settoken] = useState(null);
   const [loading, setloading] = useState(true);
-  const [userId, setuserId] = useState(null)
+  const [userId, setuserId] = useState(null);
 
   useEffect(() => {
     const storedToken = localStorage.getItem("token");
     const storedUser = localStorage.getItem("user");
     const storedUserId = localStorage.getItem("userId");
-    if(storedToken) {
+    if (storedToken) {
       settoken(storedToken);
     }
-    if(storedUser){
+    if (storedUser) {
       setuser(JSON.parse(storedUser));
     }
-    if(storedUserId){
+    if (storedUserId) {
       setuserId(storedUserId);
     }
     setloading(false);
+  }, []);
+  useEffect(() => {
+    const events = ["mousemove", "keydown", "click", "scroll"];
+    events.forEach((event) => {
+      window.addEventListener(event, resetTimer);
+    });
+    resetTimer();
+    return () => {
+      events.forEach((event) => {
+        window.removeEventListener(event, resetTimer);
+        clearTimeout(timerRef.current);
+      });
+    };
   }, []);
   const login = (userData, jwtToken) => {
     localStorage.setItem("token", jwtToken);
@@ -34,6 +49,16 @@ export const AuthProvider = ({ children }) => {
     setuser(null);
     setuserId(null);
     settoken(null);
+    window.location.href = "/login";
+  };
+  const resetTimer = () => {
+    if (timerRef.current) {
+      clearTimeout(timerRef.current);
+    }
+    timerRef.current = setTimeout(() => {
+      console.log("User inactive for 30 minutes,logging out...");
+      logout();
+    }, INACTIVE_TIME);
   };
   return (
     <AuthContext.Provider
