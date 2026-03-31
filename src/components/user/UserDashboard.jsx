@@ -193,9 +193,8 @@ const StatCard = ({ icon: Icon, label, value, subtext, trend, delay = 0 }) => (
 // ==========================================
 
 export const UserDashboard = () => {
-  const { user, token } = useAuth();
+  const { userId, token } = useAuth();
   const navigate = useNavigate();
-  const userId = user?._id;
   const [userName, setUserName] = useState("");
   const [dashboard, setDashboard] = useState(null);
   const [notifications, setNotifications] = useState([]);

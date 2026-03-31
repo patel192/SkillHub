@@ -4,13 +4,16 @@ export const AuthProvider = ({ children }) => {
   const [user, setuser] = useState(null);
   const [token, settoken] = useState(null);
   const [loading, setloading] = useState(true);
+  const [userId, setuserId] = useState(null)
 
   useEffect(() => {
     const storedToken = localStorage.getItem("token");
     const storedUser = localStorage.getItem("user");
+    const storedUserId = localStorage.getItem("userId");
     if (storedToken && storedUser) {
       settoken(storedToken);
       setuser(JSON.parse(storedUser));
+      setuserId(storedUserId);
     }
     setloading(false);
   }, []);
@@ -23,7 +26,9 @@ export const AuthProvider = ({ children }) => {
   const logout = () => {
     localStorage.removeItem("token");
     localStorage.removeItem("user");
+    localStorage.removeItem("userId");
     setuser(null);
+    setuserId(null);
     settoken(null);
   };
   return (
