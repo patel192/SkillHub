@@ -69,10 +69,10 @@ export const AuthProvider = ({ children }) => {
   const login = (userData, jwtToken) => {
     localStorage.setItem("token", jwtToken);
     localStorage.setItem("user", JSON.stringify(userData));
-    localStorage.setItem("userId", userData.id);
+    localStorage.setItem("userId", userData._id);
     setuser(userData);
     settoken(jwtToken);
-    setuserId(userData.id);
+    setuserId(userData._id);
   };
   const logout = () => {
     localStorage.removeItem("token");
