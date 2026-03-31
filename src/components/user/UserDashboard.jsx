@@ -194,6 +194,7 @@ const StatCard = ({ icon: Icon, label, value, subtext, trend, delay = 0 }) => (
 
 export const UserDashboard = () => {
   const { userId, token } = useAuth();
+  console.log("User ID from AuthContext:", userId);
   const navigate = useNavigate();
   const [userName, setUserName] = useState("");
   const [dashboard, setDashboard] = useState(null);
