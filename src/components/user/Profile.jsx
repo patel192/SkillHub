@@ -18,7 +18,7 @@ import {
   CheckCircle2,
   X
 } from "lucide-react";
-
+import { useAuth } from "../../context/AuthContext";
 // ==========================================
 // DESIGN TOKENS (Matching Dashboard Theme)
 // ==========================================
@@ -199,7 +199,7 @@ const FormField = ({ label, name, value, onChange, disabled, type = "text", mult
 // ==========================================
 
 export const Profile = () => {
-  const userId = localStorage.getItem("userId");
+  const {userId} = useAuth();
   
   const [userData, setUserData] = useState(null);
   const [loading, setLoading] = useState(true);

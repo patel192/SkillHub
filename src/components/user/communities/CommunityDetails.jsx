@@ -26,7 +26,7 @@ import {
   Image as ImageIcon,
   Share2,
 } from "lucide-react";
-
+import { useAuth } from "../../../context/AuthContext";
 // ==========================================
 // DESIGN TOKENS
 // ==========================================
@@ -138,7 +138,7 @@ const useCommunity = (communityId) => {
 };
 
 const useMembership = (community, communityId, refreshCommunity) => {
-  const userId = localStorage.getItem("userId");
+  const {userId} = useAuth();
 
   const isMember = useMemo(() => {
     if (!community?.members || !userId) return false;

@@ -3,6 +3,7 @@ import { Crown, Award, Trophy, Medal, Target, Zap, Flame, Star, TrendingUp,Users
 import { motion, AnimatePresence } from "framer-motion";
 import apiClient from "../../../api/axiosConfig";
 import { useMemo } from "react";
+import { useAuth } from "../../../context/AuthContext";
 // ==========================================
 // DESIGN TOKENS (Matching Dashboard Theme)
 // ==========================================
@@ -137,7 +138,7 @@ export const LeaderBoard = () => {
   const [loading, setLoading] = useState(true);
   const [userRank, setUserRank] = useState(null);
 
-  const userId = localStorage.getItem("userId");
+  const {userId} = useAuth();
 
   // Fetch users
   useEffect(() => {

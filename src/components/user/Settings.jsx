@@ -26,7 +26,7 @@ import {
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import apiClient from "../../api/axiosConfig";
-
+import { useAuth } from "../../context/AuthContext";
 // ==========================================
 // DESIGN TOKENS (Matching Dashboard Theme)
 // ==========================================
@@ -186,8 +186,7 @@ const SaveButton = ({ onClick, loading, children, danger = false }) => (
 // ==========================================
 
 export const Settings = () => {
-  const userId = localStorage.getItem("userId");
-  const token = localStorage.getItem("token");
+  const {userId} = useAuth();
   
   const [activeTab, setActiveTab] = useState("account");
   const [loading, setLoading] = useState(true);

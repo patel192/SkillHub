@@ -19,6 +19,7 @@ import {
   WifiOff,
   CheckCheck,
 } from "lucide-react";
+import { useAuth } from "../../../context/AuthContext";
 import toast from "react-hot-toast";
 
 // ==========================================
@@ -46,8 +47,7 @@ const C = {
 let socket = null;
 
 export const Messages = () => {
-  const currentUserId = localStorage.getItem("userId");
-  const token = localStorage.getItem("token");
+  const { token, userId: currentUserId } = useAuth();
 
   // Connection state
   const [isConnected, setIsConnected] = useState(false);

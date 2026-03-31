@@ -2,6 +2,7 @@ import React, { useEffect, useState, useMemo } from "react";
 import { motion, AnimatePresence, LayoutGroup } from "framer-motion";
 import apiClient from "../../../api/axiosConfig";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "../../../context/AuthContext";
 import {
   BookOpen,
   Flame,
@@ -331,7 +332,7 @@ export const MyCourses = () => {
   const [discoverCourses, setDiscoverCourses] = useState([]);
   const [loading, setLoading] = useState(true);
   const [stats, setStats] = useState({ total: 0, completed: 0, inProgress: 0, hours: 0 });
-  const userId = localStorage.getItem("userId");
+  const {userId} = useAuth();
 
   useEffect(() => {
     fetchData();

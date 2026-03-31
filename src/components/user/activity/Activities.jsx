@@ -14,7 +14,7 @@ import {
   MoreHorizontal,
   Trash2,
 } from "lucide-react";
-
+import { useAuth } from "../../../context/AuthContext";
 // ==========================================
 // DESIGN TOKENS (Matching Dashboard Theme)
 // ==========================================
@@ -317,7 +317,7 @@ export const Activities = () => {
   const [activities, setActivities] = useState([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState("ALL");
-  const userId = localStorage.getItem("userId");
+  const {userId} = useAuth();
 
   const fetchActivities = async () => {
     try {

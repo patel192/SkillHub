@@ -4,7 +4,7 @@ import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import { vscDarkPlus } from "react-syntax-highlighter/dist/esm/styles/prism";
 import { motion, AnimatePresence } from "framer-motion";
 import apiClient from "../../../api/axiosConfig";
-
+import { useAuth } from "../../../context/AuthContext";
 import {
   Clock,
   BookOpen,
@@ -19,7 +19,7 @@ import {
   Timer,
   Target,
   Award,
-  ChevronRight
+  ChevronRight,
 } from "lucide-react";
 
 import { AchievementPopup } from "../../../../utils/AchievementPopup";
@@ -47,9 +47,7 @@ const C = {
 export const LearningPage = () => {
   const { courseId } = useParams();
   const navigate = useNavigate();
-  const userId = localStorage.getItem("userId");
-  const token = localStorage.getItem("token");
-
+  const { userId } = useAuth();
   const canvasRef = useRef(null);
   const startTimeRef = useRef(null);
   const intervalRef = useRef(null);
@@ -115,12 +113,16 @@ export const LearningPage = () => {
     startTimeRef.current = Date.now();
 
     intervalRef.current = setInterval(() => {
-      const sessionTime = Math.floor((Date.now() - startTimeRef.current) / 1000);
+      const sessionTime = Math.floor(
+        (Date.now() - startTimeRef.current) / 1000,
+      );
       setLearningTime(getStoredTime() + sessionTime);
     }, 1000);
 
     const beforeUnload = () => {
-      const sessionTime = Math.floor((Date.now() - startTimeRef.current) / 1000);
+      const sessionTime = Math.floor(
+        (Date.now() - startTimeRef.current) / 1000,
+      );
       saveStoredTime(getStoredTime() + sessionTime);
       clearInterval(intervalRef.current);
     };
@@ -164,7 +166,10 @@ export const LearningPage = () => {
 
     while ((match = regex.exec(content))) {
       if (match.index > last) {
-        blocks.push({ type: "text", content: content.slice(last, match.index) });
+        blocks.push({
+          type: "text",
+          content: content.slice(last, match.index),
+        });
       }
       blocks.push({
         type: "code",
@@ -189,9 +194,10 @@ export const LearningPage = () => {
     return `${mins}m ${secs}s`;
   };
 
-  const progress = lessons.length > 0 
-    ? Math.round((completedLessons.length / lessons.length) * 100) 
-    : 0;
+  const progress =
+    lessons.length > 0
+      ? Math.round((completedLessons.length / lessons.length) * 100)
+      : 0;
 
   return (
     <div className="flex h-screen" style={{ background: C.bg, color: C.text }}>
@@ -204,7 +210,10 @@ export const LearningPage = () => {
       />
 
       {/* Achievement Popup */}
-      <AchievementPopup achievement={unlockedAchievement} onClose={handleClosePopup} />
+      <AchievementPopup
+        achievement={unlockedAchievement}
+        onClose={handleClosePopup}
+      />
 
       {/* SIDEBAR */}
       <motion.aside
@@ -212,9 +221,9 @@ export const LearningPage = () => {
         animate={{ x: 0, opacity: 1 }}
         transition={{ duration: 0.4 }}
         className="w-80 flex flex-col overflow-hidden"
-        style={{ 
-          background: C.surface, 
-          borderRight: `1px solid ${C.border}` 
+        style={{
+          background: C.surface,
+          borderRight: `1px solid ${C.border}`,
         }}
       >
         {/* Header */}
@@ -227,7 +236,7 @@ export const LearningPage = () => {
             <ArrowLeft size={16} />
             Back to Course
           </button>
-          <h2 
+          <h2
             className="text-xl font-bold tracking-wide"
             style={{ color: C.text, fontFamily: "Fraunces, serif" }}
           >
@@ -236,36 +245,43 @@ export const LearningPage = () => {
         </div>
 
         {/* Stats */}
-        <div className="p-4 grid grid-cols-2 gap-3 border-b" style={{ borderColor: C.border }}>
-          <div 
+        <div
+          className="p-4 grid grid-cols-2 gap-3 border-b"
+          style={{ borderColor: C.border }}
+        >
+          <div
             className="p-3 rounded-xl flex items-center gap-3"
             style={{ background: C.surface2, border: `1px solid ${C.border}` }}
           >
-            <div 
+            <div
               className="w-10 h-10 rounded-lg flex items-center justify-center"
               style={{ background: `${C.brand}20` }}
             >
               <Timer size={18} style={{ color: C.brand }} />
             </div>
             <div>
-              <div className="text-xs" style={{ color: C.textDim }}>Time</div>
+              <div className="text-xs" style={{ color: C.textDim }}>
+                Time
+              </div>
               <div className="font-semibold text-sm" style={{ color: C.text }}>
                 {formatTime(learningTime)}
               </div>
             </div>
           </div>
-          <div 
+          <div
             className="p-3 rounded-xl flex items-center gap-3"
             style={{ background: C.surface2, border: `1px solid ${C.border}` }}
           >
-            <div 
+            <div
               className="w-10 h-10 rounded-lg flex items-center justify-center"
               style={{ background: `${C.accent}20` }}
             >
               <Trophy size={18} style={{ color: C.accent }} />
             </div>
             <div>
-              <div className="text-xs" style={{ color: C.textDim }}>Points</div>
+              <div className="text-xs" style={{ color: C.textDim }}>
+                Points
+              </div>
               <div className="font-semibold text-sm" style={{ color: C.text }}>
                 {points}
               </div>
@@ -277,15 +293,22 @@ export const LearningPage = () => {
         <div className="px-5 py-4 border-b" style={{ borderColor: C.border }}>
           <div className="flex justify-between text-sm mb-2">
             <span style={{ color: C.textMuted }}>Progress</span>
-            <span style={{ color: C.brand }} className="font-semibold">{progress}%</span>
+            <span style={{ color: C.brand }} className="font-semibold">
+              {progress}%
+            </span>
           </div>
-          <div className="h-2 rounded-full overflow-hidden" style={{ background: C.surface2 }}>
+          <div
+            className="h-2 rounded-full overflow-hidden"
+            style={{ background: C.surface2 }}
+          >
             <motion.div
               initial={{ width: 0 }}
               animate={{ width: `${progress}%` }}
               transition={{ duration: 0.5 }}
               className="h-full rounded-full"
-              style={{ background: `linear-gradient(90deg, ${C.brand}, ${C.brandLight})` }}
+              style={{
+                background: `linear-gradient(90deg, ${C.brand}, ${C.brandLight})`,
+              }}
             />
           </div>
         </div>
@@ -296,23 +319,28 @@ export const LearningPage = () => {
           <button
             onClick={() => setLearningOpen(!learningOpen)}
             className="w-full px-5 py-4 flex justify-between items-center text-left transition-all"
-            style={{ 
+            style={{
               background: learningOpen ? C.surface2 : "transparent",
-              borderBottom: `1px solid ${C.border}`
+              borderBottom: `1px solid ${C.border}`,
             }}
           >
-            <span 
+            <span
               className="font-semibold flex items-center gap-3"
               style={{ color: learningOpen ? C.brand : C.text }}
             >
-              <div 
+              <div
                 className="w-8 h-8 rounded-lg flex items-center justify-center"
-                style={{ background: learningOpen ? `${C.brand}20` : C.surface2 }}
+                style={{
+                  background: learningOpen ? `${C.brand}20` : C.surface2,
+                }}
               >
-                <BookOpen size={16} style={{ color: learningOpen ? C.brand : C.textMuted }} />
+                <BookOpen
+                  size={16}
+                  style={{ color: learningOpen ? C.brand : C.textMuted }}
+                />
               </div>
               Lessons
-              <span 
+              <span
                 className="px-2 py-0.5 rounded-full text-xs"
                 style={{ background: C.surface2, color: C.textMuted }}
               >
@@ -339,7 +367,7 @@ export const LearningPage = () => {
                 {lessons.map((l, idx) => {
                   const isSelected = selectedLesson?._id === l._id;
                   const isCompleted = completedLessons.includes(l._id);
-                  
+
                   return (
                     <motion.button
                       key={l._id}
@@ -348,29 +376,36 @@ export const LearningPage = () => {
                       transition={{ delay: idx * 0.05 }}
                       onClick={() => setSelectedLesson(l)}
                       className="w-full px-5 py-3 text-left text-sm flex items-center gap-3 transition-all group"
-                      style={{ 
+                      style={{
                         background: isSelected ? C.surface2 : "transparent",
-                        borderLeft: `3px solid ${isSelected ? C.brand : "transparent"}`
+                        borderLeft: `3px solid ${isSelected ? C.brand : "transparent"}`,
                       }}
                     >
-                      <div 
+                      <div
                         className="w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0"
-                        style={{ 
-                          background: isCompleted 
-                            ? C.brand 
-                            : isSelected ? `${C.brand}30` : C.surface2,
-                          border: `1px solid ${isCompleted ? C.brand : isSelected ? C.brand : C.border}`
+                        style={{
+                          background: isCompleted
+                            ? C.brand
+                            : isSelected
+                              ? `${C.brand}30`
+                              : C.surface2,
+                          border: `1px solid ${isCompleted ? C.brand : isSelected ? C.brand : C.border}`,
                         }}
                       >
                         {isCompleted ? (
                           <CheckCircle2 size={14} style={{ color: C.bg }} />
                         ) : (
-                          <span style={{ color: isSelected ? C.brand : C.textDim, fontSize: "10px" }}>
+                          <span
+                            style={{
+                              color: isSelected ? C.brand : C.textDim,
+                              fontSize: "10px",
+                            }}
+                          >
                             {idx + 1}
                           </span>
                         )}
                       </div>
-                      <span 
+                      <span
                         className="flex-1 truncate"
                         style={{ color: isSelected ? C.text : C.textMuted }}
                       >
@@ -381,7 +416,11 @@ export const LearningPage = () => {
                           initial={{ scale: 0 }}
                           animate={{ scale: 1 }}
                         >
-                          <Play size={14} style={{ color: C.brand }} fill={C.brand} />
+                          <Play
+                            size={14}
+                            style={{ color: C.brand }}
+                            fill={C.brand}
+                          />
                         </motion.div>
                       )}
                     </motion.button>
@@ -395,23 +434,26 @@ export const LearningPage = () => {
           <button
             onClick={() => setQuizOpen(!quizOpen)}
             className="w-full px-5 py-4 flex justify-between items-center text-left transition-all"
-            style={{ 
+            style={{
               background: quizOpen ? C.surface2 : "transparent",
-              borderBottom: `1px solid ${C.border}`
+              borderBottom: `1px solid ${C.border}`,
             }}
           >
-            <span 
+            <span
               className="font-semibold flex items-center gap-3"
               style={{ color: quizOpen ? C.accent : C.text }}
             >
-              <div 
+              <div
                 className="w-8 h-8 rounded-lg flex items-center justify-center"
                 style={{ background: quizOpen ? `${C.accent}20` : C.surface2 }}
               >
-                <Target size={16} style={{ color: quizOpen ? C.accent : C.textMuted }} />
+                <Target
+                  size={16}
+                  style={{ color: quizOpen ? C.accent : C.textMuted }}
+                />
               </div>
               Quiz
-              <span 
+              <span
                 className="px-2 py-0.5 rounded-full text-xs"
                 style={{ background: C.surface2, color: C.textMuted }}
               >
@@ -438,7 +480,7 @@ export const LearningPage = () => {
                 {quizQuestions.map((q, idx) => {
                   const isCurrent = currentQuestionIdx === idx;
                   const isAnswered = quizAnswers[q._id];
-                  
+
                   return (
                     <motion.button
                       key={q._id}
@@ -447,24 +489,32 @@ export const LearningPage = () => {
                       transition={{ delay: idx * 0.05 }}
                       onClick={() => setCurrentQuestionIdx(idx)}
                       className="w-full px-5 py-3 text-left text-sm flex items-center gap-3 transition-all"
-                      style={{ 
+                      style={{
                         background: isCurrent ? C.surface2 : "transparent",
-                        borderLeft: `3px solid ${isCurrent ? C.accent : "transparent"}`
+                        borderLeft: `3px solid ${isCurrent ? C.accent : "transparent"}`,
                       }}
                     >
-                      <div 
+                      <div
                         className="w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0 text-xs font-medium"
-                        style={{ 
-                          background: isAnswered 
-                            ? isCurrent ? `${C.accent}30` : C.surface3
-                            : isCurrent ? `${C.accent}30` : C.surface2,
+                        style={{
+                          background: isAnswered
+                            ? isCurrent
+                              ? `${C.accent}30`
+                              : C.surface3
+                            : isCurrent
+                              ? `${C.accent}30`
+                              : C.surface2,
                           border: `1px solid ${isAnswered ? C.accent : isCurrent ? C.accent : C.border}`,
-                          color: isCurrent ? C.accent : isAnswered ? C.accent : C.textDim
+                          color: isCurrent
+                            ? C.accent
+                            : isAnswered
+                              ? C.accent
+                              : C.textDim,
                         }}
                       >
                         {isAnswered ? <CheckCircle2 size={12} /> : idx + 1}
                       </div>
-                      <span 
+                      <span
                         className="flex-1 truncate"
                         style={{ color: isCurrent ? C.text : C.textMuted }}
                       >
@@ -495,24 +545,35 @@ export const LearningPage = () => {
               {/* Lesson Header */}
               <div className="mb-8">
                 <div className="flex items-center gap-3 mb-4">
-                  <span 
+                  <span
                     className="px-3 py-1 rounded-full text-xs font-medium"
-                    style={{ background: `${C.brand}20`, color: C.brand, border: `1px solid ${C.border}` }}
+                    style={{
+                      background: `${C.brand}20`,
+                      color: C.brand,
+                      border: `1px solid ${C.border}`,
+                    }}
                   >
-                    Lesson {lessons.findIndex(l => l._id === selectedLesson._id) + 1} of {lessons.length}
+                    Lesson{" "}
+                    {lessons.findIndex((l) => l._id === selectedLesson._id) + 1}{" "}
+                    of {lessons.length}
                   </span>
                   <span style={{ color: C.textDim }}>•</span>
                   <span style={{ color: C.textMuted }} className="text-sm">
                     {selectedLesson.duration || "10 min read"}
                   </span>
                 </div>
-                <h1 
+                <h1
                   className="text-3xl md:text-4xl font-bold mb-4"
                   style={{ color: C.text, fontFamily: "Fraunces, serif" }}
                 >
                   {selectedLesson.title}
                 </h1>
-                <div className="h-px w-full" style={{ background: `linear-gradient(90deg, ${C.brand}, transparent)` }} />
+                <div
+                  className="h-px w-full"
+                  style={{
+                    background: `linear-gradient(90deg, ${C.brand}, transparent)`,
+                  }}
+                />
               </div>
 
               {/* Content */}
@@ -525,7 +586,7 @@ export const LearningPage = () => {
                       animate={{ opacity: 1 }}
                       transition={{ delay: idx * 0.1 }}
                     >
-                      <p 
+                      <p
                         className="text-base leading-relaxed whitespace-pre-line"
                         style={{ color: C.textMuted }}
                       >
@@ -541,11 +602,14 @@ export const LearningPage = () => {
                       className="rounded-2xl overflow-hidden"
                       style={{ border: `1px solid ${C.border}` }}
                     >
-                      <div 
+                      <div
                         className="px-4 py-2 text-xs font-medium flex items-center gap-2"
                         style={{ background: C.surface2, color: C.textMuted }}
                       >
-                        <div className="w-2 h-2 rounded-full" style={{ background: C.brand }} />
+                        <div
+                          className="w-2 h-2 rounded-full"
+                          style={{ background: C.brand }}
+                        />
                         {block.lang}
                       </div>
                       <SyntaxHighlighter
@@ -555,47 +619,60 @@ export const LearningPage = () => {
                           margin: 0,
                           background: C.surface,
                           fontSize: "14px",
-                          lineHeight: "1.6"
+                          lineHeight: "1.6",
                         }}
                       >
                         {block.content}
                       </SyntaxHighlighter>
                     </motion.div>
-                  )
+                  ),
                 )}
               </div>
 
               {/* Navigation */}
-              <div className="mt-12 flex items-center justify-between pt-6" style={{ borderTop: `1px solid ${C.border}` }}>
+              <div
+                className="mt-12 flex items-center justify-between pt-6"
+                style={{ borderTop: `1px solid ${C.border}` }}
+              >
                 <button
                   onClick={() => {
-                    const currentIdx = lessons.findIndex(l => l._id === selectedLesson._id);
-                    if (currentIdx > 0) setSelectedLesson(lessons[currentIdx - 1]);
+                    const currentIdx = lessons.findIndex(
+                      (l) => l._id === selectedLesson._id,
+                    );
+                    if (currentIdx > 0)
+                      setSelectedLesson(lessons[currentIdx - 1]);
                   }}
-                  disabled={lessons.findIndex(l => l._id === selectedLesson._id) === 0}
+                  disabled={
+                    lessons.findIndex((l) => l._id === selectedLesson._id) === 0
+                  }
                   className="flex items-center gap-2 px-5 py-3 rounded-xl transition-all disabled:opacity-30"
-                  style={{ 
-                    background: C.surface, 
+                  style={{
+                    background: C.surface,
                     color: C.textMuted,
-                    border: `1px solid ${C.border}`
+                    border: `1px solid ${C.border}`,
                   }}
                 >
                   <ChevronRight size={18} className="rotate-180" />
                   Previous
                 </button>
-                
+
                 <button
                   onClick={() => {
-                    const currentIdx = lessons.findIndex(l => l._id === selectedLesson._id);
+                    const currentIdx = lessons.findIndex(
+                      (l) => l._id === selectedLesson._id,
+                    );
                     if (currentIdx < lessons.length - 1) {
                       setSelectedLesson(lessons[currentIdx + 1]);
                     }
                   }}
-                  disabled={lessons.findIndex(l => l._id === selectedLesson._id) === lessons.length - 1}
+                  disabled={
+                    lessons.findIndex((l) => l._id === selectedLesson._id) ===
+                    lessons.length - 1
+                  }
                   className="flex items-center gap-2 px-5 py-3 rounded-xl transition-all disabled:opacity-30"
-                  style={{ 
+                  style={{
                     background: `linear-gradient(135deg, ${C.brand}, ${C.brandLight})`,
-                    color: C.bg
+                    color: C.bg,
                   }}
                 >
                   Next Lesson
@@ -615,28 +692,34 @@ export const LearningPage = () => {
               exit={{ opacity: 0, y: -20 }}
               className="max-w-3xl mx-auto mt-8"
             >
-              <div 
+              <div
                 className="rounded-3xl overflow-hidden"
-                style={{ background: C.surface, border: `1px solid ${C.border}` }}
+                style={{
+                  background: C.surface,
+                  border: `1px solid ${C.border}`,
+                }}
               >
                 {/* Quiz Header */}
-                <div 
+                <div
                   className="px-8 py-6 border-b"
-                  style={{ 
+                  style={{
                     borderColor: C.border,
-                    background: `linear-gradient(135deg, ${C.accent}20, transparent)`
+                    background: `linear-gradient(135deg, ${C.accent}20, transparent)`,
                   }}
                 >
                   <div className="flex items-center justify-between mb-4">
                     <div className="flex items-center gap-3">
-                      <div 
+                      <div
                         className="w-12 h-12 rounded-2xl flex items-center justify-center"
                         style={{ background: `${C.accent}30` }}
                       >
                         <Award size={24} style={{ color: C.accent }} />
                       </div>
                       <div>
-                        <h2 className="text-xl font-bold" style={{ color: C.text }}>
+                        <h2
+                          className="text-xl font-bold"
+                          style={{ color: C.text }}
+                        >
                           Question {currentQuestionIdx + 1}
                         </h2>
                         <p style={{ color: C.textMuted }} className="text-sm">
@@ -644,19 +727,24 @@ export const LearningPage = () => {
                         </p>
                       </div>
                     </div>
-                    <div 
+                    <div
                       className="px-4 py-2 rounded-full text-sm font-medium"
                       style={{ background: C.surface2, color: C.accent }}
                     >
                       +{quizQuestions[currentQuestionIdx].points || 1} pts
                     </div>
                   </div>
-                  
+
                   {/* Progress Bar */}
-                  <div className="h-2 rounded-full overflow-hidden" style={{ background: C.surface2 }}>
+                  <div
+                    className="h-2 rounded-full overflow-hidden"
+                    style={{ background: C.surface2 }}
+                  >
                     <motion.div
                       initial={{ width: 0 }}
-                      animate={{ width: `${((currentQuestionIdx + 1) / quizQuestions.length) * 100}%` }}
+                      animate={{
+                        width: `${((currentQuestionIdx + 1) / quizQuestions.length) * 100}%`,
+                      }}
                       className="h-full rounded-full"
                       style={{ background: C.accent }}
                     />
@@ -670,61 +758,80 @@ export const LearningPage = () => {
                   </p>
 
                   <div className="space-y-3">
-                    {quizQuestions[currentQuestionIdx].options.map((opt, idx) => {
-                      const selected =
-                        quizAnswers[quizQuestions[currentQuestionIdx]._id] === opt.text;
+                    {quizQuestions[currentQuestionIdx].options.map(
+                      (opt, idx) => {
+                        const selected =
+                          quizAnswers[quizQuestions[currentQuestionIdx]._id] ===
+                          opt.text;
 
-                      return (
-                        <motion.button
-                          key={opt._id}
-                          initial={{ opacity: 0, x: -20 }}
-                          animate={{ opacity: 1, x: 0 }}
-                          transition={{ delay: idx * 0.05 }}
-                          onClick={() =>
-                            setQuizAnswers((prev) => ({
-                              ...prev,
-                              [quizQuestions[currentQuestionIdx]._id]: opt.text,
-                            }))
-                          }
-                          className="w-full px-6 py-4 rounded-xl text-left transition-all flex items-center gap-4 group"
-                          style={{
-                            background: selected ? `${C.accent}20` : C.surface2,
-                            border: `2px solid ${selected ? C.accent : C.border}`,
-                          }}
-                        >
-                          <div 
-                            className="w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all"
-                            style={{ 
-                              borderColor: selected ? C.accent : C.border,
-                              background: selected ? C.accent : "transparent"
+                        return (
+                          <motion.button
+                            key={opt._id}
+                            initial={{ opacity: 0, x: -20 }}
+                            animate={{ opacity: 1, x: 0 }}
+                            transition={{ delay: idx * 0.05 }}
+                            onClick={() =>
+                              setQuizAnswers((prev) => ({
+                                ...prev,
+                                [quizQuestions[currentQuestionIdx]._id]:
+                                  opt.text,
+                              }))
+                            }
+                            className="w-full px-6 py-4 rounded-xl text-left transition-all flex items-center gap-4 group"
+                            style={{
+                              background: selected
+                                ? `${C.accent}20`
+                                : C.surface2,
+                              border: `2px solid ${selected ? C.accent : C.border}`,
                             }}
                           >
-                            {selected && <CheckCircle2 size={14} style={{ color: C.bg }} />}
-                          </div>
-                          <span style={{ color: selected ? C.text : C.textMuted }}>
-                            {opt.text}
-                          </span>
-                        </motion.button>
-                      );
-                    })}
+                            <div
+                              className="w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all"
+                              style={{
+                                borderColor: selected ? C.accent : C.border,
+                                background: selected ? C.accent : "transparent",
+                              }}
+                            >
+                              {selected && (
+                                <CheckCircle2
+                                  size={14}
+                                  style={{ color: C.bg }}
+                                />
+                              )}
+                            </div>
+                            <span
+                              style={{ color: selected ? C.text : C.textMuted }}
+                            >
+                              {opt.text}
+                            </span>
+                          </motion.button>
+                        );
+                      },
+                    )}
                   </div>
 
                   <motion.button
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
                     onClick={handleSubmitQuiz}
-                    disabled={!quizAnswers[quizQuestions[currentQuestionIdx]._id]}
+                    disabled={
+                      !quizAnswers[quizQuestions[currentQuestionIdx]._id]
+                    }
                     className="mt-8 w-full py-4 rounded-xl font-bold text-lg flex items-center justify-center gap-2 disabled:opacity-50"
                     style={{
                       background: `linear-gradient(135deg, ${C.accent}, #FBBF24)`,
                       color: C.bg,
-                      boxShadow: `0 4px 20px ${C.accent}40`
+                      boxShadow: `0 4px 20px ${C.accent}40`,
                     }}
                   >
                     {currentQuestionIdx === quizQuestions.length - 1 ? (
-                      <>Complete Quiz <Trophy size={20} /></>
+                      <>
+                        Complete Quiz <Trophy size={20} />
+                      </>
                     ) : (
-                      <>Next Question <ChevronRight size={20} /></>
+                      <>
+                        Next Question <ChevronRight size={20} />
+                      </>
                     )}
                   </motion.button>
                 </div>

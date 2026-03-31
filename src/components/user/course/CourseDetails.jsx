@@ -20,9 +20,10 @@ import {
   CheckCircle2,
   ArrowLeft,
   MoreHorizontal,
-  Calendar
+  Calendar,
 } from "lucide-react";
 import { ReportModal } from "../report/ReportModal";
+import { useAuth } from "../../../context/AuthContext";
 // ==========================================
 // DESIGN TOKENS (Matching MyCourses Theme)
 // ==========================================
@@ -57,8 +58,7 @@ export const CourseDetails = () => {
   const [savingBookmark, setSavingBookmark] = useState(false);
   const [isBookmarked, setIsBookmarked] = useState(false);
 
-  const userId = localStorage.getItem("userId");
-  const token = localStorage.getItem("token");
+  const { token, userId } = useAuth();
 
   useEffect(() => {
     let mounted = true;
@@ -79,13 +79,16 @@ export const CourseDetails = () => {
 
         let ov = overviewRes.data.data?.overview || [];
         if (typeof ov === "string") {
-          ov = ov.split("\n").map((s) => s.trim()).filter(Boolean);
+          ov = ov
+            .split("\n")
+            .map((s) => s.trim())
+            .filter(Boolean);
         }
         setOverview(Array.isArray(ov) ? ov : []);
 
         const enrollments = enrollRes.data.data || [];
         const isEnrolled = enrollments.some(
-          (e) => String(e.courseId?._id || e.courseId) === String(courseId)
+          (e) => String(e.courseId?._id || e.courseId) === String(courseId),
         );
         setEnrolled(isEnrolled);
 
@@ -106,10 +109,12 @@ export const CourseDetails = () => {
 
   const handleEnroll = async () => {
     try {
-      await apiClient.post(
-        "/enrollment",
-        { userId, courseId, status: "Registered", progress: 0 }
-      );
+      await apiClient.post("/enrollment", {
+        userId,
+        courseId,
+        status: "Registered",
+        progress: 0,
+      });
       setEnrolled(true);
     } catch (error) {
       console.error("Failed to enroll", error);
@@ -140,7 +145,10 @@ export const CourseDetails = () => {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-screen" style={{ background: C.bg }}>
+      <div
+        className="flex items-center justify-center h-screen"
+        style={{ background: C.bg }}
+      >
         <motion.div
           animate={{ rotate: 360 }}
           transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
@@ -153,7 +161,10 @@ export const CourseDetails = () => {
 
   if (!course) {
     return (
-      <div className="min-h-screen flex items-center justify-center p-6" style={{ background: C.bg }}>
+      <div
+        className="min-h-screen flex items-center justify-center p-6"
+        style={{ background: C.bg }}
+      >
         <div className="text-center max-w-md">
           <div
             className="w-20 h-20 mx-auto mb-4 rounded-full flex items-center justify-center"
@@ -173,7 +184,11 @@ export const CourseDetails = () => {
           <button
             onClick={() => navigate("/user/courses")}
             className="mt-6 px-6 py-3 rounded-xl font-medium flex items-center gap-2 mx-auto"
-            style={{ background: C.surface, color: C.text, border: `1px solid ${C.border}` }}
+            style={{
+              background: C.surface,
+              color: C.text,
+              border: `1px solid ${C.border}`,
+            }}
           >
             <ArrowLeft size={18} />
             Back to Courses
@@ -187,19 +202,19 @@ export const CourseDetails = () => {
     Array.isArray(course.instructors) && course.instructors.length > 0
       ? course.instructors
       : course.instructor
-      ? [
-          {
-            name: course.instructor,
-            title: "Lead Instructor",
-            bio: "Experienced professional and subject matter expert.",
-            avatar:
-              course.instructorAvatar ||
-              `https://ui-avatars.com/api/?name=${encodeURIComponent(
-                course.instructor
-              )}&background=16A880&color=fff`,
-          },
-        ]
-      : [];
+        ? [
+            {
+              name: course.instructor,
+              title: "Lead Instructor",
+              bio: "Experienced professional and subject matter expert.",
+              avatar:
+                course.instructorAvatar ||
+                `https://ui-avatars.com/api/?name=${encodeURIComponent(
+                  course.instructor,
+                )}&background=16A880&color=fff`,
+            },
+          ]
+        : [];
 
   const rating = course.rating || 4.0;
   const reviewsCount = course.reviewsCount || 1200;
@@ -217,7 +232,10 @@ export const CourseDetails = () => {
               <div className="lg:col-span-2 space-y-6">
                 <div
                   className="p-6 rounded-2xl"
-                  style={{ background: C.surface, border: `1px solid ${C.border}` }}
+                  style={{
+                    background: C.surface,
+                    border: `1px solid ${C.border}`,
+                  }}
                 >
                   <h3
                     className="text-lg font-semibold mb-4 flex items-center gap-2"
@@ -239,20 +257,29 @@ export const CourseDetails = () => {
                         >
                           <CheckCircle2
                             size={18}
-                            style={{ color: C.brand, flexShrink: 0, marginTop: 2 }}
+                            style={{
+                              color: C.brand,
+                              flexShrink: 0,
+                              marginTop: 2,
+                            }}
                           />
                           <span style={{ color: C.textMuted }}>{item}</span>
                         </motion.div>
                       ))
                     ) : (
-                      <p style={{ color: C.textDim }}>No learning objectives specified.</p>
+                      <p style={{ color: C.textDim }}>
+                        No learning objectives specified.
+                      </p>
                     )}
                   </div>
                 </div>
 
                 <div
                   className="p-6 rounded-2xl"
-                  style={{ background: C.surface, border: `1px solid ${C.border}` }}
+                  style={{
+                    background: C.surface,
+                    border: `1px solid ${C.border}`,
+                  }}
                 >
                   <h3
                     className="text-lg font-semibold mb-4"
@@ -269,16 +296,31 @@ export const CourseDetails = () => {
               <div className="space-y-4">
                 <div
                   className="p-5 rounded-2xl"
-                  style={{ background: C.surface, border: `1px solid ${C.border}` }}
+                  style={{
+                    background: C.surface,
+                    border: `1px solid ${C.border}`,
+                  }}
                 >
                   <h4 className="font-semibold mb-4" style={{ color: C.text }}>
                     Course Details
                   </h4>
                   <div className="space-y-4">
                     {[
-                      { icon: Clock, label: "Duration", value: course.duration || "Self-paced" },
-                      { icon: Award, label: "Level", value: course.level || "All Levels" },
-                      { icon: BookOpen, label: "Category", value: course.category || "General" },
+                      {
+                        icon: Clock,
+                        label: "Duration",
+                        value: course.duration || "Self-paced",
+                      },
+                      {
+                        icon: Award,
+                        label: "Level",
+                        value: course.level || "All Levels",
+                      },
+                      {
+                        icon: BookOpen,
+                        label: "Category",
+                        value: course.category || "General",
+                      },
                       {
                         icon: Users,
                         label: "Students",
@@ -299,7 +341,9 @@ export const CourseDetails = () => {
                       >
                         <div className="flex items-center gap-3">
                           <detail.icon size={16} style={{ color: C.textDim }} />
-                          <span style={{ color: C.textMuted }}>{detail.label}</span>
+                          <span style={{ color: C.textMuted }}>
+                            {detail.label}
+                          </span>
                         </div>
                         <span style={{ color: C.text }} className="font-medium">
                           {detail.value}
@@ -311,7 +355,10 @@ export const CourseDetails = () => {
 
                 <div
                   className="p-5 rounded-2xl"
-                  style={{ background: C.surface, border: `1px solid ${C.border}` }}
+                  style={{
+                    background: C.surface,
+                    border: `1px solid ${C.border}`,
+                  }}
                 >
                   <div className="flex items-center justify-between mb-3">
                     <span style={{ color: C.textMuted }}>Price</span>
@@ -374,7 +421,10 @@ export const CourseDetails = () => {
                 transition={{ delay: idx * 0.1 }}
                 whileHover={{ y: -4 }}
                 className="p-6 rounded-2xl transition-all"
-                style={{ background: C.surface, border: `1px solid ${C.border}` }}
+                style={{
+                  background: C.surface,
+                  border: `1px solid ${C.border}`,
+                }}
               >
                 <div className="flex items-start gap-4">
                   <img
@@ -384,13 +434,19 @@ export const CourseDetails = () => {
                     style={{ borderColor: C.brand }}
                   />
                   <div className="flex-1">
-                    <h4 className="font-semibold text-lg" style={{ color: C.text }}>
+                    <h4
+                      className="font-semibold text-lg"
+                      style={{ color: C.text }}
+                    >
                       {ins.name}
                     </h4>
                     <p style={{ color: C.brand }} className="text-sm mb-2">
                       {ins.title || "Instructor"}
                     </p>
-                    <p style={{ color: C.textMuted }} className="text-sm leading-relaxed">
+                    <p
+                      style={{ color: C.textMuted }}
+                      className="text-sm leading-relaxed"
+                    >
                       {ins.bio}
                     </p>
                   </div>
@@ -415,7 +471,10 @@ export const CourseDetails = () => {
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ delay: i * 0.05 }}
                   className="p-4 rounded-xl flex items-center gap-4 group cursor-pointer"
-                  style={{ background: C.surface, border: `1px solid ${C.border}` }}
+                  style={{
+                    background: C.surface,
+                    border: `1px solid ${C.border}`,
+                  }}
                   whileHover={{ x: 4, borderColor: C.borderHov }}
                 >
                   <div
@@ -442,9 +501,16 @@ export const CourseDetails = () => {
             ) : (
               <div
                 className="text-center py-12 rounded-2xl"
-                style={{ background: C.surface, border: `1px solid ${C.border}` }}
+                style={{
+                  background: C.surface,
+                  border: `1px solid ${C.border}`,
+                }}
               >
-                <BookOpen size={48} style={{ color: C.textDim }} className="mx-auto mb-4" />
+                <BookOpen
+                  size={48}
+                  style={{ color: C.textDim }}
+                  className="mx-auto mb-4"
+                />
                 <p style={{ color: C.textMuted }}>Syllabus not available</p>
               </div>
             )}
@@ -475,9 +541,12 @@ export const CourseDetails = () => {
                       key={star}
                       size={16}
                       style={{
-                        color: star <= Math.floor(rating) ? C.accent : C.textDim,
+                        color:
+                          star <= Math.floor(rating) ? C.accent : C.textDim,
                       }}
-                      fill={star <= Math.floor(rating) ? C.accent : "transparent"}
+                      fill={
+                        star <= Math.floor(rating) ? C.accent : "transparent"
+                      }
                     />
                   ))}
                 </div>
@@ -508,41 +577,51 @@ export const CourseDetails = () => {
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {["Excellent course structure", "Great practical examples", "Very informative"].map(
-                (review, i) => (
-                  <motion.div
-                    key={i}
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: i * 0.1 }}
-                    className="p-5 rounded-2xl"
-                    style={{ background: C.surface, border: `1px solid ${C.border}` }}
-                  >
-                    <div className="flex items-center gap-3 mb-3">
-                      <div
-                        className="w-10 h-10 rounded-full flex items-center justify-center font-semibold"
-                        style={{ background: C.surface2, color: C.brand }}
-                      >
-                        {String.fromCharCode(65 + i)}
+              {[
+                "Excellent course structure",
+                "Great practical examples",
+                "Very informative",
+              ].map((review, i) => (
+                <motion.div
+                  key={i}
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: i * 0.1 }}
+                  className="p-5 rounded-2xl"
+                  style={{
+                    background: C.surface,
+                    border: `1px solid ${C.border}`,
+                  }}
+                >
+                  <div className="flex items-center gap-3 mb-3">
+                    <div
+                      className="w-10 h-10 rounded-full flex items-center justify-center font-semibold"
+                      style={{ background: C.surface2, color: C.brand }}
+                    >
+                      {String.fromCharCode(65 + i)}
+                    </div>
+                    <div>
+                      <div style={{ color: C.text }} className="font-medium">
+                        Student {i + 1}
                       </div>
-                      <div>
-                        <div style={{ color: C.text }} className="font-medium">
-                          Student {i + 1}
-                        </div>
-                        <div style={{ color: C.textDim }} className="text-xs">
-                          2 days ago
-                        </div>
-                      </div>
-                      <div className="ml-auto flex">
-                        {[...Array(5)].map((_, j) => (
-                          <Star key={j} size={12} style={{ color: C.accent }} fill={C.accent} />
-                        ))}
+                      <div style={{ color: C.textDim }} className="text-xs">
+                        2 days ago
                       </div>
                     </div>
-                    <p style={{ color: C.textMuted }}>{review}</p>
-                  </motion.div>
-                )
-              )}
+                    <div className="ml-auto flex">
+                      {[...Array(5)].map((_, j) => (
+                        <Star
+                          key={j}
+                          size={12}
+                          style={{ color: C.accent }}
+                          fill={C.accent}
+                        />
+                      ))}
+                    </div>
+                  </div>
+                  <p style={{ color: C.textMuted }}>{review}</p>
+                </motion.div>
+              ))}
             </div>
           </motion.div>
         );
@@ -596,14 +675,21 @@ export const CourseDetails = () => {
                 color: isBookmarked ? C.brand : C.textMuted,
               }}
             >
-              <Bookmark size={20} fill={isBookmarked ? C.brand : "transparent"} />
+              <Bookmark
+                size={20}
+                fill={isBookmarked ? C.brand : "transparent"}
+              />
             </motion.button>
             <motion.button
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
               onClick={handleShare}
               className="p-3 rounded-xl"
-              style={{ background: C.surface, border: `1px solid ${C.border}`, color: C.textMuted }}
+              style={{
+                background: C.surface,
+                border: `1px solid ${C.border}`,
+                color: C.textMuted,
+              }}
             >
               <Share2 size={20} />
             </motion.button>
@@ -612,7 +698,11 @@ export const CourseDetails = () => {
               whileTap={{ scale: 0.95 }}
               onClick={() => setShowReportModal(true)}
               className="p-3 rounded-xl"
-              style={{ background: C.surface, border: `1px solid ${C.border}`, color: C.error }}
+              style={{
+                background: C.surface,
+                border: `1px solid ${C.border}`,
+                color: C.error,
+              }}
             >
               <Flag size={20} />
             </motion.button>
@@ -660,7 +750,10 @@ export const CourseDetails = () => {
                   >
                     {course.category || "Course"}
                   </span>
-                  <div className="flex items-center gap-1" style={{ color: C.accent }}>
+                  <div
+                    className="flex items-center gap-1"
+                    style={{ color: C.accent }}
+                  >
                     <Star size={14} fill={C.accent} />
                     <span className="text-sm font-medium">{rating}</span>
                     <span style={{ color: C.textDim }}>({reviewsCount})</span>
@@ -710,12 +803,18 @@ export const CourseDetails = () => {
                     </div>
                   </div>
                   <div className="h-8 w-px" style={{ background: C.border }} />
-                  <div className="flex items-center gap-2" style={{ color: C.textMuted }}>
+                  <div
+                    className="flex items-center gap-2"
+                    style={{ color: C.textMuted }}
+                  >
                     <Users size={18} />
                     <span>{course.students || "1.2k"} students</span>
                   </div>
                   <div className="h-8 w-px" style={{ background: C.border }} />
-                  <div className="flex items-center gap-2" style={{ color: C.textMuted }}>
+                  <div
+                    className="flex items-center gap-2"
+                    style={{ color: C.textMuted }}
+                  >
                     <Clock size={18} />
                     <span>{course.duration || "Self-paced"}</span>
                   </div>
@@ -733,13 +832,19 @@ export const CourseDetails = () => {
                     <div className="text-center mb-2">
                       <span
                         className="text-3xl font-bold"
-                        style={{ color: C.brand, fontFamily: "Fraunces, serif" }}
+                        style={{
+                          color: C.brand,
+                          fontFamily: "Fraunces, serif",
+                        }}
                       >
                         {course.price > 0 ? `₹${course.price}` : "Free"}
                       </span>
                     </div>
                     <motion.button
-                      whileHover={{ scale: 1.02, boxShadow: `0 10px 40px ${C.brand}40` }}
+                      whileHover={{
+                        scale: 1.02,
+                        boxShadow: `0 10px 40px ${C.brand}40`,
+                      }}
                       whileTap={{ scale: 0.98 }}
                       onClick={handleEnroll}
                       className="px-8 py-4 rounded-2xl font-bold text-lg flex items-center gap-2"
@@ -826,7 +931,10 @@ export const CourseDetails = () => {
         </AnimatePresence>
 
         {showReportModal && (
-          <ReportModal courseId={courseId} onClose={() => setShowReportModal(false)} />
+          <ReportModal
+            courseId={courseId}
+            onClose={() => setShowReportModal(false)}
+          />
         )}
       </div>
     </motion.div>

@@ -14,7 +14,7 @@ import {
   MessageCircle,
   Sparkles
 } from "lucide-react";
-
+import { useAuth } from "../../../context/AuthContext";
 // ==========================================
 // DESIGN TOKENS (Matching Dashboard Theme)
 // ==========================================
@@ -210,7 +210,7 @@ export const Community = ({ basePath }) => {
   const [searchQuery, setSearchQuery] = useState("");
   const [loading, setLoading] = useState(true);
   const [activeFilter, setActiveFilter] = useState("all");
-  const token = localStorage.getItem("token");
+  const {token} = useAuth();
   const navigate = useNavigate();
 
   useEffect(() => {

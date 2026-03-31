@@ -16,7 +16,7 @@ import {
   Zap,
   Clock,
 } from "lucide-react";
-
+import { useAuth } from "../../../context/AuthContext";
 // ==========================================
 // DESIGN TOKENS (Matching Dashboard Theme)
 // ==========================================
@@ -365,7 +365,7 @@ export const Notifications = () => {
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState("ALL"); // ALL, UNREAD, READ
   
-  const userId = localStorage.getItem("userId");
+  const {userId} = useAuth();
 
   const fetchNotifications = async () => {
     try {
