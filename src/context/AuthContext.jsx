@@ -10,9 +10,13 @@ export const AuthProvider = ({ children }) => {
     const storedToken = localStorage.getItem("token");
     const storedUser = localStorage.getItem("user");
     const storedUserId = localStorage.getItem("userId");
-    if (storedToken && storedUser) {
+    if(storedToken) {
       settoken(storedToken);
+    }
+    if(storedUser){
       setuser(JSON.parse(storedUser));
+    }
+    if(storedUserId){
       setuserId(storedUserId);
     }
     setloading(false);
