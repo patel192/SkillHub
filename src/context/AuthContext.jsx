@@ -7,7 +7,6 @@ import {
   useEffect,
   useState,
 } from "react";
-import { useNavigate } from "react-router-dom";
 const AuthContext = createContext();
 const INACTIVE_TIME = 30 * 60 * 1000;
 export const AuthProvider = ({ children }) => {
@@ -16,7 +15,7 @@ export const AuthProvider = ({ children }) => {
   const [token, settoken] = useState(null);
   const [loading, setloading] = useState(true);
   const [userId, setuserId] = useState(null);
-  const navigate = useNavigate();
+
   useEffect(() => {
     const storedToken = localStorage.getItem("token");
     const storedUser = localStorage.getItem("user");
@@ -82,7 +81,7 @@ export const AuthProvider = ({ children }) => {
     setuser(null);
     setuserId(null);
     settoken(null);
-    navigate("/login");
+    window.location.href = "/login";
   };
   const resetTimer = useCallback(() => {
     if (timerRef.current) {
