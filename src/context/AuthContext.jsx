@@ -1,4 +1,13 @@
-import { createContext, useRef, useContext, useEffect, useState } from "react";
+import jwtDecode from "jwt-decode";
+import {
+  createContext,
+  useCallback,
+  useRef,
+  useContext,
+  useEffect,
+  useState,
+} from "react";
+import { useNavigate } from "react-router-dom";
 const AuthContext = createContext();
 const INACTIVE_TIME = 30 * 60 * 1000;
 export const AuthProvider = ({ children }) => {
@@ -7,7 +16,7 @@ export const AuthProvider = ({ children }) => {
   const [token, settoken] = useState(null);
   const [loading, setloading] = useState(true);
   const [userId, setuserId] = useState(null);
-
+  const navigate = useNavigate();
   useEffect(() => {
     const storedToken = localStorage.getItem("token");
     const storedUser = localStorage.getItem("user");
@@ -32,15 +41,39 @@ export const AuthProvider = ({ children }) => {
     return () => {
       events.forEach((event) => {
         window.removeEventListener(event, resetTimer);
-        clearTimeout(timerRef.current);
       });
+      clearTimeout(timerRef.current);
     };
   }, []);
+  useEffect(() => {
+    if (!token) return;
+    try {
+      const decoded = jwtDecode(token);
+      const expiryTime = decoded.exp * 1000;
+      const remainingTime = expiryTime - Date.now();
+      if (remainingTime <= 0) {
+        console.log("Token Expired,Logging out...");
+        logout();
+        return;
+      }
+      const timer = setTimeout(() => {
+        console.log("Token Expired");
+        logout();
+      }, remainingTime);
+      return () => clearTimeout(timer);
+    } catch (err) {
+      console.log("Invalid Token");
+      logout();
+    }
+  }, [token]);
+
   const login = (userData, jwtToken) => {
     localStorage.setItem("token", jwtToken);
     localStorage.setItem("user", JSON.stringify(userData));
+    localStorage.setItem("userId", userData.id);
     setuser(userData);
     settoken(jwtToken);
+    setuserId(userData.id);
   };
   const logout = () => {
     localStorage.removeItem("token");
@@ -49,9 +82,9 @@ export const AuthProvider = ({ children }) => {
     setuser(null);
     setuserId(null);
     settoken(null);
-    window.location.href = "/login";
+    navigate("/login");
   };
-  const resetTimer = () => {
+  const resetTimer = useCallback(() => {
     if (timerRef.current) {
       clearTimeout(timerRef.current);
     }
@@ -59,7 +92,7 @@ export const AuthProvider = ({ children }) => {
       console.log("User inactive for 30 minutes,logging out...");
       logout();
     }, INACTIVE_TIME);
-  };
+  }, []);
   return (
     <AuthContext.Provider
       value={{
