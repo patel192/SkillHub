@@ -30,15 +30,6 @@ const C = {
   brandDark: "#0D7A5F",
   brandLight: "#1FC99A",
   accent: "#F59E0B",
-  bg: "#0A0F0D",
-  surface: "#111814",
-  surface2: "#182219",
-  surface3: "#1E2B22",
-  border: "rgba(22,168,128,0.15)",
-  borderHov: "rgba(22,168,128,0.35)",
-  text: "#E8F5F0",
-  textMuted: "#7A9E8E",
-  textDim: "#3D5C4E",
   error: "#F87171",
 };
 
