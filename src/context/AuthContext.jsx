@@ -11,25 +11,25 @@ const AuthContext = createContext();
 const INACTIVE_TIME = 30 * 60 * 1000;
 export const AuthProvider = ({ children }) => {
   const timerRef = useRef(null);
-  const [user, setuser] = useState(null);
-  const [token, settoken] = useState(null);
-  const [loading, setloading] = useState(true);
-  const [userId, setuserId] = useState(null);
+  const [user, setUser] = useState(null);
+  const [token, setToken] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [userId, setUserId] = useState(null);
 
   useEffect(() => {
     const storedToken = localStorage.getItem("token");
     const storedUser = localStorage.getItem("user");
     const storedUserId = localStorage.getItem("userId");
     if (storedToken) {
-      settoken(storedToken);
+      setToken(storedToken);
     }
     if (storedUser) {
-      setuser(JSON.parse(storedUser));
+      setUser(JSON.parse(storedUser));
     }
     if (storedUserId) {
-      setuserId(storedUserId);
+      setUserId(storedUserId);
     }
-    setloading(false);
+    setLoading(false);
   }, []);
   useEffect(() => {
     const events = ["mousemove", "keydown", "click", "scroll"];
@@ -70,17 +70,17 @@ export const AuthProvider = ({ children }) => {
     localStorage.setItem("token", jwtToken);
     localStorage.setItem("user", JSON.stringify(userData));
     localStorage.setItem("userId", userData._id);
-    setuser(userData);
-    settoken(jwtToken);
-    setuserId(userData._id);
+    setUser(userData);
+    setToken(jwtToken);
+    setUserId(userData._id);
   };
   const logout = () => {
     localStorage.removeItem("token");
     localStorage.removeItem("user");
     localStorage.removeItem("userId");
-    setuser(null);
-    setuserId(null);
-    settoken(null);
+    setUser(null);
+    setUserId(null);
+    setToken(null);
     window.location.href = "/login";
   };
   const resetTimer = useCallback(() => {
