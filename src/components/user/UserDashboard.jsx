@@ -81,7 +81,7 @@ const AnimatedCounter = ({ value, suffix = "" }) => {
 const ProgressBar = ({ progress, color = C.brand }) => (
   <div
     className="h-2 w-full rounded-full overflow-hidden"
-    style={{ background: "var(--surface)"3 }}
+    style={{ background: "var(--surface3)" }}
   >
     <motion.div
       initial={{ width: 0 }}
