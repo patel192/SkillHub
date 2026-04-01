@@ -208,7 +208,7 @@ const SidebarContent = ({ isOpen, toggle, currentPath, onLogout, isMobile }) => 
               {/* Icon */}
               <div
                 className="relative z-10 flex-shrink-0 transition-colors duration-150"
-                style={{ color: active ? C.brand : hovered === idx ? "var(--text)"Muted : "var(--text-muted)" }}
+                style={{ color: active ? C.brand : hovered === idx ? "var(--text-muted)" : "var(--text-muted)" }}
               >
                 <Icon size={19} />
                 {/* Active icon glow */}
@@ -229,7 +229,7 @@ const SidebarContent = ({ isOpen, toggle, currentPath, onLogout, isMobile }) => 
                     exit={{ opacity: 0,  width: 0  }}
                     transition={{ duration: 0.16 }}
                     className="relative z-10 text-[13px] font-medium whitespace-nowrap overflow-hidden flex-1 transition-colors duration-150"
-                    style={{ color: active ? "var(--text)" : hovered === idx ? "var(--text)"Muted : "var(--text-muted)" }}
+                    style={{ color: active ? "var(--text)" : hovered === idx ? "var(--text-muted)" : "var(--text-muted)" }}
                   >
                     {item.label}
                   </motion.span>
@@ -258,7 +258,7 @@ const SidebarContent = ({ isOpen, toggle, currentPath, onLogout, isMobile }) => 
                   className="absolute left-full ml-3 px-3 py-2 rounded-xl text-[12px] font-medium whitespace-nowrap z-50 shadow-xl border pointer-events-none
                     opacity-0 group-hover:opacity-100 translate-x-1 group-hover:translate-x-0 transition-all duration-200"
                   style={{
-                    background: "var(--surface)"2,
+                    background: "var(--surface2)",
                     borderColor: "var(--border)",
                     color: "var(--text)",
                   }}
@@ -266,7 +266,7 @@ const SidebarContent = ({ isOpen, toggle, currentPath, onLogout, isMobile }) => 
                   {/* Arrow */}
                   <div
                     className="absolute left-0 top-1/2 -translate-x-1 -translate-y-1/2 w-2 h-2 rotate-45 border-l border-b"
-                    style={{ background: "var(--surface)"2, borderColor: "var(--border)" }}
+                    style={{ background: "var(--surface2)", borderColor: "var(--border)" }}
                   />
                   {item.label}
                   {item.badge && (
@@ -289,7 +289,7 @@ const SidebarContent = ({ isOpen, toggle, currentPath, onLogout, isMobile }) => 
           to="/help"
           className="flex items-center gap-3 px-3 py-2.5 rounded-xl transition-colors group"
           style={{ color: "var(--text-muted)" }}
-          onMouseEnter={(e) => { e.currentTarget.style.background = `${C.brand}0C`; e.currentTarget.style.color = "var(--text)"Muted; }}
+          onMouseEnter={(e) => { e.currentTarget.style.background = `${C.brand}0C`; e.currentTarget.style.color = "var(--text-muted)"; }}
           onMouseLeave={(e) => { e.currentTarget.style.background = "transparent"; e.currentTarget.style.color = "var(--text-muted)"; }}
         >
           <HelpCircle size={18} className="flex-shrink-0" />

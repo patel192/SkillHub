@@ -89,7 +89,7 @@ const InputField = ({
     <motion.div variants={itemVariants} className="space-y-1.5">
       {/* Label row */}
       <div className="flex items-center justify-between">
-        <label className="text-[13px] font-semibold uppercase tracking-wider" style={{ color: "var(--text)"Muted }}>
+        <label className="text-[13px] font-semibold uppercase tracking-wider" style={{ color: "var(--text-muted)" }}>
           {label}
         </label>
         <AnimatePresence>
@@ -119,7 +119,7 @@ const InputField = ({
         }}
         transition={{ duration: 0.2 }}
         className="relative rounded-xl overflow-hidden"
-        style={{ background: "var(--surface)"2 }}
+        style={{ background: "var(--surface2)" }}
       >
         {/* Left icon */}
         <div
@@ -173,7 +173,7 @@ const InputField = ({
               <motion.div
                 key={lvl}
                 className="flex-1 rounded-full"
-                animate={{ background: strength >= lvl ? strengthColor[strength] : "var(--surface)"3 }}
+                animate={{ background: strength >= lvl ? strengthColor[strength] : "var(--surface3)" }}
                 transition={{ duration: 0.3 }}
               />
             ))}
@@ -197,9 +197,9 @@ const SocialButton = ({ icon: Icon, label }) => (
     whileTap={{ scale: 0.97 }}
     type="button"
     className="w-full flex items-center justify-center gap-2.5 py-3 rounded-xl text-[14px] font-medium border transition-all duration-200"
-    style={{ background: "var(--surface)"3, borderColor: "var(--border)", color: "var(--text)"Muted }}
-    onMouseEnter={(e) => { e.currentTarget.style.borderColor = "var(--border)"Hov; e.currentTarget.style.color = "var(--text)"; }}
-    onMouseLeave={(e) => { e.currentTarget.style.borderColor = "var(--border)"; e.currentTarget.style.color = "var(--text)"Muted; }}
+    style={{ background: "var(--surface3)", borderColor: "var(--border)", color: "var(--text-muted)" }}
+    onMouseEnter={(e) => { e.currentTarget.style.borderColor = "var(--border)"; e.currentTarget.style.color = "var(--text)"; }}
+    onMouseLeave={(e) => { e.currentTarget.style.borderColor = "var(--border)"; e.currentTarget.style.color = "var(--text-muted)"; }}
   >
     <Icon size={18} />
     {label}
@@ -225,7 +225,7 @@ const StepIndicator = ({ current }) => (
               animate={{
                 background: idx <= current
                   ? `linear-gradient(135deg, ${C.brand}, ${C.brandLight})`
-                  : "var(--surface)"3,
+                  : "var(--surface3)",
                 scale: idx === current ? 1.12 : 1,
                 boxShadow: idx === current ? `0 0 16px ${C.brand}55` : "none",
               }}
@@ -242,7 +242,7 @@ const StepIndicator = ({ current }) => (
             </span>
           </div>
           {idx < steps.length - 1 && (
-            <div className="flex-1 mx-3 h-[1.5px] rounded-full" style={{ background: idx < current ? C.brand : "var(--surface)"3 }} />
+            <div className="flex-1 mx-3 h-[1.5px] rounded-full" style={{ background: idx < current ? C.brand : "var(--surface3)" }} />
           )}
         </React.Fragment>
       ))}
@@ -406,7 +406,7 @@ export const SignUp = () => {
             animate={{ y: 0, opacity: 1 }}
             transition={{ delay: 0.5 }}
             className="text-[17px] leading-relaxed max-w-md"
-            style={{ color: "var(--text)"Muted }}
+            style={{ color: "var(--text-muted)" }}
           >
             Join 120,000+ developers learning by building real-world projects
             with expert mentorship and AI-powered paths.
@@ -426,7 +426,7 @@ export const SignUp = () => {
                 animate={{ x: 0, opacity: 1 }}
                 transition={{ delay: 0.78 + idx * 0.1 }}
                 className="flex items-center gap-3 text-[15px]"
-                style={{ color: "var(--text)"Muted }}
+                style={{ color: "var(--text-muted)" }}
               >
                 <div
                   className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0"
@@ -446,11 +446,11 @@ export const SignUp = () => {
           animate={{ y: 0, opacity: 1 }}
           transition={{ delay: 1.1 }}
           className="relative z-10 p-5 rounded-2xl border"
-          style={{ background: "var(--surface)"2, borderColor: "var(--border)" }}
+          style={{ background: "var(--surface2)", borderColor: "var(--border)" }}
         >
           {/* Quote mark */}
           <span className="text-3xl font-bold leading-none" style={{ color: `${C.brand}44` }}>"</span>
-          <p className="text-[14px] leading-relaxed -mt-1 mb-4" style={{ color: "var(--text)"Muted }}>
+          <p className="text-[14px] leading-relaxed -mt-1 mb-4" style={{ color: "var(--text-muted)" }}>
             SkillHub transformed my career. I went from bootcamp grad to senior
             engineer in 18 months.
           </p>
@@ -524,7 +524,7 @@ export const SignUp = () => {
               >
                 Create your account
               </h2>
-              <p className="text-[14px]" style={{ color: "var(--text)"Muted }}>
+              <p className="text-[14px]" style={{ color: "var(--text-muted)" }}>
                 Enter your details to get started for free
               </p>
             </motion.div>
@@ -644,7 +644,7 @@ export const SignUp = () => {
             <motion.p
               variants={itemVariants}
               className="mt-5 text-center text-[13px]"
-              style={{ color: "var(--text)"Muted }}
+              style={{ color: "var(--text-muted)" }}
             >
               Already have an account?{" "}
               <Link
@@ -669,9 +669,9 @@ export const SignUp = () => {
               <a
                 href="#"
                 className="transition-colors"
-                style={{ color: "var(--text)"Muted }}
+                style={{ color: "var(--text-muted)" }}
                 onMouseEnter={(e) => (e.target.style.color = "var(--text)")}
-                onMouseLeave={(e) => (e.target.style.color = "var(--text)"Muted)}
+                onMouseLeave={(e) => (e.target.style.color = "var(--text-muted)")}
               >
                 Terms
               </a>{" "}
@@ -679,7 +679,7 @@ export const SignUp = () => {
               <a
                 href="#"
                 className="transition-colors"
-                style={{ color: "var(--text)"Muted }}
+                style={{ color: "var(--text-muted)" }}
                 onMouseEnter={(e) => (e.target.style.color = "var(--text)")}
                 onMouseLeave={(e) => (e.target.style.color = "var(--text)")}
               >

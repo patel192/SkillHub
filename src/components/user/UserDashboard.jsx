@@ -81,7 +81,7 @@ const AnimatedCounter = ({ value, suffix = "" }) => {
 const ProgressBar = ({ progress, color = C.brand }) => (
   <div
     className="h-2 w-full rounded-full overflow-hidden"
-    style={{ background: "var(--surface)"3 }}
+    style={{ background: "var(--surface3)" }}
   >
     <motion.div
       initial={{ width: 0 }}
@@ -175,7 +175,7 @@ const StatCard = ({ icon: Icon, label, value, subtext, trend, delay = 0 }) => (
         >
           <AnimatedCounter value={value} />
         </h3>
-        <p className="text-sm mt-1" style={{ color: "var(--text)"Muted }}>
+        <p className="text-sm mt-1" style={{ color: "var(--text-muted)" }}>
           {label}
         </p>
         {subtext && (
@@ -334,7 +334,7 @@ export const UserDashboard = () => {
               {userName.split(" ")[0]}
             </span>
           </h1>
-          <p style={{ color: "var(--text)"Muted }}>
+          <p style={{ color: "var(--text-muted)" }}>
             Here's your learning progress today
           </p>
         </div>
@@ -346,9 +346,9 @@ export const UserDashboard = () => {
             onClick={() => navigate("/user/mycourses")}
             className="px-4 py-2.5 rounded-xl text-sm font-medium transition-all flex items-center gap-2"
             style={{
-              background: "var(--surface)"2,
+              background: "var(--surface2)",
               border: `1px solid ${"var(--border)"}`,
-              color: "var(--text)"Muted,
+              color: "var(--text-muted)",
             }}
           >
             <BookOpen size={16} />
@@ -468,7 +468,7 @@ export const UserDashboard = () => {
                 <div className="flex items-center justify-between mt-4">
                   <div
                     className="flex items-center gap-2 text-sm"
-                    style={{ color: "var(--text)"Muted }}
+                    style={{ color: "var(--text-muted)" }}
                   >
                     <Clock size={14} />
                     <span>Resume where you left off</span>
@@ -521,7 +521,7 @@ export const UserDashboard = () => {
 
           <div
             className="mt-4 flex items-center gap-2 text-sm"
-            style={{ color: "var(--text)"Muted }}
+            style={{ color: "var(--text-muted)" }}
           >
             <Flame size={16} style={{ color: C.accent }} />
             <span>3 day streak! Keep it up!</span>
@@ -577,7 +577,7 @@ export const UserDashboard = () => {
                       </h3>
                       <p
                         className="text-sm line-clamp-2 mb-2"
-                        style={{ color: "var(--text)"Muted }}
+                        style={{ color: "var(--text-muted)" }}
                       >
                         {course.shortDesc ||
                           "Learn essential skills with hands-on projects"}
@@ -706,7 +706,7 @@ export const UserDashboard = () => {
                   onClick={item.action}
                   className="w-full flex items-center gap-3 p-3 rounded-xl transition-all text-left group"
                   style={{
-                    background: "var(--surface)"2,
+                    background: "var(--surface2)",
                     border: `1px solid ${"var(--border)"}`,
                   }}
                 >
@@ -718,7 +718,7 @@ export const UserDashboard = () => {
                   </div>
                   <span
                     className="text-sm font-medium"
-                    style={{ color: "var(--text)"Muted }}
+                    style={{ color: "var(--text-muted)" }}
                   >
                     {item.label}
                   </span>
@@ -827,7 +827,7 @@ export const UserDashboard = () => {
                   key={idx}
                   className="flex-1 h-8 rounded-lg flex items-center justify-center text-xs font-medium"
                   style={{
-                    background: idx < 3 ? C.brand : "var(--surface)"2,
+                    background: idx < 3 ? C.brand : "var(--surface2)",
                     color: idx < 3 ? "var(--bg)" : "var(--text-muted)",
                     border: `1px solid ${idx < 3 ? C.brand : "var(--border)"}`,
                   }}

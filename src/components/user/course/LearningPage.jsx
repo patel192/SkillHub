@@ -231,7 +231,7 @@ export const LearningPage = () => {
           <button
             onClick={() => navigate(`/user/course/${courseId}`)}
             className="flex items-center gap-2 text-sm mb-4 transition-colors hover:text-white"
-            style={{ color: "var(--text)"Muted }}
+            style={{ color: "var(--text-muted)" }}
           >
             <ArrowLeft size={16} />
             Back to Course
@@ -251,7 +251,7 @@ export const LearningPage = () => {
         >
           <div
             className="p-3 rounded-xl flex items-center gap-3"
-            style={{ background: "var(--surface)"2, border: `1px solid ${"var(--border)"}` }}
+            style={{ background: "var(--surface2)", border: `1px solid ${"var(--border)"}` }}
           >
             <div
               className="w-10 h-10 rounded-lg flex items-center justify-center"
@@ -270,7 +270,7 @@ export const LearningPage = () => {
           </div>
           <div
             className="p-3 rounded-xl flex items-center gap-3"
-            style={{ background: "var(--surface)"2, border: `1px solid ${"var(--border)"}` }}
+            style={{ background: "var(--surface2)", border: `1px solid ${"var(--border)"}` }}
           >
             <div
               className="w-10 h-10 rounded-lg flex items-center justify-center"
@@ -292,14 +292,14 @@ export const LearningPage = () => {
         {/* Progress */}
         <div className="px-5 py-4 border-b" style={{ borderColor: "var(--border)" }}>
           <div className="flex justify-between text-sm mb-2">
-            <span style={{ color: "var(--text)"Muted }}>Progress</span>
+            <span style={{ color: "var(--text-muted)" }}>Progress</span>
             <span style={{ color: C.brand }} className="font-semibold">
               {progress}%
             </span>
           </div>
           <div
             className="h-2 rounded-full overflow-hidden"
-            style={{ background: "var(--surface)"2 }}
+            style={{ background: "var(--surface2)" }}
           >
             <motion.div
               initial={{ width: 0 }}
@@ -320,7 +320,7 @@ export const LearningPage = () => {
             onClick={() => setLearningOpen(!learningOpen)}
             className="w-full px-5 py-4 flex justify-between items-center text-left transition-all"
             style={{
-              background: learningOpen ? "var(--surface)"2 : "transparent",
+              background: learningOpen ? "var(--surface2)" : "transparent",
               borderBottom: `1px solid ${"var(--border)"}`,
             }}
           >
@@ -331,18 +331,18 @@ export const LearningPage = () => {
               <div
                 className="w-8 h-8 rounded-lg flex items-center justify-center"
                 style={{
-                  background: learningOpen ? `${C.brand}20` : "var(--surface)"2,
+                  background: learningOpen ? `${C.brand}20` : "var(--surface2)",
                 }}
               >
                 <BookOpen
                   size={16}
-                  style={{ color: learningOpen ? C.brand : "var(--text)"Muted }}
+                  style={{ color: learningOpen ? C.brand : "var(--text-muted)" }}
                 />
               </div>
               Lessons
               <span
                 className="px-2 py-0.5 rounded-full text-xs"
-                style={{ background: "var(--surface)"2, color: "var(--text)"Muted }}
+                style={{ background: "var(--surface2)", color: "var(--text-muted)" }}
               >
                 {lessons.length}
               </span>
@@ -351,7 +351,7 @@ export const LearningPage = () => {
               animate={{ rotate: learningOpen ? 180 : 0 }}
               transition={{ duration: 0.2 }}
             >
-              <ChevronDown size={18} style={{ color: "var(--text)"Muted }} />
+              <ChevronDown size={18} style={{ color: "var(--text-muted)" }} />
             </motion.div>
           </button>
 
@@ -377,7 +377,7 @@ export const LearningPage = () => {
                       onClick={() => setSelectedLesson(l)}
                       className="w-full px-5 py-3 text-left text-sm flex items-center gap-3 transition-all group"
                       style={{
-                        background: isSelected ? "var(--surface)"2 : "transparent",
+                        background: isSelected ? "var(--surface2)" : "transparent",
                         borderLeft: `3px solid ${isSelected ? C.brand : "transparent"}`,
                       }}
                     >
@@ -388,7 +388,7 @@ export const LearningPage = () => {
                             ? C.brand
                             : isSelected
                               ? `${C.brand}30`
-                              : "var(--surface)"2,
+                              : "var(--surface2)",
                           border: `1px solid ${isCompleted ? C.brand : isSelected ? C.brand : "var(--border)"}`,
                         }}
                       >
@@ -407,7 +407,7 @@ export const LearningPage = () => {
                       </div>
                       <span
                         className="flex-1 truncate"
-                        style={{ color: isSelected ? "var(--text)" : "var(--text)"Muted }}
+                        style={{ color: isSelected ? "var(--text)" : "var(--text-muted)" }}
                       >
                         {l.title}
                       </span>
@@ -435,7 +435,7 @@ export const LearningPage = () => {
             onClick={() => setQuizOpen(!quizOpen)}
             className="w-full px-5 py-4 flex justify-between items-center text-left transition-all"
             style={{
-              background: quizOpen ? "var(--surface)"2 : "transparent",
+              background: quizOpen ? "var(--surface2)" : "transparent",
               borderBottom: `1px solid ${"var(--border)"}`,
             }}
           >
@@ -445,17 +445,17 @@ export const LearningPage = () => {
             >
               <div
                 className="w-8 h-8 rounded-lg flex items-center justify-center"
-                style={{ background: quizOpen ? `${C.accent}20` : "var(--surface)"2 }}
+                style={{ background: quizOpen ? `${C.accent}20` : "var(--surface2)" }}
               >
                 <Target
                   size={16}
-                  style={{ color: quizOpen ? C.accent : "var(--text)"Muted }}
+                  style={{ color: quizOpen ? C.accent : "var(--text-muted)" }}
                 />
               </div>
               Quiz
               <span
                 className="px-2 py-0.5 rounded-full text-xs"
-                style={{ background: "var(--surface)"2, color: "var(--text)"Muted }}
+                style={{ background: "var(--surface2)", color: "var(--text-muted)" }}
               >
                 {quizQuestions.length}
               </span>
@@ -464,7 +464,7 @@ export const LearningPage = () => {
               animate={{ rotate: quizOpen ? 180 : 0 }}
               transition={{ duration: 0.2 }}
             >
-              <ChevronDown size={18} style={{ color: "var(--text)"Muted }} />
+              <ChevronDown size={18} style={{ color: "var(--text-muted)" }} />
             </motion.div>
           </button>
 
@@ -490,7 +490,7 @@ export const LearningPage = () => {
                       onClick={() => setCurrentQuestionIdx(idx)}
                       className="w-full px-5 py-3 text-left text-sm flex items-center gap-3 transition-all"
                       style={{
-                        background: isCurrent ? "var(--surface)"2 : "transparent",
+                        background: isCurrent ? "var(--surface2)" : "transparent",
                         borderLeft: `3px solid ${isCurrent ? C.accent : "transparent"}`,
                       }}
                     >
@@ -500,10 +500,10 @@ export const LearningPage = () => {
                           background: isAnswered
                             ? isCurrent
                               ? `${C.accent}30`
-                              : "var(--surface)"3
+                              : "var(--surface3)"
                             : isCurrent
                               ? `${C.accent}30`
-                              : "var(--surface)"2,
+                              : "var(--surface2)",
                           border: `1px solid ${isAnswered ? C.accent : isCurrent ? C.accent : "var(--border)"}`,
                           color: isCurrent
                             ? C.accent
@@ -516,7 +516,7 @@ export const LearningPage = () => {
                       </div>
                       <span
                         className="flex-1 truncate"
-                        style={{ color: isCurrent ? "var(--text)" : "var(--text)"Muted }}
+                        style={{ color: isCurrent ? "var(--text)" : "var(--text-muted)" }}
                       >
                         Question {idx + 1}
                       </span>
@@ -558,7 +558,7 @@ export const LearningPage = () => {
                     of {lessons.length}
                   </span>
                   <span style={{ color: "var(--text-muted)" }}>•</span>
-                  <span style={{ color: "var(--text)"Muted }} className="text-sm">
+                  <span style={{ color: "var(--text-muted)" }} className="text-sm">
                     {selectedLesson.duration || "10 min read"}
                   </span>
                 </div>
@@ -588,7 +588,7 @@ export const LearningPage = () => {
                     >
                       <p
                         className="text-base leading-relaxed whitespace-pre-line"
-                        style={{ color: "var(--text)"Muted }}
+                        style={{ color: "var(--text-muted)" }}
                       >
                         {block.content}
                       </p>
@@ -604,7 +604,7 @@ export const LearningPage = () => {
                     >
                       <div
                         className="px-4 py-2 text-xs font-medium flex items-center gap-2"
-                        style={{ background: "var(--surface)"2, color: "var(--text)"Muted }}
+                        style={{ background: "var(--surface2)", color: "var(--text-muted)" }}
                       >
                         <div
                           className="w-2 h-2 rounded-full"
@@ -648,7 +648,7 @@ export const LearningPage = () => {
                   className="flex items-center gap-2 px-5 py-3 rounded-xl transition-all disabled:opacity-30"
                   style={{
                     background: "var(--surface)",
-                    color: "var(--text)"Muted,
+                    color: "var(--text-muted)",
                     border: `1px solid ${"var(--border)"}`,
                   }}
                 >
@@ -722,14 +722,14 @@ export const LearningPage = () => {
                         >
                           Question {currentQuestionIdx + 1}
                         </h2>
-                        <p style={{ color: "var(--text)"Muted }} className="text-sm">
+                        <p style={{ color: "var(--text-muted)" }} className="text-sm">
                           of {quizQuestions.length} questions
                         </p>
                       </div>
                     </div>
                     <div
                       className="px-4 py-2 rounded-full text-sm font-medium"
-                      style={{ background: "var(--surface)"2, color: C.accent }}
+                      style={{ background: "var(--surface2)", color: C.accent }}
                     >
                       +{quizQuestions[currentQuestionIdx].points || 1} pts
                     </div>
@@ -738,7 +738,7 @@ export const LearningPage = () => {
                   {/* Progress Bar */}
                   <div
                     className="h-2 rounded-full overflow-hidden"
-                    style={{ background: "var(--surface)"2 }}
+                    style={{ background: "var(--surface2)" }}
                   >
                     <motion.div
                       initial={{ width: 0 }}
@@ -781,7 +781,7 @@ export const LearningPage = () => {
                             style={{
                               background: selected
                                 ? `${C.accent}20`
-                                : "var(--surface)"2,
+                                : "var(--surface2)",
                               border: `2px solid ${selected ? C.accent : "var(--border)"}`,
                             }}
                           >
@@ -800,7 +800,7 @@ export const LearningPage = () => {
                               )}
                             </div>
                             <span
-                              style={{ color: selected ? "var(--text)" : "var(--text)"Muted }}
+                              style={{ color: selected ? "var(--text)" : "var(--text-muted)" }}
                             >
                               {opt.text}
                             </span>

@@ -81,7 +81,7 @@ const RankBadge = ({ rank }) => {
 };
 
 const ProgressBar = ({ progress, color = C.brand, height = "h-2" }) => (
-  <div className={`w-full ${height} rounded-full overflow-hidden`} style={{ background: "var(--surface)"3 }}>
+  <div className={`w-full ${height} rounded-full overflow-hidden`} style={{ background: "var(--surface3)" }}>
     <motion.div
       initial={{ width: 0 }}
       animate={{ width: `${Math.max(5, progress)}%` }}
@@ -99,8 +99,8 @@ const TabButton = ({ active, onClick, icon: Icon, label }) => (
     whileTap={{ scale: 0.98 }}
     className="flex items-center gap-2 px-4 sm:px-6 py-3 rounded-xl text-sm font-medium transition-all whitespace-nowrap"
     style={{
-      background: active ? `linear-gradient(135deg, ${C.brand}, ${C.brandLight})` : "var(--surface)"2,
-      color: active ? "var(--bg)" : "var(--text)"Muted,
+      background: active ? `linear-gradient(135deg, ${C.brand}, ${C.brandLight})` : "var(--surface2)",
+      color: active ? "var(--bg)" : "var(--text-muted)",
       border: `1px solid ${active ? C.brand : "var(--border)"}`,
       boxShadow: active ? `0 4px 20px ${C.brand}40` : "none",
     }}
@@ -123,7 +123,7 @@ const EmptyState = ({ icon: Icon, title, subtitle }) => (
       <Icon size={32} style={{ color: C.brand }} />
     </div>
     <h3 className="text-lg font-semibold mb-1" style={{ color: "var(--text)" }}>{title}</h3>
-    <p style={{ color: "var(--text)"Muted }}>{subtitle}</p>
+    <p style={{ color: "var(--text-muted)" }}>{subtitle}</p>
   </motion.div>
 );
 
@@ -233,7 +233,7 @@ export const LeaderBoard = () => {
                 </span>
               </h1>
             </div>
-            <p className="text-sm sm:text-base max-w-lg" style={{ color: "var(--text)"Muted }}>
+            <p className="text-sm sm:text-base max-w-lg" style={{ color: "var(--text-muted)" }}>
               Compete with fellow learners and track your achievements. 
               {userRank && (
                 <span className="ml-2" style={{ color: C.brand }}>
@@ -250,7 +250,7 @@ export const LeaderBoard = () => {
               style={{ background: "var(--surface)", border: `1px solid ${"var(--border)"}` }}
             >
               <Users size={16} style={{ color: C.brand }} />
-              <span className="text-sm font-medium" style={{ color: "var(--text)"Muted }}>
+              <span className="text-sm font-medium" style={{ color: "var(--text-muted)" }}>
                 <AnimatedCounter value={users.length} /> learners
               </span>
             </div>
@@ -369,8 +369,8 @@ const LeaderboardPanel = ({ users, topScore, userId }) => {
         className="rounded-2xl overflow-hidden"
         style={{ background: "var(--surface)", border: `1px solid ${"var(--border)"}` }}
       >
-        <div className="p-4 border-b" style={{ borderColor: "var(--border)", background: "var(--surface)"2 }}>
-          <div className="flex items-center justify-between text-sm font-medium" style={{ color: "var(--text)"Muted }}>
+        <div className="p-4 border-b" style={{ borderColor: "var(--border)", background: "var(--surface2)" }}>
+          <div className="flex items-center justify-between text-sm font-medium" style={{ color: "var(--text-muted)" }}>
             <span className="flex-1">Rank & Learner</span>
             <span className="w-24 text-right hidden sm:block">Progress</span>
             <span className="w-20 text-right">Points</span>
@@ -519,7 +519,7 @@ const AchievementsPanel = ({ achievements }) => {
                 </h3>
 
                 {/* Description */}
-                <p className="text-xs mb-3 line-clamp-2" style={{ color: "var(--text)"Muted }}>
+                <p className="text-xs mb-3 line-clamp-2" style={{ color: "var(--text-muted)" }}>
                   {ach.description || "Complete challenges to unlock this achievement"}
                 </p>
 
@@ -574,7 +574,7 @@ const AchievementsPanel = ({ achievements }) => {
                 <AnimatedCounter value={stat.value} />
                 {stat.suffix}
               </p>
-              <p className="text-xs" style={{ color: "var(--text)"Muted }}>{stat.label}</p>
+              <p className="text-xs" style={{ color: "var(--text-muted)" }}>{stat.label}</p>
             </div>
           </div>
         ))}

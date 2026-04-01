@@ -85,7 +85,7 @@ const CustomToggle = ({ label, checked, onChange, disabled = false }) => (
     <motion.div 
       className="w-12 h-6 rounded-full relative transition-colors duration-300"
       style={{ 
-        background: checked ? C.brand : "var(--surface)"3,
+        background: checked ? C.brand : "var(--surface3)",
         border: `1px solid ${checked ? C.brand : "var(--border)"}`
       }}
       whileTap={{ scale: 0.95 }}
@@ -102,7 +102,7 @@ const CustomToggle = ({ label, checked, onChange, disabled = false }) => (
 
 const InputField = ({ label, type = "text", value, onChange, placeholder, error, icon: Icon, disabled = false }) => (
   <div className="space-y-1.5">
-    <label className="text-sm font-medium" style={{ color: "var(--text)"Muted }}>{label}</label>
+    <label className="text-sm font-medium" style={{ color: "var(--text-muted)" }}>{label}</label>
     <div className="relative">
       {Icon && (
         <div className="absolute left-3 top-1/2 -translate-y-1/2" style={{ color: "var(--text-muted)" }}>
@@ -117,7 +117,7 @@ const InputField = ({ label, type = "text", value, onChange, placeholder, error,
         disabled={disabled}
         className="w-full p-3 rounded-xl outline-none transition-all disabled:opacity-50"
         style={{
-          background: "var(--surface)"2,
+          background: "var(--surface2)",
           border: `1px solid ${error ? C.error : "var(--border)"}`,
           color: "var(--text)",
           paddingLeft: Icon ? '2.5rem' : '1rem'
@@ -156,7 +156,7 @@ const SectionCard = ({ children, title, description, danger = false }) => (
         {title}
       </h3>
       {description && (
-        <p className="text-sm mt-1" style={{ color: "var(--text)"Muted }}>{description}</p>
+        <p className="text-sm mt-1" style={{ color: "var(--text-muted)" }}>{description}</p>
       )}
     </div>
     {children}
@@ -537,7 +537,7 @@ export const Settings = () => {
               {userData.avatar ? (
                 <img src={userData.avatar} alt="Avatar" className="w-full h-full object-cover" />
               ) : (
-                <div className="w-full h-full flex items-center justify-center" style={{ background: "var(--surface)"2 }}>
+                <div className="w-full h-full flex items-center justify-center" style={{ background: "var(--surface2)" }}>
                   <UserCog size={32} style={{ color: "var(--text-muted)" }} />
                 </div>
               )}
@@ -552,7 +552,7 @@ export const Settings = () => {
           </div>
           <div>
             <p className="font-semibold" style={{ color: "var(--text)" }}>{userData.fullname || 'User'}</p>
-            <p className="text-sm" style={{ color: "var(--text)"Muted }}>Member since {new Date(userData.createdAt).toLocaleDateString()}</p>
+            <p className="text-sm" style={{ color: "var(--text-muted)" }}>Member since {new Date(userData.createdAt).toLocaleDateString()}</p>
           </div>
         </div>
 
@@ -586,7 +586,7 @@ export const Settings = () => {
         </div>
 
         <div className="space-y-1.5">
-          <label className="text-sm font-medium" style={{ color: "var(--text)"Muted }}>Bio</label>
+          <label className="text-sm font-medium" style={{ color: "var(--text-muted)" }}>Bio</label>
           <textarea
             value={userData.bio}
             onChange={(e) => setUserData(prev => ({ ...prev, bio: e.target.value }))}
@@ -594,14 +594,14 @@ export const Settings = () => {
             rows={3}
             className="w-full p-3 rounded-xl outline-none resize-none"
             style={{
-              background: "var(--surface)"2,
+              background: "var(--surface2)",
               border: `1px solid ${"var(--border)"}`,
               color: "var(--text)"
             }}
           />
         </div>
 
-        <div className="flex items-center gap-2 text-sm" style={{ color: "var(--text)"Muted }}>
+        <div className="flex items-center gap-2 text-sm" style={{ color: "var(--text-muted)" }}>
           <div className={`w-2 h-2 rounded-full ${userData.emailVerified ? 'bg-green-500' : 'bg-yellow-500'}`} />
           Email {userData.emailVerified ? 'verified' : 'not verified'}
           {!userData.emailVerified && (
@@ -709,7 +709,7 @@ export const Settings = () => {
       <div className="space-y-6">
         {/* Theme Selector */}
         <div className="space-y-3">
-          <label className="text-sm font-medium" style={{ color: "var(--text)"Muted }}>Theme</label>
+          <label className="text-sm font-medium" style={{ color: "var(--text-muted)" }}>Theme</label>
           <div className="grid grid-cols-3 gap-3">
             {[
               { key: 'light', icon: Sun, label: 'Light' },
@@ -723,7 +723,7 @@ export const Settings = () => {
                 onClick={() => handleThemeChange(key)}
                 className="p-4 rounded-xl flex flex-col items-center gap-2 transition-all"
                 style={{
-                  background: settings.theme === key ? C.brand : "var(--surface)"2,
+                  background: settings.theme === key ? C.brand : "var(--surface2)",
                   border: `1px solid ${settings.theme === key ? C.brand : "var(--border)"}`,
                   color: settings.theme === key ? "var(--bg)" : "var(--text)"
                 }}
@@ -831,7 +831,7 @@ export const Settings = () => {
             whileHover={{ scale: 1.01 }}
             className="flex items-center justify-between p-4 rounded-xl"
             style={{
-              background: "var(--surface)"2,
+              background: "var(--surface2)",
               border: `1px solid ${connected ? `${color}40` : "var(--border)"}`
             }}
           >
@@ -844,7 +844,7 @@ export const Settings = () => {
               </div>
               <div>
                 <p className="font-medium" style={{ color: "var(--text)" }}>{label}</p>
-                <p className="text-xs" style={{ color: "var(--text)"Muted }}>
+                <p className="text-xs" style={{ color: "var(--text-muted)" }}>
                   {connected ? 'Connected' : 'Not connected'}
                 </p>
               </div>
@@ -861,7 +861,7 @@ export const Settings = () => {
               }}
               className="px-4 py-2 rounded-lg text-sm font-medium transition-colors"
               style={{
-                background: connected ? 'transparent' : "var(--surface)"3,
+                background: connected ? 'transparent' : "var(--surface3)",
                 border: `1px solid ${connected ? C.danger : "var(--border)"}`,
                 color: connected ? C.danger : "var(--text)"
               }}
@@ -885,13 +885,13 @@ export const Settings = () => {
             <div 
               key={session.id}
               className="flex items-center justify-between p-3 rounded-lg"
-              style={{ background: "var(--surface)"2 }}
+              style={{ background: "var(--surface2)" }}
             >
               <div className="flex items-center gap-3">
                 <Monitor size={18} style={{ color: "var(--text-muted)" }} />
                 <div>
                   <p className="text-sm" style={{ color: "var(--text)" }}>{session.device}</p>
-                  <p className="text-xs" style={{ color: "var(--text)"Muted }}>
+                  <p className="text-xs" style={{ color: "var(--text-muted)" }}>
                     {session.location} • {new Date(session.lastActive).toLocaleDateString()}
                   </p>
                 </div>
@@ -906,7 +906,7 @@ export const Settings = () => {
             </div>
           ))}
           {sessions.length === 0 && (
-            <p className="text-sm text-center py-4" style={{ color: "var(--text)"Muted }}>
+            <p className="text-sm text-center py-4" style={{ color: "var(--text-muted)" }}>
               No active sessions found
             </p>
           )}
@@ -924,7 +924,7 @@ export const Settings = () => {
               <AlertTriangle size={18} />
               Delete Account
             </h4>
-            <p className="text-sm mt-2" style={{ color: "var(--text)"Muted }}>
+            <p className="text-sm mt-2" style={{ color: "var(--text-muted)" }}>
               Once deleted, all your data including courses, certificates, and progress will be permanently removed. This action cannot be undone.
             </p>
           </div>
@@ -978,7 +978,7 @@ export const Settings = () => {
         <h1 className="text-3xl font-bold" style={{ fontFamily: "'Fraunces', serif" }}>
           Settings
         </h1>
-        <p className="text-sm mt-1" style={{ color: "var(--text)"Muted }}>
+        <p className="text-sm mt-1" style={{ color: "var(--text-muted)" }}>
           Manage your account preferences & customization
         </p>
       </motion.div>
@@ -993,9 +993,9 @@ export const Settings = () => {
             onClick={() => setActiveTab(tab.key)}
             className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium transition-all"
             style={{
-              background: activeTab === tab.key ? "var(--surface)"2 : 'transparent',
+              background: activeTab === tab.key ? "var(--surface2)" : 'transparent',
               border: `1px solid ${activeTab === tab.key ? (tab.danger ? C.danger : C.brand) : "var(--border)"}`,
-              color: activeTab === tab.key ? (tab.danger ? C.danger : C.brand) : "var(--text)"Muted
+              color: activeTab === tab.key ? (tab.danger ? C.danger : C.brand) : "var(--text-muted)"
             }}
           >
             <tab.icon size={16} />

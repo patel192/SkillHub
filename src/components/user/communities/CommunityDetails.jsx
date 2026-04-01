@@ -426,12 +426,12 @@ const CommunityHeader = ({
             >
               {community?.name}
             </h1>
-            <p style={{ color: "var(--text)"Muted }} className="max-w-xl mb-3">
+            <p style={{ color: "var(--text-muted)" }} className="max-w-xl mb-3">
               {community?.description}
             </p>
             <div
               className="flex flex-wrap items-center gap-4 text-sm"
-              style={{ color: "var(--text)"Muted }}
+              style={{ color: "var(--text-muted)" }}
             >
               <div className="flex items-center gap-1.5">
                 <Users size={16} style={{ color: C.brand }} />
@@ -454,7 +454,7 @@ const CommunityHeader = ({
                 onClick={onAdminClick}
                 className="px-4 py-2.5 rounded-xl font-medium text-sm"
                 style={{
-                  background: "var(--surface)"2,
+                  background: "var(--surface2)",
                   border: `1px solid ${"var(--border)"}`,
                   color: "var(--text)",
                 }}
@@ -523,7 +523,7 @@ const PostComposer = ({ onSubmit, isMember }) => {
       >
         <button
           className="p-2 rounded-lg transition-colors hover:bg-white/5"
-          style={{ color: "var(--text)"Muted }}
+          style={{ color: "var(--text-muted)" }}
         >
           <ImageIcon size={18} />
         </button>
@@ -585,7 +585,7 @@ const CommentSection = ({ post, userId, onComment, onReply }) => {
               <div className="flex-1">
                 <div
                   className="rounded-xl p-3"
-                  style={{ background: "var(--surface)"2 }}
+                  style={{ background: "var(--surface2)" }}
                 >
                   <h5
                     className="font-semibold text-sm mb-1"
@@ -632,7 +632,7 @@ const CommentSection = ({ post, userId, onComment, onReply }) => {
                         placeholder="Write a reply..."
                         className="flex-1 px-3 py-2 rounded-lg text-sm outline-none"
                         style={{
-                          background: "var(--surface)"3,
+                          background: "var(--surface3)",
                           border: `1px solid ${"var(--border)"}`,
                           color: "var(--text)",
                         }}
@@ -662,7 +662,7 @@ const CommentSection = ({ post, userId, onComment, onReply }) => {
                         />
                         <div
                           className="flex-1 rounded-xl p-2.5"
-                          style={{ background: "var(--surface)"3 }}
+                          style={{ background: "var(--surface3)" }}
                         >
                           <h6
                             className="font-semibold text-xs mb-0.5"
@@ -670,7 +670,7 @@ const CommentSection = ({ post, userId, onComment, onReply }) => {
                           >
                             {reply.userId?.fullname}
                           </h6>
-                          <p className="text-sm" style={{ color: "var(--text)"Muted }}>
+                          <p className="text-sm" style={{ color: "var(--text-muted)" }}>
                             {reply.content}
                           </p>
                         </div>
@@ -706,7 +706,7 @@ const CommentSection = ({ post, userId, onComment, onReply }) => {
             placeholder="Add a comment..."
             className="flex-1 px-4 py-2.5 rounded-xl text-sm outline-none"
             style={{
-              background: "var(--surface)"2,
+              background: "var(--surface2)",
               border: `1px solid ${"var(--border)"}`,
               color: "var(--text)",
             }}
@@ -792,7 +792,7 @@ const PostCard = ({
             <button
               onClick={() => setShowMenu(!showMenu)}
               className="p-2 rounded-lg transition-colors hover:bg-white/5"
-              style={{ color: "var(--text)"Muted }}
+              style={{ color: "var(--text-muted)" }}
             >
               <MoreHorizontal size={18} />
             </button>
@@ -805,7 +805,7 @@ const PostCard = ({
                   exit={{ opacity: 0, scale: 0.95, y: -10 }}
                   className="absolute right-0 top-full mt-1 w-48 rounded-xl overflow-hidden z-10"
                   style={{
-                    background: "var(--surface)"2,
+                    background: "var(--surface2)",
                     border: `1px solid ${"var(--border)"}`,
                     boxShadow: "0 10px 30px rgba(0,0,0,0.5)",
                   }}
@@ -832,7 +832,7 @@ const PostCard = ({
                   <button
                     onClick={() => setShowMenu(false)}
                     className="w-full flex items-center gap-2 px-4 py-2.5 text-sm hover:bg-white/5 transition-colors text-left"
-                    style={{ color: "var(--text)"Muted }}
+                    style={{ color: "var(--text-muted)" }}
                   >
                     <Flag size={16} />
                     Report
@@ -870,7 +870,7 @@ const PostCard = ({
             whileTap={{ scale: 0.9 }}
             onClick={onLike}
             className="flex items-center gap-2 text-sm font-medium transition-colors"
-            style={{ color: isLiked ? C.error : "var(--text)"Muted }}
+            style={{ color: isLiked ? C.error : "var(--text-muted)" }}
           >
             <Heart
               size={18}
@@ -884,7 +884,7 @@ const PostCard = ({
             whileTap={{ scale: 0.9 }}
             onClick={() => setShowComments(!showComments)}
             className="flex items-center gap-2 text-sm font-medium transition-colors"
-            style={{ color: showComments ? C.brand : "var(--text)"Muted }}
+            style={{ color: showComments ? C.brand : "var(--text-muted)" }}
           >
             <MessageCircle size={18} />
             <span>{commentCount}</span>
@@ -893,7 +893,7 @@ const PostCard = ({
           <motion.button
             whileTap={{ scale: 0.9 }}
             className="flex items-center gap-2 text-sm font-medium ml-auto"
-            style={{ color: "var(--text)"Muted }}
+            style={{ color: "var(--text-muted)" }}
           >
             <Share2 size={18} />
           </motion.button>
@@ -976,7 +976,7 @@ const AdminPanel = ({
             <button
               onClick={onClose}
               className="p-2 rounded-lg hover:bg-white/5 transition-colors"
-              style={{ color: "var(--text)"Muted }}
+              style={{ color: "var(--text-muted)" }}
             >
               <X size={20} />
             </button>
@@ -993,7 +993,7 @@ const AdminPanel = ({
                 onClick={() => setActiveTab(tab.id)}
                 className="flex-1 flex items-center justify-center gap-2 py-3 text-sm font-medium transition-colors"
                 style={{
-                  color: activeTab === tab.id ? C.brand : "var(--text)"Muted,
+                  color: activeTab === tab.id ? C.brand : "var(--text-muted)",
                   borderBottom: `2px solid ${activeTab === tab.id ? C.brand : "transparent"}`,
                   background:
                     activeTab === tab.id ? `${C.brand}10` : "transparent",
@@ -1012,7 +1012,7 @@ const AdminPanel = ({
                 <div>
                   <label
                     className="block text-sm font-medium mb-2"
-                    style={{ color: "var(--text)"Muted }}
+                    style={{ color: "var(--text-muted)" }}
                   >
                     Community Name
                   </label>
@@ -1024,7 +1024,7 @@ const AdminPanel = ({
                     }
                     className="w-full px-4 py-3 rounded-xl outline-none"
                     style={{
-                      background: "var(--surface)"2,
+                      background: "var(--surface2)",
                       border: `1px solid ${"var(--border)"}`,
                       color: "var(--text)",
                     }}
@@ -1033,7 +1033,7 @@ const AdminPanel = ({
                 <div>
                   <label
                     className="block text-sm font-medium mb-2"
-                    style={{ color: "var(--text)"Muted }}
+                    style={{ color: "var(--text-muted)" }}
                   >
                     Cover Image URL
                   </label>
@@ -1045,7 +1045,7 @@ const AdminPanel = ({
                     }
                     className="w-full px-4 py-3 rounded-xl outline-none"
                     style={{
-                      background: "var(--surface)"2,
+                      background: "var(--surface2)",
                       border: `1px solid ${"var(--border)"}`,
                       color: "var(--text)",
                     }}
@@ -1054,7 +1054,7 @@ const AdminPanel = ({
                 <div>
                   <label
                     className="block text-sm font-medium mb-2"
-                    style={{ color: "var(--text)"Muted }}
+                    style={{ color: "var(--text-muted)" }}
                   >
                     Description
                   </label>
@@ -1066,7 +1066,7 @@ const AdminPanel = ({
                     rows={4}
                     className="w-full px-4 py-3 rounded-xl outline-none resize-none"
                     style={{
-                      background: "var(--surface)"2,
+                      background: "var(--surface2)",
                       border: `1px solid ${"var(--border)"}`,
                       color: "var(--text)",
                     }}
@@ -1103,7 +1103,7 @@ const AdminPanel = ({
                       placeholder="Enter User ID to add..."
                       className="w-full pl-10 pr-4 py-2.5 rounded-xl text-sm outline-none"
                       style={{
-                        background: "var(--surface)"2,
+                        background: "var(--surface2)",
                         border: `1px solid ${"var(--border)"}`,
                         color: "var(--text)",
                       }}
@@ -1132,7 +1132,7 @@ const AdminPanel = ({
                         transition={{ delay: idx * 0.05 }}
                         className="flex items-center justify-between p-3 rounded-xl"
                         style={{
-                          background: "var(--surface)"2,
+                          background: "var(--surface2)",
                           border: `1px solid ${"var(--border)"}`,
                         }}
                       >
@@ -1257,7 +1257,7 @@ export const CommunityDetails = () => {
           animate={{ rotate: 360 }}
           transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
         >
-          <Loader2 size={32} style={{ color: "var(--text)"Muted }} />
+          <Loader2 size={32} style={{ color: "var(--text-muted)" }} />
         </motion.div>
       </div>
     );
@@ -1271,7 +1271,7 @@ export const CommunityDetails = () => {
       >
         <div className="text-center">
           <h2 className="text-2xl font-bold mb-2">Community Not Found</h2>
-          <p style={{ color: "var(--text)"Muted }}>
+          <p style={{ color: "var(--text-muted)" }}>
             The community you're looking for doesn't exist or has been removed.
           </p>
         </div>
@@ -1299,12 +1299,12 @@ export const CommunityDetails = () => {
         <div className="space-y-4">
           <h3
             className="text-lg font-semibold flex items-center gap-2"
-            style={{ color: "var(--text)"Muted }}
+            style={{ color: "var(--text-muted)" }}
           >
             <span>Posts</span>
             <span
               className="px-2 py-0.5 rounded-full text-xs"
-              style={{ background: "var(--surface)", color: "var(--text)"Muted }}
+              style={{ background: "var(--surface)", color: "var(--text-muted)" }}
             >
               {posts.length}
             </span>
@@ -1323,7 +1323,7 @@ export const CommunityDetails = () => {
           ) : posts.length === 0 ? (
             <div
               className="text-center py-12 rounded-2xl"
-              style={{ background: "var(--surface)", color: "var(--text)"Muted }}
+              style={{ background: "var(--surface)", color: "var(--text-muted)" }}
             >
               <p>No posts yet. Be the first to share!</p>
             </div>

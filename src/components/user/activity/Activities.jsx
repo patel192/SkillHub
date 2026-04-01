@@ -67,8 +67,8 @@ const ACTIVITY_TYPES = {
   },
   DEFAULT: {
     icon: Clock,
-    color: "var(--text)"Muted,
-    bg: "var(--surface)"2,
+    color: "var(--text-muted)",
+    bg: "var(--surface2)",
     label: "Activity",
   },
 };
@@ -139,7 +139,7 @@ const EmptyState = ({ onRefresh }) => (
     >
       No Activity Yet
     </h3>
-    <p className="text-center max-w-sm mb-6 text-sm" style={{ color: "var(--text)"Muted }}>
+    <p className="text-center max-w-sm mb-6 text-sm" style={{ color: "var(--text-muted)" }}>
       Your learning journey is just beginning. Enroll in courses and start tracking your progress!
     </p>
     <motion.button
@@ -299,7 +299,7 @@ const StatsBar = ({ activities }) => {
             >
               <AnimatedCounter value={stat.value} />
             </p>
-            <p className="text-xs truncate" style={{ color: "var(--text)"Muted }}>
+            <p className="text-xs truncate" style={{ color: "var(--text-muted)" }}>
               {stat.label}
             </p>
           </div>
@@ -400,7 +400,7 @@ export const Activities = () => {
                 </span>
               </h1>
             </div>
-            <p className="text-sm sm:text-base max-w-lg" style={{ color: "var(--text)"Muted }}>
+            <p className="text-sm sm:text-base max-w-lg" style={{ color: "var(--text-muted)" }}>
               Track your learning journey, course completions, and achievements in one place.
             </p>
           </div>
@@ -411,9 +411,9 @@ export const Activities = () => {
             onClick={fetchActivities}
             className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium self-start sm:self-auto"
             style={{
-              background: "var(--surface)"2,
+              background: "var(--surface2)",
               border: `1px solid ${"var(--border)"}`,
-              color: "var(--text)"Muted,
+              color: "var(--text-muted)",
             }}
           >
             <Clock size={16} />
@@ -438,7 +438,7 @@ export const Activities = () => {
               className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium whitespace-nowrap transition-all"
               style={{
                 background: filter === f.id ? C.brand : "var(--surface)",
-                color: filter === f.id ? "var(--bg)" : "var(--text)"Muted,
+                color: filter === f.id ? "var(--bg)" : "var(--text-muted)",
                 border: `1px solid ${filter === f.id ? C.brand : "var(--border)"}`,
               }}
             >
@@ -446,8 +446,8 @@ export const Activities = () => {
               <span
                 className="px-1.5 py-0.5 rounded-full text-xs"
                 style={{
-                  background: filter === f.id ? "rgba(0,0,0,0.2)" : "var(--surface)"2,
-                  color: filter === f.id ? "var(--bg)" : "var(--text)"Muted,
+                  background: filter === f.id ? "rgba(0,0,0,0.2)" : "var(--surface2)",
+                  color: filter === f.id ? "var(--bg)" : "var(--text-muted)",
                 }}
               >
                 <AnimatedCounter value={f.count} />

@@ -191,7 +191,7 @@ export const UserNavbar = ({ toggleSidebar, isSidebarOpen, isMobile }) => {
                 : `0 0 0 1px ${"var(--border)"}`,
             }}
             className="relative rounded-xl overflow-hidden"
-            style={{ background: "var(--surface)"2 }}
+            style={{ background: "var(--surface)" }}
           >
             <Search
               className="absolute left-3.5 top-1/2 -translate-y-1/2 transition-colors"
@@ -253,7 +253,7 @@ export const UserNavbar = ({ toggleSidebar, isSidebarOpen, isMobile }) => {
               className="relative p-2.5 rounded-xl transition-colors"
               style={{ background: `${C.brand}10`, border: `1px solid ${"var(--border)"}` }}
             >
-              <Bell size={18} style={{ color: "var(--text)"Muted }} />
+              <Bell size={18} style={{ color: "var(--text-muted)" }} />
               <AnimatePresence>
                 {unreadCount > 0 && (
                   <motion.span
@@ -285,7 +285,7 @@ export const UserNavbar = ({ toggleSidebar, isSidebarOpen, isMobile }) => {
                   {/* Header */}
                   <div
                     className="p-4 flex items-center justify-between border-b"
-                    style={{ background: "var(--surface)"2, borderColor: "var(--border)" }}
+                    style={{ background: "var(--surface2)", borderColor: "var(--border)" }}
                   >
                     <h3 className="font-semibold text-[15px]" style={{ color: "var(--text)" }}>
                       Notifications
@@ -340,8 +340,8 @@ export const UserNavbar = ({ toggleSidebar, isSidebarOpen, isMobile }) => {
                       ))
                     ) : (
                       <div className="p-8 text-center">
-                        <Bell size={30} className="mx-auto mb-3 opacity-20" style={{ color: "var(--text)"Muted }} />
-                        <p className="text-[13px]" style={{ color: "var(--text)"Muted }}>
+                        <Bell size={30} className="mx-auto mb-3 opacity-20" style={{ color: "var(--text-muted)" }} />
+                        <p className="text-[13px]" style={{ color: "var(--text-muted)" }}>
                           No notifications yet
                         </p>
                       </div>
@@ -379,7 +379,7 @@ export const UserNavbar = ({ toggleSidebar, isSidebarOpen, isMobile }) => {
               <ChevronDown
                 size={15}
                 style={{
-                  color: "var(--text)"Muted,
+                  color: "var(--text-muted)",
                   transform: `rotate(${dropdownOpen ? "180deg" : "0deg"})`,
                   transition: "transform 0.2s",
                 }}
@@ -399,7 +399,7 @@ export const UserNavbar = ({ toggleSidebar, isSidebarOpen, isMobile }) => {
                   {/* User info */}
                   <div
                     className="p-4 border-b"
-                    style={{ background: "var(--surface)"2, borderColor: "var(--border)" }}
+                    style={{ background: "var(--surface2)", borderColor: "var(--border)" }}
                   >
                     <p className="font-semibold text-[14px] truncate" style={{ color: "var(--text)" }}>
                       {userName}
@@ -418,14 +418,14 @@ export const UserNavbar = ({ toggleSidebar, isSidebarOpen, isMobile }) => {
                         to={to}
                         onClick={() => setDropdownOpen(false)}
                         className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-[13px] transition-colors"
-                        style={{ color: "var(--text)"Muted }}
+                        style={{ color: "var(--text-muted)" }}
                         onMouseEnter={(e) => {
                           e.currentTarget.style.background = `${C.brand}12`;
                           e.currentTarget.style.color = "var(--text)";
                         }}
                         onMouseLeave={(e) => {
                           e.currentTarget.style.background = "transparent";
-                          e.currentTarget.style.color = "var(--text)"Muted;
+                          e.currentTarget.style.color = "var(--text-muted)";
                         }}
                       >
                         <Icon size={15} />

@@ -76,14 +76,14 @@ const ProfileSkeleton = () => (
             <div className="flex flex-col items-center space-y-4">
               <div 
                 className="w-28 h-28 rounded-full"
-                style={{ background: "var(--surface)"2 }}
+                style={{ background: "var(--surface2)" }}
               />
-              <div className="h-6 w-32 rounded" style={{ background: "var(--surface)"2 }} />
-              <div className="h-4 w-48 rounded" style={{ background: "var(--surface)"3 }} />
+              <div className="h-6 w-32 rounded" style={{ background: "var(--surface2)" }} />
+              <div className="h-4 w-48 rounded" style={{ background: "var(--surface3)" }} />
             </div>
             <div className="space-y-3 pt-4">
               {[1, 2, 3].map((i) => (
-                <div key={i} className="h-10 rounded-xl" style={{ background: "var(--surface)"2 }} />
+                <div key={i} className="h-10 rounded-xl" style={{ background: "var(--surface2)" }} />
               ))}
             </div>
           </div>
@@ -95,12 +95,12 @@ const ProfileSkeleton = () => (
             className="rounded-2xl p-6 min-h-[400px] animate-pulse"
             style={{ background: "var(--surface)", border: `1px solid ${"var(--border)"}` }}
           >
-            <div className="h-8 w-48 rounded mb-6" style={{ background: "var(--surface)"2 }} />
+            <div className="h-8 w-48 rounded mb-6" style={{ background: "var(--surface2)" }} />
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
               {[1, 2, 3, 4].map((i) => (
                 <div key={i} className="space-y-2">
-                  <div className="h-4 w-24 rounded" style={{ background: "var(--surface)"3 }} />
-                  <div className="h-10 rounded-xl" style={{ background: "var(--surface)"2 }} />
+                  <div className="h-4 w-24 rounded" style={{ background: "var(--surface3)" }} />
+                  <div className="h-10 rounded-xl" style={{ background: "var(--surface2)" }} />
                 </div>
               ))}
             </div>
@@ -123,7 +123,7 @@ const EmptyState = ({ icon: Icon, title, subtitle }) => (
       <Icon size={28} style={{ color: C.brand }} />
     </div>
     <h3 className="text-lg font-semibold mb-1" style={{ color: "var(--text)" }}>{title}</h3>
-    <p className="text-sm text-center max-w-sm" style={{ color: "var(--text)"Muted }}>{subtitle}</p>
+    <p className="text-sm text-center max-w-sm" style={{ color: "var(--text-muted)" }}>{subtitle}</p>
   </div>
 );
 
@@ -139,7 +139,7 @@ const TabButton = ({ active, onClick, icon: Icon, label }) => (
     style={{
       background: active ? `${C.brand}15` : "transparent",
       borderLeft: active ? `3px solid ${C.brand}` : "3px solid transparent",
-      color: active ? C.brand : "var(--text)"Muted,
+      color: active ? C.brand : "var(--text-muted)",
     }}
   >
     <Icon size={18} />
@@ -159,7 +159,7 @@ const TabButton = ({ active, onClick, icon: Icon, label }) => (
 // ==========================================
 const FormField = ({ label, name, value, onChange, disabled, type = "text", multiline = false }) => (
   <div className="space-y-2">
-    <label className="text-sm font-medium flex items-center gap-2" style={{ color: "var(--text)"Muted }}>
+    <label className="text-sm font-medium flex items-center gap-2" style={{ color: "var(--text-muted)" }}>
       {label}
     </label>
     {multiline ? (
@@ -171,8 +171,8 @@ const FormField = ({ label, name, value, onChange, disabled, type = "text", mult
         onChange={onChange}
         className="w-full px-4 py-3 rounded-xl outline-none transition-all resize-none"
         style={{
-          background: disabled ? "var(--surface)"2 : "var(--surface)"3,
-          border: `1px solid ${disabled ? "var(--border)" : "var(--border)"Hov}`,
+          background: disabled ? "var(--surface2)" : "var(--surface3)",
+          border: `1px solid ${disabled ? "var(--border)" : "var(--border)"}`,
           color: "var(--text)",
         }}
       />
@@ -185,8 +185,8 @@ const FormField = ({ label, name, value, onChange, disabled, type = "text", mult
         onChange={onChange}
         className="w-full px-4 py-3 rounded-xl outline-none transition-all"
         style={{
-          background: disabled ? "var(--surface)"2 : "var(--surface)"3,
-          border: `1px solid ${disabled ? "var(--border)" : "var(--border)"Hov}`,
+          background: disabled ? "var(--surface2)" : "var(--surface3)",
+          border: `1px solid ${disabled ? "var(--border)" : "var(--border)"}`,
           color: "var(--text)",
         }}
       />
@@ -294,7 +294,7 @@ export const Profile = () => {
             <X size={32} style={{ color: C.error }} />
           </div>
           <h2 className="text-xl font-bold mb-2" style={{ color: "var(--text)" }}>Failed to Load Profile</h2>
-          <p className="mb-4" style={{ color: "var(--text)"Muted }}>Please try again later</p>
+          <p className="mb-4" style={{ color: "var(--text-muted)" }}>Please try again later</p>
           <button
             onClick={() => window.location.reload()}
             className="px-4 py-2 rounded-xl text-sm font-medium"
@@ -360,7 +360,7 @@ export const Profile = () => {
                 <h2 className="text-xl font-bold mt-4 text-center" style={{ fontFamily: "'Fraunces', serif", color: "var(--text)" }}>
                   {userData.fullname}
                 </h2>
-                <p className="text-sm mt-1" style={{ color: "var(--text)"Muted }}>{userData.email}</p>
+                <p className="text-sm mt-1" style={{ color: "var(--text-muted)" }}>{userData.email}</p>
                 
                 {/* Member Since */}
                 <div className="flex items-center gap-2 mt-3 text-xs" style={{ color: "var(--text-muted)" }}>
@@ -392,9 +392,9 @@ export const Profile = () => {
                         onClick={cancelEdit}
                         className="flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl font-medium text-sm"
                         style={{ 
-                          background: "var(--surface)"2,
+                          background: "var(--surface2)",
                           border: `1px solid ${"var(--border)"}`,
-                          color: "var(--text)"Muted,
+                          color: "var(--text-muted)",
                         }}
                       >
                         <X size={16} />
@@ -407,7 +407,7 @@ export const Profile = () => {
                       onClick={() => setEditMode(true)}
                       className="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl font-medium text-sm"
                       style={{ 
-                        background: "var(--surface)"2,
+                        background: "var(--surface2)",
                         border: `1px solid ${"var(--border)"}`,
                         color: "var(--text)",
                       }}
@@ -515,20 +515,20 @@ export const Profile = () => {
                           Additional Information
                         </h3>
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                          <div className="flex items-center gap-3 p-3 rounded-xl" style={{ background: "var(--surface)"2 }}>
+                          <div className="flex items-center gap-3 p-3 rounded-xl" style={{ background: "var(--surface2)" }}>
                             <MapPin size={18} style={{ color: C.brand }} />
                             <div>
                               <p className="text-xs" style={{ color: "var(--text-muted)" }}>Location</p>
-                              <p className="text-sm font-medium" style={{ color: "var(--text)"Muted }}>
+                              <p className="text-sm font-medium" style={{ color: "var(--text-muted)" }}>
                                 {userData.location || "Not specified"}
                               </p>
                             </div>
                           </div>
-                          <div className="flex items-center gap-3 p-3 rounded-xl" style={{ background: "var(--surface)"2 }}>
+                          <div className="flex items-center gap-3 p-3 rounded-xl" style={{ background: "var(--surface2)" }}>
                             <LinkIcon size={18} style={{ color: C.brand }} />
                             <div>
                               <p className="text-xs" style={{ color: "var(--text-muted)" }}>Website</p>
-                              <p className="text-sm font-medium" style={{ color: "var(--text)"Muted }}>
+                              <p className="text-sm font-medium" style={{ color: "var(--text-muted)" }}>
                                 {userData.website || "Not specified"}
                               </p>
                             </div>
@@ -581,7 +581,7 @@ export const Profile = () => {
                             whileHover={{ scale: 1.02, y: -4 }}
                             className="p-4 rounded-xl relative overflow-hidden group cursor-pointer"
                             style={{ 
-                              background: "var(--surface)"2, 
+                              background: "var(--surface2)", 
                               border: `1px solid ${"var(--border)"}`,
                             }}
                           >
@@ -598,7 +598,7 @@ export const Profile = () => {
                                 <Award size={28} style={{ color: C.brand }} />
                               </div>
                               <h3 className="font-bold text-sm mb-1" style={{ color: "var(--text)" }}>{ach.name}</h3>
-                              <p className="text-xs mb-2" style={{ color: "var(--text)"Muted }}>
+                              <p className="text-xs mb-2" style={{ color: "var(--text-muted)" }}>
                                 {ach.description || "Achievement unlocked"}
                               </p>
                               <span 

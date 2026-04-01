@@ -103,7 +103,7 @@ const Badge = ({ children, type = "default", icon: Icon }) => {
   const styles = {
     default: { bg: `${C.brand}20`, color: C.brand, border: "var(--border)" },
     accent: { bg: `${C.accent}20`, color: C.accent, border: `rgba(245,158,11,0.3)` },
-    ghost: { bg: 'transparent', color: "var(--text)"Muted, border: "var(--border)" },
+    ghost: { bg: 'transparent', color: "var(--text-muted)", border: "var(--border)" },
   };
   
   const style = styles[type] || styles.default;
@@ -144,7 +144,7 @@ const EmptyState = ({ onAction }) => (
     >
       No Communities Yet
     </h3>
-    <p className="text-center max-w-md mb-6" style={{ color: "var(--text)"Muted }}>
+    <p className="text-center max-w-md mb-6" style={{ color: "var(--text-muted)" }}>
       Be the first to create a community and start connecting with learners who share your interests.
     </p>
     <motion.button
@@ -171,29 +171,29 @@ const SkeletonCard = () => (
   >
     <div 
       className="h-40 w-full animate-pulse"
-      style={{ background: "var(--surface)"2 }}
+      style={{ background: "var(--surface2)" }}
     />
     <div className="p-5 space-y-3">
       <div 
         className="h-6 w-3/4 rounded animate-pulse"
-        style={{ background: "var(--surface)"2 }}
+        style={{ background: "var(--surface2)" }}
       />
       <div 
         className="h-4 w-full rounded animate-pulse"
-        style={{ background: "var(--surface)"3 }}
+        style={{ background: "var(--surface3)" }}
       />
       <div 
         className="h-4 w-2/3 rounded animate-pulse"
-        style={{ background: "var(--surface)"3 }}
+        style={{ background: "var(--surface3)" }}
       />
       <div className="flex justify-between items-center pt-2">
         <div 
           className="h-4 w-20 rounded animate-pulse"
-          style={{ background: "var(--surface)"3 }}
+          style={{ background: "var(--surface3)" }}
         />
         <div 
           className="h-8 w-16 rounded-full animate-pulse"
-          style={{ background: "var(--surface)"2 }}
+          style={{ background: "var(--surface2)" }}
         />
       </div>
     </div>
@@ -257,7 +257,7 @@ export const Community = ({ basePath }) => {
         <div className="max-w-7xl mx-auto">
           <div 
             className="h-8 w-64 rounded mb-8 animate-pulse"
-            style={{ background: "var(--surface)"2 }}
+            style={{ background: "var(--surface2)" }}
           />
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
             {[1, 2, 3, 4, 5, 6].map(i => <SkeletonCard key={i} />)}
@@ -300,7 +300,7 @@ export const Community = ({ basePath }) => {
                 </span>
               </h1>
             </div>
-            <p style={{ color: "var(--text)"Muted }} className="text-sm sm:text-base max-w-xl">
+            <p style={{ color: "var(--text-muted)" }} className="text-sm sm:text-base max-w-xl">
               Connect, collaborate, and grow with <AnimatedCounter value={totalMembers} /> learners who share your passions.
             </p>
           </div>
@@ -355,7 +355,7 @@ export const Community = ({ basePath }) => {
                 >
                   <AnimatedCounter value={stat.value} />
                 </p>
-                <p className="text-xs" style={{ color: "var(--text)"Muted }}>{stat.label}</p>
+                <p className="text-xs" style={{ color: "var(--text-muted)" }}>{stat.label}</p>
               </div>
             </div>
           ))}
@@ -404,7 +404,7 @@ export const Community = ({ basePath }) => {
                 className="flex items-center gap-1.5 px-4 py-2.5 rounded-xl text-sm font-medium whitespace-nowrap transition-all"
                 style={{ 
                   background: activeFilter === filter.id ? C.brand : "var(--surface)",
-                  color: activeFilter === filter.id ? "var(--bg)" : "var(--text)"Muted,
+                  color: activeFilter === filter.id ? "var(--bg)" : "var(--text-muted)",
                   border: `1px solid ${activeFilter === filter.id ? C.brand : "var(--border)"}`,
                 }}
               >
@@ -480,14 +480,14 @@ export const Community = ({ basePath }) => {
                     
                     <p 
                       className="text-sm line-clamp-2 mb-4 flex-1"
-                      style={{ color: "var(--text)"Muted }}
+                      style={{ color: "var(--text-muted)" }}
                     >
                       {community.description || "Join this community to connect with like-minded learners and share knowledge."}
                     </p>
                     
                     {/* Footer */}
                     <div className="flex items-center justify-between pt-3 border-t" style={{ borderColor: "var(--border)" }}>
-                      <div className="flex items-center gap-2" style={{ color: "var(--text)"Muted }}>
+                      <div className="flex items-center gap-2" style={{ color: "var(--text-muted)" }}>
                         <Users size={16} style={{ color: C.brand }} />
                         <span className="text-sm">
                           <AnimatedCounter value={community.members?.length || 0} /> members

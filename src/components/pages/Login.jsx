@@ -81,7 +81,7 @@ const InputField = ({
       <div className="flex items-center justify-between">
         <label
           className="text-[13px] font-semibold uppercase tracking-wider"
-          style={{ color: "var(--text)"Muted }}
+          style={{ color: "var(--text-muted)" }}
         >
           {label}
         </label>
@@ -112,7 +112,7 @@ const InputField = ({
         }}
         transition={{ duration: 0.2 }}
         className="relative rounded-xl overflow-hidden"
-        style={{ background: "var(--surface)"2 }}
+        style={{ background: "var(--surface2)" }}
       >
         {/* Left icon */}
         <div
@@ -164,14 +164,14 @@ const SocialButton = ({ icon: Icon, label }) => (
     whileTap={{ scale: 0.97 }}
     type="button"
     className="w-full flex items-center justify-center gap-2.5 py-3 rounded-xl text-[14px] font-medium border transition-all duration-200"
-    style={{ background: "var(--surface)"3, borderColor: "var(--border)", color: "var(--text)"Muted }}
+    style={{ background: "var(--surface3)", borderColor: "var(--border)", color: "var(--text-muted)" }}
     onMouseEnter={(e) => {
-      e.currentTarget.style.borderColor = "var(--border)"Hov;
+      e.currentTarget.style.borderColor = "var(--border)";
       e.currentTarget.style.color = "var(--text)";
     }}
     onMouseLeave={(e) => {
       e.currentTarget.style.borderColor = "var(--border)";
-      e.currentTarget.style.color = "var(--text)"Muted;
+      e.currentTarget.style.color = "var(--text-muted)";
     }}
   >
     <Icon size={17} />
@@ -356,7 +356,7 @@ export const Login = () => {
                 SkillHub
               </span>
             </h1>
-            <p className="text-[17px] leading-relaxed" style={{ color: "var(--text)"Muted }}>
+            <p className="text-[17px] leading-relaxed" style={{ color: "var(--text-muted)" }}>
               Continue your journey to mastery. Your next project awaits — pick
               up right where you left off.
             </p>
@@ -373,7 +373,7 @@ export const Login = () => {
               <div
                 key={idx}
                 className="p-4 rounded-2xl border flex flex-col gap-1"
-                style={{ background: "var(--surface)"2, borderColor: "var(--border)" }}
+                style={{ background: "var(--surface2)", borderColor: "var(--border)" }}
               >
                 <div className="flex items-center gap-2">
                   <stat.icon size={14} style={{ color: C.brand }} />
@@ -384,7 +384,7 @@ export const Login = () => {
                 >
                   {stat.value}
                 </div>
-                <div className="text-[13px]" style={{ color: "var(--text)"Muted }}>{stat.label}</div>
+                <div className="text-[13px]" style={{ color: "var(--text-muted)" }}>{stat.label}</div>
               </div>
             ))}
           </motion.div>
@@ -403,7 +403,7 @@ export const Login = () => {
                 animate={{ x: 0,   opacity: 1 }}
                 transition={{ delay: 0.72 + idx * 0.1 }}
                 className="flex items-center gap-3 text-[15px]"
-                style={{ color: "var(--text)"Muted }}
+                style={{ color: "var(--text-muted)" }}
               >
                 <div
                   className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0"
@@ -423,10 +423,10 @@ export const Login = () => {
           animate={{ y: 0, opacity: 1 }}
           transition={{ delay: 0.95 }}
           className="relative z-10 p-5 rounded-2xl border"
-          style={{ background: "var(--surface)"2, borderColor: "var(--border)" }}
+          style={{ background: "var(--surface2)", borderColor: "var(--border)" }}
         >
           <span className="text-3xl font-bold leading-none" style={{ color: `${C.brand}44` }}>"</span>
-          <p className="text-[14px] leading-relaxed -mt-1 mb-4" style={{ color: "var(--text)"Muted }}>
+          <p className="text-[14px] leading-relaxed -mt-1 mb-4" style={{ color: "var(--text-muted)" }}>
             SkillHub's project-based approach helped me land my dream job at a
             Fortune 500 company. The mentorship was invaluable.
           </p>
@@ -503,7 +503,7 @@ export const Login = () => {
               >
                 Welcome back
               </h2>
-              <p className="text-[14px]" style={{ color: "var(--text)"Muted }}>
+              <p className="text-[14px]" style={{ color: "var(--text-muted)" }}>
                 Sign in to continue your learning journey
               </p>
             </motion.div>
@@ -565,7 +565,7 @@ export const Login = () => {
               >
                 <label
                   className="flex items-center gap-2 cursor-pointer group select-none"
-                  style={{ color: "var(--text)"Muted }}
+                  style={{ color: "var(--text-muted)" }}
                 >
                   <div
                     className="relative w-4 h-4 rounded flex items-center justify-center border transition-all"
@@ -656,7 +656,7 @@ export const Login = () => {
             <motion.p
               variants={itemVariants}
               className="mt-5 text-center text-[13px]"
-              style={{ color: "var(--text)"Muted }}
+              style={{ color: "var(--text-muted)" }}
             >
               Don't have an account?{" "}
               <Link
@@ -681,9 +681,9 @@ export const Login = () => {
               <a
                 href="#"
                 className="transition-colors"
-                style={{ color: "var(--text)"Muted }}
+                style={{ color: "var(--text-muted)" }}
                 onMouseEnter={(e) => (e.target.style.color = "var(--text)")}
-                onMouseLeave={(e) => (e.target.style.color = "var(--text)"Muted)}
+                onMouseLeave={(e) => (e.target.style.color = "var(--text-muted)")}
               >
                 Privacy Policy
               </a>{" "}
@@ -691,9 +691,9 @@ export const Login = () => {
               <a
                 href="#"
                 className="transition-colors"
-                style={{ color: "var(--text)"Muted }}
+                style={{ color: "var(--text-muted)" }}
                 onMouseEnter={(e) => (e.target.style.color = "var(--text)")}
-                onMouseLeave={(e) => (e.target.style.color = "var(--text)"Muted)}
+                onMouseLeave={(e) => (e.target.style.color = "var(--text-muted)")}
               >
                 Terms of Service
               </a>

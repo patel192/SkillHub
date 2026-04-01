@@ -96,7 +96,7 @@ const Badge = ({ children, type = "default" }) => {
   const styles = {
     default: { bg: `${C.brand}20`, color: C.brand, border: "var(--border)" },
     gold: { bg: "rgba(255,215,0,0.15)", color: C.gold, border: "rgba(255,215,0,0.3)" },
-    muted: { bg: "var(--surface)"2, color: "var(--text)"Muted, border: "var(--border)" },
+    muted: { bg: "var(--surface2)", color: "var(--text-muted)", border: "var(--border)" },
   };
   
   const style = styles[type] || styles.default;
@@ -126,7 +126,7 @@ const EmptyState = () => (
     <h3 className="text-xl font-bold mb-2" style={{ fontFamily: "'Fraunces', serif", color: "var(--text)" }}>
       No Certificates Yet
     </h3>
-    <p className="text-center max-w-md mb-6" style={{ color: "var(--text)"Muted }}>
+    <p className="text-center max-w-md mb-6" style={{ color: "var(--text-muted)" }}>
       Complete courses and challenges to earn verified certificates and showcase your skills.
     </p>
     <motion.button
@@ -160,7 +160,7 @@ const CertificateCard = ({ cert, index }) => {
           <div
             className="p-3 rounded-xl"
             style={{
-              background: cert.verified ? `${C.brand}20` : "var(--surface)"2,
+              background: cert.verified ? `${C.brand}20` : "var(--surface2)",
               border: `1px solid ${cert.verified ? "var(--border)" : "rgba(255,255,255,0.05)"}`,
             }}
           >
@@ -182,7 +182,7 @@ const CertificateCard = ({ cert, index }) => {
                 setShowPreview(true);
               }}
               className="p-2 rounded-lg transition-colors hover:bg-white/5"
-              style={{ color: "var(--text)"Muted }}
+              style={{ color: "var(--text-muted)" }}
               title="Preview"
             >
               <ExternalLink size={18} />
@@ -199,7 +199,7 @@ const CertificateCard = ({ cert, index }) => {
         </h3>
         
         <div className="flex items-center gap-2 mb-3">
-          <span className="text-sm" style={{ color: "var(--text)"Muted }}>Issued by</span>
+          <span className="text-sm" style={{ color: "var(--text-muted)" }}>Issued by</span>
           <span className="text-sm font-medium" style={{ color: C.brand }}>{cert.issuedBy}</span>
         </div>
 
@@ -216,7 +216,7 @@ const CertificateCard = ({ cert, index }) => {
               <span
                 key={idx}
                 className="px-2 py-1 rounded-lg text-xs"
-                style={{ background: "var(--surface)"2, color: "var(--text)"Muted, border: `1px solid ${"var(--border)"}` }}
+                style={{ background: "var(--surface2)", color: "var(--text-muted)", border: `1px solid ${"var(--border)"}` }}
               >
                 {skill}
               </span>
@@ -233,9 +233,9 @@ const CertificateCard = ({ cert, index }) => {
             whileTap={{ scale: 0.98 }}
             className="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-medium transition-colors"
             style={{
-              background: "var(--surface)"2,
+              background: "var(--surface2)",
               border: `1px solid ${"var(--border)"}`,
-              color: "var(--text)"Muted,
+              color: "var(--text-muted)",
             }}
             onClick={(e) => e.stopPropagation()}
           >
@@ -282,7 +282,7 @@ const CertificateCard = ({ cert, index }) => {
                 <button
                   onClick={() => setShowPreview(false)}
                   className="p-2 rounded-lg hover:bg-white/5 transition-colors"
-                  style={{ color: "var(--text)"Muted }}
+                  style={{ color: "var(--text-muted)" }}
                 >
                   <Lock size={20} />
                 </button>
@@ -292,11 +292,11 @@ const CertificateCard = ({ cert, index }) => {
               <div className="p-8 flex flex-col items-center justify-center min-h-[400px]">
                 <div
                   className="w-full max-w-2xl h-64 rounded-xl flex items-center justify-center mb-6"
-                  style={{ background: "var(--surface)"2, border: `2px dashed ${"var(--border)"}` }}
+                  style={{ background: "var(--surface2)", border: `2px dashed ${"var(--border)"}` }}
                 >
                   <div className="text-center">
                     <FileText size={48} style={{ color: "var(--text-muted)" }} className="mx-auto mb-4" />
-                    <p style={{ color: "var(--text)"Muted }}>Certificate Preview</p>
+                    <p style={{ color: "var(--text-muted)" }}>Certificate Preview</p>
                     <p className="text-sm mt-1" style={{ color: "var(--text-muted)" }}>
                       Actual certificate will be displayed here
                     </p>
@@ -358,7 +358,7 @@ const StatsBar = ({ certificates }) => {
             <p className="text-lg sm:text-xl font-bold" style={{ fontFamily: "'Fraunces', serif", color: "var(--text)" }}>
               {stat.value}
             </p>
-            <p className="text-xs" style={{ color: "var(--text)"Muted }}>{stat.label}</p>
+            <p className="text-xs" style={{ color: "var(--text-muted)" }}>{stat.label}</p>
           </div>
         </motion.div>
       ))}
@@ -411,7 +411,7 @@ export const Certificates = () => {
                 </span>
               </h1>
             </div>
-            <p className="text-sm sm:text-base max-w-lg" style={{ color: "var(--text)"Muted }}>
+            <p className="text-sm sm:text-base max-w-lg" style={{ color: "var(--text-muted)" }}>
               Showcase your achievements and verified skills. Download or share your certificates anytime.
             </p>
           </div>
@@ -422,9 +422,9 @@ export const Certificates = () => {
             whileTap={{ scale: 0.95 }}
             className="flex items-center gap-2 px-4 py-2.5 rounded-xl font-medium text-sm whitespace-nowrap"
             style={{
-              background: "var(--surface)"2,
+              background: "var(--surface2)",
               border: `1px solid ${"var(--border)"}`,
-              color: "var(--text)"Muted,
+              color: "var(--text-muted)",
             }}
           >
             <ExternalLink size={16} />
@@ -452,7 +452,7 @@ export const Certificates = () => {
               className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium whitespace-nowrap transition-all"
               style={{
                 background: filter === tab.id ? C.brand : "var(--surface)",
-                color: filter === tab.id ? "var(--bg)" : "var(--text)"Muted,
+                color: filter === tab.id ? "var(--bg)" : "var(--text-muted)",
                 border: `1px solid ${filter === tab.id ? C.brand : "var(--border)"}`,
               }}
             >
@@ -460,8 +460,8 @@ export const Certificates = () => {
               <span
                 className="px-1.5 py-0.5 rounded-full text-xs"
                 style={{
-                  background: filter === tab.id ? "rgba(0,0,0,0.2)" : "var(--surface)"2,
-                  color: filter === tab.id ? "var(--bg)" : "var(--text)"Muted,
+                  background: filter === tab.id ? "rgba(0,0,0,0.2)" : "var(--surface2)",
+                  color: filter === tab.id ? "var(--bg)" : "var(--text-muted)",
                 }}
               >
                 {tab.count}
@@ -487,7 +487,7 @@ export const Certificates = () => {
           animate={{ opacity: 1 }}
           transition={{ delay: 0.5 }}
           className="mt-12 p-4 rounded-xl text-center"
-          style={{ background: "var(--surface)"2, border: `1px dashed ${"var(--border)"}` }}
+          style={{ background: "var(--surface2)", border: `1px dashed ${"var(--border)"}` }}
         >
           <p className="text-sm" style={{ color: "var(--text-muted)" }}>
             💡 <strong>Coming Soon:</strong> Automatic certificate generation upon course completion

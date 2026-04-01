@@ -63,8 +63,8 @@ const NOTIFICATION_TYPES = {
   },
   DEFAULT: {
     icon: Bell,
-    color: "var(--text)"Muted,
-    bg: "var(--surface)"2,
+    color: "var(--text-muted)",
+    bg: "var(--surface2)",
     label: "Notification",
   },
 };
@@ -147,7 +147,7 @@ const EmptyState = ({ onRefresh }) => (
     >
       All Caught Up!
     </h3>
-    <p className="text-center max-w-sm mb-6 text-sm" style={{ color: "var(--text)"Muted }}>
+    <p className="text-center max-w-sm mb-6 text-sm" style={{ color: "var(--text-muted)" }}>
       You have no new notifications. Check back later for updates on your courses and achievements.
     </p>
     <motion.button
@@ -177,11 +177,11 @@ const NotificationIcon = ({ type, unread }) => {
       transition={{ type: "spring", stiffness: 200 }}
       className="flex-shrink-0 w-12 h-12 rounded-xl flex items-center justify-center relative"
       style={{ 
-        background: unread ? config.bg : "var(--surface)"2, 
+        background: unread ? config.bg : "var(--surface2)", 
         border: `1px solid ${unread ? config.color : "var(--border)"}` 
       }}
     >
-      <Icon size={22} style={{ color: unread ? config.color : "var(--text)"Muted }} />
+      <Icon size={22} style={{ color: unread ? config.color : "var(--text-muted)" }} />
       
       {/* Unread Dot */}
       {unread && (
@@ -227,7 +227,7 @@ const NotificationItem = ({ notification, onMarkRead, onDelete }) => {
             <div>
               <p 
                 className={`font-medium text-sm sm:text-base leading-relaxed ${unread ? "" : "line-clamp-2"}`}
-                style={{ color: unread ? "var(--text)" : "var(--text)"Muted }}
+                style={{ color: unread ? "var(--text)" : "var(--text-muted)" }}
               >
                 {notification.message}
               </p>
@@ -346,7 +346,7 @@ const StatsBar = ({ notifications }) => {
             >
               <AnimatedCounter value={stat.value} />
             </p>
-            <p className="text-xs truncate" style={{ color: "var(--text)"Muted }}>
+            <p className="text-xs truncate" style={{ color: "var(--text-muted)" }}>
               {stat.label}
             </p>
           </div>
@@ -480,7 +480,7 @@ export const Notifications = () => {
                 </span>
               </h1>
             </div>
-            <p className="text-sm sm:text-base max-w-lg" style={{ color: "var(--text)"Muted }}>
+            <p className="text-sm sm:text-base max-w-lg" style={{ color: "var(--text-muted)" }}>
               Stay updated with your course progress, achievements, and important announcements.
             </p>
           </div>
@@ -493,9 +493,9 @@ export const Notifications = () => {
                 onClick={handleMarkAllRead}
                 className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium"
                 style={{
-                  background: "var(--surface)"2,
+                  background: "var(--surface2)",
                   border: `1px solid ${"var(--border)"}`,
-                  color: "var(--text)"Muted,
+                  color: "var(--text-muted)",
                 }}
               >
                 <Check size={16} />
@@ -509,9 +509,9 @@ export const Notifications = () => {
               onClick={fetchNotifications}
               className="p-2.5 rounded-xl"
               style={{
-                background: "var(--surface)"2,
+                background: "var(--surface2)",
                 border: `1px solid ${"var(--border)"}`,
-                color: "var(--text)"Muted,
+                color: "var(--text-muted)",
               }}
             >
               <Loader2 size={16} className={loading ? "animate-spin" : ""} />
@@ -540,7 +540,7 @@ export const Notifications = () => {
               className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium whitespace-nowrap transition-all"
               style={{
                 background: filter === f.id ? C.brand : "var(--surface)",
-                color: filter === f.id ? "var(--bg)" : "var(--text)"Muted,
+                color: filter === f.id ? "var(--bg)" : "var(--text-muted)",
                 border: `1px solid ${filter === f.id ? C.brand : "var(--border)"}`,
               }}
             >
@@ -548,8 +548,8 @@ export const Notifications = () => {
               <span
                 className="px-1.5 py-0.5 rounded-full text-xs"
                 style={{
-                  background: filter === f.id ? "rgba(0,0,0,0.2)" : "var(--surface)"2,
-                  color: filter === f.id ? "var(--bg)" : "var(--text)"Muted,
+                  background: filter === f.id ? "rgba(0,0,0,0.2)" : "var(--surface2)",
+                  color: filter === f.id ? "var(--bg)" : "var(--text-muted)",
                 }}
               >
                 <AnimatedCounter value={f.count} />

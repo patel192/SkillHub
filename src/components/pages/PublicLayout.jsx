@@ -482,7 +482,7 @@ export const PublicLayout = () => {
                 className="text-xl font-bold"
                 style={{
                   fontFamily: "'Fraunces', serif",
-                  background: `linear-gradient(135deg, ${"var(--text)"}, ${"var(--text)"Muted})`,
+                  background: `linear-gradient(135deg, ${"var(--text)"}, ${"var(--text-muted)"})`,
                   WebkitBackgroundClip: "text",
                   WebkitTextFillColor: "transparent",
                 }}
@@ -500,7 +500,7 @@ export const PublicLayout = () => {
                   smooth
                   offset={-80}
                   className="text-sm font-medium cursor-pointer relative group transition-colors"
-                  style={{ color: "var(--text)"Muted }}
+                  style={{ color: "var(--text-muted)" }}
                   activeStyle={{ color: "var(--text)" }}
                 >
                   <span className="group-hover:text-white transition-colors">
@@ -519,9 +519,9 @@ export const PublicLayout = () => {
               <Link
                 to="/login"
                 className="text-sm font-medium transition-colors"
-                style={{ color: "var(--text)"Muted }}
+                style={{ color: "var(--text-muted)" }}
                 onMouseEnter={(e) => (e.target.style.color = "var(--text)")}
-                onMouseLeave={(e) => (e.target.style.color = "var(--text)"Muted)}
+                onMouseLeave={(e) => (e.target.style.color = "var(--text-muted)")}
               >
                 Sign in
               </Link>
@@ -541,7 +541,7 @@ export const PublicLayout = () => {
             <button
               onClick={() => setMenuOpen(!menuOpen)}
               className="lg:hidden p-2 transition-colors"
-              style={{ color: "var(--text)"Muted }}
+              style={{ color: "var(--text-muted)" }}
             >
               {menuOpen ? <X size={22} /> : <Menu size={22} />}
             </button>
@@ -569,7 +569,7 @@ export const PublicLayout = () => {
                     smooth
                     onClick={() => setMenuOpen(false)}
                     className="block py-2 text-[17px] font-medium transition-colors"
-                    style={{ color: "var(--text)"Muted }}
+                    style={{ color: "var(--text-muted)" }}
                   >
                     {item}
                   </ScrollLink>
@@ -581,7 +581,7 @@ export const PublicLayout = () => {
                   <Link
                     to="/login"
                     className="block w-full py-3 text-center rounded-xl text-sm font-medium border transition-colors"
-                    style={{ borderColor: "var(--border)", color: "var(--text)"Muted }}
+                    style={{ borderColor: "var(--border)", color: "var(--text-muted)" }}
                   >
                     Sign in
                   </Link>
@@ -683,7 +683,7 @@ export const PublicLayout = () => {
               <motion.p
                 variants={fadeUp}
                 className="text-xl leading-relaxed max-w-xl"
-                style={{ color: "var(--text)"Muted }}
+                style={{ color: "var(--text-muted)" }}
               >
                 Join 120,000+ developers learning by building. Get personalized
                 mentorship, ship production-grade projects, and land your dream
@@ -741,7 +741,7 @@ export const PublicLayout = () => {
                     >
                       <AnimatedCounter value={stat.value} />
                     </div>
-                    <div className="text-sm" style={{ color: "var(--text)"Muted }}>
+                    <div className="text-sm" style={{ color: "var(--text-muted)" }}>
                       {stat.label}
                     </div>
                   </div>
@@ -771,7 +771,7 @@ export const PublicLayout = () => {
                 {/* IDE titlebar */}
                 <div
                   className="flex items-center gap-2 px-5 py-3.5 border-b"
-                  style={{ borderColor: "var(--border)", background: "var(--surface)"2 }}
+                  style={{ borderColor: "var(--border)", background: "var(--surface2)" }}
                 >
                   <div className="flex gap-1.5">
                     {["#FF5F57", "#FFBD2E", "#28C840"].map((c) => (
@@ -807,7 +807,7 @@ export const PublicLayout = () => {
                         <span style={{ color: "var(--text)" }}>React </span>
                         <span style={{ color: "#78B9C2" }}>from </span>
                         <span style={{ color: `${C.brand}CC` }}>'react'</span>
-                        <span style={{ color: "var(--text)"Muted }}>;</span>
+                        <span style={{ color: "var(--text-muted)" }}>;</span>
                       </div>
                       <div style={{ color: "var(--text-muted)" }}>
                         {"// SkillHub — Live Dashboard"}
@@ -818,23 +818,23 @@ export const PublicLayout = () => {
                           export default function{" "}
                         </span>
                         <span style={{ color: C.accent }}>Dashboard</span>
-                        <span style={{ color: "var(--text)"Muted }}>() {"{"}</span>
+                        <span style={{ color: "var(--text-muted)" }}>() {"{"}</span>
                       </div>
                       <div className="pl-5">
                         <span style={{ color: "#78B9C2" }}>const </span>
                         <span style={{ color: C.brandLight }}>data </span>
-                        <span style={{ color: "var(--text)"Muted }}>= </span>
+                        <span style={{ color: "var(--text-muted)" }}>= </span>
                         <span style={{ color: C.accent }}>useRealTime</span>
-                        <span style={{ color: "var(--text)"Muted }}>{"();"}</span>
+                        <span style={{ color: "var(--text-muted)" }}>{"();"}</span>
                       </div>
                       <div className="pl-5">
                         <span style={{ color: "#78B9C2" }}>return </span>
-                        <span style={{ color: "var(--text)"Muted }}>{"("}</span>
+                        <span style={{ color: "var(--text-muted)" }}>{"("}</span>
                       </div>
                       <div className="pl-10">
                         <span style={{ color: C.brand }}>{"<Dashboard "}</span>
                         <span style={{ color: C.accent }}>data</span>
-                        <span style={{ color: "var(--text)"Muted }}>=</span>
+                        <span style={{ color: "var(--text-muted)" }}>=</span>
                         <span style={{ color: "#78B9C2" }}>{"{data}"}</span>
                         <span style={{ color: C.brand }}>{" />"}</span>
                       </div>
@@ -854,14 +854,14 @@ export const PublicLayout = () => {
                 <div className="px-6 pb-5">
                   <div
                     className="flex justify-between text-[11px] mb-1.5"
-                    style={{ color: "var(--text)"Muted }}
+                    style={{ color: "var(--text-muted)" }}
                   >
                     <span>Module 7 / 12</span>
                     <span>58% complete</span>
                   </div>
                   <div
                     className="h-1 rounded-full"
-                    style={{ background: "var(--surface)"2 }}
+                    style={{ background: "var(--surface2)" }}
                   >
                     <motion.div
                       className="h-full rounded-full"
@@ -907,7 +907,7 @@ export const PublicLayout = () => {
                   >
                     Tests Passing
                   </p>
-                  <p className="text-[11px]" style={{ color: "var(--text)"Muted }}>
+                  <p className="text-[11px]" style={{ color: "var(--text-muted)" }}>
                     24 / 24 completed
                   </p>
                 </div>
@@ -942,7 +942,7 @@ export const PublicLayout = () => {
                   >
                     Mentor Online
                   </p>
-                  <p className="text-[11px]" style={{ color: "var(--text)"Muted }}>
+                  <p className="text-[11px]" style={{ color: "var(--text-muted)" }}>
                     Available now
                   </p>
                 </div>
@@ -965,7 +965,7 @@ export const PublicLayout = () => {
             <GradientHeading pre="Everything you need to" accent="go pro" />
             <p
               className="mt-4 text-lg max-w-2xl mx-auto"
-              style={{ color: "var(--text)"Muted }}
+              style={{ color: "var(--text-muted)" }}
             >
               A comprehensive platform designed to take you from beginner to
               industry-ready professional.
@@ -1007,7 +1007,7 @@ export const PublicLayout = () => {
                     >
                       {feature.title}
                     </h3>
-                    <p className="flex-grow" style={{ color: "var(--text)"Muted }}>
+                    <p className="flex-grow" style={{ color: "var(--text-muted)" }}>
                       {feature.desc}
                     </p>
 
@@ -1037,7 +1037,7 @@ export const PublicLayout = () => {
                           <div
                             key={item}
                             className="flex items-center gap-2 text-sm py-1"
-                            style={{ color: "var(--text)"Muted }}
+                            style={{ color: "var(--text-muted)" }}
                           >
                             <CheckCircle2
                               className="w-4 h-4 flex-shrink-0"
@@ -1109,7 +1109,7 @@ export const PublicLayout = () => {
                 />
                 <span
                   className="font-medium text-sm"
-                  style={{ color: "var(--text)"Muted }}
+                  style={{ color: "var(--text-muted)" }}
                 >
                   {tech.name}
                 </span>
@@ -1128,7 +1128,7 @@ export const PublicLayout = () => {
               <GradientHeading accent="Featured" post="Courses" />
               <p
                 className="mt-4 text-lg max-w-xl"
-                style={{ color: "var(--text)"Muted }}
+                style={{ color: "var(--text-muted)" }}
               >
                 Industry-vetted curriculum designed to get you hired at top tech
                 companies.
@@ -1189,7 +1189,7 @@ export const PublicLayout = () => {
                     >
                       {course.level}
                     </span>
-                    <span className="text-sm" style={{ color: "var(--text)"Muted }}>
+                    <span className="text-sm" style={{ color: "var(--text-muted)" }}>
                       {course.duration}
                     </span>
                   </div>
@@ -1207,7 +1207,7 @@ export const PublicLayout = () => {
 
                   <div
                     className="flex items-center gap-4 text-sm mb-4"
-                    style={{ color: "var(--text)"Muted }}
+                    style={{ color: "var(--text-muted)" }}
                   >
                     <span className="flex items-center gap-1">
                       <Users className="w-4 h-4" />
@@ -1285,7 +1285,7 @@ export const PublicLayout = () => {
                 </div>
                 <p
                   className="mb-6 leading-relaxed italic text-[15px]"
-                  style={{ color: "var(--text)"Muted }}
+                  style={{ color: "var(--text-muted)" }}
                 >
                   "{t.content}"
                 </p>
@@ -1305,7 +1305,7 @@ export const PublicLayout = () => {
                     >
                       {t.name}
                     </p>
-                    <p className="text-xs" style={{ color: "var(--text)"Muted }}>
+                    <p className="text-xs" style={{ color: "var(--text-muted)" }}>
                       {t.role}
                     </p>
                   </div>
@@ -1428,7 +1428,7 @@ export const PublicLayout = () => {
               </Link>
               <p
                 className="text-sm max-w-xs mb-6 leading-relaxed"
-                style={{ color: "var(--text)"Muted }}
+                style={{ color: "var(--text-muted)" }}
               >
                 Empowering the next generation of developers through
                 project-based learning and expert mentorship.
@@ -1439,14 +1439,14 @@ export const PublicLayout = () => {
                     key={s}
                     href="#"
                     className="w-9 h-9 rounded-full flex items-center justify-center transition-all border"
-                    style={{ borderColor: "var(--border)", color: "var(--text)"Muted }}
+                    style={{ borderColor: "var(--border)", color: "var(--text-muted)" }}
                     onMouseEnter={(e) => {
                       e.currentTarget.style.borderColor = C.brand;
                       e.currentTarget.style.color = C.brand;
                     }}
                     onMouseLeave={(e) => {
                       e.currentTarget.style.borderColor = "var(--border)";
-                      e.currentTarget.style.color = "var(--text)"Muted;
+                      e.currentTarget.style.color = "var(--text-muted)";
                     }}
                   >
                     <Globe className="w-4 h-4" />
@@ -1470,10 +1470,10 @@ export const PublicLayout = () => {
                       <a
                         href="#"
                         className="text-sm transition-colors"
-                        style={{ color: "var(--text)"Muted }}
+                        style={{ color: "var(--text-muted)" }}
                         onMouseEnter={(e) => (e.target.style.color = "var(--text)")}
                         onMouseLeave={(e) =>
-                          (e.target.style.color = "var(--text)"Muted)
+                          (e.target.style.color = "var(--text-muted)")
                         }
                       >
                         {link}

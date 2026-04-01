@@ -178,7 +178,7 @@ export const CourseDetails = () => {
           >
             Course not found
           </h2>
-          <p style={{ color: "var(--text)"Muted }}>
+          <p style={{ color: "var(--text-muted)" }}>
             The course you're looking for doesn't exist or has been removed.
           </p>
           <button
@@ -253,7 +253,7 @@ export const CourseDetails = () => {
                           animate={{ opacity: 1, x: 0 }}
                           transition={{ delay: idx * 0.05 }}
                           className="flex items-start gap-3 p-3 rounded-xl"
-                          style={{ background: "var(--surface)"2 }}
+                          style={{ background: "var(--surface2)" }}
                         >
                           <CheckCircle2
                             size={18}
@@ -263,7 +263,7 @@ export const CourseDetails = () => {
                               marginTop: 2,
                             }}
                           />
-                          <span style={{ color: "var(--text)"Muted }}>{item}</span>
+                          <span style={{ color: "var(--text-muted)" }}>{item}</span>
                         </motion.div>
                       ))
                     ) : (
@@ -287,7 +287,7 @@ export const CourseDetails = () => {
                   >
                     About this course
                   </h3>
-                  <p style={{ color: "var(--text)"Muted, lineHeight: 1.7 }}>
+                  <p style={{ color: "var(--text-muted)", lineHeight: 1.7 }}>
                     {course.description || "No description provided."}
                   </p>
                 </div>
@@ -341,7 +341,7 @@ export const CourseDetails = () => {
                       >
                         <div className="flex items-center gap-3">
                           <detail.icon size={16} style={{ color: "var(--text-muted)" }} />
-                          <span style={{ color: "var(--text)"Muted }}>
+                          <span style={{ color: "var(--text-muted)" }}>
                             {detail.label}
                           </span>
                         </div>
@@ -361,7 +361,7 @@ export const CourseDetails = () => {
                   }}
                 >
                   <div className="flex items-center justify-between mb-3">
-                    <span style={{ color: "var(--text)"Muted }}>Price</span>
+                    <span style={{ color: "var(--text-muted)" }}>Price</span>
                     <span
                       className="text-2xl font-bold"
                       style={{ color: C.brand, fontFamily: "Fraunces, serif" }}
@@ -391,7 +391,7 @@ export const CourseDetails = () => {
                       onClick={() => navigate(`/user/learn/${courseId}`)}
                       className="w-full py-3 rounded-xl font-semibold flex items-center justify-center gap-2"
                       style={{
-                        background: "var(--surface)"2,
+                        background: "var(--surface2)",
                         color: "var(--text)",
                         border: `1px solid ${"var(--border)"}`,
                       }}
@@ -444,7 +444,7 @@ export const CourseDetails = () => {
                       {ins.title || "Instructor"}
                     </p>
                     <p
-                      style={{ color: "var(--text)"Muted }}
+                      style={{ color: "var(--text-muted)" }}
                       className="text-sm leading-relaxed"
                     >
                       {ins.bio}
@@ -475,11 +475,11 @@ export const CourseDetails = () => {
                     background: "var(--surface)",
                     border: `1px solid ${"var(--border)"}`,
                   }}
-                  whileHover={{ x: 4, borderColor: "var(--border)"Hov }}
+                  whileHover={{ x: 4, borderColor: "var(--border)" }}
                 >
                   <div
                     className="w-10 h-10 rounded-lg flex items-center justify-center font-bold"
-                    style={{ background: "var(--surface)"2, color: C.brand }}
+                    style={{ background: "var(--surface2)", color: C.brand }}
                   >
                     {i + 1}
                   </div>
@@ -487,7 +487,7 @@ export const CourseDetails = () => {
                     <h4 style={{ color: "var(--text)" }} className="font-medium">
                       Module {i + 1}
                     </h4>
-                    <p style={{ color: "var(--text)"Muted }} className="text-sm">
+                    <p style={{ color: "var(--text-muted)" }} className="text-sm">
                       {point}
                     </p>
                   </div>
@@ -511,7 +511,7 @@ export const CourseDetails = () => {
                   style={{ color: "var(--text-muted)" }}
                   className="mx-auto mb-4"
                 />
-                <p style={{ color: "var(--text)"Muted }}>Syllabus not available</p>
+                <p style={{ color: "var(--text-muted)" }}>Syllabus not available</p>
               </div>
             )}
           </motion.div>
@@ -550,7 +550,7 @@ export const CourseDetails = () => {
                     />
                   ))}
                 </div>
-                <div style={{ color: "var(--text)"Muted }} className="text-sm">
+                <div style={{ color: "var(--text-muted)" }} className="text-sm">
                   {reviewsCount} reviews
                 </div>
               </div>
@@ -562,7 +562,7 @@ export const CourseDetails = () => {
                     </span>
                     <div
                       className="flex-1 h-2 rounded-full overflow-hidden"
-                      style={{ background: "var(--surface)"2 }}
+                      style={{ background: "var(--surface2)" }}
                     >
                       <motion.div
                         initial={{ width: 0 }}
@@ -596,7 +596,7 @@ export const CourseDetails = () => {
                   <div className="flex items-center gap-3 mb-3">
                     <div
                       className="w-10 h-10 rounded-full flex items-center justify-center font-semibold"
-                      style={{ background: "var(--surface)"2, color: C.brand }}
+                      style={{ background: "var(--surface2)", color: C.brand }}
                     >
                       {String.fromCharCode(65 + i)}
                     </div>
@@ -619,7 +619,7 @@ export const CourseDetails = () => {
                       ))}
                     </div>
                   </div>
-                  <p style={{ color: "var(--text)"Muted }}>{review}</p>
+                  <p style={{ color: "var(--text-muted)" }}>{review}</p>
                 </motion.div>
               ))}
             </div>
@@ -648,13 +648,13 @@ export const CourseDetails = () => {
           <button
             onClick={() => navigate("/user/mycourses")}
             className="flex items-center gap-2 px-4 py-2 rounded-xl transition-all"
-            style={{ color: "var(--text)"Muted }}
+            style={{ color: "var(--text-muted)" }}
             onMouseEnter={(e) => {
               e.currentTarget.style.color = "var(--text)";
               e.currentTarget.style.background = "var(--surface)";
             }}
             onMouseLeave={(e) => {
-              e.currentTarget.style.color = "var(--text)"Muted;
+              e.currentTarget.style.color = "var(--text-muted)";
               e.currentTarget.style.background = "transparent";
             }}
           >
@@ -672,7 +672,7 @@ export const CourseDetails = () => {
               style={{
                 background: isBookmarked ? `${C.brand}20` : "var(--surface)",
                 border: `1px solid ${isBookmarked ? C.brand : "var(--border)"}`,
-                color: isBookmarked ? C.brand : "var(--text)"Muted,
+                color: isBookmarked ? C.brand : "var(--text-muted)",
               }}
             >
               <Bookmark
@@ -688,7 +688,7 @@ export const CourseDetails = () => {
               style={{
                 background: "var(--surface)",
                 border: `1px solid ${"var(--border)"}`,
-                color: "var(--text)"Muted,
+                color: "var(--text-muted)",
               }}
             >
               <Share2 size={20} />
@@ -775,7 +775,7 @@ export const CourseDetails = () => {
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.4 }}
                   className="text-lg max-w-2xl mb-6"
-                  style={{ color: "var(--text)"Muted }}
+                  style={{ color: "var(--text-muted)" }}
                 >
                   {course.shortDesc || course.description?.slice(0, 200)}
                 </motion.p>
@@ -794,7 +794,7 @@ export const CourseDetails = () => {
                       style={{ borderColor: C.brand }}
                     />
                     <div>
-                      <div style={{ color: "var(--text)"Muted }} className="text-xs">
+                      <div style={{ color: "var(--text-muted)" }} className="text-xs">
                         Instructor
                       </div>
                       <div style={{ color: "var(--text)" }} className="font-medium">
@@ -805,7 +805,7 @@ export const CourseDetails = () => {
                   <div className="h-8 w-px" style={{ background: "var(--border)" }} />
                   <div
                     className="flex items-center gap-2"
-                    style={{ color: "var(--text)"Muted }}
+                    style={{ color: "var(--text-muted)" }}
                   >
                     <Users size={18} />
                     <span>{course.students || "1.2k"} students</span>
@@ -813,7 +813,7 @@ export const CourseDetails = () => {
                   <div className="h-8 w-px" style={{ background: "var(--border)" }} />
                   <div
                     className="flex items-center gap-2"
-                    style={{ color: "var(--text)"Muted }}
+                    style={{ color: "var(--text-muted)" }}
                   >
                     <Clock size={18} />
                     <span>{course.duration || "Self-paced"}</span>
@@ -864,7 +864,7 @@ export const CourseDetails = () => {
                     onClick={() => navigate(`/user/learn/${courseId}`)}
                     className="px-8 py-4 rounded-2xl font-bold text-lg flex items-center gap-2"
                     style={{
-                      background: "var(--surface)"2,
+                      background: "var(--surface2)",
                       color: "var(--text)",
                       border: `1px solid ${C.brand}`,
                     }}
@@ -899,7 +899,7 @@ export const CourseDetails = () => {
                 key={key}
                 onClick={() => setActiveTab(key)}
                 className="relative px-6 py-3 rounded-xl text-sm font-medium transition-colors"
-                style={{ color: active ? "var(--bg)" : "var(--text)"Muted }}
+                style={{ color: active ? "var(--bg)" : "var(--text-muted)" }}
               >
                 {active && (
                   <motion.div

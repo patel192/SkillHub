@@ -83,7 +83,7 @@ const ProgressRing = ({ progress, size = 44, strokeWidth = 4 }) => {
           stroke="currentColor"
           strokeWidth={strokeWidth}
           fill="transparent"
-          style={{ color: "var(--surface)"3 }}
+          style={{ color: "var(--surface3)" }}
         />
         <motion.circle
           cx={size / 2}
@@ -128,8 +128,8 @@ const CourseCard = ({ course, isMyCourse, viewMode = "grid" }) => {
           border: `1px solid ${"var(--border)"}`,
         }}
         onMouseEnter={(e) => {
-          e.currentTarget.style.borderColor = "var(--border)"Hov;
-          e.currentTarget.style.background = "var(--surface)"2;
+          e.currentTarget.style.borderColor = "var(--border)";
+          e.currentTarget.style.background = "var(--surface2)";
         }}
         onMouseLeave={(e) => {
           e.currentTarget.style.borderColor = "var(--border)";
@@ -153,7 +153,7 @@ const CourseCard = ({ course, isMyCourse, viewMode = "grid" }) => {
               >
                 {course.title}
               </h3>
-              <p className="text-sm mt-1 line-clamp-1" style={{ color: "var(--text)"Muted }}>{course.description}</p>
+              <p className="text-sm mt-1 line-clamp-1" style={{ color: "var(--text-muted)" }}>{course.description}</p>
             </div>
             {isMyCourse && course.progress !== undefined && (
               <ProgressRing progress={course.progress} />
@@ -211,7 +211,7 @@ const CourseCard = ({ course, isMyCourse, viewMode = "grid" }) => {
       }}
       onClick={() => navigate(`/user/course/${course._id}`)}
       onMouseEnter={(e) => {
-        e.currentTarget.style.borderColor = "var(--border)"Hov;
+        e.currentTarget.style.borderColor = "var(--border)";
         e.currentTarget.style.boxShadow = `0 20px 40px ${C.brand}15`;
       }}
       onMouseLeave={(e) => {
@@ -277,7 +277,7 @@ const CourseCard = ({ course, isMyCourse, viewMode = "grid" }) => {
         >
           {course.title}
         </h3>
-        <p className="text-sm mb-4 line-clamp-2" style={{ color: "var(--text)"Muted }}>
+        <p className="text-sm mb-4 line-clamp-2" style={{ color: "var(--text-muted)" }}>
           {course.description || "Master the fundamentals with hands-on projects and expert guidance."}
         </p>
 
@@ -307,7 +307,7 @@ const CourseCard = ({ course, isMyCourse, viewMode = "grid" }) => {
             color: "var(--bg)",
             boxShadow: `0 4px 20px ${C.brand}40`,
           } : {
-            background: "var(--surface)"2,
+            background: "var(--surface2)",
             color: "var(--text)",
             border: `1px solid ${"var(--border)"}`,
           }}
@@ -415,7 +415,7 @@ export const MyCourses = () => {
           >
             {activeTab === "my" ? "My Learning" : "Discover Courses"}
           </h1>
-          <p style={{ color: "var(--text)"Muted }}>
+          <p style={{ color: "var(--text-muted)" }}>
             {activeTab === "my" 
               ? `You have ${stats.total} courses in your library`
               : "Explore new skills and expand your knowledge"
@@ -429,7 +429,7 @@ export const MyCourses = () => {
             {[
               { label: "Completed", value: stats.completed, icon: Award, color: C.brand },
               { label: "In Progress", value: stats.inProgress, icon: Target, color: C.accent },
-              { label: "Hours", value: stats.hours, icon: Clock, color: "var(--text)"Muted }
+              { label: "Hours", value: stats.hours, icon: Clock, color: "var(--text-muted)" }
             ].map((stat, idx) => (
               <motion.div
                 key={stat.label}
@@ -471,7 +471,7 @@ export const MyCourses = () => {
           <div 
             className="relative flex rounded-xl p-1"
             style={{ 
-              background: "var(--surface)"2,
+              background: "var(--surface2)",
               border: `1px solid ${"var(--border)"}`,
             }}
           >
@@ -484,7 +484,7 @@ export const MyCourses = () => {
                   key={tab.id}
                   onClick={() => setActiveTab(tab.id)}
                   className="relative flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium transition-colors"
-                  style={{ color: isActive ? "var(--bg)" : "var(--text)"Muted }}
+                  style={{ color: isActive ? "var(--bg)" : "var(--text-muted)" }}
                 >
                   {isActive && (
                     <motion.div
@@ -504,8 +504,8 @@ export const MyCourses = () => {
                       <span 
                         className="px-1.5 py-0.5 rounded-md text-xs"
                         style={{ 
-                          background: isActive ? 'rgba(10,15,13,0.2)' : "var(--surface)"3,
-                          color: isActive ? "var(--bg)" : "var(--text)"Muted,
+                          background: isActive ? 'rgba(10,15,13,0.2)' : "var(--surface3)",
+                          color: isActive ? "var(--bg)" : "var(--text-muted)",
                         }}
                       >
                         {tab.count}
@@ -533,7 +533,7 @@ export const MyCourses = () => {
               onChange={(e) => setSearchQuery(e.target.value)}
               className="w-full sm:w-64 pl-10 pr-4 py-2.5 rounded-xl text-sm outline-none transition-all"
               style={{ 
-                background: "var(--surface)"2,
+                background: "var(--surface2)",
                 border: `1px solid ${"var(--border)"}`,
                 color: "var(--text)",
               }}
@@ -551,7 +551,7 @@ export const MyCourses = () => {
           <div 
             className="flex rounded-xl p-1"
             style={{ 
-              background: "var(--surface)"2,
+              background: "var(--surface2)",
               border: `1px solid ${"var(--border)"}`,
             }}
           >
@@ -559,7 +559,7 @@ export const MyCourses = () => {
               onClick={() => setViewMode("grid")}
               className="p-2 rounded-lg transition-colors"
               style={{ 
-                background: viewMode === "grid" ? "var(--surface)"3 : 'transparent',
+                background: viewMode === "grid" ? "var(--surface3)" : 'transparent',
                 color: viewMode === "grid" ? "var(--text)" : "var(--text-muted)",
               }}
             >
@@ -569,7 +569,7 @@ export const MyCourses = () => {
               onClick={() => setViewMode("list")}
               className="p-2 rounded-lg transition-colors"
               style={{ 
-                background: viewMode === "list" ? "var(--surface)"3 : 'transparent',
+                background: viewMode === "list" ? "var(--surface3)" : 'transparent',
                 color: viewMode === "list" ? "var(--text)" : "var(--text-muted)",
               }}
             >
@@ -605,7 +605,7 @@ export const MyCourses = () => {
             <div className="col-span-full py-20 text-center">
               <div 
                 className="w-20 h-20 mx-auto mb-4 rounded-full flex items-center justify-center"
-                style={{ background: "var(--surface)"2 }}
+                style={{ background: "var(--surface2)" }}
               >
                 <Sparkles className="w-10 h-10" style={{ color: "var(--text-muted)" }} />
               </div>
@@ -615,7 +615,7 @@ export const MyCourses = () => {
               >
                 No courses found
               </h3>
-              <p className="text-sm" style={{ color: "var(--text)"Muted }}>
+              <p className="text-sm" style={{ color: "var(--text-muted)" }}>
                 {searchQuery ? "Try adjusting your search terms" : "Start exploring to find your next learning adventure"}
               </p>
             </div>
