@@ -10,7 +10,7 @@ import {
 import { motion, AnimatePresence } from "framer-motion";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import axios from "axios";
-
+import {useSettings} from "../../context/SettingsContext";
 // ─────────────────────────────────────────
 // DESIGN TOKENS
 // ─────────────────────────────────────────

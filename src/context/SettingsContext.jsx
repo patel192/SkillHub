@@ -54,5 +54,5 @@ return (
 ) 
 }
 export const useSettings = () => {
-    useContext(SettingsContext);
+   return useContext(SettingsContext);
 }

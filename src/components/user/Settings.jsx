@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect } from "react";
 import {
   UserCog,
   Lock,
@@ -25,10 +25,12 @@ import {
   KeyRound
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
-import apiClient from "../../api/axiosConfig";
+import { useSettings } from "../../context/SettingsContext";
 import { useAuth } from "../../context/AuthContext";
+import apiClient from "../../api/axiosConfig";
+
 // ==========================================
-// DESIGN TOKENS (Matching Dashboard Theme)
+// DESIGN TOKENS
 // ==========================================
 const C = {
   brand: "#16A880",
@@ -36,6 +38,14 @@ const C = {
   brandLight: "#1FC99A",
   accent: "#F59E0B",
   danger: "#EF4444",
+  bg: "#0A0F0D",
+  surface: "#111814",
+  surface2: "#182219",
+  surface3: "#1E2B22",
+  border: "rgba(22,168,128,0.15)",
+  text: "#E8F5F0",
+  textMuted: "#7A9E8E",
+  textDim: "#3D5C4E",
   error: "#F87171",
   success: "#4ADE80"
 };
@@ -52,7 +62,7 @@ const Toast = ({ message, type, onClose }) => (
     className="fixed top-6 left-1/2 z-50 px-6 py-3 rounded-xl flex items-center gap-3 shadow-2xl"
     style={{
       background: type === 'error' ? C.danger : C.brand,
-      color: "var(--bg)",
+      color: C.bg,
       boxShadow: `0 10px 40px ${type === 'error' ? 'rgba(239,68,68,0.3)' : 'rgba(22,168,128,0.3)'}`
     }}
   >
@@ -76,8 +86,8 @@ const CustomToggle = ({ label, checked, onChange, disabled = false }) => (
     <motion.div 
       className="w-12 h-6 rounded-full relative transition-colors duration-300"
       style={{ 
-        background: checked ? C.brand : "var(--surface3)",
-        border: `1px solid ${checked ? C.brand : "var(--border)"}`
+        background: checked ? C.brand : C.surface3,
+        border: `1px solid ${checked ? C.brand : C.border}`
       }}
       whileTap={{ scale: 0.95 }}
     >
@@ -87,16 +97,16 @@ const CustomToggle = ({ label, checked, onChange, disabled = false }) => (
         transition={{ type: "spring", stiffness: 500, damping: 30 }}
       />
     </motion.div>
-    <span style={{ color: "var(--text)" }}>{label}</span>
+    <span style={{ color: C.text }}>{label}</span>
   </label>
 );
 
 const InputField = ({ label, type = "text", value, onChange, placeholder, error, icon: Icon, disabled = false }) => (
   <div className="space-y-1.5">
-    <label className="text-sm font-medium" style={{ color: "var(--text-muted)" }}>{label}</label>
+    <label className="text-sm font-medium" style={{ color: C.textMuted }}>{label}</label>
     <div className="relative">
       {Icon && (
-        <div className="absolute left-3 top-1/2 -translate-y-1/2" style={{ color: "var(--text-muted)" }}>
+        <div className="absolute left-3 top-1/2 -translate-y-1/2" style={{ color: C.textDim }}>
           <Icon size={18} />
         </div>
       )}
@@ -108,9 +118,9 @@ const InputField = ({ label, type = "text", value, onChange, placeholder, error,
         disabled={disabled}
         className="w-full p-3 rounded-xl outline-none transition-all disabled:opacity-50"
         style={{
-          background: "var(--surface2)",
-          border: `1px solid ${error ? C.error : "var(--border)"}`,
-          color: "var(--text)",
+          background: C.surface2,
+          border: `1px solid ${error ? C.error : C.border}`,
+          color: C.text,
           paddingLeft: Icon ? '2.5rem' : '1rem'
         }}
       />
@@ -134,20 +144,20 @@ const SectionCard = ({ children, title, description, danger = false }) => (
     animate={{ opacity: 1, y: 0 }}
     className="rounded-2xl p-6 space-y-4"
     style={{
-      background: "var(--surface)",
-      border: `1px solid ${danger ? 'rgba(239,68,68,0.3)' : "var(--border)"}`,
+      background: C.surface,
+      border: `1px solid ${danger ? 'rgba(239,68,68,0.3)' : C.border}`,
       boxShadow: danger ? 'none' : `0 4px 20px rgba(0,0,0,0.2)`
     }}
   >
     <div>
       <h3 className="text-xl font-bold" style={{ 
         fontFamily: "'Fraunces', serif", 
-        color: danger ? C.danger : "var(--text)" 
+        color: danger ? C.danger : C.text 
       }}>
         {title}
       </h3>
       {description && (
-        <p className="text-sm mt-1" style={{ color: "var(--text-muted)" }}>{description}</p>
+        <p className="text-sm mt-1" style={{ color: C.textMuted }}>{description}</p>
       )}
     </div>
     {children}
@@ -163,7 +173,7 @@ const SaveButton = ({ onClick, loading, children, danger = false }) => (
     className="px-6 py-2.5 rounded-xl font-medium flex items-center gap-2 transition-all disabled:opacity-50"
     style={{
       background: danger ? C.danger : `linear-gradient(135deg, ${C.brand}, ${C.brandLight})`,
-      color: danger ? 'white' : "var(--bg)",
+      color: danger ? 'white' : C.bg,
       boxShadow: danger ? 'none' : `0 4px 20px ${C.brand}40`
     }}
   >
@@ -177,14 +187,29 @@ const SaveButton = ({ onClick, loading, children, danger = false }) => (
 // ==========================================
 
 export const Settings = () => {
-  const {userId} = useAuth();
+  const { userId } = useAuth();
+  const { settings, loading: settingsLoading, updateSettings, refreshSettings } = useSettings();
   
   const [activeTab, setActiveTab] = useState("account");
-  const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [toast, setToast] = useState(null);
   
-  // User Data State
+  // Local state for form editing (synced with context settings)
+  const [localSettings, setLocalSettings] = useState({
+    profilePublic: false,
+    showActivity: true,
+    showProgress: true,
+    theme: "dark",
+    animationsEnabled: true,
+    compactMode: false,
+    emailNotifications: true,
+    pushNotifications: true,
+    courseUpdates: true,
+    achievementAlerts: true,
+    marketingEmails: false
+  });
+
+  // User profile data (separate from settings document)
   const [userData, setUserData] = useState({
     fullname: "",
     email: "",
@@ -193,31 +218,10 @@ export const Settings = () => {
     bio: "",
     avatar: "",
     emailVerified: false,
-    twoFactorEnabled: false,
     createdAt: ""
   });
 
-  // Settings State
-  const [settings, setSettings] = useState({
-    // Privacy
-    profilePublic: false,
-    showActivity: true,
-    showProgress: true,
-    
-    // Appearance
-    theme: "dark", // 'light' | 'dark' | 'system'
-    animationsEnabled: true,
-    compactMode: false,
-    
-    // Notifications
-    emailNotifications: true,
-    pushNotifications: true,
-    courseUpdates: true,
-    achievementAlerts: true,
-    marketingEmails: false
-  });
-
-  // Security State
+  // Security state (handled separately, not in settings doc)
   const [security, setSecurity] = useState({
     currentPassword: "",
     newPassword: "",
@@ -226,13 +230,33 @@ export const Settings = () => {
     showNew: false
   });
 
-  // Sessions State
   const [sessions, setSessions] = useState([]);
 
-  // Fetch all settings on mount
+  // Sync local settings with context settings when loaded
   useEffect(() => {
-    fetchUserData();
-  }, []);
+    if (settings) {
+      setLocalSettings({
+        profilePublic: settings.profilePublic ?? false,
+        showActivity: settings.showActivity ?? true,
+        showProgress: settings.showProgress ?? true,
+        theme: settings.theme ?? "dark",
+        animationsEnabled: settings.animationsEnabled ?? true,
+        compactMode: settings.compactMode ?? false,
+        emailNotifications: settings.emailNotifications ?? true,
+        pushNotifications: settings.pushNotifications ?? true,
+        courseUpdates: settings.courseUpdates ?? true,
+        achievementAlerts: settings.achievementAlerts ?? true,
+        marketingEmails: settings.marketingEmails ?? false
+      });
+    }
+  }, [settings]);
+
+  // Fetch user profile data (separate from settings)
+  useEffect(() => {
+    if (userId) {
+      fetchUserData();
+    }
+  }, [userId]);
 
   const showToast = (message, type = 'success') => {
     setToast({ message, type });
@@ -241,15 +265,8 @@ export const Settings = () => {
 
   const fetchUserData = async () => {
     try {
-      setLoading(true);
-      const [userRes, settingsRes] = await Promise.all([
-        apiClient.get(`/user/${userId}`),
-        apiClient.get(`/user/${userId}/settings`)
-      ]);
-
-      const user = userRes.data.data;
-      const prefs = settingsRes.data.data || {};
-
+      const res = await apiClient.get(`/user/${userId}`);
+      const user = res.data.data;
       setUserData({
         fullname: user.fullname || "",
         email: user.email || "",
@@ -258,85 +275,24 @@ export const Settings = () => {
         bio: user.bio || "",
         avatar: user.avatar || "",
         emailVerified: user.emailVerified || false,
-        twoFactorEnabled: user.twoFactorEnabled || false,
         createdAt: user.createdAt
       });
-
-      setSettings(prev => ({
-        ...prev,
-        ...prefs
-      }));
-
-      // Apply theme immediately on load
-      applyTheme(prefs.theme || 'dark');
     } catch (err) {
-      showToast("Failed to load settings", "error");
-      console.error(err);
-    } finally {
-      setLoading(false);
+      console.error("Failed to fetch user data:", err);
     }
   };
 
   // ==========================================
-  // THEME MANAGEMENT (Critical for App Integration)
-  // ==========================================
-  
-  const applyTheme = (theme) => {
-    const root = document.documentElement;
-    const systemDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-    const isDark = theme === 'dark' || (theme === 'system' && systemDark);
-    
-    if (isDark) {
-      root.classList.add('dark');
-      root.style.setProperty('--bg-primary', "var(--bg)");
-      root.style.setProperty('--text-primary', "var(--text)");
-    } else {
-      root.classList.remove('dark');
-      root.style.setProperty('--bg-primary', '#ffffff');
-      root.style.setProperty('--text-primary', '#0f172a');
-    }
-    
-    // Store in localStorage for persistence across sessions
-    localStorage.setItem('theme', theme);
-    localStorage.setItem('animationsEnabled', settings.animationsEnabled);
-  };
-
-  const handleThemeChange = (newTheme) => {
-    setSettings(prev => ({ ...prev, theme: newTheme }));
-    applyTheme(newTheme);
-  };
-
-  // ==========================================
-  // API HANDLERS
+  // SETTINGS UPDATE HANDLERS (Using Context)
   // ==========================================
 
-  const saveAccountDetails = async () => {
+  const handlePrivacySave = async () => {
+    setSaving(true);
     try {
-      setSaving(true);
-      await apiClient.put(`/user/${userId}`, {
-        fullname: userData.fullname,
-        username: userData.username,
-        phone: userData.phone,
-        bio: userData.bio
-      });
-      showToast("Profile updated successfully");
-      
-      // Update localStorage display name
-      localStorage.setItem("userName", userData.fullname);
-    } catch (err) {
-      showToast(err.response?.data?.message || "Failed to update profile", "error");
-    } finally {
-      setSaving(false);
-    }
-  };
-
-  const savePrivacySettings = async () => {
-    try {
-      setSaving(true);
-      await apiClient.put(`/user/${userId}/settings`, {
-        profilePublic: settings.profilePublic,
-        showActivity: settings.showActivity,
-        showProgress: settings.showProgress
+      await updateSettings({
+        profilePublic: localSettings.profilePublic,
+        showActivity: localSettings.showActivity,
+        showProgress: localSettings.showProgress
       });
       showToast("Privacy settings saved");
     } catch (err) {
@@ -346,15 +302,14 @@ export const Settings = () => {
     }
   };
 
-  const saveAppearanceSettings = async () => {
+  const handleAppearanceSave = async () => {
+    setSaving(true);
     try {
-      setSaving(true);
-      await apiClient.put(`/user/${userId}/settings`, {
-        theme: settings.theme,
-        animationsEnabled: settings.animationsEnabled,
-        compactMode: settings.compactMode
+      await updateSettings({
+        theme: localSettings.theme,
+        animationsEnabled: localSettings.animationsEnabled,
+        compactMode: localSettings.compactMode
       });
-      applyTheme(settings.theme);
       showToast("Appearance preferences saved");
     } catch (err) {
       showToast("Failed to save appearance", "error");
@@ -363,15 +318,15 @@ export const Settings = () => {
     }
   };
 
-  const saveNotificationSettings = async () => {
+  const handleNotificationsSave = async () => {
+    setSaving(true);
     try {
-      setSaving(true);
-      await apiClient.put(`/user/${userId}/settings`, {
-        emailNotifications: settings.emailNotifications,
-        pushNotifications: settings.pushNotifications,
-        courseUpdates: settings.courseUpdates,
-        achievementAlerts: settings.achievementAlerts,
-        marketingEmails: settings.marketingEmails
+      await updateSettings({
+        emailNotifications: localSettings.emailNotifications,
+        pushNotifications: localSettings.pushNotifications,
+        courseUpdates: localSettings.courseUpdates,
+        achievementAlerts: localSettings.achievementAlerts,
+        marketingEmails: localSettings.marketingEmails
       });
       showToast("Notification preferences updated");
     } catch (err) {
@@ -381,83 +336,67 @@ export const Settings = () => {
     }
   };
 
-  const changePassword = async () => {
-  // Client-side validation
-  if (!security.currentPassword || !security.newPassword || !security.confirmPassword) {
-    showToast("All password fields are required", "error");
-    return;
-  }
+  // ==========================================
+  // PROFILE & SECURITY HANDLERS (Separate API)
+  // ==========================================
 
-  if (security.newPassword !== security.confirmPassword) {
-    showToast("New passwords do not match", "error");
-    return;
-  }
-
-  if (security.newPassword.length < 8) {
-    showToast("Password must be at least 8 characters", "error");
-    return;
-  }
-
-  // Password strength check
-  const hasUpperCase = /[A-Z]/.test(security.newPassword);
-  const hasLowerCase = /[a-z]/.test(security.newPassword);
-  const hasNumbers = /\d/.test(security.newPassword);
-  const hasSpecial = /[!@#$%^&*(),.?":{}|<>]/.test(security.newPassword);
-
-  if (!hasUpperCase || !hasLowerCase || !hasNumbers) {
-    showToast("Password must contain uppercase, lowercase, and numbers", "error");
-    return;
-  }
-
-  try {
+  const saveAccountDetails = async () => {
     setSaving(true);
-    const response = await apiClient.post(`/user/${userId}/change-password`, {
-      currentPassword: security.currentPassword,
-      newPassword: security.newPassword
-    });
+    try {
+      await apiClient.put(`/user/${userId}`, {
+        fullname: userData.fullname,
+        username: userData.username,
+        phone: userData.phone,
+        bio: userData.bio
+      });
+      showToast("Profile updated successfully");
+      localStorage.setItem("userName", userData.fullname);
+    } catch (err) {
+      showToast(err.response?.data?.message || "Failed to update profile", "error");
+    } finally {
+      setSaving(false);
+    }
+  };
 
-    showToast(response.data.message || "Password changed successfully");
-    
-    // Clear form
-    setSecurity({
-      currentPassword: "",
-      newPassword: "",
-      confirmPassword: "",
-      showCurrent: false,
-      showNew: false,
-      showConfirm: false
-    });
-
-    // Optional: Log out other devices
-    const logoutOthers = window.confirm("Keep other devices logged in?");
-    if (!logoutOthers) {
-      await apiClient.post(`/user/${userId}/logout-all`);
-      showToast("Logged out from all other devices");
+  const changePassword = async () => {
+    if (!security.currentPassword || !security.newPassword || !security.confirmPassword) {
+      showToast("All password fields are required", "error");
+      return;
+    }
+    if (security.newPassword !== security.confirmPassword) {
+      showToast("New passwords do not match", "error");
+      return;
+    }
+    if (security.newPassword.length < 8) {
+      showToast("Password must be at least 8 characters", "error");
+      return;
     }
 
-  } catch (err) {
-    const message = err.response?.data?.message || "Failed to change password";
-    const status = err.response?.status;
-    
-    // Specific error messages
-    if (status === 401) {
-      showToast("Current password is incorrect", "error");
-    } else if (status === 429) {
-      showToast("Too many attempts. Please try again later.", "error");
-    } else if (status === 400 && message.includes("reuse")) {
-      showToast("Cannot reuse a previous password", "error");
-    } else {
+    setSaving(true);
+    try {
+      const response = await apiClient.post(`/user/${userId}/change-password`, {
+        currentPassword: security.currentPassword,
+        newPassword: security.newPassword
+      });
+      showToast(response.data.message || "Password changed successfully");
+      setSecurity({
+        currentPassword: "",
+        newPassword: "",
+        confirmPassword: "",
+        showCurrent: false,
+        showNew: false
+      });
+    } catch (err) {
+      const message = err.response?.data?.message || "Failed to change password";
       showToast(message, "error");
+    } finally {
+      setSaving(false);
     }
-  } finally {
-    setSaving(false);
-  }
-};
+  };
 
   const handleAvatarUpload = async (e) => {
     const file = e.target.files[0];
     if (!file) return;
-
     if (file.size > 2 * 1024 * 1024) {
       showToast("Image must be under 2MB", "error");
       return;
@@ -466,8 +405,8 @@ export const Settings = () => {
     const formData = new FormData();
     formData.append('avatar', file);
 
+    setSaving(true);
     try {
-      setSaving(true);
       const res = await apiClient.post(`/user/${userId}/avatar`, formData, {
         headers: { 'Content-Type': 'multipart/form-data' }
       });
@@ -487,8 +426,8 @@ export const Settings = () => {
       return;
     }
 
+    setSaving(true);
     try {
-      setSaving(true);
       await apiClient.delete(`/user/${userId}`);
       localStorage.clear();
       window.location.href = '/';
@@ -498,365 +437,146 @@ export const Settings = () => {
     }
   };
 
-  const terminateSession = async (sessionId) => {
-    try {
-      await apiClient.delete(`/user/${userId}/sessions/${sessionId}`);
-      setSessions(prev => prev.filter(s => s.id !== sessionId));
-      showToast("Session terminated");
-    } catch (err) {
-      showToast("Failed to terminate session", "error");
-    }
-  };
-
   // ==========================================
   // TAB CONTENT RENDERERS
   // ==========================================
 
   const renderAccountTab = () => (
     <div className="space-y-6">
-      <SectionCard 
-        title="Profile Information" 
-        description="Update your personal details and public profile"
-      >
-        {/* Avatar Upload */}
+      <SectionCard title="Profile Information" description="Update your personal details">
         <div className="flex items-center gap-4 mb-6">
           <div className="relative">
-            <div 
-              className="w-20 h-20 rounded-full overflow-hidden border-2"
-              style={{ borderColor: C.brand }}
-            >
+            <div className="w-20 h-20 rounded-full overflow-hidden border-2" style={{ borderColor: C.brand }}>
               {userData.avatar ? (
                 <img src={userData.avatar} alt="Avatar" className="w-full h-full object-cover" />
               ) : (
-                <div className="w-full h-full flex items-center justify-center" style={{ background: "var(--surface2)" }}>
-                  <UserCog size={32} style={{ color: "var(--text-muted)" }} />
+                <div className="w-full h-full flex items-center justify-center" style={{ background: C.surface2 }}>
+                  <UserCog size={32} style={{ color: C.textDim }} />
                 </div>
               )}
             </div>
-            <label 
-              className="absolute -bottom-1 -right-1 p-2 rounded-full cursor-pointer hover:scale-110 transition-transform"
-              style={{ background: C.brand, color: "var(--bg)" }}
-            >
+            <label className="absolute -bottom-1 -right-1 p-2 rounded-full cursor-pointer hover:scale-110 transition-transform" style={{ background: C.brand, color: C.bg }}>
               <Upload size={14} />
               <input type="file" className="hidden" accept="image/*" onChange={handleAvatarUpload} />
             </label>
           </div>
           <div>
-            <p className="font-semibold" style={{ color: "var(--text)" }}>{userData.fullname || 'User'}</p>
-            <p className="text-sm" style={{ color: "var(--text-muted)" }}>Member since {new Date(userData.createdAt).toLocaleDateString()}</p>
+            <p className="font-semibold" style={{ color: C.text }}>{userData.fullname || 'User'}</p>
+            <p className="text-sm" style={{ color: C.textMuted }}>Member since {new Date(userData.createdAt).toLocaleDateString()}</p>
           </div>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <InputField
-            label="Full Name"
-            value={userData.fullname}
-            onChange={(e) => setUserData(prev => ({ ...prev, fullname: e.target.value }))}
-            icon={UserCog}
-          />
-          <InputField
-            label="Username"
-            value={userData.username}
-            onChange={(e) => setUserData(prev => ({ ...prev, username: e.target.value }))}
-            icon={Globe}
-          />
-          <InputField
-            label="Email"
-            type="email"
-            value={userData.email}
-            disabled
-            icon={Mail}
-          />
-          <InputField
-            label="Phone Number"
-            type="tel"
-            value={userData.phone}
-            onChange={(e) => setUserData(prev => ({ ...prev, phone: e.target.value }))}
-            icon={Smartphone}
-          />
+          <InputField label="Full Name" value={userData.fullname} onChange={(e) => setUserData(prev => ({ ...prev, fullname: e.target.value }))} icon={UserCog} />
+          <InputField label="Username" value={userData.username} onChange={(e) => setUserData(prev => ({ ...prev, username: e.target.value }))} icon={Globe} />
+          <InputField label="Email" type="email" value={userData.email} disabled icon={Mail} />
+          <InputField label="Phone Number" type="tel" value={userData.phone} onChange={(e) => setUserData(prev => ({ ...prev, phone: e.target.value }))} icon={Smartphone} />
         </div>
 
         <div className="space-y-1.5">
-          <label className="text-sm font-medium" style={{ color: "var(--text-muted)" }}>Bio</label>
-          <textarea
-            value={userData.bio}
-            onChange={(e) => setUserData(prev => ({ ...prev, bio: e.target.value }))}
-            placeholder="Tell us about yourself..."
-            rows={3}
-            className="w-full p-3 rounded-xl outline-none resize-none"
-            style={{
-              background: "var(--surface2)",
-              border: `1px solid ${"var(--border)"}`,
-              color: "var(--text)"
-            }}
-          />
+          <label className="text-sm font-medium" style={{ color: C.textMuted }}>Bio</label>
+          <textarea value={userData.bio} onChange={(e) => setUserData(prev => ({ ...prev, bio: e.target.value }))} placeholder="Tell us about yourself..." rows={3}
+            className="w-full p-3 rounded-xl outline-none resize-none" style={{ background: C.surface2, border: `1px solid ${C.border}`, color: C.text }} />
         </div>
 
-        <div className="flex items-center gap-2 text-sm" style={{ color: "var(--text-muted)" }}>
-          <div className={`w-2 h-2 rounded-full ${userData.emailVerified ? 'bg-green-500' : 'bg-yellow-500'}`} />
-          Email {userData.emailVerified ? 'verified' : 'not verified'}
-          {!userData.emailVerified && (
-            <button 
-              onClick={() => apiClient.post(`/user/${userId}/verify-email`)}
-              className="ml-2 underline hover:text-white transition-colors"
-            >
-              Resend verification
-            </button>
-          )}
-        </div>
-
-        <SaveButton onClick={saveAccountDetails} loading={saving}>
-          Save Changes
-        </SaveButton>
+        <SaveButton onClick={saveAccountDetails} loading={saving}>Save Changes</SaveButton>
       </SectionCard>
 
-      {/* Password Change */}
       <SectionCard title="Security" description="Update your password">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="relative">
-            <InputField
-              label="Current Password"
-              type={security.showCurrent ? "text" : "password"}
-              value={security.currentPassword}
-              onChange={(e) => setSecurity(prev => ({ ...prev, currentPassword: e.target.value }))}
-              icon={KeyRound}
-            />
-            <button
-              onClick={() => setSecurity(prev => ({ ...prev, showCurrent: !prev.showCurrent }))}
-              className="absolute right-3 top-8"
-              style={{ color: "var(--text-muted)" }}
-            >
+            <InputField label="Current Password" type={security.showCurrent ? "text" : "password"} value={security.currentPassword} onChange={(e) => setSecurity(prev => ({ ...prev, currentPassword: e.target.value }))} icon={KeyRound} />
+            <button onClick={() => setSecurity(prev => ({ ...prev, showCurrent: !prev.showCurrent }))} className="absolute right-3 top-8" style={{ color: C.textDim }}>
               {security.showCurrent ? <EyeOff size={18} /> : <Eye size={18} />}
             </button>
           </div>
           <div />
           <div className="relative">
-            <InputField
-              label="New Password"
-              type={security.showNew ? "text" : "password"}
-              value={security.newPassword}
-              onChange={(e) => setSecurity(prev => ({ ...prev, newPassword: e.target.value }))}
-              icon={Lock}
-            />
-            <button
-              onClick={() => setSecurity(prev => ({ ...prev, showNew: !prev.showNew }))}
-              className="absolute right-3 top-8"
-              style={{ color: "var(--text-muted)" }}
-            >
+            <InputField label="New Password" type={security.showNew ? "text" : "password"} value={security.newPassword} onChange={(e) => setSecurity(prev => ({ ...prev, newPassword: e.target.value }))} icon={Lock} />
+            <button onClick={() => setSecurity(prev => ({ ...prev, showNew: !prev.showNew }))} className="absolute right-3 top-8" style={{ color: C.textDim }}>
               {security.showNew ? <EyeOff size={18} /> : <Eye size={18} />}
             </button>
           </div>
-          <InputField
-            label="Confirm New Password"
-            type="password"
-            value={security.confirmPassword}
-            onChange={(e) => setSecurity(prev => ({ ...prev, confirmPassword: e.target.value }))}
-            icon={Lock}
-          />
+          <InputField label="Confirm New Password" type="password" value={security.confirmPassword} onChange={(e) => setSecurity(prev => ({ ...prev, confirmPassword: e.target.value }))} icon={Lock} />
         </div>
-        <SaveButton onClick={changePassword} loading={saving}>
-          Update Password
-        </SaveButton>
+        <SaveButton onClick={changePassword} loading={saving}>Update Password</SaveButton>
       </SectionCard>
     </div>
   );
 
   const renderPrivacyTab = () => (
-    <SectionCard 
-      title="Privacy Settings" 
-      description="Control who can see your activity and profile"
-    >
+    <SectionCard title="Privacy Settings" description="Control who can see your activity">
       <div className="space-y-6">
-        <CustomToggle
-          label="Make profile public"
-          checked={settings.profilePublic}
-          onChange={() => setSettings(prev => ({ ...prev, profilePublic: !prev.profilePublic }))}
-        />
-        <CustomToggle
-          label="Show learning activity to others"
-          checked={settings.showActivity}
-          onChange={() => setSettings(prev => ({ ...prev, showActivity: !prev.showActivity }))}
-        />
-        <CustomToggle
-          label="Show course progress on profile"
-          checked={settings.showProgress}
-          onChange={() => setSettings(prev => ({ ...prev, showProgress: !prev.showProgress }))}
-        />
-        
-        <div className="pt-4 border-t" style={{ borderColor: "var(--border)" }}>
-          <SaveButton onClick={savePrivacySettings} loading={saving}>
-            Save Privacy Settings
-          </SaveButton>
+        <CustomToggle label="Make profile public" checked={localSettings.profilePublic} onChange={() => setLocalSettings(prev => ({ ...prev, profilePublic: !prev.profilePublic }))} />
+        <CustomToggle label="Show learning activity to others" checked={localSettings.showActivity} onChange={() => setLocalSettings(prev => ({ ...prev, showActivity: !prev.showActivity }))} />
+        <CustomToggle label="Show course progress on profile" checked={localSettings.showProgress} onChange={() => setLocalSettings(prev => ({ ...prev, showProgress: !prev.showProgress }))} />
+        <div className="pt-4 border-t" style={{ borderColor: C.border }}>
+          <SaveButton onClick={handlePrivacySave} loading={saving}>Save Privacy Settings</SaveButton>
         </div>
       </div>
     </SectionCard>
   );
 
   const renderAppearanceTab = () => (
-    <SectionCard 
-      title="Appearance" 
-      description="Customize how the application looks and feels"
-    >
+    <SectionCard title="Appearance" description="Customize how the application looks">
       <div className="space-y-6">
-        {/* Theme Selector */}
         <div className="space-y-3">
-          <label className="text-sm font-medium" style={{ color: "var(--text-muted)" }}>Theme</label>
+          <label className="text-sm font-medium" style={{ color: C.textMuted }}>Theme</label>
           <div className="grid grid-cols-3 gap-3">
-            {[
-              { key: 'light', icon: Sun, label: 'Light' },
-              { key: 'dark', icon: Moon, label: 'Dark' },
-              { key: 'system', icon: Monitor, label: 'System' }
-            ].map(({ key, icon: Icon, label }) => (
-              <motion.button
-                key={key}
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-                onClick={() => handleThemeChange(key)}
+            {[ { key: 'light', icon: Sun, label: 'Light' }, { key: 'dark', icon: Moon, label: 'Dark' }, { key: 'system', icon: Monitor, label: 'System' } ].map(({ key, icon: Icon, label }) => (
+              <motion.button key={key} whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} onClick={() => setLocalSettings(prev => ({ ...prev, theme: key }))}
                 className="p-4 rounded-xl flex flex-col items-center gap-2 transition-all"
-                style={{
-                  background: settings.theme === key ? C.brand : "var(--surface2)",
-                  border: `1px solid ${settings.theme === key ? C.brand : "var(--border)"}`,
-                  color: settings.theme === key ? "var(--bg)" : "var(--text)"
-                }}
-              >
-                <Icon size={24} />
-                <span className="text-sm font-medium">{label}</span>
+                style={{ background: localSettings.theme === key ? C.brand : C.surface2, border: `1px solid ${localSettings.theme === key ? C.brand : C.border}`, color: localSettings.theme === key ? C.bg : C.text }}>
+                <Icon size={24} /><span className="text-sm font-medium">{label}</span>
               </motion.button>
             ))}
           </div>
         </div>
-
-        <CustomToggle
-          label="Enable animations"
-          checked={settings.animationsEnabled}
-          onChange={() => setSettings(prev => ({ ...prev, animationsEnabled: !prev.animationsEnabled }))}
-        />
-        
-        <CustomToggle
-          label="Compact mode (reduced spacing)"
-          checked={settings.compactMode}
-          onChange={() => setSettings(prev => ({ ...prev, compactMode: !prev.compactMode }))}
-        />
-
-        <div className="pt-4 border-t" style={{ borderColor: "var(--border)" }}>
-          <SaveButton onClick={saveAppearanceSettings} loading={saving}>
-            Save Appearance
-          </SaveButton>
+        <CustomToggle label="Enable animations" checked={localSettings.animationsEnabled} onChange={() => setLocalSettings(prev => ({ ...prev, animationsEnabled: !prev.animationsEnabled }))} />
+        <CustomToggle label="Compact mode" checked={localSettings.compactMode} onChange={() => setLocalSettings(prev => ({ ...prev, compactMode: !prev.compactMode }))} />
+        <div className="pt-4 border-t" style={{ borderColor: C.border }}>
+          <SaveButton onClick={handleAppearanceSave} loading={saving}>Save Appearance</SaveButton>
         </div>
       </div>
     </SectionCard>
   );
 
   const renderNotificationsTab = () => (
-    <SectionCard 
-      title="Notification Preferences" 
-      description="Choose what you want to be notified about"
-    >
+    <SectionCard title="Notification Preferences" description="Choose what you want to be notified about">
       <div className="space-y-6">
         <div className="space-y-4">
-          <h4 className="font-semibold" style={{ color: "var(--text)" }}>Channels</h4>
-          <CustomToggle
-            label="Email notifications"
-            checked={settings.emailNotifications}
-            onChange={() => setSettings(prev => ({ ...prev, emailNotifications: !prev.emailNotifications }))}
-          />
-          <CustomToggle
-            label="Push notifications (browser)"
-            checked={settings.pushNotifications}
-            onChange={() => setSettings(prev => ({ ...prev, pushNotifications: !prev.pushNotifications }))}
-          />
+          <h4 className="font-semibold" style={{ color: C.text }}>Channels</h4>
+          <CustomToggle label="Email notifications" checked={localSettings.emailNotifications} onChange={() => setLocalSettings(prev => ({ ...prev, emailNotifications: !prev.emailNotifications }))} />
+          <CustomToggle label="Push notifications" checked={localSettings.pushNotifications} onChange={() => setLocalSettings(prev => ({ ...prev, pushNotifications: !prev.pushNotifications }))} />
         </div>
-
-        <div className="space-y-4 pt-4 border-t" style={{ borderColor: "var(--border)" }}>
-          <h4 className="font-semibold" style={{ color: "var(--text)" }}>Content</h4>
-          <CustomToggle
-            label="Course updates and announcements"
-            checked={settings.courseUpdates}
-            onChange={() => setSettings(prev => ({ ...prev, courseUpdates: !prev.courseUpdates }))}
-          />
-          <CustomToggle
-            label="Achievement and streak alerts"
-            checked={settings.achievementAlerts}
-            onChange={() => setSettings(prev => ({ ...prev, achievementAlerts: !prev.achievementAlerts }))}
-          />
-          <CustomToggle
-            label="Marketing and promotional emails"
-            checked={settings.marketingEmails}
-            onChange={() => setSettings(prev => ({ ...prev, marketingEmails: !prev.marketingEmails }))}
-          />
+        <div className="space-y-4 pt-4 border-t" style={{ borderColor: C.border }}>
+          <h4 className="font-semibold" style={{ color: C.text }}>Content</h4>
+          <CustomToggle label="Course updates and announcements" checked={localSettings.courseUpdates} onChange={() => setLocalSettings(prev => ({ ...prev, courseUpdates: !prev.courseUpdates }))} />
+          <CustomToggle label="Achievement and streak alerts" checked={localSettings.achievementAlerts} onChange={() => setLocalSettings(prev => ({ ...prev, achievementAlerts: !prev.achievementAlerts }))} />
+          <CustomToggle label="Marketing and promotional emails" checked={localSettings.marketingEmails} onChange={() => setLocalSettings(prev => ({ ...prev, marketingEmails: !prev.marketingEmails }))} />
         </div>
-
-        <div className="pt-4 border-t" style={{ borderColor: "var(--border)" }}>
-          <SaveButton onClick={saveNotificationSettings} loading={saving}>
-            Update Notification Settings
-          </SaveButton>
+        <div className="pt-4 border-t" style={{ borderColor: C.border }}>
+          <SaveButton onClick={handleNotificationsSave} loading={saving}>Update Notification Settings</SaveButton>
         </div>
       </div>
     </SectionCard>
   );
 
   const renderIntegrationsTab = () => (
-    <SectionCard 
-      title="Connected Accounts" 
-      description="Link external accounts for easier login"
-    >
+    <SectionCard title="Connected Accounts" description="Link external accounts">
       <div className="space-y-3">
-        {[
-          { 
-            provider: 'github', 
-            icon: Github, 
-            label: 'GitHub', 
-            connected: false,
-            color: '#333'
-          },
-          { 
-            provider: 'google', 
-            icon: Mail, // Using Mail as Google icon substitute
-            label: 'Google', 
-            connected: true,
-            color: '#EA4335'
-          }
-        ].map(({ provider, icon: Icon, label, connected, color }) => (
-          <motion.div
-            key={provider}
-            whileHover={{ scale: 1.01 }}
-            className="flex items-center justify-between p-4 rounded-xl"
-            style={{
-              background: "var(--surface2)",
-              border: `1px solid ${connected ? `${color}40` : "var(--border)"}`
-            }}
-          >
+        {[ { provider: 'github', icon: Github, label: 'GitHub', connected: false, color: '#333' }, { provider: 'google', icon: Mail, label: 'Google', connected: true, color: '#EA4335' } ].map(({ provider, icon: Icon, label, connected, color }) => (
+          <motion.div key={provider} whileHover={{ scale: 1.01 }} className="flex items-center justify-between p-4 rounded-xl" style={{ background: C.surface2, border: `1px solid ${connected ? `${color}40` : C.border}` }}>
             <div className="flex items-center gap-3">
-              <div 
-                className="p-2 rounded-lg"
-                style={{ background: `${color}20`, color }}
-              >
-                <Icon size={20} />
-              </div>
+              <div className="p-2 rounded-lg" style={{ background: `${color}20`, color }}><Icon size={20} /></div>
               <div>
-                <p className="font-medium" style={{ color: "var(--text)" }}>{label}</p>
-                <p className="text-xs" style={{ color: "var(--text-muted)" }}>
-                  {connected ? 'Connected' : 'Not connected'}
-                </p>
+                <p className="font-medium" style={{ color: C.text }}>{label}</p>
+                <p className="text-xs" style={{ color: C.textMuted }}>{connected ? 'Connected' : 'Not connected'}</p>
               </div>
             </div>
-            <button
-              onClick={() => {
-                if (connected) {
-                  // Disconnect logic
-                  showToast(`Disconnected from ${label}`);
-                } else {
-                  // OAuth connect logic
-                  window.location.href = `/api/auth/${provider}`;
-                }
-              }}
+            <button onClick={() => showToast(connected ? `Disconnected from ${label}` : `Connected to ${label}`)}
               className="px-4 py-2 rounded-lg text-sm font-medium transition-colors"
-              style={{
-                background: connected ? 'transparent' : "var(--surface3)",
-                border: `1px solid ${connected ? C.danger : "var(--border)"}`,
-                color: connected ? C.danger : "var(--text)"
-              }}
-            >
+              style={{ background: connected ? 'transparent' : C.surface3, border: `1px solid ${connected ? C.danger : C.border}`, color: connected ? C.danger : C.text }}>
               {connected ? 'Disconnect' : 'Connect'}
             </button>
           </motion.div>
@@ -867,63 +587,32 @@ export const Settings = () => {
 
   const renderDeactivateTab = () => (
     <div className="space-y-6">
-      <SectionCard 
-        title="Sign Out Everywhere" 
-        description="Terminate all active sessions across devices"
-      >
+      <SectionCard title="Sign Out Everywhere" description="Terminate all active sessions">
         <div className="space-y-3">
-          {sessions.map(session => (
-            <div 
-              key={session.id}
-              className="flex items-center justify-between p-3 rounded-lg"
-              style={{ background: "var(--surface2)" }}
-            >
+          {sessions.length === 0 ? (
+            <p className="text-sm text-center py-4" style={{ color: C.textMuted }}>No active sessions found</p>
+          ) : sessions.map(session => (
+            <div key={session.id} className="flex items-center justify-between p-3 rounded-lg" style={{ background: C.surface2 }}>
               <div className="flex items-center gap-3">
-                <Monitor size={18} style={{ color: "var(--text-muted)" }} />
+                <Monitor size={18} style={{ color: C.textDim }} />
                 <div>
-                  <p className="text-sm" style={{ color: "var(--text)" }}>{session.device}</p>
-                  <p className="text-xs" style={{ color: "var(--text-muted)" }}>
-                    {session.location} • {new Date(session.lastActive).toLocaleDateString()}
-                  </p>
+                  <p className="text-sm" style={{ color: C.text }}>{session.device}</p>
+                  <p className="text-xs" style={{ color: C.textMuted }}>{session.location} • {new Date(session.lastActive).toLocaleDateString()}</p>
                 </div>
               </div>
-              <button
-                onClick={() => terminateSession(session.id)}
-                className="p-2 rounded-lg hover:bg-red-500/20 transition-colors"
-                style={{ color: C.danger }}
-              >
-                <LogOut size={16} />
-              </button>
+              <button onClick={() => {}} className="p-2 rounded-lg hover:bg-red-500/20 transition-colors" style={{ color: C.danger }}><LogOut size={16} /></button>
             </div>
           ))}
-          {sessions.length === 0 && (
-            <p className="text-sm text-center py-4" style={{ color: "var(--text-muted)" }}>
-              No active sessions found
-            </p>
-          )}
         </div>
       </SectionCard>
 
-      <SectionCard 
-        title="Danger Zone" 
-        description="Permanent actions that cannot be undone"
-        danger
-      >
+      <SectionCard title="Danger Zone" description="Permanent actions" danger>
         <div className="space-y-4">
           <div className="p-4 rounded-xl bg-red-500/10 border border-red-500/30">
-            <h4 className="font-semibold text-red-400 flex items-center gap-2">
-              <AlertTriangle size={18} />
-              Delete Account
-            </h4>
-            <p className="text-sm mt-2" style={{ color: "var(--text-muted)" }}>
-              Once deleted, all your data including courses, certificates, and progress will be permanently removed. This action cannot be undone.
-            </p>
+            <h4 className="font-semibold text-red-400 flex items-center gap-2"><AlertTriangle size={18} />Delete Account</h4>
+            <p className="text-sm mt-2" style={{ color: C.textMuted }}>Once deleted, all your data will be permanently removed.</p>
           </div>
-          
-          <SaveButton onClick={deleteAccount} loading={saving} danger>
-            <Trash2 size={18} />
-            Delete My Account Permanently
-          </SaveButton>
+          <SaveButton onClick={deleteAccount} loading={saving} danger><Trash2 size={18} />Delete My Account</SaveButton>
         </div>
       </SectionCard>
     </div>
@@ -942,68 +631,35 @@ export const Settings = () => {
     { key: "deactivate", label: "Danger Zone", icon: Trash2, danger: true }
   ];
 
-  if (loading) {
+  if (settingsLoading) {
     return (
-      <div className="flex items-center justify-center h-96" style={{ background: "var(--bg)" }}>
-        <motion.div
-          animate={{ rotate: 360 }}
-          transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
-          className="w-8 h-8 border-2 rounded-full"
-          style={{ borderColor: C.brand, borderTopColor: 'transparent' }}
-        />
+      <div className="flex items-center justify-center h-96" style={{ background: C.bg }}>
+        <motion.div animate={{ rotate: 360 }} transition={{ duration: 1, repeat: Infinity, ease: "linear" }} className="w-8 h-8 border-2 rounded-full" style={{ borderColor: C.brand, borderTopColor: 'transparent' }} />
       </div>
     );
   }
 
   return (
-    <div className="p-6 max-w-4xl mx-auto space-y-8" style={{ color: "var(--text)", background: "var(--bg)", minHeight: '100vh' }}>
-      <AnimatePresence>
-        {toast && <Toast {...toast} onClose={() => setToast(null)} />}
-      </AnimatePresence>
+    <div className="p-6 max-w-4xl mx-auto space-y-8" style={{ color: C.text, background: C.bg, minHeight: '100vh' }}>
+      <AnimatePresence>{toast && <Toast {...toast} onClose={() => setToast(null)} />}</AnimatePresence>
 
-      {/* Header */}
-      <motion.div
-        initial={{ opacity: 0, x: -20 }}
-        animate={{ opacity: 1, x: 0 }}
-      >
-        <h1 className="text-3xl font-bold" style={{ fontFamily: "'Fraunces', serif" }}>
-          Settings
-        </h1>
-        <p className="text-sm mt-1" style={{ color: "var(--text-muted)" }}>
-          Manage your account preferences & customization
-        </p>
+      <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }}>
+        <h1 className="text-3xl font-bold" style={{ fontFamily: "'Fraunces', serif" }}>Settings</h1>
+        <p className="text-sm mt-1" style={{ color: C.textMuted }}>Manage your account preferences</p>
       </motion.div>
 
-      {/* Tabs */}
       <div className="flex flex-wrap gap-2">
         {tabs.map((tab) => (
-          <motion.button
-            key={tab.key}
-            whileHover={{ scale: 1.03 }}
-            whileTap={{ scale: 0.97 }}
-            onClick={() => setActiveTab(tab.key)}
+          <motion.button key={tab.key} whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }} onClick={() => setActiveTab(tab.key)}
             className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium transition-all"
-            style={{
-              background: activeTab === tab.key ? "var(--surface2)" : 'transparent',
-              border: `1px solid ${activeTab === tab.key ? (tab.danger ? C.danger : C.brand) : "var(--border)"}`,
-              color: activeTab === tab.key ? (tab.danger ? C.danger : C.brand) : "var(--text-muted)"
-            }}
-          >
-            <tab.icon size={16} />
-            {tab.label}
+            style={{ background: activeTab === tab.key ? C.surface2 : 'transparent', border: `1px solid ${activeTab === tab.key ? (tab.danger ? C.danger : C.brand) : C.border}`, color: activeTab === tab.key ? (tab.danger ? C.danger : C.brand) : C.textMuted }}>
+            <tab.icon size={16} />{tab.label}
           </motion.button>
         ))}
       </div>
 
-      {/* Content */}
       <AnimatePresence mode="wait">
-        <motion.div
-          key={activeTab}
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: -10 }}
-          transition={{ duration: 0.2 }}
-        >
+        <motion.div key={activeTab} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} transition={{ duration: 0.2 }}>
           {activeTab === "account" && renderAccountTab()}
           {activeTab === "privacy" && renderPrivacyTab()}
           {activeTab === "appearance" && renderAppearanceTab()}
