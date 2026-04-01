@@ -347,7 +347,7 @@ export const UserDashboard = () => {
             onClick={() => navigate("/user/mycourses")}
             className="px-4 py-2.5 rounded-xl text-sm font-medium transition-all flex items-center gap-2"
             style={{
-              background: "var(--surface)"2,
+              background: "var(--surface2)",
               border: `1px solid ${"var(--border)"}`,
               color: "var(--text-muted)",
             }}
@@ -707,7 +707,7 @@ export const UserDashboard = () => {
                   onClick={item.action}
                   className="w-full flex items-center gap-3 p-3 rounded-xl transition-all text-left group"
                   style={{
-                    background: "var(--surface)"2,
+                    background: "var(--surface2)",
                     border: `1px solid ${"var(--border)"}`,
                   }}
                 >
@@ -828,7 +828,7 @@ export const UserDashboard = () => {
                   key={idx}
                   className="flex-1 h-8 rounded-lg flex items-center justify-center text-xs font-medium"
                   style={{
-                    background: idx < 3 ? C.brand : "var(--surface)"2,
+                    background: idx < 3 ? C.brand : "var(--surface2)",
                     color: idx < 3 ? "var(--bg)" : "var(--text-muted)",
                     border: `1px solid ${idx < 3 ? C.brand : "var(--border)"}`,
                   }}
