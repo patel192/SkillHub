@@ -81,7 +81,7 @@ const AnimatedCounter = ({ value, suffix = "" }) => {
 const ProgressBar = ({ progress, color = C.brand }) => (
   <div
     className="h-2 w-full rounded-full overflow-hidden"
-    style={{ background: "var(--surface3)" }}
+    style={{ background: "var(--surface)"3 }}
   >
     <motion.div
       initial={{ width: 0 }}
@@ -193,7 +193,7 @@ const StatCard = ({ icon: Icon, label, value, subtext, trend, delay = 0 }) => (
 // ==========================================
 
 export const UserDashboard = () => {
-  const { userId, token } = useAuth();
+  const { userId, token,loading:authLoading } = useAuth();
   console.log("User ID from AuthContext:", userId);
   const navigate = useNavigate();
   const [userName, setUserName] = useState("");
@@ -212,10 +212,11 @@ export const UserDashboard = () => {
 
   // Fetch all dashboard data
   useEffect(() => {
+    if(authLoading) return;
+    if(!userId || !token) return;
     const fetchData = async () => {
       try {
         setLoading(true);
-
         const [userRes, coursesRes, certRes, actRes, notifRes, recRes] =
           await Promise.all([
             apiClient.get(`/user/${userId}`),
@@ -281,7 +282,7 @@ export const UserDashboard = () => {
     };
 
     fetchData();
-  }, [userId, token]);
+  }, [userId, token,authLoading]);
 
   const formatTime = (minutes) => {
     const hours = Math.floor(minutes / 60);
@@ -346,7 +347,7 @@ export const UserDashboard = () => {
             onClick={() => navigate("/user/mycourses")}
             className="px-4 py-2.5 rounded-xl text-sm font-medium transition-all flex items-center gap-2"
             style={{
-              background: "var(--surface2)",
+              background: "var(--surface)"2,
               border: `1px solid ${"var(--border)"}`,
               color: "var(--text-muted)",
             }}
@@ -706,7 +707,7 @@ export const UserDashboard = () => {
                   onClick={item.action}
                   className="w-full flex items-center gap-3 p-3 rounded-xl transition-all text-left group"
                   style={{
-                    background: "var(--surface2)",
+                    background: "var(--surface)"2,
                     border: `1px solid ${"var(--border)"}`,
                   }}
                 >
@@ -827,7 +828,7 @@ export const UserDashboard = () => {
                   key={idx}
                   className="flex-1 h-8 rounded-lg flex items-center justify-center text-xs font-medium"
                   style={{
-                    background: idx < 3 ? C.brand : "var(--surface2)",
+                    background: idx < 3 ? C.brand : "var(--surface)"2,
                     color: idx < 3 ? "var(--bg)" : "var(--text-muted)",
                     border: `1px solid ${idx < 3 ? C.brand : "var(--border)"}`,
                   }}

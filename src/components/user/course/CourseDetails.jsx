@@ -58,7 +58,7 @@ export const CourseDetails = () => {
   const [savingBookmark, setSavingBookmark] = useState(false);
   const [isBookmarked, setIsBookmarked] = useState(false);
 
-  const { token, userId } = useAuth();
+  const { token, userId, loading: authLoading } = useAuth();
 
   useEffect(() => {
     let mounted = true;
@@ -100,12 +100,12 @@ export const CourseDetails = () => {
         if (mounted) setLoading(false);
       }
     };
-
+    if (authLoading) return;
     load();
     return () => {
       mounted = false;
     };
-  }, [courseId, token, userId]);
+  }, [courseId, token, userId, authLoading]);
 
   const handleEnroll = async () => {
     try {
@@ -170,7 +170,10 @@ export const CourseDetails = () => {
             className="w-20 h-20 mx-auto mb-4 rounded-full flex items-center justify-center"
             style={{ background: "var(--surface)" }}
           >
-            <Sparkles className="w-10 h-10" style={{ color: "var(--text-muted)" }} />
+            <Sparkles
+              className="w-10 h-10"
+              style={{ color: "var(--text-muted)" }}
+            />
           </div>
           <h2
             className="text-2xl font-bold mb-2"
@@ -239,7 +242,10 @@ export const CourseDetails = () => {
                 >
                   <h3
                     className="text-lg font-semibold mb-4 flex items-center gap-2"
-                    style={{ color: "var(--text)", fontFamily: "Fraunces, serif" }}
+                    style={{
+                      color: "var(--text)",
+                      fontFamily: "Fraunces, serif",
+                    }}
                   >
                     <Target size={20} style={{ color: C.brand }} />
                     What you'll learn
@@ -263,7 +269,9 @@ export const CourseDetails = () => {
                               marginTop: 2,
                             }}
                           />
-                          <span style={{ color: "var(--text-muted)" }}>{item}</span>
+                          <span style={{ color: "var(--text-muted)" }}>
+                            {item}
+                          </span>
                         </motion.div>
                       ))
                     ) : (
@@ -283,7 +291,10 @@ export const CourseDetails = () => {
                 >
                   <h3
                     className="text-lg font-semibold mb-4"
-                    style={{ color: "var(--text)", fontFamily: "Fraunces, serif" }}
+                    style={{
+                      color: "var(--text)",
+                      fontFamily: "Fraunces, serif",
+                    }}
                   >
                     About this course
                   </h3>
@@ -301,7 +312,10 @@ export const CourseDetails = () => {
                     border: `1px solid ${"var(--border)"}`,
                   }}
                 >
-                  <h4 className="font-semibold mb-4" style={{ color: "var(--text)" }}>
+                  <h4
+                    className="font-semibold mb-4"
+                    style={{ color: "var(--text)" }}
+                  >
                     Course Details
                   </h4>
                   <div className="space-y-4">
@@ -340,12 +354,18 @@ export const CourseDetails = () => {
                         style={{ borderColor: "var(--border)" }}
                       >
                         <div className="flex items-center gap-3">
-                          <detail.icon size={16} style={{ color: "var(--text-muted)" }} />
+                          <detail.icon
+                            size={16}
+                            style={{ color: "var(--text-muted)" }}
+                          />
                           <span style={{ color: "var(--text-muted)" }}>
                             {detail.label}
                           </span>
                         </div>
-                        <span style={{ color: "var(--text)" }} className="font-medium">
+                        <span
+                          style={{ color: "var(--text)" }}
+                          className="font-medium"
+                        >
                           {detail.value}
                         </span>
                       </div>
@@ -484,10 +504,16 @@ export const CourseDetails = () => {
                     {i + 1}
                   </div>
                   <div className="flex-1">
-                    <h4 style={{ color: "var(--text)" }} className="font-medium">
+                    <h4
+                      style={{ color: "var(--text)" }}
+                      className="font-medium"
+                    >
                       Module {i + 1}
                     </h4>
-                    <p style={{ color: "var(--text-muted)" }} className="text-sm">
+                    <p
+                      style={{ color: "var(--text-muted)" }}
+                      className="text-sm"
+                    >
                       {point}
                     </p>
                   </div>
@@ -511,7 +537,9 @@ export const CourseDetails = () => {
                   style={{ color: "var(--text-muted)" }}
                   className="mx-auto mb-4"
                 />
-                <p style={{ color: "var(--text-muted)" }}>Syllabus not available</p>
+                <p style={{ color: "var(--text-muted)" }}>
+                  Syllabus not available
+                </p>
               </div>
             )}
           </motion.div>
@@ -526,7 +554,10 @@ export const CourseDetails = () => {
           >
             <div
               className="flex items-center gap-6 p-6 rounded-2xl"
-              style={{ background: "var(--surface)", border: `1px solid ${"var(--border)"}` }}
+              style={{
+                background: "var(--surface)",
+                border: `1px solid ${"var(--border)"}`,
+              }}
             >
               <div className="text-center">
                 <div
@@ -542,7 +573,9 @@ export const CourseDetails = () => {
                       size={16}
                       style={{
                         color:
-                          star <= Math.floor(rating) ? C.accent : "var(--text-muted)",
+                          star <= Math.floor(rating)
+                            ? C.accent
+                            : "var(--text-muted)",
                       }}
                       fill={
                         star <= Math.floor(rating) ? C.accent : "transparent"
@@ -557,7 +590,10 @@ export const CourseDetails = () => {
               <div className="flex-1 space-y-2">
                 {[5, 4, 3, 2, 1].map((stars) => (
                   <div key={stars} className="flex items-center gap-3">
-                    <span style={{ color: "var(--text-muted)" }} className="text-sm w-8">
+                    <span
+                      style={{ color: "var(--text-muted)" }}
+                      className="text-sm w-8"
+                    >
                       {stars}★
                     </span>
                     <div
@@ -601,10 +637,16 @@ export const CourseDetails = () => {
                       {String.fromCharCode(65 + i)}
                     </div>
                     <div>
-                      <div style={{ color: "var(--text)" }} className="font-medium">
+                      <div
+                        style={{ color: "var(--text)" }}
+                        className="font-medium"
+                      >
                         Student {i + 1}
                       </div>
-                      <div style={{ color: "var(--text-muted)" }} className="text-xs">
+                      <div
+                        style={{ color: "var(--text-muted)" }}
+                        className="text-xs"
+                      >
                         2 days ago
                       </div>
                     </div>
@@ -756,7 +798,9 @@ export const CourseDetails = () => {
                   >
                     <Star size={14} fill={C.accent} />
                     <span className="text-sm font-medium">{rating}</span>
-                    <span style={{ color: "var(--text-muted)" }}>({reviewsCount})</span>
+                    <span style={{ color: "var(--text-muted)" }}>
+                      ({reviewsCount})
+                    </span>
                   </div>
                 </motion.div>
 
@@ -765,7 +809,10 @@ export const CourseDetails = () => {
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.3 }}
                   className="text-3xl md:text-5xl font-bold mb-4 leading-tight"
-                  style={{ color: "var(--text)", fontFamily: "Fraunces, serif" }}
+                  style={{
+                    color: "var(--text)",
+                    fontFamily: "Fraunces, serif",
+                  }}
                 >
                   {course.title}
                 </motion.h1>
@@ -794,15 +841,24 @@ export const CourseDetails = () => {
                       style={{ borderColor: C.brand }}
                     />
                     <div>
-                      <div style={{ color: "var(--text-muted)" }} className="text-xs">
+                      <div
+                        style={{ color: "var(--text-muted)" }}
+                        className="text-xs"
+                      >
                         Instructor
                       </div>
-                      <div style={{ color: "var(--text)" }} className="font-medium">
+                      <div
+                        style={{ color: "var(--text)" }}
+                        className="font-medium"
+                      >
                         {instructors[0]?.name}
                       </div>
                     </div>
                   </div>
-                  <div className="h-8 w-px" style={{ background: "var(--border)" }} />
+                  <div
+                    className="h-8 w-px"
+                    style={{ background: "var(--border)" }}
+                  />
                   <div
                     className="flex items-center gap-2"
                     style={{ color: "var(--text-muted)" }}
@@ -810,7 +866,10 @@ export const CourseDetails = () => {
                     <Users size={18} />
                     <span>{course.students || "1.2k"} students</span>
                   </div>
-                  <div className="h-8 w-px" style={{ background: "var(--border)" }} />
+                  <div
+                    className="h-8 w-px"
+                    style={{ background: "var(--border)" }}
+                  />
                   <div
                     className="flex items-center gap-2"
                     style={{ color: "var(--text-muted)" }}
@@ -884,7 +943,10 @@ export const CourseDetails = () => {
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.7 }}
           className="flex gap-1 p-1 rounded-2xl w-fit"
-          style={{ background: "var(--surface)", border: `1px solid ${"var(--border)"}` }}
+          style={{
+            background: "var(--surface)",
+            border: `1px solid ${"var(--border)"}`,
+          }}
         >
           {TAB_KEYS.map((key) => {
             const active = activeTab === key;

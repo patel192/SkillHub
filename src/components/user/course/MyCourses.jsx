@@ -332,11 +332,12 @@ export const MyCourses = () => {
   const [discoverCourses, setDiscoverCourses] = useState([]);
   const [loading, setLoading] = useState(true);
   const [stats, setStats] = useState({ total: 0, completed: 0, inProgress: 0, hours: 0 });
-  const {userId} = useAuth();
+  const {userId,loading:authLoading} = useAuth();
 
   useEffect(() => {
+    if(!userId || authLoading) return;
     fetchData();
-  }, []);
+  }, [userId,authLoading]);
 
   const fetchData = async () => {
     setLoading(true);
