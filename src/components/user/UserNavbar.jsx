@@ -130,9 +130,9 @@ export const UserNavbar = ({ toggleSidebar, isSidebarOpen, isMobile }) => {
       transition={{ duration: 0.4, ease: "easeOut" }}
       className="sticky top-0 z-30 h-16"
       style={{
-        background: `${C.surface}CC`,
+        background: `${"var(--surface)"}CC`,
         backdropFilter: "blur(18px)",
-        borderBottom: `1px solid ${C.border}`,
+        borderBottom: `1px solid ${"var(--border)"}`,
       }}
     >
       <div className="h-full px-4 sm:px-6 flex items-center justify-between gap-4">
@@ -145,7 +145,7 @@ export const UserNavbar = ({ toggleSidebar, isSidebarOpen, isMobile }) => {
             whileTap={{ scale: 0.95 }}
             onClick={toggleSidebar}
             className="p-2.5 rounded-xl transition-colors lg:hidden"
-            style={{ background: `${C.brand}12`, border: `1px solid ${C.border}` }}
+            style={{ background: `${C.brand}12`, border: `1px solid ${"var(--border)"}` }}
           >
             <Menu size={19} style={{ color: C.brand }} />
           </motion.button>
@@ -155,7 +155,7 @@ export const UserNavbar = ({ toggleSidebar, isSidebarOpen, isMobile }) => {
             <button
               onClick={toggleSidebar}
               className="hidden lg:flex p-2.5 rounded-xl transition-colors"
-              style={{ background: `${C.brand}12`, border: `1px solid ${C.border}` }}
+              style={{ background: `${C.brand}12`, border: `1px solid ${"var(--border)"}` }}
             >
               <Menu
                 size={19}
@@ -172,11 +172,11 @@ export const UserNavbar = ({ toggleSidebar, isSidebarOpen, isMobile }) => {
           <div className="hidden md:block">
             <h1
               className="text-[17px] font-bold tracking-tight"
-              style={{ fontFamily: "'Fraunces', serif", color: C.text }}
+              style={{ fontFamily: "'Fraunces', serif", color: "var(--text)" }}
             >
               {pageTitle}
             </h1>
-            <p className="text-[11px] uppercase tracking-wider" style={{ color: C.textDim }}>
+            <p className="text-[11px] uppercase tracking-wider" style={{ color: "var(--text-muted)" }}>
               {formattedDate}
             </p>
           </div>
@@ -188,15 +188,15 @@ export const UserNavbar = ({ toggleSidebar, isSidebarOpen, isMobile }) => {
             animate={{
               boxShadow: searchFocused
                 ? `0 0 0 1.5px ${C.brand}88, 0 0 20px ${C.brand}14`
-                : `0 0 0 1px ${C.border}`,
+                : `0 0 0 1px ${"var(--border)"}`,
             }}
             className="relative rounded-xl overflow-hidden"
-            style={{ background: C.surface2 }}
+            style={{ background: "var(--surface)"2 }}
           >
             <Search
               className="absolute left-3.5 top-1/2 -translate-y-1/2 transition-colors"
               size={16}
-              style={{ color: searchFocused ? C.brand : C.textDim }}
+              style={{ color: searchFocused ? C.brand : "var(--text-muted)" }}
             />
             <input
               type="text"
@@ -206,7 +206,7 @@ export const UserNavbar = ({ toggleSidebar, isSidebarOpen, isMobile }) => {
               onFocus={() => setSearchFocused(true)}
               onBlur={() => setSearchFocused(false)}
               className="w-full pl-10 pr-9 py-2.5 bg-transparent outline-none text-[14px] placeholder-[#3D5C4E]"
-              style={{ color: C.text }}
+              style={{ color: "var(--text)" }}
             />
             <AnimatePresence>
               {searchQuery && (
@@ -216,7 +216,7 @@ export const UserNavbar = ({ toggleSidebar, isSidebarOpen, isMobile }) => {
                   exit={{ opacity: 0, scale: 0.7 }}
                   onClick={() => setSearchQuery("")}
                   className="absolute right-3 top-1/2 -translate-y-1/2 transition-colors"
-                  style={{ color: C.textDim }}
+                  style={{ color: "var(--text-muted)" }}
                 >
                   <X size={14} />
                 </motion.button>
@@ -232,13 +232,13 @@ export const UserNavbar = ({ toggleSidebar, isSidebarOpen, isMobile }) => {
           <div className="hidden lg:flex flex-col items-end mr-1">
             <span
               className="text-[17px] font-mono font-semibold tabular-nums"
-              style={{ color: C.text }}
+              style={{ color: "var(--text)" }}
             >
               {formattedTime}
             </span>
             <span
               className="text-[10px] uppercase tracking-wider"
-              style={{ color: C.textDim }}
+              style={{ color: "var(--text-muted)" }}
             >
               Local Time
             </span>
@@ -251,9 +251,9 @@ export const UserNavbar = ({ toggleSidebar, isSidebarOpen, isMobile }) => {
               whileTap={{ scale: 0.95 }}
               onClick={() => { setNotifOpen(!notifOpen); setDropdownOpen(false); }}
               className="relative p-2.5 rounded-xl transition-colors"
-              style={{ background: `${C.brand}10`, border: `1px solid ${C.border}` }}
+              style={{ background: `${C.brand}10`, border: `1px solid ${"var(--border)"}` }}
             >
-              <Bell size={18} style={{ color: C.textMuted }} />
+              <Bell size={18} style={{ color: "var(--text)"Muted }} />
               <AnimatePresence>
                 {unreadCount > 0 && (
                   <motion.span
@@ -261,7 +261,7 @@ export const UserNavbar = ({ toggleSidebar, isSidebarOpen, isMobile }) => {
                     animate={{ scale: 1 }}
                     exit={{ scale: 0 }}
                     className="absolute top-1.5 right-1.5 h-2.5 w-2.5 rounded-full ring-2"
-                    style={{ background: C.error, ringColor: C.surface }}
+                    style={{ background: C.error, ringColor: "var(--surface)" }}
                   >
                     <span
                       className="absolute inset-0 rounded-full animate-ping opacity-70"
@@ -280,14 +280,14 @@ export const UserNavbar = ({ toggleSidebar, isSidebarOpen, isMobile }) => {
                   exit={{ opacity: 0, y: 10,  scale: 0.95 }}
                   transition={{ duration: 0.18 }}
                   className="absolute right-0 mt-3 w-80 sm:w-96 rounded-2xl shadow-2xl overflow-hidden z-50"
-                  style={{ background: C.surface, border: `1px solid ${C.border}` }}
+                  style={{ background: "var(--surface)", border: `1px solid ${"var(--border)"}` }}
                 >
                   {/* Header */}
                   <div
                     className="p-4 flex items-center justify-between border-b"
-                    style={{ background: C.surface2, borderColor: C.border }}
+                    style={{ background: "var(--surface)"2, borderColor: "var(--border)" }}
                   >
-                    <h3 className="font-semibold text-[15px]" style={{ color: C.text }}>
+                    <h3 className="font-semibold text-[15px]" style={{ color: "var(--text)" }}>
                       Notifications
                     </h3>
                     {unreadCount > 0 && (
@@ -314,7 +314,7 @@ export const UserNavbar = ({ toggleSidebar, isSidebarOpen, isMobile }) => {
                           transition={{ delay: i * 0.04 }}
                           className="p-4 border-b cursor-pointer transition-colors"
                           style={{
-                            borderColor: C.border,
+                            borderColor: "var(--border)",
                             background: !n.read ? `${C.brand}08` : "transparent",
                           }}
                           onMouseEnter={(e) => (e.currentTarget.style.background = `${C.brand}10`)}
@@ -323,13 +323,13 @@ export const UserNavbar = ({ toggleSidebar, isSidebarOpen, isMobile }) => {
                           <div className="flex items-start gap-3">
                             <div
                               className="w-2 h-2 mt-2 rounded-full flex-shrink-0"
-                              style={{ background: !n.read ? C.brand : C.textDim }}
+                              style={{ background: !n.read ? C.brand : "var(--text-muted)" }}
                             />
                             <div className="flex-1 min-w-0">
-                              <p className="text-[13px] leading-relaxed" style={{ color: C.text }}>
+                              <p className="text-[13px] leading-relaxed" style={{ color: "var(--text)" }}>
                                 {n.message}
                               </p>
-                              <span className="text-[11px] mt-1 block" style={{ color: C.textDim }}>
+                              <span className="text-[11px] mt-1 block" style={{ color: "var(--text-muted)" }}>
                                 {new Date(n.createdAt).toLocaleTimeString([], {
                                   hour: "2-digit", minute: "2-digit",
                                 })}
@@ -340,8 +340,8 @@ export const UserNavbar = ({ toggleSidebar, isSidebarOpen, isMobile }) => {
                       ))
                     ) : (
                       <div className="p-8 text-center">
-                        <Bell size={30} className="mx-auto mb-3 opacity-20" style={{ color: C.textMuted }} />
-                        <p className="text-[13px]" style={{ color: C.textMuted }}>
+                        <Bell size={30} className="mx-auto mb-3 opacity-20" style={{ color: "var(--text)"Muted }} />
+                        <p className="text-[13px]" style={{ color: "var(--text)"Muted }}>
                           No notifications yet
                         </p>
                       </div>
@@ -359,7 +359,7 @@ export const UserNavbar = ({ toggleSidebar, isSidebarOpen, isMobile }) => {
               whileTap={{ scale: 0.98 }}
               onClick={() => { setDropdownOpen(!dropdownOpen); setNotifOpen(false); }}
               className="flex items-center gap-2 sm:gap-2.5 p-1.5 pr-3 rounded-full transition-colors border"
-              style={{ background: `${C.brand}10`, borderColor: C.border }}
+              style={{ background: `${C.brand}10`, borderColor: "var(--border)" }}
             >
               <img
                 src={
@@ -368,18 +368,18 @@ export const UserNavbar = ({ toggleSidebar, isSidebarOpen, isMobile }) => {
                 }
                 alt={userName}
                 className="w-8 h-8 rounded-full object-cover ring-2"
-                style={{ ringColor: C.border }}
+                style={{ ringColor: "var(--border)" }}
               />
               <span
                 className="hidden sm:block text-[13px] font-medium max-w-[100px] truncate"
-                style={{ color: C.text }}
+                style={{ color: "var(--text)" }}
               >
                 {userName}
               </span>
               <ChevronDown
                 size={15}
                 style={{
-                  color: C.textMuted,
+                  color: "var(--text)"Muted,
                   transform: `rotate(${dropdownOpen ? "180deg" : "0deg"})`,
                   transition: "transform 0.2s",
                 }}
@@ -394,17 +394,17 @@ export const UserNavbar = ({ toggleSidebar, isSidebarOpen, isMobile }) => {
                   exit={{ opacity: 0, y: 10,  scale: 0.95 }}
                   transition={{ duration: 0.18 }}
                   className="absolute right-0 mt-3 w-56 rounded-2xl shadow-2xl overflow-hidden z-50"
-                  style={{ background: C.surface, border: `1px solid ${C.border}` }}
+                  style={{ background: "var(--surface)", border: `1px solid ${"var(--border)"}` }}
                 >
                   {/* User info */}
                   <div
                     className="p-4 border-b"
-                    style={{ background: C.surface2, borderColor: C.border }}
+                    style={{ background: "var(--surface)"2, borderColor: "var(--border)" }}
                   >
-                    <p className="font-semibold text-[14px] truncate" style={{ color: C.text }}>
+                    <p className="font-semibold text-[14px] truncate" style={{ color: "var(--text)" }}>
                       {userName}
                     </p>
-                    <p className="text-[12px]" style={{ color: C.textDim }}>Student Account</p>
+                    <p className="text-[12px]" style={{ color: "var(--text-muted)" }}>Student Account</p>
                   </div>
 
                   {/* Links */}
@@ -418,14 +418,14 @@ export const UserNavbar = ({ toggleSidebar, isSidebarOpen, isMobile }) => {
                         to={to}
                         onClick={() => setDropdownOpen(false)}
                         className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-[13px] transition-colors"
-                        style={{ color: C.textMuted }}
+                        style={{ color: "var(--text)"Muted }}
                         onMouseEnter={(e) => {
                           e.currentTarget.style.background = `${C.brand}12`;
-                          e.currentTarget.style.color = C.text;
+                          e.currentTarget.style.color = "var(--text)";
                         }}
                         onMouseLeave={(e) => {
                           e.currentTarget.style.background = "transparent";
-                          e.currentTarget.style.color = C.textMuted;
+                          e.currentTarget.style.color = "var(--text)"Muted;
                         }}
                       >
                         <Icon size={15} />
@@ -435,7 +435,7 @@ export const UserNavbar = ({ toggleSidebar, isSidebarOpen, isMobile }) => {
                   </div>
 
                   {/* Logout */}
-                  <div className="p-2 border-t" style={{ borderColor: C.border }}>
+                  <div className="p-2 border-t" style={{ borderColor: "var(--border)" }}>
                     <button
                       onClick={handleLogout}
                       className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-[13px] transition-colors"

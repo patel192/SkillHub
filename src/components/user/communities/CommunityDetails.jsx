@@ -385,7 +385,7 @@ const CommunityHeader = ({
       initial={{ opacity: 0, y: -20 }}
       animate={{ opacity: 1, y: 0 }}
       className="relative overflow-hidden rounded-2xl"
-      style={{ background: C.surface, border: `1px solid ${C.border}` }}
+      style={{ background: "var(--surface)", border: `1px solid ${"var(--border)"}` }}
     >
       <div className="relative h-48 sm:h-64">
         <img
@@ -399,7 +399,7 @@ const CommunityHeader = ({
         <div
           className="absolute inset-0"
           style={{
-            background: `linear-gradient(to top, ${C.surface} 0%, transparent 60%)`,
+            background: `linear-gradient(to top, ${"var(--surface)"} 0%, transparent 60%)`,
           }}
         />
         <div className="absolute top-4 right-4">
@@ -408,7 +408,7 @@ const CommunityHeader = ({
             style={{
               background: isPrivate ? `${C.accent}20` : `${C.brand}20`,
               color: isPrivate ? C.accent : C.brand,
-              borderColor: isPrivate ? `rgba(245,158,11,0.3)` : C.border,
+              borderColor: isPrivate ? `rgba(245,158,11,0.3)` : "var(--border)",
             }}
           >
             {isPrivate ? <Lock size={12} /> : <Globe size={12} />}
@@ -422,16 +422,16 @@ const CommunityHeader = ({
           <div>
             <h1
               className="text-2xl sm:text-3xl font-bold mb-2"
-              style={{ fontFamily: "'Fraunces', serif", color: C.text }}
+              style={{ fontFamily: "'Fraunces', serif", color: "var(--text)" }}
             >
               {community?.name}
             </h1>
-            <p style={{ color: C.textMuted }} className="max-w-xl mb-3">
+            <p style={{ color: "var(--text)"Muted }} className="max-w-xl mb-3">
               {community?.description}
             </p>
             <div
               className="flex flex-wrap items-center gap-4 text-sm"
-              style={{ color: C.textMuted }}
+              style={{ color: "var(--text)"Muted }}
             >
               <div className="flex items-center gap-1.5">
                 <Users size={16} style={{ color: C.brand }} />
@@ -454,9 +454,9 @@ const CommunityHeader = ({
                 onClick={onAdminClick}
                 className="px-4 py-2.5 rounded-xl font-medium text-sm"
                 style={{
-                  background: C.surface2,
-                  border: `1px solid ${C.border}`,
-                  color: C.text,
+                  background: "var(--surface)"2,
+                  border: `1px solid ${"var(--border)"}`,
+                  color: "var(--text)",
                 }}
               >
                 Admin Panel
@@ -471,7 +471,7 @@ const CommunityHeader = ({
                 background: isMember
                   ? "rgba(248,113,113,0.2)"
                   : `linear-gradient(135deg, ${C.brand}, ${C.brandLight})`,
-                color: isMember ? C.error : C.bg,
+                color: isMember ? C.error : "var(--bg)",
                 border: isMember ? `1px solid rgba(248,113,113,0.3)` : "none",
               }}
             >
@@ -502,8 +502,8 @@ const PostComposer = ({ onSubmit, isMember }) => {
       animate={{ opacity: 1, y: 0 }}
       className="rounded-2xl p-4"
       style={{
-        background: C.surface,
-        border: `1px solid ${isFocused ? C.brand : C.border}`,
+        background: "var(--surface)",
+        border: `1px solid ${isFocused ? C.brand : "var(--border)"}`,
         transition: "border-color 0.3s",
       }}
     >
@@ -515,15 +515,15 @@ const PostComposer = ({ onSubmit, isMember }) => {
         placeholder="Share something with the community..."
         rows={3}
         className="w-full bg-transparent resize-none outline-none text-sm"
-        style={{ color: C.text }}
+        style={{ color: "var(--text)" }}
       />
       <div
         className="flex items-center justify-between mt-3 pt-3"
-        style={{ borderTop: `1px solid ${C.border}` }}
+        style={{ borderTop: `1px solid ${"var(--border)"}` }}
       >
         <button
           className="p-2 rounded-lg transition-colors hover:bg-white/5"
-          style={{ color: C.textMuted }}
+          style={{ color: "var(--text)"Muted }}
         >
           <ImageIcon size={18} />
         </button>
@@ -535,7 +535,7 @@ const PostComposer = ({ onSubmit, isMember }) => {
           className="flex items-center gap-2 px-4 py-2 rounded-xl font-medium text-sm disabled:opacity-50"
           style={{
             background: `linear-gradient(135deg, ${C.brand}, ${C.brandLight})`,
-            color: C.bg,
+            color: "var(--bg)",
           }}
         >
           <Send size={16} />
@@ -568,7 +568,7 @@ const CommentSection = ({ post, userId, onComment, onReply }) => {
       animate={{ opacity: 1, height: "auto" }}
       exit={{ opacity: 0, height: 0 }}
       className="mt-4 pt-4 space-y-4"
-      style={{ borderTop: `1px solid ${C.border}` }}
+      style={{ borderTop: `1px solid ${"var(--border)"}` }}
     >
       <div className="space-y-4 max-h-96 overflow-y-auto pr-2">
         {comments.map((comment) => (
@@ -585,7 +585,7 @@ const CommentSection = ({ post, userId, onComment, onReply }) => {
               <div className="flex-1">
                 <div
                   className="rounded-xl p-3"
-                  style={{ background: C.surface2 }}
+                  style={{ background: "var(--surface)"2 }}
                 >
                   <h5
                     className="font-semibold text-sm mb-1"
@@ -593,14 +593,14 @@ const CommentSection = ({ post, userId, onComment, onReply }) => {
                   >
                     {comment.userId?.fullname}
                   </h5>
-                  <p className="text-sm" style={{ color: C.text }}>
+                  <p className="text-sm" style={{ color: "var(--text)" }}>
                     {comment.content}
                   </p>
                 </div>
                 <div className="flex items-center gap-4 mt-1.5 ml-1">
                   <button
                     className="text-xs font-medium hover:underline"
-                    style={{ color: C.textDim }}
+                    style={{ color: "var(--text-muted)" }}
                     onClick={() =>
                       setShowReplyInput({
                         ...showReplyInput,
@@ -632,9 +632,9 @@ const CommentSection = ({ post, userId, onComment, onReply }) => {
                         placeholder="Write a reply..."
                         className="flex-1 px-3 py-2 rounded-lg text-sm outline-none"
                         style={{
-                          background: C.surface3,
-                          border: `1px solid ${C.border}`,
-                          color: C.text,
+                          background: "var(--surface)"3,
+                          border: `1px solid ${"var(--border)"}`,
+                          color: "var(--text)",
                         }}
                         onKeyPress={(e) =>
                           e.key === "Enter" && handleSubmitReply(comment._id)
@@ -643,7 +643,7 @@ const CommentSection = ({ post, userId, onComment, onReply }) => {
                       <button
                         onClick={() => handleSubmitReply(comment._id)}
                         className="p-2 rounded-lg"
-                        style={{ background: C.brand, color: C.bg }}
+                        style={{ background: C.brand, color: "var(--bg)" }}
                       >
                         <Send size={14} />
                       </button>
@@ -658,11 +658,11 @@ const CommentSection = ({ post, userId, onComment, onReply }) => {
                       <div key={reply._id} className="flex gap-2 ml-4">
                         <CornerDownRight
                           size={16}
-                          style={{ color: C.textDim, marginTop: 8 }}
+                          style={{ color: "var(--text-muted)", marginTop: 8 }}
                         />
                         <div
                           className="flex-1 rounded-xl p-2.5"
-                          style={{ background: C.surface3 }}
+                          style={{ background: "var(--surface)"3 }}
                         >
                           <h6
                             className="font-semibold text-xs mb-0.5"
@@ -670,7 +670,7 @@ const CommentSection = ({ post, userId, onComment, onReply }) => {
                           >
                             {reply.userId?.fullname}
                           </h6>
-                          <p className="text-sm" style={{ color: C.textMuted }}>
+                          <p className="text-sm" style={{ color: "var(--text)"Muted }}>
                             {reply.content}
                           </p>
                         </div>
@@ -706,9 +706,9 @@ const CommentSection = ({ post, userId, onComment, onReply }) => {
             placeholder="Add a comment..."
             className="flex-1 px-4 py-2.5 rounded-xl text-sm outline-none"
             style={{
-              background: C.surface2,
-              border: `1px solid ${C.border}`,
-              color: C.text,
+              background: "var(--surface)"2,
+              border: `1px solid ${"var(--border)"}`,
+              color: "var(--text)",
             }}
           />
           <motion.button
@@ -717,7 +717,7 @@ const CommentSection = ({ post, userId, onComment, onReply }) => {
             type="submit"
             disabled={!commentText.trim()}
             className="px-4 py-2 rounded-xl disabled:opacity-50"
-            style={{ background: C.brand, color: C.bg }}
+            style={{ background: C.brand, color: "var(--bg)" }}
           >
             <Send size={16} />
           </motion.button>
@@ -752,8 +752,8 @@ const PostCard = ({
       animate={{ opacity: 1, y: 0 }}
       className="rounded-2xl overflow-hidden"
       style={{
-        background: C.surface,
-        border: `1px solid ${post.isPinned ? "rgba(245,158,11,0.4)" : C.border}`,
+        background: "var(--surface)",
+        border: `1px solid ${post.isPinned ? "rgba(245,158,11,0.4)" : "var(--border)"}`,
       }}
     >
       {post.isPinned && (
@@ -776,13 +776,13 @@ const PostCard = ({
               }
               alt={post.userId?.fullname}
               className="w-10 h-10 rounded-full object-cover"
-              style={{ border: `2px solid ${C.border}` }}
+              style={{ border: `2px solid ${"var(--border)"}` }}
             />
             <div>
-              <h4 className="font-semibold text-sm" style={{ color: C.text }}>
+              <h4 className="font-semibold text-sm" style={{ color: "var(--text)" }}>
                 {post.userId?.fullname}
               </h4>
-              <p className="text-xs" style={{ color: C.textDim }}>
+              <p className="text-xs" style={{ color: "var(--text-muted)" }}>
                 {formatDate(post.createdAt)}
               </p>
             </div>
@@ -792,7 +792,7 @@ const PostCard = ({
             <button
               onClick={() => setShowMenu(!showMenu)}
               className="p-2 rounded-lg transition-colors hover:bg-white/5"
-              style={{ color: C.textMuted }}
+              style={{ color: "var(--text)"Muted }}
             >
               <MoreHorizontal size={18} />
             </button>
@@ -805,8 +805,8 @@ const PostCard = ({
                   exit={{ opacity: 0, scale: 0.95, y: -10 }}
                   className="absolute right-0 top-full mt-1 w-48 rounded-xl overflow-hidden z-10"
                   style={{
-                    background: C.surface2,
-                    border: `1px solid ${C.border}`,
+                    background: "var(--surface)"2,
+                    border: `1px solid ${"var(--border)"}`,
                     boxShadow: "0 10px 30px rgba(0,0,0,0.5)",
                   }}
                 >
@@ -825,14 +825,14 @@ const PostCard = ({
                       </button>
                       <div
                         className="h-px mx-4"
-                        style={{ background: C.border }}
+                        style={{ background: "var(--border)" }}
                       />
                     </>
                   )}
                   <button
                     onClick={() => setShowMenu(false)}
                     className="w-full flex items-center gap-2 px-4 py-2.5 text-sm hover:bg-white/5 transition-colors text-left"
-                    style={{ color: C.textMuted }}
+                    style={{ color: "var(--text)"Muted }}
                   >
                     <Flag size={16} />
                     Report
@@ -857,7 +857,7 @@ const PostCard = ({
         </div>
 
         {/* Content */}
-        <p className="mt-3 text-sm leading-relaxed" style={{ color: C.text }}>
+        <p className="mt-3 text-sm leading-relaxed" style={{ color: "var(--text)" }}>
           {post.content}
         </p>
 
@@ -870,7 +870,7 @@ const PostCard = ({
             whileTap={{ scale: 0.9 }}
             onClick={onLike}
             className="flex items-center gap-2 text-sm font-medium transition-colors"
-            style={{ color: isLiked ? C.error : C.textMuted }}
+            style={{ color: isLiked ? C.error : "var(--text)"Muted }}
           >
             <Heart
               size={18}
@@ -884,7 +884,7 @@ const PostCard = ({
             whileTap={{ scale: 0.9 }}
             onClick={() => setShowComments(!showComments)}
             className="flex items-center gap-2 text-sm font-medium transition-colors"
-            style={{ color: showComments ? C.brand : C.textMuted }}
+            style={{ color: showComments ? C.brand : "var(--text)"Muted }}
           >
             <MessageCircle size={18} />
             <span>{commentCount}</span>
@@ -893,7 +893,7 @@ const PostCard = ({
           <motion.button
             whileTap={{ scale: 0.9 }}
             className="flex items-center gap-2 text-sm font-medium ml-auto"
-            style={{ color: C.textMuted }}
+            style={{ color: "var(--text)"Muted }}
           >
             <Share2 size={18} />
           </motion.button>
@@ -955,12 +955,12 @@ const AdminPanel = ({
           exit={{ opacity: 0, scale: 0.95, y: 20 }}
           onClick={(e) => e.stopPropagation()}
           className="w-full max-w-2xl max-h-[90vh] rounded-2xl overflow-hidden flex flex-col"
-          style={{ background: C.surface, border: `1px solid ${C.border}` }}
+          style={{ background: "var(--surface)", border: `1px solid ${"var(--border)"}` }}
         >
           {/* Header */}
           <div
             className="flex items-center justify-between p-5 border-b"
-            style={{ borderColor: C.border }}
+            style={{ borderColor: "var(--border)" }}
           >
             <div className="flex items-center gap-3">
               <div
@@ -969,21 +969,21 @@ const AdminPanel = ({
               >
                 <Shield size={20} style={{ color: C.accent }} />
               </div>
-              <h2 className="text-xl font-bold" style={{ color: C.text }}>
+              <h2 className="text-xl font-bold" style={{ color: "var(--text)" }}>
                 Admin Panel
               </h2>
             </div>
             <button
               onClick={onClose}
               className="p-2 rounded-lg hover:bg-white/5 transition-colors"
-              style={{ color: C.textMuted }}
+              style={{ color: "var(--text)"Muted }}
             >
               <X size={20} />
             </button>
           </div>
 
           {/* Tabs */}
-          <div className="flex border-b" style={{ borderColor: C.border }}>
+          <div className="flex border-b" style={{ borderColor: "var(--border)" }}>
             {[
               { id: "general", label: "General", icon: Settings },
               { id: "members", label: "Members", icon: Users },
@@ -993,7 +993,7 @@ const AdminPanel = ({
                 onClick={() => setActiveTab(tab.id)}
                 className="flex-1 flex items-center justify-center gap-2 py-3 text-sm font-medium transition-colors"
                 style={{
-                  color: activeTab === tab.id ? C.brand : C.textMuted,
+                  color: activeTab === tab.id ? C.brand : "var(--text)"Muted,
                   borderBottom: `2px solid ${activeTab === tab.id ? C.brand : "transparent"}`,
                   background:
                     activeTab === tab.id ? `${C.brand}10` : "transparent",
@@ -1012,7 +1012,7 @@ const AdminPanel = ({
                 <div>
                   <label
                     className="block text-sm font-medium mb-2"
-                    style={{ color: C.textMuted }}
+                    style={{ color: "var(--text)"Muted }}
                   >
                     Community Name
                   </label>
@@ -1024,16 +1024,16 @@ const AdminPanel = ({
                     }
                     className="w-full px-4 py-3 rounded-xl outline-none"
                     style={{
-                      background: C.surface2,
-                      border: `1px solid ${C.border}`,
-                      color: C.text,
+                      background: "var(--surface)"2,
+                      border: `1px solid ${"var(--border)"}`,
+                      color: "var(--text)",
                     }}
                   />
                 </div>
                 <div>
                   <label
                     className="block text-sm font-medium mb-2"
-                    style={{ color: C.textMuted }}
+                    style={{ color: "var(--text)"Muted }}
                   >
                     Cover Image URL
                   </label>
@@ -1045,16 +1045,16 @@ const AdminPanel = ({
                     }
                     className="w-full px-4 py-3 rounded-xl outline-none"
                     style={{
-                      background: C.surface2,
-                      border: `1px solid ${C.border}`,
-                      color: C.text,
+                      background: "var(--surface)"2,
+                      border: `1px solid ${"var(--border)"}`,
+                      color: "var(--text)",
                     }}
                   />
                 </div>
                 <div>
                   <label
                     className="block text-sm font-medium mb-2"
-                    style={{ color: C.textMuted }}
+                    style={{ color: "var(--text)"Muted }}
                   >
                     Description
                   </label>
@@ -1066,9 +1066,9 @@ const AdminPanel = ({
                     rows={4}
                     className="w-full px-4 py-3 rounded-xl outline-none resize-none"
                     style={{
-                      background: C.surface2,
-                      border: `1px solid ${C.border}`,
-                      color: C.text,
+                      background: "var(--surface)"2,
+                      border: `1px solid ${"var(--border)"}`,
+                      color: "var(--text)",
                     }}
                   />
                 </div>
@@ -1079,7 +1079,7 @@ const AdminPanel = ({
                   className="w-full py-3 rounded-xl font-medium"
                   style={{
                     background: `linear-gradient(135deg, ${C.brand}, ${C.brandLight})`,
-                    color: C.bg,
+                    color: "var(--bg)",
                   }}
                 >
                   Save Changes
@@ -1094,7 +1094,7 @@ const AdminPanel = ({
                     <UserPlus
                       size={16}
                       className="absolute left-3 top-1/2 -translate-y-1/2"
-                      style={{ color: C.textDim }}
+                      style={{ color: "var(--text-muted)" }}
                     />
                     <input
                       type="text"
@@ -1103,9 +1103,9 @@ const AdminPanel = ({
                       placeholder="Enter User ID to add..."
                       className="w-full pl-10 pr-4 py-2.5 rounded-xl text-sm outline-none"
                       style={{
-                        background: C.surface2,
-                        border: `1px solid ${C.border}`,
-                        color: C.text,
+                        background: "var(--surface)"2,
+                        border: `1px solid ${"var(--border)"}`,
+                        color: "var(--text)",
                       }}
                     />
                   </div>
@@ -1114,7 +1114,7 @@ const AdminPanel = ({
                     whileTap={{ scale: 0.95 }}
                     onClick={handleAdd}
                     className="px-4 py-2 rounded-xl text-sm font-medium"
-                    style={{ background: C.brand, color: C.bg }}
+                    style={{ background: C.brand, color: "var(--bg)" }}
                   >
                     Add
                   </motion.button>
@@ -1132,8 +1132,8 @@ const AdminPanel = ({
                         transition={{ delay: idx * 0.05 }}
                         className="flex items-center justify-between p-3 rounded-xl"
                         style={{
-                          background: C.surface2,
-                          border: `1px solid ${C.border}`,
+                          background: "var(--surface)"2,
+                          border: `1px solid ${"var(--border)"}`,
                         }}
                       >
                         <div className="flex items-center gap-3">
@@ -1149,7 +1149,7 @@ const AdminPanel = ({
                             <div className="flex items-center gap-2">
                               <span
                                 className="font-medium text-sm"
-                                style={{ color: C.text }}
+                                style={{ color: "var(--text)" }}
                               >
                                 {user.fullname || "Unknown"}
                               </span>
@@ -1168,7 +1168,7 @@ const AdminPanel = ({
                             </div>
                             <span
                               className="text-xs"
-                              style={{ color: C.textDim }}
+                              style={{ color: "var(--text-muted)" }}
                             >
                               {user.email || user._id?.slice(0, 8) + "..."}
                             </span>
@@ -1251,13 +1251,13 @@ export const CommunityDetails = () => {
     return (
       <div
         className="min-h-screen flex items-center justify-center"
-        style={{ background: C.bg }}
+        style={{ background: "var(--bg)" }}
       >
         <motion.div
           animate={{ rotate: 360 }}
           transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
         >
-          <Loader2 size={32} style={{ color: C.textMuted }} />
+          <Loader2 size={32} style={{ color: "var(--text)"Muted }} />
         </motion.div>
       </div>
     );
@@ -1267,11 +1267,11 @@ export const CommunityDetails = () => {
     return (
       <div
         className="min-h-screen flex items-center justify-center p-6"
-        style={{ background: C.bg, color: C.text }}
+        style={{ background: "var(--bg)", color: "var(--text)" }}
       >
         <div className="text-center">
           <h2 className="text-2xl font-bold mb-2">Community Not Found</h2>
-          <p style={{ color: C.textMuted }}>
+          <p style={{ color: "var(--text)"Muted }}>
             The community you're looking for doesn't exist or has been removed.
           </p>
         </div>
@@ -1282,7 +1282,7 @@ export const CommunityDetails = () => {
   return (
     <div
       className="min-h-screen p-4 sm:p-6 lg:p-8 pb-20"
-      style={{ background: C.bg }}
+      style={{ background: "var(--bg)" }}
     >
       <div className="max-w-4xl mx-auto space-y-6">
         <CommunityHeader
@@ -1299,12 +1299,12 @@ export const CommunityDetails = () => {
         <div className="space-y-4">
           <h3
             className="text-lg font-semibold flex items-center gap-2"
-            style={{ color: C.textMuted }}
+            style={{ color: "var(--text)"Muted }}
           >
             <span>Posts</span>
             <span
               className="px-2 py-0.5 rounded-full text-xs"
-              style={{ background: C.surface, color: C.textMuted }}
+              style={{ background: "var(--surface)", color: "var(--text)"Muted }}
             >
               {posts.length}
             </span>
@@ -1316,14 +1316,14 @@ export const CommunityDetails = () => {
                 <div
                   key={i}
                   className="h-32 rounded-2xl animate-pulse"
-                  style={{ background: C.surface }}
+                  style={{ background: "var(--surface)" }}
                 />
               ))}
             </div>
           ) : posts.length === 0 ? (
             <div
               className="text-center py-12 rounded-2xl"
-              style={{ background: C.surface, color: C.textMuted }}
+              style={{ background: "var(--surface)", color: "var(--text)"Muted }}
             >
               <p>No posts yet. Be the first to share!</p>
             </div>

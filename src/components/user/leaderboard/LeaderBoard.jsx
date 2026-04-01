@@ -64,7 +64,7 @@ const RankBadge = ({ rank }) => {
   };
 
   const config = configs[rank];
-  if (!config) return <span className="font-bold text-lg w-8 text-center" style={{ color: C.textDim }}>#{rank}</span>;
+  if (!config) return <span className="font-bold text-lg w-8 text-center" style={{ color: "var(--text-muted)" }}>#{rank}</span>;
 
   const Icon = config.icon;
   return (
@@ -81,7 +81,7 @@ const RankBadge = ({ rank }) => {
 };
 
 const ProgressBar = ({ progress, color = C.brand, height = "h-2" }) => (
-  <div className={`w-full ${height} rounded-full overflow-hidden`} style={{ background: C.surface3 }}>
+  <div className={`w-full ${height} rounded-full overflow-hidden`} style={{ background: "var(--surface)"3 }}>
     <motion.div
       initial={{ width: 0 }}
       animate={{ width: `${Math.max(5, progress)}%` }}
@@ -99,9 +99,9 @@ const TabButton = ({ active, onClick, icon: Icon, label }) => (
     whileTap={{ scale: 0.98 }}
     className="flex items-center gap-2 px-4 sm:px-6 py-3 rounded-xl text-sm font-medium transition-all whitespace-nowrap"
     style={{
-      background: active ? `linear-gradient(135deg, ${C.brand}, ${C.brandLight})` : C.surface2,
-      color: active ? C.bg : C.textMuted,
-      border: `1px solid ${active ? C.brand : C.border}`,
+      background: active ? `linear-gradient(135deg, ${C.brand}, ${C.brandLight})` : "var(--surface)"2,
+      color: active ? "var(--bg)" : "var(--text)"Muted,
+      border: `1px solid ${active ? C.brand : "var(--border)"}`,
       boxShadow: active ? `0 4px 20px ${C.brand}40` : "none",
     }}
   >
@@ -118,12 +118,12 @@ const EmptyState = ({ icon: Icon, title, subtitle }) => (
   >
     <div
       className="w-20 h-20 rounded-full flex items-center justify-center mb-4"
-      style={{ background: `${C.brand}15`, border: `1px solid ${C.border}` }}
+      style={{ background: `${C.brand}15`, border: `1px solid ${"var(--border)"}` }}
     >
       <Icon size={32} style={{ color: C.brand }} />
     </div>
-    <h3 className="text-lg font-semibold mb-1" style={{ color: C.text }}>{title}</h3>
-    <p style={{ color: C.textMuted }}>{subtitle}</p>
+    <h3 className="text-lg font-semibold mb-1" style={{ color: "var(--text)" }}>{title}</h3>
+    <p style={{ color: "var(--text)"Muted }}>{subtitle}</p>
   </motion.div>
 );
 
@@ -191,7 +191,7 @@ export const LeaderBoard = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center p-6" style={{ background: C.bg }}>
+      <div className="min-h-screen flex items-center justify-center p-6" style={{ background: "var(--bg)" }}>
         <motion.div
           animate={{ rotate: 360 }}
           transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
@@ -203,7 +203,7 @@ export const LeaderBoard = () => {
   }
 
   return (
-    <div className="min-h-screen p-4 sm:p-6 lg:p-8 pb-20" style={{ background: C.bg, color: C.text }}>
+    <div className="min-h-screen p-4 sm:p-6 lg:p-8 pb-20" style={{ background: "var(--bg)", color: "var(--text)" }}>
       <div className="max-w-5xl mx-auto space-y-6">
         
         {/* Header Section */}
@@ -216,13 +216,13 @@ export const LeaderBoard = () => {
             <div className="flex items-center gap-3 mb-2">
               <div
                 className="p-2 rounded-xl"
-                style={{ background: `${C.brand}20`, border: `1px solid ${C.border}` }}
+                style={{ background: `${C.brand}20`, border: `1px solid ${"var(--border)"}` }}
               >
                 <Trophy size={24} style={{ color: C.brand }} />
               </div>
               <h1 
                 className="text-2xl sm:text-3xl lg:text-4xl font-bold"
-                style={{ fontFamily: "'Fraunces', serif", color: C.text }}
+                style={{ fontFamily: "'Fraunces', serif", color: "var(--text)" }}
               >
                 <span style={{ 
                   background: `linear-gradient(135deg, ${C.brand}, ${C.brandLight})`,
@@ -233,7 +233,7 @@ export const LeaderBoard = () => {
                 </span>
               </h1>
             </div>
-            <p className="text-sm sm:text-base max-w-lg" style={{ color: C.textMuted }}>
+            <p className="text-sm sm:text-base max-w-lg" style={{ color: "var(--text)"Muted }}>
               Compete with fellow learners and track your achievements. 
               {userRank && (
                 <span className="ml-2" style={{ color: C.brand }}>
@@ -247,10 +247,10 @@ export const LeaderBoard = () => {
           <div className="flex gap-3">
             <div 
               className="flex items-center gap-2 px-4 py-2 rounded-xl"
-              style={{ background: C.surface, border: `1px solid ${C.border}` }}
+              style={{ background: "var(--surface)", border: `1px solid ${"var(--border)"}` }}
             >
               <Users size={16} style={{ color: C.brand }} />
-              <span className="text-sm font-medium" style={{ color: C.textMuted }}>
+              <span className="text-sm font-medium" style={{ color: "var(--text)"Muted }}>
                 <AnimatedCounter value={users.length} /> learners
               </span>
             </div>
@@ -339,7 +339,7 @@ const LeaderboardPanel = ({ users, topScore, userId }) => {
               transition={{ delay: idx * 0.1 }}
               className={`${heights[idx]} rounded-2xl flex flex-col items-center justify-end p-4 relative overflow-hidden`}
               style={{ 
-                background: C.surface,
+                background: "var(--surface)",
                 border: `2px solid ${medals[idx]}`,
                 order: idx === 1 ? 1 : idx === 0 ? 0 : 2
               }}
@@ -355,7 +355,7 @@ const LeaderboardPanel = ({ users, topScore, userId }) => {
                 className="w-12 h-12 rounded-full border-2 mb-2"
                 style={{ borderColor: medals[idx] }}
               />
-              <p className="font-bold text-sm text-center line-clamp-1" style={{ color: C.text }}>{user.fullname}</p>
+              <p className="font-bold text-sm text-center line-clamp-1" style={{ color: "var(--text)" }}>{user.fullname}</p>
               <p className="text-lg font-bold" style={{ color: medals[idx] }}>
                 <AnimatedCounter value={user.points || 0} /> pts
               </p>
@@ -367,17 +367,17 @@ const LeaderboardPanel = ({ users, topScore, userId }) => {
       {/* List */}
       <div 
         className="rounded-2xl overflow-hidden"
-        style={{ background: C.surface, border: `1px solid ${C.border}` }}
+        style={{ background: "var(--surface)", border: `1px solid ${"var(--border)"}` }}
       >
-        <div className="p-4 border-b" style={{ borderColor: C.border, background: C.surface2 }}>
-          <div className="flex items-center justify-between text-sm font-medium" style={{ color: C.textMuted }}>
+        <div className="p-4 border-b" style={{ borderColor: "var(--border)", background: "var(--surface)"2 }}>
+          <div className="flex items-center justify-between text-sm font-medium" style={{ color: "var(--text)"Muted }}>
             <span className="flex-1">Rank & Learner</span>
             <span className="w-24 text-right hidden sm:block">Progress</span>
             <span className="w-20 text-right">Points</span>
           </div>
         </div>
 
-        <div className="divide-y" style={{ borderColor: C.border }}>
+        <div className="divide-y" style={{ borderColor: "var(--border)" }}>
           {users.map((user, idx) => {
             const rank = idx + 1;
             const isMe = user._id === userId;
@@ -404,19 +404,19 @@ const LeaderboardPanel = ({ users, topScore, userId }) => {
                   src={user.avatar || `https://ui-avatars.com/api/?name=${user.fullname}&background=16A880&color=fff`}
                   alt={user.fullname}
                   className="w-10 h-10 sm:w-12 sm:h-12 rounded-full flex-shrink-0"
-                  style={{ border: `2px solid ${rank <= 3 ? (rank === 1 ? C.gold : rank === 2 ? C.silver : C.bronze) : C.border}` }}
+                  style={{ border: `2px solid ${rank <= 3 ? (rank === 1 ? C.gold : rank === 2 ? C.silver : C.bronze) : "var(--border)"}` }}
                 />
 
                 {/* Info */}
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2">
-                    <p className="font-semibold text-sm sm:text-base truncate" style={{ color: C.text }}>
+                    <p className="font-semibold text-sm sm:text-base truncate" style={{ color: "var(--text)" }}>
                       {user.fullname}
                     </p>
                     {isMe && (
                       <span 
                         className="px-2 py-0.5 rounded-full text-xs font-medium"
-                        style={{ background: `${C.brand}20`, color: C.brand, border: `1px solid ${C.border}` }}
+                        style={{ background: `${C.brand}20`, color: C.brand, border: `1px solid ${"var(--border)"}` }}
                       >
                         You
                       </span>
@@ -436,10 +436,10 @@ const LeaderboardPanel = ({ users, topScore, userId }) => {
 
                 {/* Points */}
                 <div className="w-20 text-right flex-shrink-0">
-                  <p className="font-bold text-sm sm:text-base" style={{ color: rank <= 3 ? C.brand : C.text }}>
+                  <p className="font-bold text-sm sm:text-base" style={{ color: rank <= 3 ? C.brand : "var(--text)" }}>
                     <AnimatedCounter value={user.points || 0} />
                   </p>
-                  <p className="text-xs" style={{ color: C.textDim }}>pts</p>
+                  <p className="text-xs" style={{ color: "var(--text-muted)" }}>pts</p>
                 </div>
               </motion.div>
             );
@@ -468,7 +468,7 @@ const AchievementsPanel = ({ achievements }) => {
   const getRarityColor = (points) => {
     if (points >= 1000) return { bg: "rgba(245,158,11,0.2)", border: "rgba(245,158,11,0.5)", icon: C.accent };
     if (points >= 500) return { bg: "rgba(139,92,246,0.2)", border: "rgba(139,92,246,0.5)", icon: C.accent2 };
-    return { bg: `${C.brand}20`, border: C.border, icon: C.brand };
+    return { bg: `${C.brand}20`, border: "var(--border)", icon: C.brand };
   };
 
   return (
@@ -490,7 +490,7 @@ const AchievementsPanel = ({ achievements }) => {
               whileHover={{ scale: 1.02, y: -4 }}
               className="relative group rounded-2xl p-5 cursor-pointer overflow-hidden"
               style={{ 
-                background: C.surface,
+                background: "var(--surface)",
                 border: `1px solid ${rarity.border}`,
               }}
             >
@@ -514,12 +514,12 @@ const AchievementsPanel = ({ achievements }) => {
                 </div>
 
                 {/* Name */}
-                <h3 className="font-bold text-base mb-1" style={{ color: C.text }}>
+                <h3 className="font-bold text-base mb-1" style={{ color: "var(--text)" }}>
                   {ach.name}
                 </h3>
 
                 {/* Description */}
-                <p className="text-xs mb-3 line-clamp-2" style={{ color: C.textMuted }}>
+                <p className="text-xs mb-3 line-clamp-2" style={{ color: "var(--text)"Muted }}>
                   {ach.description || "Complete challenges to unlock this achievement"}
                 </p>
 
@@ -535,7 +535,7 @@ const AchievementsPanel = ({ achievements }) => {
                 {/* Progress if user has progress */}
                 {ach.progress !== undefined && (
                   <div className="w-full mt-3">
-                    <div className="flex justify-between text-xs mb-1" style={{ color: C.textDim }}>
+                    <div className="flex justify-between text-xs mb-1" style={{ color: "var(--text-muted)" }}>
                       <span>Progress</span>
                       <span>{ach.progress}%</span>
                     </div>
@@ -564,17 +564,17 @@ const AchievementsPanel = ({ achievements }) => {
           <div 
             key={idx}
             className="flex items-center gap-3 p-4 rounded-xl"
-            style={{ background: C.surface, border: `1px solid ${C.border}` }}
+            style={{ background: "var(--surface)", border: `1px solid ${"var(--border)"}` }}
           >
             <div className="p-2 rounded-lg" style={{ background: `${C.brand}15` }}>
               <stat.icon size={18} style={{ color: C.brand }} />
             </div>
             <div>
-              <p className="text-lg font-bold" style={{ fontFamily: "'Fraunces', serif", color: C.text }}>
+              <p className="text-lg font-bold" style={{ fontFamily: "'Fraunces', serif", color: "var(--text)" }}>
                 <AnimatedCounter value={stat.value} />
                 {stat.suffix}
               </p>
-              <p className="text-xs" style={{ color: C.textMuted }}>{stat.label}</p>
+              <p className="text-xs" style={{ color: "var(--text)"Muted }}>{stat.label}</p>
             </div>
           </div>
         ))}

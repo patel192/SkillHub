@@ -200,7 +200,7 @@ export const LearningPage = () => {
       : 0;
 
   return (
-    <div className="flex h-screen" style={{ background: C.bg, color: C.text }}>
+    <div className="flex h-screen" style={{ background: "var(--bg)", color: "var(--text)" }}>
       {/* Fireworks Canvas */}
       <canvas
         ref={canvasRef}
@@ -222,23 +222,23 @@ export const LearningPage = () => {
         transition={{ duration: 0.4 }}
         className="w-80 flex flex-col overflow-hidden"
         style={{
-          background: C.surface,
-          borderRight: `1px solid ${C.border}`,
+          background: "var(--surface)",
+          borderRight: `1px solid ${"var(--border)"}`,
         }}
       >
         {/* Header */}
-        <div className="p-5 border-b" style={{ borderColor: C.border }}>
+        <div className="p-5 border-b" style={{ borderColor: "var(--border)" }}>
           <button
             onClick={() => navigate(`/user/course/${courseId}`)}
             className="flex items-center gap-2 text-sm mb-4 transition-colors hover:text-white"
-            style={{ color: C.textMuted }}
+            style={{ color: "var(--text)"Muted }}
           >
             <ArrowLeft size={16} />
             Back to Course
           </button>
           <h2
             className="text-xl font-bold tracking-wide"
-            style={{ color: C.text, fontFamily: "Fraunces, serif" }}
+            style={{ color: "var(--text)", fontFamily: "Fraunces, serif" }}
           >
             Course Content
           </h2>
@@ -247,11 +247,11 @@ export const LearningPage = () => {
         {/* Stats */}
         <div
           className="p-4 grid grid-cols-2 gap-3 border-b"
-          style={{ borderColor: C.border }}
+          style={{ borderColor: "var(--border)" }}
         >
           <div
             className="p-3 rounded-xl flex items-center gap-3"
-            style={{ background: C.surface2, border: `1px solid ${C.border}` }}
+            style={{ background: "var(--surface)"2, border: `1px solid ${"var(--border)"}` }}
           >
             <div
               className="w-10 h-10 rounded-lg flex items-center justify-center"
@@ -260,17 +260,17 @@ export const LearningPage = () => {
               <Timer size={18} style={{ color: C.brand }} />
             </div>
             <div>
-              <div className="text-xs" style={{ color: C.textDim }}>
+              <div className="text-xs" style={{ color: "var(--text-muted)" }}>
                 Time
               </div>
-              <div className="font-semibold text-sm" style={{ color: C.text }}>
+              <div className="font-semibold text-sm" style={{ color: "var(--text)" }}>
                 {formatTime(learningTime)}
               </div>
             </div>
           </div>
           <div
             className="p-3 rounded-xl flex items-center gap-3"
-            style={{ background: C.surface2, border: `1px solid ${C.border}` }}
+            style={{ background: "var(--surface)"2, border: `1px solid ${"var(--border)"}` }}
           >
             <div
               className="w-10 h-10 rounded-lg flex items-center justify-center"
@@ -279,10 +279,10 @@ export const LearningPage = () => {
               <Trophy size={18} style={{ color: C.accent }} />
             </div>
             <div>
-              <div className="text-xs" style={{ color: C.textDim }}>
+              <div className="text-xs" style={{ color: "var(--text-muted)" }}>
                 Points
               </div>
-              <div className="font-semibold text-sm" style={{ color: C.text }}>
+              <div className="font-semibold text-sm" style={{ color: "var(--text)" }}>
                 {points}
               </div>
             </div>
@@ -290,16 +290,16 @@ export const LearningPage = () => {
         </div>
 
         {/* Progress */}
-        <div className="px-5 py-4 border-b" style={{ borderColor: C.border }}>
+        <div className="px-5 py-4 border-b" style={{ borderColor: "var(--border)" }}>
           <div className="flex justify-between text-sm mb-2">
-            <span style={{ color: C.textMuted }}>Progress</span>
+            <span style={{ color: "var(--text)"Muted }}>Progress</span>
             <span style={{ color: C.brand }} className="font-semibold">
               {progress}%
             </span>
           </div>
           <div
             className="h-2 rounded-full overflow-hidden"
-            style={{ background: C.surface2 }}
+            style={{ background: "var(--surface)"2 }}
           >
             <motion.div
               initial={{ width: 0 }}
@@ -320,29 +320,29 @@ export const LearningPage = () => {
             onClick={() => setLearningOpen(!learningOpen)}
             className="w-full px-5 py-4 flex justify-between items-center text-left transition-all"
             style={{
-              background: learningOpen ? C.surface2 : "transparent",
-              borderBottom: `1px solid ${C.border}`,
+              background: learningOpen ? "var(--surface)"2 : "transparent",
+              borderBottom: `1px solid ${"var(--border)"}`,
             }}
           >
             <span
               className="font-semibold flex items-center gap-3"
-              style={{ color: learningOpen ? C.brand : C.text }}
+              style={{ color: learningOpen ? C.brand : "var(--text)" }}
             >
               <div
                 className="w-8 h-8 rounded-lg flex items-center justify-center"
                 style={{
-                  background: learningOpen ? `${C.brand}20` : C.surface2,
+                  background: learningOpen ? `${C.brand}20` : "var(--surface)"2,
                 }}
               >
                 <BookOpen
                   size={16}
-                  style={{ color: learningOpen ? C.brand : C.textMuted }}
+                  style={{ color: learningOpen ? C.brand : "var(--text)"Muted }}
                 />
               </div>
               Lessons
               <span
                 className="px-2 py-0.5 rounded-full text-xs"
-                style={{ background: C.surface2, color: C.textMuted }}
+                style={{ background: "var(--surface)"2, color: "var(--text)"Muted }}
               >
                 {lessons.length}
               </span>
@@ -351,7 +351,7 @@ export const LearningPage = () => {
               animate={{ rotate: learningOpen ? 180 : 0 }}
               transition={{ duration: 0.2 }}
             >
-              <ChevronDown size={18} style={{ color: C.textMuted }} />
+              <ChevronDown size={18} style={{ color: "var(--text)"Muted }} />
             </motion.div>
           </button>
 
@@ -377,7 +377,7 @@ export const LearningPage = () => {
                       onClick={() => setSelectedLesson(l)}
                       className="w-full px-5 py-3 text-left text-sm flex items-center gap-3 transition-all group"
                       style={{
-                        background: isSelected ? C.surface2 : "transparent",
+                        background: isSelected ? "var(--surface)"2 : "transparent",
                         borderLeft: `3px solid ${isSelected ? C.brand : "transparent"}`,
                       }}
                     >
@@ -388,16 +388,16 @@ export const LearningPage = () => {
                             ? C.brand
                             : isSelected
                               ? `${C.brand}30`
-                              : C.surface2,
-                          border: `1px solid ${isCompleted ? C.brand : isSelected ? C.brand : C.border}`,
+                              : "var(--surface)"2,
+                          border: `1px solid ${isCompleted ? C.brand : isSelected ? C.brand : "var(--border)"}`,
                         }}
                       >
                         {isCompleted ? (
-                          <CheckCircle2 size={14} style={{ color: C.bg }} />
+                          <CheckCircle2 size={14} style={{ color: "var(--bg)" }} />
                         ) : (
                           <span
                             style={{
-                              color: isSelected ? C.brand : C.textDim,
+                              color: isSelected ? C.brand : "var(--text-muted)",
                               fontSize: "10px",
                             }}
                           >
@@ -407,7 +407,7 @@ export const LearningPage = () => {
                       </div>
                       <span
                         className="flex-1 truncate"
-                        style={{ color: isSelected ? C.text : C.textMuted }}
+                        style={{ color: isSelected ? "var(--text)" : "var(--text)"Muted }}
                       >
                         {l.title}
                       </span>
@@ -435,27 +435,27 @@ export const LearningPage = () => {
             onClick={() => setQuizOpen(!quizOpen)}
             className="w-full px-5 py-4 flex justify-between items-center text-left transition-all"
             style={{
-              background: quizOpen ? C.surface2 : "transparent",
-              borderBottom: `1px solid ${C.border}`,
+              background: quizOpen ? "var(--surface)"2 : "transparent",
+              borderBottom: `1px solid ${"var(--border)"}`,
             }}
           >
             <span
               className="font-semibold flex items-center gap-3"
-              style={{ color: quizOpen ? C.accent : C.text }}
+              style={{ color: quizOpen ? C.accent : "var(--text)" }}
             >
               <div
                 className="w-8 h-8 rounded-lg flex items-center justify-center"
-                style={{ background: quizOpen ? `${C.accent}20` : C.surface2 }}
+                style={{ background: quizOpen ? `${C.accent}20` : "var(--surface)"2 }}
               >
                 <Target
                   size={16}
-                  style={{ color: quizOpen ? C.accent : C.textMuted }}
+                  style={{ color: quizOpen ? C.accent : "var(--text)"Muted }}
                 />
               </div>
               Quiz
               <span
                 className="px-2 py-0.5 rounded-full text-xs"
-                style={{ background: C.surface2, color: C.textMuted }}
+                style={{ background: "var(--surface)"2, color: "var(--text)"Muted }}
               >
                 {quizQuestions.length}
               </span>
@@ -464,7 +464,7 @@ export const LearningPage = () => {
               animate={{ rotate: quizOpen ? 180 : 0 }}
               transition={{ duration: 0.2 }}
             >
-              <ChevronDown size={18} style={{ color: C.textMuted }} />
+              <ChevronDown size={18} style={{ color: "var(--text)"Muted }} />
             </motion.div>
           </button>
 
@@ -490,7 +490,7 @@ export const LearningPage = () => {
                       onClick={() => setCurrentQuestionIdx(idx)}
                       className="w-full px-5 py-3 text-left text-sm flex items-center gap-3 transition-all"
                       style={{
-                        background: isCurrent ? C.surface2 : "transparent",
+                        background: isCurrent ? "var(--surface)"2 : "transparent",
                         borderLeft: `3px solid ${isCurrent ? C.accent : "transparent"}`,
                       }}
                     >
@@ -500,23 +500,23 @@ export const LearningPage = () => {
                           background: isAnswered
                             ? isCurrent
                               ? `${C.accent}30`
-                              : C.surface3
+                              : "var(--surface)"3
                             : isCurrent
                               ? `${C.accent}30`
-                              : C.surface2,
-                          border: `1px solid ${isAnswered ? C.accent : isCurrent ? C.accent : C.border}`,
+                              : "var(--surface)"2,
+                          border: `1px solid ${isAnswered ? C.accent : isCurrent ? C.accent : "var(--border)"}`,
                           color: isCurrent
                             ? C.accent
                             : isAnswered
                               ? C.accent
-                              : C.textDim,
+                              : "var(--text-muted)",
                         }}
                       >
                         {isAnswered ? <CheckCircle2 size={12} /> : idx + 1}
                       </div>
                       <span
                         className="flex-1 truncate"
-                        style={{ color: isCurrent ? C.text : C.textMuted }}
+                        style={{ color: isCurrent ? "var(--text)" : "var(--text)"Muted }}
                       >
                         Question {idx + 1}
                       </span>
@@ -530,7 +530,7 @@ export const LearningPage = () => {
       </motion.aside>
 
       {/* MAIN CONTENT */}
-      <div className="flex-1 overflow-y-auto p-8" style={{ background: C.bg }}>
+      <div className="flex-1 overflow-y-auto p-8" style={{ background: "var(--bg)" }}>
         {/* LESSON CONTENT */}
         <AnimatePresence mode="wait">
           {selectedLesson && (
@@ -550,21 +550,21 @@ export const LearningPage = () => {
                     style={{
                       background: `${C.brand}20`,
                       color: C.brand,
-                      border: `1px solid ${C.border}`,
+                      border: `1px solid ${"var(--border)"}`,
                     }}
                   >
                     Lesson{" "}
                     {lessons.findIndex((l) => l._id === selectedLesson._id) + 1}{" "}
                     of {lessons.length}
                   </span>
-                  <span style={{ color: C.textDim }}>•</span>
-                  <span style={{ color: C.textMuted }} className="text-sm">
+                  <span style={{ color: "var(--text-muted)" }}>•</span>
+                  <span style={{ color: "var(--text)"Muted }} className="text-sm">
                     {selectedLesson.duration || "10 min read"}
                   </span>
                 </div>
                 <h1
                   className="text-3xl md:text-4xl font-bold mb-4"
-                  style={{ color: C.text, fontFamily: "Fraunces, serif" }}
+                  style={{ color: "var(--text)", fontFamily: "Fraunces, serif" }}
                 >
                   {selectedLesson.title}
                 </h1>
@@ -588,7 +588,7 @@ export const LearningPage = () => {
                     >
                       <p
                         className="text-base leading-relaxed whitespace-pre-line"
-                        style={{ color: C.textMuted }}
+                        style={{ color: "var(--text)"Muted }}
                       >
                         {block.content}
                       </p>
@@ -600,11 +600,11 @@ export const LearningPage = () => {
                       animate={{ opacity: 1, scale: 1 }}
                       transition={{ delay: idx * 0.1 }}
                       className="rounded-2xl overflow-hidden"
-                      style={{ border: `1px solid ${C.border}` }}
+                      style={{ border: `1px solid ${"var(--border)"}` }}
                     >
                       <div
                         className="px-4 py-2 text-xs font-medium flex items-center gap-2"
-                        style={{ background: C.surface2, color: C.textMuted }}
+                        style={{ background: "var(--surface)"2, color: "var(--text)"Muted }}
                       >
                         <div
                           className="w-2 h-2 rounded-full"
@@ -617,7 +617,7 @@ export const LearningPage = () => {
                         style={vscDarkPlus}
                         customStyle={{
                           margin: 0,
-                          background: C.surface,
+                          background: "var(--surface)",
                           fontSize: "14px",
                           lineHeight: "1.6",
                         }}
@@ -632,7 +632,7 @@ export const LearningPage = () => {
               {/* Navigation */}
               <div
                 className="mt-12 flex items-center justify-between pt-6"
-                style={{ borderTop: `1px solid ${C.border}` }}
+                style={{ borderTop: `1px solid ${"var(--border)"}` }}
               >
                 <button
                   onClick={() => {
@@ -647,9 +647,9 @@ export const LearningPage = () => {
                   }
                   className="flex items-center gap-2 px-5 py-3 rounded-xl transition-all disabled:opacity-30"
                   style={{
-                    background: C.surface,
-                    color: C.textMuted,
-                    border: `1px solid ${C.border}`,
+                    background: "var(--surface)",
+                    color: "var(--text)"Muted,
+                    border: `1px solid ${"var(--border)"}`,
                   }}
                 >
                   <ChevronRight size={18} className="rotate-180" />
@@ -672,7 +672,7 @@ export const LearningPage = () => {
                   className="flex items-center gap-2 px-5 py-3 rounded-xl transition-all disabled:opacity-30"
                   style={{
                     background: `linear-gradient(135deg, ${C.brand}, ${C.brandLight})`,
-                    color: C.bg,
+                    color: "var(--bg)",
                   }}
                 >
                   Next Lesson
@@ -695,15 +695,15 @@ export const LearningPage = () => {
               <div
                 className="rounded-3xl overflow-hidden"
                 style={{
-                  background: C.surface,
-                  border: `1px solid ${C.border}`,
+                  background: "var(--surface)",
+                  border: `1px solid ${"var(--border)"}`,
                 }}
               >
                 {/* Quiz Header */}
                 <div
                   className="px-8 py-6 border-b"
                   style={{
-                    borderColor: C.border,
+                    borderColor: "var(--border)",
                     background: `linear-gradient(135deg, ${C.accent}20, transparent)`,
                   }}
                 >
@@ -718,18 +718,18 @@ export const LearningPage = () => {
                       <div>
                         <h2
                           className="text-xl font-bold"
-                          style={{ color: C.text }}
+                          style={{ color: "var(--text)" }}
                         >
                           Question {currentQuestionIdx + 1}
                         </h2>
-                        <p style={{ color: C.textMuted }} className="text-sm">
+                        <p style={{ color: "var(--text)"Muted }} className="text-sm">
                           of {quizQuestions.length} questions
                         </p>
                       </div>
                     </div>
                     <div
                       className="px-4 py-2 rounded-full text-sm font-medium"
-                      style={{ background: C.surface2, color: C.accent }}
+                      style={{ background: "var(--surface)"2, color: C.accent }}
                     >
                       +{quizQuestions[currentQuestionIdx].points || 1} pts
                     </div>
@@ -738,7 +738,7 @@ export const LearningPage = () => {
                   {/* Progress Bar */}
                   <div
                     className="h-2 rounded-full overflow-hidden"
-                    style={{ background: C.surface2 }}
+                    style={{ background: "var(--surface)"2 }}
                   >
                     <motion.div
                       initial={{ width: 0 }}
@@ -753,7 +753,7 @@ export const LearningPage = () => {
 
                 {/* Question */}
                 <div className="p-8">
-                  <p className="text-lg mb-8" style={{ color: C.text }}>
+                  <p className="text-lg mb-8" style={{ color: "var(--text)" }}>
                     {quizQuestions[currentQuestionIdx].question}
                   </p>
 
@@ -781,26 +781,26 @@ export const LearningPage = () => {
                             style={{
                               background: selected
                                 ? `${C.accent}20`
-                                : C.surface2,
-                              border: `2px solid ${selected ? C.accent : C.border}`,
+                                : "var(--surface)"2,
+                              border: `2px solid ${selected ? C.accent : "var(--border)"}`,
                             }}
                           >
                             <div
                               className="w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all"
                               style={{
-                                borderColor: selected ? C.accent : C.border,
+                                borderColor: selected ? C.accent : "var(--border)",
                                 background: selected ? C.accent : "transparent",
                               }}
                             >
                               {selected && (
                                 <CheckCircle2
                                   size={14}
-                                  style={{ color: C.bg }}
+                                  style={{ color: "var(--bg)" }}
                                 />
                               )}
                             </div>
                             <span
-                              style={{ color: selected ? C.text : C.textMuted }}
+                              style={{ color: selected ? "var(--text)" : "var(--text)"Muted }}
                             >
                               {opt.text}
                             </span>
@@ -820,7 +820,7 @@ export const LearningPage = () => {
                     className="mt-8 w-full py-4 rounded-xl font-bold text-lg flex items-center justify-center gap-2 disabled:opacity-50"
                     style={{
                       background: `linear-gradient(135deg, ${C.accent}, #FBBF24)`,
-                      color: C.bg,
+                      color: "var(--bg)",
                       boxShadow: `0 4px 20px ${C.accent}40`,
                     }}
                   >

@@ -1,0 +1,19 @@
+:root {
+  --bg: #ffffff;
+  --surface: #f8fafc;
+  --surface2: #eef2f7;
+  --text: #111827;
+  --text-muted: #6b7280;
+  --border: rgba(0,0,0,0.08);
+  --brand: #16A880;
+}
+
+.dark {
+  --bg: #0A0F0D;
+  --surface: #111814;
+  --surface2: #182219;
+  --text: #E8F5F0;
+  --text-muted: #7A9E8E;
+  --border: rgba(22,168,128,0.15);
+  --brand: #16A880;
+}

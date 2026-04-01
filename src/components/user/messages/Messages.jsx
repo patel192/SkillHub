@@ -690,7 +690,7 @@ export const Messages = () => {
   // Render
   // ===============================
   return (
-    <div className="flex h-screen" style={{ background: C.bg, color: C.text }}>
+    <div className="flex h-screen" style={{ background: "var(--bg)", color: "var(--text)" }}>
       {/* Connection Status Bar */}
       <AnimatePresence>
         {!isConnected && (
@@ -708,14 +708,14 @@ export const Messages = () => {
                   transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
                   className="w-4 h-4 border-2 border-white border-t-transparent rounded-full"
                 />
-                <span className="text-sm font-medium" style={{ color: C.bg }}>
+                <span className="text-sm font-medium" style={{ color: "var(--bg)" }}>
                   Connecting to chat server...
                 </span>
               </>
             ) : (
               <>
-                <WifiOff size={16} style={{ color: C.bg }} />
-                <span className="text-sm font-medium" style={{ color: C.bg }}>
+                <WifiOff size={16} style={{ color: "var(--bg)" }} />
+                <span className="text-sm font-medium" style={{ color: "var(--bg)" }}>
                   Disconnected. Trying to reconnect...
                 </span>
               </>
@@ -734,8 +734,8 @@ export const Messages = () => {
         transition={{ duration: 0.3, ease: "easeInOut" }}
         className="flex flex-col overflow-hidden"
         style={{
-          background: C.surface,
-          borderRight: `1px solid ${C.border}`,
+          background: "var(--surface)",
+          borderRight: `1px solid ${"var(--border)"}`,
         }}
       >
         <div
@@ -743,10 +743,10 @@ export const Messages = () => {
           className="h-full flex flex-col"
         >
           {/* Header */}
-          <div className="p-4 border-b" style={{ borderColor: C.border }}>
+          <div className="p-4 border-b" style={{ borderColor: "var(--border)" }}>
             <h2
               className="text-xl font-bold mb-4"
-              style={{ color: C.text, fontFamily: "Fraunces, serif" }}
+              style={{ color: "var(--text)", fontFamily: "Fraunces, serif" }}
             >
               Messages
             </h2>
@@ -755,8 +755,8 @@ export const Messages = () => {
             <div
               className="flex rounded-xl p-1"
               style={{
-                background: C.surface2,
-                border: `1px solid ${C.border}`,
+                background: "var(--surface)"2,
+                border: `1px solid ${"var(--border)"}`,
               }}
             >
               <button
@@ -765,7 +765,7 @@ export const Messages = () => {
                 style={{
                   background:
                     activeSidebarTab === "friends" ? C.brand : "transparent",
-                  color: activeSidebarTab === "friends" ? C.bg : C.textMuted,
+                  color: activeSidebarTab === "friends" ? "var(--bg)" : "var(--text)"Muted,
                 }}
               >
                 Friends
@@ -776,7 +776,7 @@ export const Messages = () => {
                 style={{
                   background:
                     activeSidebarTab === "requests" ? C.brand : "transparent",
-                  color: activeSidebarTab === "requests" ? C.bg : C.textMuted,
+                  color: activeSidebarTab === "requests" ? "var(--bg)" : "var(--text)"Muted,
                 }}
               >
                 Requests
@@ -794,12 +794,12 @@ export const Messages = () => {
 
           {/* Search */}
           {activeSidebarTab === "friends" && (
-            <div className="p-4 border-b" style={{ borderColor: C.border }}>
+            <div className="p-4 border-b" style={{ borderColor: "var(--border)" }}>
               <div className="relative">
                 <Search
                   size={16}
                   className="absolute left-3 top-1/2 -translate-y-1/2"
-                  style={{ color: C.textDim }}
+                  style={{ color: "var(--text-muted)" }}
                 />
                 <input
                   value={searchQuery}
@@ -807,9 +807,9 @@ export const Messages = () => {
                   placeholder="Search users..."
                   className="w-full pl-10 pr-10 py-2.5 rounded-xl text-sm outline-none transition-all"
                   style={{
-                    background: C.surface2,
-                    border: `1px solid ${C.border}`,
-                    color: C.text,
+                    background: "var(--surface)"2,
+                    border: `1px solid ${"var(--border)"}`,
+                    color: "var(--text)",
                   }}
                 />
                 {searchQuery && (
@@ -819,7 +819,7 @@ export const Messages = () => {
                       setSearchResults([]);
                     }}
                     className="absolute right-3 top-1/2 -translate-y-1/2"
-                    style={{ color: C.textDim }}
+                    style={{ color: "var(--text-muted)" }}
                   >
                     <X size={16} />
                   </button>
@@ -833,7 +833,7 @@ export const Messages = () => {
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     className="mt-3 text-sm"
-                    style={{ color: C.textMuted }}
+                    style={{ color: "var(--text)"Muted }}
                   >
                     Searching...
                   </motion.div>
@@ -855,8 +855,8 @@ export const Messages = () => {
                           key={id}
                           className="flex items-center justify-between p-3 rounded-xl"
                           style={{
-                            background: C.surface2,
-                            border: `1px solid ${C.border}`,
+                            background: "var(--surface)"2,
+                            border: `1px solid ${"var(--border)"}`,
                           }}
                         >
                           <div className="flex items-center gap-3">
@@ -871,13 +871,13 @@ export const Messages = () => {
                             <div>
                               <div
                                 className="text-sm font-medium"
-                                style={{ color: C.text }}
+                                style={{ color: "var(--text)" }}
                               >
                                 {nameOf(u)}
                               </div>
                               <div
                                 className="text-xs"
-                                style={{ color: C.textDim }}
+                                style={{ color: "var(--text-muted)" }}
                               >
                                 {u.email}
                               </div>
@@ -887,7 +887,7 @@ export const Messages = () => {
                             {isSelf ? (
                               <span
                                 className="text-xs"
-                                style={{ color: C.textDim }}
+                                style={{ color: "var(--text-muted)" }}
                               >
                                 You
                               </span>
@@ -912,7 +912,7 @@ export const Messages = () => {
                                 disabled={adding}
                                 onClick={() => sendFriendRequest(id)}
                                 className="px-3 py-1.5 rounded-lg text-xs font-medium"
-                                style={{ background: C.brand, color: C.bg }}
+                                style={{ background: C.brand, color: "var(--bg)" }}
                               >
                                 {adding ? "..." : "Add"}
                               </motion.button>
@@ -933,16 +933,16 @@ export const Messages = () => {
               friends.length === 0 ? (
                 <div
                   className="text-center mt-10"
-                  style={{ color: C.textMuted }}
+                  style={{ color: "var(--text)"Muted }}
                 >
                   <div
                     className="w-16 h-16 mx-auto mb-4 rounded-full flex items-center justify-center"
-                    style={{ background: C.surface2 }}
+                    style={{ background: "var(--surface)"2 }}
                   >
-                    <UserPlus size={24} style={{ color: C.textDim }} />
+                    <UserPlus size={24} style={{ color: "var(--text-muted)" }} />
                   </div>
                   <p className="text-sm">No friends yet</p>
-                  <p className="text-xs mt-1" style={{ color: C.textDim }}>
+                  <p className="text-xs mt-1" style={{ color: "var(--text-muted)" }}>
                     Search users to add friends
                   </p>
                 </div>
@@ -959,9 +959,9 @@ export const Messages = () => {
                     style={{
                       background:
                         String(selectedUserId) === String(f._id)
-                          ? C.surface2
+                          ? "var(--surface)"2
                           : "transparent",
-                      border: `1px solid ${String(selectedUserId) === String(f._id) ? C.borderHov : "transparent"}`,
+                      border: `1px solid ${String(selectedUserId) === String(f._id) ? "var(--border)"Hov : "transparent"}`,
                     }}
                   >
                     <div className="relative">
@@ -981,7 +981,7 @@ export const Messages = () => {
                           className="absolute -bottom-1 -right-1 w-4 h-4 rounded-full border-2 flex items-center justify-center"
                           style={{
                             background: C.brand,
-                            borderColor: C.surface,
+                            borderColor: "var(--surface)",
                           }}
                         >
                           <span className="w-1.5 h-1.5 bg-white rounded-full animate-pulse" />
@@ -991,14 +991,14 @@ export const Messages = () => {
                     <div className="ml-3 flex-1 min-w-0">
                       <div
                         className="font-medium truncate"
-                        style={{ color: C.text }}
+                        style={{ color: "var(--text)" }}
                       >
                         {nameOf(f)}
                       </div>
                       <div
                         className="text-xs truncate"
                         style={{
-                          color: typingUsers.has(f._id) ? C.brand : C.textDim,
+                          color: typingUsers.has(f._id) ? C.brand : "var(--text-muted)",
                         }}
                       >
                         {typingUsers.has(f._id) ? "typing..." : "Tap to chat"}
@@ -1013,7 +1013,7 @@ export const Messages = () => {
                           setMenuOpen(menuOpen === f._id ? null : f._id);
                         }}
                         className="p-2 rounded-lg transition-colors"
-                        style={{ color: C.textDim }}
+                        style={{ color: "var(--text-muted)" }}
                       >
                         <MoreVertical size={16} />
                       </button>
@@ -1026,8 +1026,8 @@ export const Messages = () => {
                             exit={{ opacity: 0, scale: 0.95 }}
                             className="absolute right-0 top-full mt-2 w-40 rounded-xl shadow-xl z-20 overflow-hidden"
                             style={{
-                              background: C.surface2,
-                              border: `1px solid ${C.border}`,
+                              background: "var(--surface)"2,
+                              border: `1px solid ${"var(--border)"}`,
                             }}
                           >
                             <button
@@ -1054,12 +1054,12 @@ export const Messages = () => {
                 <div>
                   <h3
                     className="text-sm font-semibold mb-3 px-1"
-                    style={{ color: C.textMuted }}
+                    style={{ color: "var(--text)"Muted }}
                   >
                     Incoming Requests
                   </h3>
                   {incoming.length === 0 ? (
-                    <p className="text-sm px-1" style={{ color: C.textDim }}>
+                    <p className="text-sm px-1" style={{ color: "var(--text-muted)" }}>
                       No pending requests
                     </p>
                   ) : (
@@ -1070,8 +1070,8 @@ export const Messages = () => {
                         animate={{ opacity: 1, y: 0 }}
                         className="flex items-center justify-between p-3 rounded-xl mb-2"
                         style={{
-                          background: C.surface2,
-                          border: `1px solid ${C.border}`,
+                          background: "var(--surface)"2,
+                          border: `1px solid ${"var(--border)"}`,
                         }}
                       >
                         <div className="flex items-center gap-3">
@@ -1083,7 +1083,7 @@ export const Messages = () => {
                             className="w-10 h-10 rounded-full"
                             alt={nameOf(r.requester)}
                           />
-                          <span className="text-sm" style={{ color: C.text }}>
+                          <span className="text-sm" style={{ color: "var(--text)" }}>
                             {nameOf(r.requester)}
                           </span>
                         </div>
@@ -1126,12 +1126,12 @@ export const Messages = () => {
                 <div>
                   <h3
                     className="text-sm font-semibold mb-3 px-1"
-                    style={{ color: C.textMuted }}
+                    style={{ color: "var(--text)"Muted }}
                   >
                     Sent Requests
                   </h3>
                   {outgoing.length === 0 ? (
-                    <p className="text-sm px-1" style={{ color: C.textDim }}>
+                    <p className="text-sm px-1" style={{ color: "var(--text-muted)" }}>
                       No sent requests
                     </p>
                   ) : (
@@ -1140,8 +1140,8 @@ export const Messages = () => {
                         key={r._id}
                         className="flex items-center gap-3 p-3 rounded-xl mb-2"
                         style={{
-                          background: C.surface2,
-                          border: `1px solid ${C.border}`,
+                          background: "var(--surface)"2,
+                          border: `1px solid ${"var(--border)"}`,
                         }}
                       >
                         <img
@@ -1153,7 +1153,7 @@ export const Messages = () => {
                           alt={nameOf(r.recipient)}
                         />
                         <div>
-                          <div className="text-sm" style={{ color: C.text }}>
+                          <div className="text-sm" style={{ color: "var(--text)" }}>
                             {nameOf(r.recipient)}
                           </div>
                           <div className="text-xs" style={{ color: C.accent }}>
@@ -1171,11 +1171,11 @@ export const Messages = () => {
       </motion.aside>
 
       {/* CHAT AREA */}
-      <div className="flex-1 flex flex-col" style={{ background: C.bg }}>
+      <div className="flex-1 flex flex-col" style={{ background: "var(--bg)" }}>
         {/* Header */}
         <div
           className="flex items-center justify-between px-6 py-4 border-b"
-          style={{ borderColor: C.border }}
+          style={{ borderColor: "var(--border)" }}
         >
           <div className="flex items-center gap-4">
             <motion.button
@@ -1183,7 +1183,7 @@ export const Messages = () => {
               whileTap={{ scale: 0.95 }}
               onClick={() => setSidebarOpen(!sidebarOpen)}
               className="p-2 rounded-lg transition-colors"
-              style={{ color: C.textMuted }}
+              style={{ color: "var(--text)"Muted }}
             >
               <Menu size={20} />
             </motion.button>
@@ -1205,17 +1205,17 @@ export const Messages = () => {
                   {isTyping && (
                     <span
                       className="absolute -bottom-1 -right-1 w-3 h-3 rounded-full border-2"
-                      style={{ background: C.brand, borderColor: C.bg }}
+                      style={{ background: C.brand, borderColor: "var(--bg)" }}
                     />
                   )}
                 </div>
                 <div>
-                  <div className="font-semibold" style={{ color: C.text }}>
+                  <div className="font-semibold" style={{ color: "var(--text)" }}>
                     {nameOf(selectedUser)}
                   </div>
                   <div
                     className="text-xs flex items-center gap-1"
-                    style={{ color: isTyping ? C.brand : C.textDim }}
+                    style={{ color: isTyping ? C.brand : "var(--text-muted)" }}
                   >
                     {isTyping ? (
                       <>
@@ -1240,7 +1240,7 @@ export const Messages = () => {
                 </div>
               </div>
             ) : (
-              <span style={{ color: C.textMuted }}>
+              <span style={{ color: "var(--text)"Muted }}>
                 Select a friend to start chatting
               </span>
             )}
@@ -1262,13 +1262,13 @@ export const Messages = () => {
             messages.length === 0 ? (
               <div
                 className="h-full flex flex-col items-center justify-center"
-                style={{ color: C.textDim }}
+                style={{ color: "var(--text-muted)" }}
               >
                 <div
                   className="w-20 h-20 rounded-full flex items-center justify-center mb-4"
-                  style={{ background: C.surface }}
+                  style={{ background: "var(--surface)" }}
                 >
-                  <Send size={32} style={{ color: C.textDim }} />
+                  <Send size={32} style={{ color: "var(--text-muted)" }} />
                 </div>
                 <p>No messages yet</p>
                 <p className="text-sm mt-1">Start the conversation!</p>
@@ -1317,9 +1317,9 @@ export const Messages = () => {
                             <div
                               className="text-xs px-3 py-1.5 rounded-t-lg border-l-2"
                               style={{
-                                background: C.surface2,
+                                background: "var(--surface)"2,
                                 borderColor: C.brand,
-                                color: C.textMuted,
+                                color: "var(--text)"Muted,
                               }}
                             >
                               <span
@@ -1346,9 +1346,9 @@ export const Messages = () => {
                             style={{
                               background: isMine
                                 ? `linear-gradient(135deg, ${C.brand}, ${C.brandLight})`
-                                : C.surface2,
-                              color: isMine ? C.bg : C.text,
-                              border: isMine ? "none" : `1px solid ${C.border}`,
+                                : "var(--surface)"2,
+                              color: isMine ? "var(--bg)" : "var(--text)",
+                              border: isMine ? "none" : `1px solid ${"var(--border)"}`,
                               opacity: msg.isPending ? 0.7 : 1,
                             }}
                           >
@@ -1386,8 +1386,8 @@ export const Messages = () => {
                             <div
                               className="absolute -bottom-3 left-2 flex gap-1 px-2 py-0.5 rounded-full shadow-lg"
                               style={{
-                                background: C.surface,
-                                border: `1px solid ${C.border}`,
+                                background: "var(--surface)",
+                                border: `1px solid ${"var(--border)"}`,
                               }}
                             >
                               {msg.reactions.map((r, i) => (
@@ -1407,8 +1407,8 @@ export const Messages = () => {
                                 exit={{ opacity: 0, y: 10 }}
                                 className={`absolute ${isMine ? "right-0" : "left-0"} bottom-full mb-2 flex gap-1 p-1 rounded-xl shadow-xl`}
                                 style={{
-                                  background: C.surface2,
-                                  border: `1px solid ${C.border}`,
+                                  background: "var(--surface)"2,
+                                  border: `1px solid ${"var(--border)"}`,
                                 }}
                               >
                                 <button
@@ -1420,7 +1420,7 @@ export const Messages = () => {
                                     )
                                   }
                                   className="p-2 rounded-lg transition-colors hover:bg-white/10"
-                                  style={{ color: C.textMuted }}
+                                  style={{ color: "var(--text)"Muted }}
                                   title="React"
                                 >
                                   <Smile size={16} />
@@ -1428,7 +1428,7 @@ export const Messages = () => {
                                 <button
                                   onClick={() => handleReply(msg)}
                                   className="p-2 rounded-lg transition-colors hover:bg-white/10"
-                                  style={{ color: C.textMuted }}
+                                  style={{ color: "var(--text)"Muted }}
                                   title="Reply"
                                 >
                                   <Reply size={16} />
@@ -1438,7 +1438,7 @@ export const Messages = () => {
                                     <button
                                       onClick={() => handleEdit(msg)}
                                       className="p-2 rounded-lg transition-colors hover:bg-white/10"
-                                      style={{ color: C.textMuted }}
+                                      style={{ color: "var(--text)"Muted }}
                                       title="Edit"
                                     >
                                       <Edit size={16} />
@@ -1466,8 +1466,8 @@ export const Messages = () => {
                                 exit={{ opacity: 0, scale: 0.8 }}
                                 className="absolute left-1/2 -translate-x-1/2 bottom-full mb-2 flex gap-1 p-2 rounded-xl shadow-xl"
                                 style={{
-                                  background: C.surface2,
-                                  border: `1px solid ${C.border}`,
+                                  background: "var(--surface)"2,
+                                  border: `1px solid ${"var(--border)"}`,
                                 }}
                               >
                                 {emojis.map((e) => (
@@ -1508,8 +1508,8 @@ export const Messages = () => {
                       <div
                         className="px-4 py-2 rounded-2xl flex items-center gap-1"
                         style={{
-                          background: C.surface2,
-                          border: `1px solid ${C.border}`,
+                          background: "var(--surface)"2,
+                          border: `1px solid ${"var(--border)"}`,
                         }}
                       >
                         <motion.span
@@ -1549,18 +1549,18 @@ export const Messages = () => {
           ) : (
             <div
               className="h-full flex flex-col items-center justify-center"
-              style={{ color: C.textDim }}
+              style={{ color: "var(--text-muted)" }}
             >
               <div
                 className="w-24 h-24 rounded-full flex items-center justify-center mb-6"
                 style={{
-                  background: C.surface,
-                  border: `2px dashed ${C.border}`,
+                  background: "var(--surface)",
+                  border: `2px dashed ${"var(--border)"}`,
                 }}
               >
-                <ArrowLeft size={32} style={{ color: C.textDim }} />
+                <ArrowLeft size={32} style={{ color: "var(--text-muted)" }} />
               </div>
-              <p className="text-lg font-medium" style={{ color: C.textMuted }}>
+              <p className="text-lg font-medium" style={{ color: "var(--text)"Muted }}>
                 Select a conversation
               </p>
               <p className="text-sm mt-2">
@@ -1578,7 +1578,7 @@ export const Messages = () => {
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: 20 }}
               className="px-6 py-3 border-t"
-              style={{ borderColor: C.border, background: C.surface }}
+              style={{ borderColor: "var(--border)", background: "var(--surface)" }}
             >
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
@@ -1596,13 +1596,13 @@ export const Messages = () => {
                   </div>
                   <div className="text-sm">
                     <div
-                      style={{ color: C.textMuted }}
+                      style={{ color: "var(--text)"Muted }}
                       className="text-xs mb-0.5"
                     >
                       {replyTo ? "Replying to" : "Editing message"}
                     </div>
                     <div
-                      style={{ color: C.text }}
+                      style={{ color: "var(--text)" }}
                       className="truncate max-w-md"
                     >
                       {(replyTo || editMsg)?.text}
@@ -1615,7 +1615,7 @@ export const Messages = () => {
                     setEditMsg(null);
                   }}
                   className="p-2 rounded-lg transition-colors hover:bg-white/10"
-                  style={{ color: C.textDim }}
+                  style={{ color: "var(--text-muted)" }}
                 >
                   <X size={18} />
                 </button>
@@ -1626,7 +1626,7 @@ export const Messages = () => {
 
         {/* Input */}
         {selectedUserId && (
-          <div className="px-6 py-4 border-t" style={{ borderColor: C.border }}>
+          <div className="px-6 py-4 border-t" style={{ borderColor: "var(--border)" }}>
             <div className="flex items-end gap-3">
               <div className="flex-1 relative">
                 <input
@@ -1642,15 +1642,15 @@ export const Messages = () => {
                   placeholder="Type a message..."
                   className="w-full px-4 py-3 pr-12 rounded-2xl outline-none transition-all"
                   style={{
-                    background: C.surface,
-                    border: `1px solid ${C.border}`,
-                    color: C.text,
+                    background: "var(--surface)",
+                    border: `1px solid ${"var(--border)"}`,
+                    color: "var(--text)",
                   }}
                 />
                 <button
                   onClick={() => setShowReactions("input")}
                   className="absolute right-3 top-1/2 -translate-y-1/2 p-1.5 rounded-lg transition-colors"
-                  style={{ color: C.textDim }}
+                  style={{ color: "var(--text-muted)" }}
                 >
                   <Smile size={18} />
                 </button>
@@ -1663,7 +1663,7 @@ export const Messages = () => {
                 className="p-3 rounded-2xl transition-all disabled:opacity-50"
                 style={{
                   background: `linear-gradient(135deg, ${C.brand}, ${C.brandLight})`,
-                  color: C.bg,
+                  color: "var(--bg)",
                 }}
               >
                 <Send size={20} />
@@ -1687,19 +1687,19 @@ export const Messages = () => {
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.9, opacity: 0 }}
               className="w-full max-w-md rounded-2xl p-6"
-              style={{ background: C.surface, border: `1px solid ${C.border}` }}
+              style={{ background: "var(--surface)", border: `1px solid ${"var(--border)"}` }}
             >
               <div className="flex items-center justify-between mb-6">
                 <h2
                   className="text-xl font-bold"
-                  style={{ color: C.text, fontFamily: "Fraunces, serif" }}
+                  style={{ color: "var(--text)", fontFamily: "Fraunces, serif" }}
                 >
                   Report {reportTarget?.type}
                 </h2>
                 <button
                   onClick={() => setIsReportOpen(false)}
                   className="p-2 rounded-lg transition-colors"
-                  style={{ color: C.textDim }}
+                  style={{ color: "var(--text-muted)" }}
                 >
                   <X size={20} />
                 </button>
@@ -1709,7 +1709,7 @@ export const Messages = () => {
                 <div>
                   <label
                     className="block text-sm font-medium mb-2"
-                    style={{ color: C.textMuted }}
+                    style={{ color: "var(--text)"Muted }}
                   >
                     Report Type
                   </label>
@@ -1719,9 +1719,9 @@ export const Messages = () => {
                     required
                     className="w-full px-4 py-3 rounded-xl outline-none"
                     style={{
-                      background: C.surface2,
-                      border: `1px solid ${C.border}`,
-                      color: C.text,
+                      background: "var(--surface)"2,
+                      border: `1px solid ${"var(--border)"}`,
+                      color: "var(--text)",
                     }}
                   >
                     <option value="">Select an issue</option>
@@ -1735,7 +1735,7 @@ export const Messages = () => {
                 <div>
                   <label
                     className="block text-sm font-medium mb-2"
-                    style={{ color: C.textMuted }}
+                    style={{ color: "var(--text)"Muted }}
                   >
                     Details
                   </label>
@@ -1746,9 +1746,9 @@ export const Messages = () => {
                     rows={4}
                     className="w-full px-4 py-3 rounded-xl outline-none resize-none"
                     style={{
-                      background: C.surface2,
-                      border: `1px solid ${C.border}`,
-                      color: C.text,
+                      background: "var(--surface)"2,
+                      border: `1px solid ${"var(--border)"}`,
+                      color: "var(--text)",
                     }}
                     placeholder="Describe the issue..."
                   />
@@ -1759,7 +1759,7 @@ export const Messages = () => {
                     type="button"
                     onClick={() => setIsReportOpen(false)}
                     className="flex-1 py-3 rounded-xl font-medium transition-colors"
-                    style={{ background: C.surface2, color: C.text }}
+                    style={{ background: "var(--surface)"2, color: "var(--text)" }}
                   >
                     Cancel
                   </button>

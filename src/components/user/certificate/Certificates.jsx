@@ -66,8 +66,8 @@ const GlowCard = ({ children, className = "", onClick, verified = true }) => (
     onClick={onClick}
     className={`relative group cursor-pointer overflow-hidden rounded-2xl ${className}`}
     style={{
-      background: C.surface,
-      border: `1px solid ${verified ? C.border : "rgba(255,255,255,0.05)"}`,
+      background: "var(--surface)",
+      border: `1px solid ${verified ? "var(--border)" : "rgba(255,255,255,0.05)"}`,
     }}
   >
     {/* Ambient Glow */}
@@ -84,7 +84,7 @@ const GlowCard = ({ children, className = "", onClick, verified = true }) => (
     <div
       className="absolute bottom-0 left-0 right-0 h-px opacity-0 group-hover:opacity-100 transition-opacity duration-300"
       style={{
-        background: `linear-gradient(90deg, transparent, ${verified ? C.brand : C.textDim}, transparent)`,
+        background: `linear-gradient(90deg, transparent, ${verified ? C.brand : "var(--text-muted)"}, transparent)`,
       }}
     />
     
@@ -94,9 +94,9 @@ const GlowCard = ({ children, className = "", onClick, verified = true }) => (
 
 const Badge = ({ children, type = "default" }) => {
   const styles = {
-    default: { bg: `${C.brand}20`, color: C.brand, border: C.border },
+    default: { bg: `${C.brand}20`, color: C.brand, border: "var(--border)" },
     gold: { bg: "rgba(255,215,0,0.15)", color: C.gold, border: "rgba(255,215,0,0.3)" },
-    muted: { bg: C.surface2, color: C.textMuted, border: C.border },
+    muted: { bg: "var(--surface)"2, color: "var(--text)"Muted, border: "var(--border)" },
   };
   
   const style = styles[type] || styles.default;
@@ -119,14 +119,14 @@ const EmptyState = () => (
   >
     <div
       className="w-24 h-24 rounded-full flex items-center justify-center mb-6"
-      style={{ background: `${C.brand}15`, border: `1px solid ${C.border}` }}
+      style={{ background: `${C.brand}15`, border: `1px solid ${"var(--border)"}` }}
     >
       <Award size={40} style={{ color: C.brand }} />
     </div>
-    <h3 className="text-xl font-bold mb-2" style={{ fontFamily: "'Fraunces', serif", color: C.text }}>
+    <h3 className="text-xl font-bold mb-2" style={{ fontFamily: "'Fraunces', serif", color: "var(--text)" }}>
       No Certificates Yet
     </h3>
-    <p className="text-center max-w-md mb-6" style={{ color: C.textMuted }}>
+    <p className="text-center max-w-md mb-6" style={{ color: "var(--text)"Muted }}>
       Complete courses and challenges to earn verified certificates and showcase your skills.
     </p>
     <motion.button
@@ -135,7 +135,7 @@ const EmptyState = () => (
       className="flex items-center gap-2 px-6 py-3 rounded-xl font-medium"
       style={{
         background: `linear-gradient(135deg, ${C.brand}, ${C.brandLight})`,
-        color: C.bg,
+        color: "var(--bg)",
         boxShadow: `0 4px 20px ${C.brand}40`,
       }}
     >
@@ -160,11 +160,11 @@ const CertificateCard = ({ cert, index }) => {
           <div
             className="p-3 rounded-xl"
             style={{
-              background: cert.verified ? `${C.brand}20` : C.surface2,
-              border: `1px solid ${cert.verified ? C.border : "rgba(255,255,255,0.05)"}`,
+              background: cert.verified ? `${C.brand}20` : "var(--surface)"2,
+              border: `1px solid ${cert.verified ? "var(--border)" : "rgba(255,255,255,0.05)"}`,
             }}
           >
-            <FileText size={24} style={{ color: cert.verified ? C.brand : C.textDim }} />
+            <FileText size={24} style={{ color: cert.verified ? C.brand : "var(--text-muted)" }} />
           </div>
           
           <div className="flex items-center gap-2">
@@ -182,7 +182,7 @@ const CertificateCard = ({ cert, index }) => {
                 setShowPreview(true);
               }}
               className="p-2 rounded-lg transition-colors hover:bg-white/5"
-              style={{ color: C.textMuted }}
+              style={{ color: "var(--text)"Muted }}
               title="Preview"
             >
               <ExternalLink size={18} />
@@ -193,18 +193,18 @@ const CertificateCard = ({ cert, index }) => {
         {/* Title & Issuer */}
         <h3
           className="text-lg sm:text-xl font-bold mb-2 line-clamp-1"
-          style={{ fontFamily: "'Fraunces', serif", color: C.text }}
+          style={{ fontFamily: "'Fraunces', serif", color: "var(--text)" }}
         >
           {cert.title}
         </h3>
         
         <div className="flex items-center gap-2 mb-3">
-          <span className="text-sm" style={{ color: C.textMuted }}>Issued by</span>
+          <span className="text-sm" style={{ color: "var(--text)"Muted }}>Issued by</span>
           <span className="text-sm font-medium" style={{ color: C.brand }}>{cert.issuedBy}</span>
         </div>
 
         {/* Date */}
-        <div className="flex items-center gap-2 mb-4 text-xs" style={{ color: C.textDim }}>
+        <div className="flex items-center gap-2 mb-4 text-xs" style={{ color: "var(--text-muted)" }}>
           <Award size={14} />
           <span>{cert.date}</span>
         </div>
@@ -216,7 +216,7 @@ const CertificateCard = ({ cert, index }) => {
               <span
                 key={idx}
                 className="px-2 py-1 rounded-lg text-xs"
-                style={{ background: C.surface2, color: C.textMuted, border: `1px solid ${C.border}` }}
+                style={{ background: "var(--surface)"2, color: "var(--text)"Muted, border: `1px solid ${"var(--border)"}` }}
               >
                 {skill}
               </span>
@@ -225,7 +225,7 @@ const CertificateCard = ({ cert, index }) => {
         )}
 
         {/* Actions */}
-        <div className="flex items-center gap-3 pt-4 border-t" style={{ borderColor: C.border }}>
+        <div className="flex items-center gap-3 pt-4 border-t" style={{ borderColor: "var(--border)" }}>
           <motion.a
             href={cert.certificateUrl}
             download
@@ -233,9 +233,9 @@ const CertificateCard = ({ cert, index }) => {
             whileTap={{ scale: 0.98 }}
             className="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-medium transition-colors"
             style={{
-              background: C.surface2,
-              border: `1px solid ${C.border}`,
-              color: C.textMuted,
+              background: "var(--surface)"2,
+              border: `1px solid ${"var(--border)"}`,
+              color: "var(--text)"Muted,
             }}
             onClick={(e) => e.stopPropagation()}
           >
@@ -249,7 +249,7 @@ const CertificateCard = ({ cert, index }) => {
             className="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-medium"
             style={{
               background: `linear-gradient(135deg, ${C.brand}, ${C.brandLight})`,
-              color: C.bg,
+              color: "var(--bg)",
             }}
           >
             <Share2 size={16} />
@@ -274,15 +274,15 @@ const CertificateCard = ({ cert, index }) => {
               exit={{ opacity: 0, scale: 0.9 }}
               onClick={(e) => e.stopPropagation()}
               className="w-full max-w-3xl rounded-2xl overflow-hidden"
-              style={{ background: C.surface, border: `1px solid ${C.border}` }}
+              style={{ background: "var(--surface)", border: `1px solid ${"var(--border)"}` }}
             >
               {/* Modal Header */}
-              <div className="flex items-center justify-between p-4 border-b" style={{ borderColor: C.border }}>
-                <h3 className="font-bold" style={{ color: C.text }}>{cert.title}</h3>
+              <div className="flex items-center justify-between p-4 border-b" style={{ borderColor: "var(--border)" }}>
+                <h3 className="font-bold" style={{ color: "var(--text)" }}>{cert.title}</h3>
                 <button
                   onClick={() => setShowPreview(false)}
                   className="p-2 rounded-lg hover:bg-white/5 transition-colors"
-                  style={{ color: C.textMuted }}
+                  style={{ color: "var(--text)"Muted }}
                 >
                   <Lock size={20} />
                 </button>
@@ -292,12 +292,12 @@ const CertificateCard = ({ cert, index }) => {
               <div className="p-8 flex flex-col items-center justify-center min-h-[400px]">
                 <div
                   className="w-full max-w-2xl h-64 rounded-xl flex items-center justify-center mb-6"
-                  style={{ background: C.surface2, border: `2px dashed ${C.border}` }}
+                  style={{ background: "var(--surface)"2, border: `2px dashed ${"var(--border)"}` }}
                 >
                   <div className="text-center">
-                    <FileText size={48} style={{ color: C.textDim }} className="mx-auto mb-4" />
-                    <p style={{ color: C.textMuted }}>Certificate Preview</p>
-                    <p className="text-sm mt-1" style={{ color: C.textDim }}>
+                    <FileText size={48} style={{ color: "var(--text-muted)" }} className="mx-auto mb-4" />
+                    <p style={{ color: "var(--text)"Muted }}>Certificate Preview</p>
+                    <p className="text-sm mt-1" style={{ color: "var(--text-muted)" }}>
                       Actual certificate will be displayed here
                     </p>
                   </div>
@@ -312,7 +312,7 @@ const CertificateCard = ({ cert, index }) => {
                     className="flex items-center gap-2 px-6 py-3 rounded-xl font-medium"
                     style={{
                       background: `linear-gradient(135deg, ${C.brand}, ${C.brandLight})`,
-                      color: C.bg,
+                      color: "var(--bg)",
                       boxShadow: `0 4px 20px ${C.brand}40`,
                     }}
                   >
@@ -349,16 +349,16 @@ const StatsBar = ({ certificates }) => {
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: idx * 0.1 }}
           className="flex items-center gap-3 p-3 sm:p-4 rounded-xl"
-          style={{ background: C.surface, border: `1px solid ${C.border}` }}
+          style={{ background: "var(--surface)", border: `1px solid ${"var(--border)"}` }}
         >
           <div className="p-2 rounded-lg hidden sm:block" style={{ background: `${C.brand}15` }}>
             <stat.icon size={18} style={{ color: C.brand }} />
           </div>
           <div>
-            <p className="text-lg sm:text-xl font-bold" style={{ fontFamily: "'Fraunces', serif", color: C.text }}>
+            <p className="text-lg sm:text-xl font-bold" style={{ fontFamily: "'Fraunces', serif", color: "var(--text)" }}>
               {stat.value}
             </p>
-            <p className="text-xs" style={{ color: C.textMuted }}>{stat.label}</p>
+            <p className="text-xs" style={{ color: "var(--text)"Muted }}>{stat.label}</p>
           </div>
         </motion.div>
       ))}
@@ -379,7 +379,7 @@ export const Certificates = () => {
   });
 
   return (
-    <div className="min-h-screen p-4 sm:p-6 lg:p-8 pb-20" style={{ background: C.bg, color: C.text }}>
+    <div className="min-h-screen p-4 sm:p-6 lg:p-8 pb-20" style={{ background: "var(--bg)", color: "var(--text)" }}>
       <div className="max-w-6xl mx-auto">
         
         {/* Header */}
@@ -392,13 +392,13 @@ export const Certificates = () => {
             <div className="flex items-center gap-3 mb-2">
               <div
                 className="p-2 rounded-xl"
-                style={{ background: `${C.brand}20`, border: `1px solid ${C.border}` }}
+                style={{ background: `${C.brand}20`, border: `1px solid ${"var(--border)"}` }}
               >
                 <Award size={24} style={{ color: C.brand }} />
               </div>
               <h1
                 className="text-2xl sm:text-3xl lg:text-4xl font-bold"
-                style={{ fontFamily: "'Fraunces', serif", color: C.text }}
+                style={{ fontFamily: "'Fraunces', serif", color: "var(--text)" }}
               >
                 <span
                   style={{
@@ -411,7 +411,7 @@ export const Certificates = () => {
                 </span>
               </h1>
             </div>
-            <p className="text-sm sm:text-base max-w-lg" style={{ color: C.textMuted }}>
+            <p className="text-sm sm:text-base max-w-lg" style={{ color: "var(--text)"Muted }}>
               Showcase your achievements and verified skills. Download or share your certificates anytime.
             </p>
           </div>
@@ -422,9 +422,9 @@ export const Certificates = () => {
             whileTap={{ scale: 0.95 }}
             className="flex items-center gap-2 px-4 py-2.5 rounded-xl font-medium text-sm whitespace-nowrap"
             style={{
-              background: C.surface2,
-              border: `1px solid ${C.border}`,
-              color: C.textMuted,
+              background: "var(--surface)"2,
+              border: `1px solid ${"var(--border)"}`,
+              color: "var(--text)"Muted,
             }}
           >
             <ExternalLink size={16} />
@@ -451,17 +451,17 @@ export const Certificates = () => {
               onClick={() => setFilter(tab.id)}
               className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium whitespace-nowrap transition-all"
               style={{
-                background: filter === tab.id ? C.brand : C.surface,
-                color: filter === tab.id ? C.bg : C.textMuted,
-                border: `1px solid ${filter === tab.id ? C.brand : C.border}`,
+                background: filter === tab.id ? C.brand : "var(--surface)",
+                color: filter === tab.id ? "var(--bg)" : "var(--text)"Muted,
+                border: `1px solid ${filter === tab.id ? C.brand : "var(--border)"}`,
               }}
             >
               {tab.label}
               <span
                 className="px-1.5 py-0.5 rounded-full text-xs"
                 style={{
-                  background: filter === tab.id ? "rgba(0,0,0,0.2)" : C.surface2,
-                  color: filter === tab.id ? C.bg : C.textMuted,
+                  background: filter === tab.id ? "rgba(0,0,0,0.2)" : "var(--surface)"2,
+                  color: filter === tab.id ? "var(--bg)" : "var(--text)"Muted,
                 }}
               >
                 {tab.count}
@@ -487,9 +487,9 @@ export const Certificates = () => {
           animate={{ opacity: 1 }}
           transition={{ delay: 0.5 }}
           className="mt-12 p-4 rounded-xl text-center"
-          style={{ background: C.surface2, border: `1px dashed ${C.border}` }}
+          style={{ background: "var(--surface)"2, border: `1px dashed ${"var(--border)"}` }}
         >
-          <p className="text-sm" style={{ color: C.textDim }}>
+          <p className="text-sm" style={{ color: "var(--text-muted)" }}>
             💡 <strong>Coming Soon:</strong> Automatic certificate generation upon course completion
           </p>
         </motion.div>

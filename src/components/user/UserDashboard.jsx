@@ -81,7 +81,7 @@ const AnimatedCounter = ({ value, suffix = "" }) => {
 const ProgressBar = ({ progress, color = C.brand }) => (
   <div
     className="h-2 w-full rounded-full overflow-hidden"
-    style={{ background: C.surface3 }}
+    style={{ background: "var(--surface)"3 }}
   >
     <motion.div
       initial={{ width: 0 }}
@@ -102,8 +102,8 @@ const GlowCard = ({ children, className = "", onClick, gradient = true }) => (
     onClick={onClick}
     className={`relative group cursor-pointer overflow-hidden rounded-2xl ${className}`}
     style={{
-      background: C.surface,
-      border: `1px solid ${C.border}`,
+      background: "var(--surface)",
+      border: `1px solid ${"var(--border)"}`,
     }}
   >
     {/* Hover Glow Effect */}
@@ -136,8 +136,8 @@ const StatCard = ({ icon: Icon, label, value, subtext, trend, delay = 0 }) => (
     <div
       className="relative p-6 rounded-2xl transition-all duration-300 hover:border-opacity-35"
       style={{
-        background: C.surface,
-        border: `1px solid ${C.border}`,
+        background: "var(--surface)",
+        border: `1px solid ${"var(--border)"}`,
       }}
     >
       <div className="flex items-start justify-between">
@@ -145,7 +145,7 @@ const StatCard = ({ icon: Icon, label, value, subtext, trend, delay = 0 }) => (
           className="p-3 rounded-xl"
           style={{
             background: `linear-gradient(135deg, ${C.brand}20, ${C.brand}10)`,
-            border: `1px solid ${C.border}`,
+            border: `1px solid ${"var(--border)"}`,
           }}
         >
           <Icon size={20} style={{ color: C.brand }} />
@@ -156,7 +156,7 @@ const StatCard = ({ icon: Icon, label, value, subtext, trend, delay = 0 }) => (
             style={{
               background: trend > 0 ? `${C.brand}20` : "rgba(248,113,113,0.2)",
               color: trend > 0 ? C.brand : C.error,
-              border: `1px solid ${trend > 0 ? C.border : "rgba(248,113,113,0.3)"}`,
+              border: `1px solid ${trend > 0 ? "var(--border)" : "rgba(248,113,113,0.3)"}`,
             }}
           >
             {trend > 0 ? "+" : ""}
@@ -169,17 +169,17 @@ const StatCard = ({ icon: Icon, label, value, subtext, trend, delay = 0 }) => (
         <h3
           className="text-2xl font-bold"
           style={{
-            color: C.text,
+            color: "var(--text)",
             fontFamily: "'Fraunces', serif",
           }}
         >
           <AnimatedCounter value={value} />
         </h3>
-        <p className="text-sm mt-1" style={{ color: C.textMuted }}>
+        <p className="text-sm mt-1" style={{ color: "var(--text)"Muted }}>
           {label}
         </p>
         {subtext && (
-          <p className="text-xs mt-1" style={{ color: C.textDim }}>
+          <p className="text-xs mt-1" style={{ color: "var(--text-muted)" }}>
             {subtext}
           </p>
         )}
@@ -298,7 +298,7 @@ export const UserDashboard = () => {
     return (
       <div
         className="flex items-center justify-center h-[calc(100vh-4rem)]"
-        style={{ background: C.bg }}
+        style={{ background: "var(--bg)" }}
       >
         <motion.div
           animate={{ rotate: 360 }}
@@ -311,7 +311,7 @@ export const UserDashboard = () => {
   }
 
   return (
-    <div className="space-y-8 pb-8" style={{ color: C.text }}>
+    <div className="space-y-8 pb-8" style={{ color: "var(--text)" }}>
       {/* Header Section */}
       <motion.div
         initial={{ opacity: 0, y: -20 }}
@@ -321,7 +321,7 @@ export const UserDashboard = () => {
         <div>
           <h1
             className="text-3xl md:text-4xl font-bold mb-2"
-            style={{ fontFamily: "'Fraunces', serif", color: C.text }}
+            style={{ fontFamily: "'Fraunces', serif", color: "var(--text)" }}
           >
             {greeting},{" "}
             <span
@@ -334,7 +334,7 @@ export const UserDashboard = () => {
               {userName.split(" ")[0]}
             </span>
           </h1>
-          <p style={{ color: C.textMuted }}>
+          <p style={{ color: "var(--text)"Muted }}>
             Here's your learning progress today
           </p>
         </div>
@@ -346,9 +346,9 @@ export const UserDashboard = () => {
             onClick={() => navigate("/user/mycourses")}
             className="px-4 py-2.5 rounded-xl text-sm font-medium transition-all flex items-center gap-2"
             style={{
-              background: C.surface2,
-              border: `1px solid ${C.border}`,
-              color: C.textMuted,
+              background: "var(--surface)"2,
+              border: `1px solid ${"var(--border)"}`,
+              color: "var(--text)"Muted,
             }}
           >
             <BookOpen size={16} />
@@ -361,7 +361,7 @@ export const UserDashboard = () => {
             className="px-4 py-2.5 rounded-xl text-sm font-medium shadow-lg flex items-center gap-2"
             style={{
               background: `linear-gradient(135deg, ${C.brand}, ${C.brandLight})`,
-              color: C.bg,
+              color: "var(--bg)",
               boxShadow: `0 4px 20px ${C.brand}40`,
             }}
           >
@@ -432,7 +432,7 @@ export const UserDashboard = () => {
                 />
                 <div
                   className="absolute bottom-2 left-2 flex items-center gap-1 text-xs"
-                  style={{ color: C.text }}
+                  style={{ color: "var(--text)" }}
                 >
                   <Play size={12} fill="currentColor" />
                   <span>Continue</span>
@@ -446,19 +446,19 @@ export const UserDashboard = () => {
                     style={{
                       background: `${C.brand}20`,
                       color: C.brand,
-                      border: `1px solid ${C.border}`,
+                      border: `1px solid ${"var(--border)"}`,
                     }}
                   >
                     In Progress
                   </span>
-                  <span style={{ color: C.textDim }}>
+                  <span style={{ color: "var(--text-muted)" }}>
                     {dashboard.topCourse.progress}% complete
                   </span>
                 </div>
 
                 <h3
                   className="text-xl font-bold mb-2 line-clamp-1"
-                  style={{ fontFamily: "'Fraunces', serif", color: C.text }}
+                  style={{ fontFamily: "'Fraunces', serif", color: "var(--text)" }}
                 >
                   {dashboard.topCourse.name}
                 </h3>
@@ -468,7 +468,7 @@ export const UserDashboard = () => {
                 <div className="flex items-center justify-between mt-4">
                   <div
                     className="flex items-center gap-2 text-sm"
-                    style={{ color: C.textMuted }}
+                    style={{ color: "var(--text)"Muted }}
                   >
                     <Clock size={14} />
                     <span>Resume where you left off</span>
@@ -497,10 +497,10 @@ export const UserDashboard = () => {
                 <Target size={20} style={{ color: C.brand }} />
               </div>
               <div>
-                <h3 className="font-semibold" style={{ color: C.text }}>
+                <h3 className="font-semibold" style={{ color: "var(--text)" }}>
                   Weekly Goal
                 </h3>
-                <p className="text-xs" style={{ color: C.textDim }}>
+                <p className="text-xs" style={{ color: "var(--text-muted)" }}>
                   5 hours target
                 </p>
               </div>
@@ -521,7 +521,7 @@ export const UserDashboard = () => {
 
           <div
             className="mt-4 flex items-center gap-2 text-sm"
-            style={{ color: C.textMuted }}
+            style={{ color: "var(--text)"Muted }}
           >
             <Flame size={16} style={{ color: C.accent }} />
             <span>3 day streak! Keep it up!</span>
@@ -538,7 +538,7 @@ export const UserDashboard = () => {
             <div className="flex items-center justify-between mb-4">
               <h2
                 className="text-xl font-bold flex items-center gap-2"
-                style={{ fontFamily: "'Fraunces', serif", color: C.text }}
+                style={{ fontFamily: "'Fraunces', serif", color: "var(--text)" }}
               >
                 <Star size={20} style={{ color: C.brand }} />
                 Recommended for You
@@ -570,14 +570,14 @@ export const UserDashboard = () => {
                         className="font-semibold line-clamp-1 mb-1"
                         style={{
                           fontFamily: "'Fraunces', serif",
-                          color: C.text,
+                          color: "var(--text)",
                         }}
                       >
                         {course.title}
                       </h3>
                       <p
                         className="text-sm line-clamp-2 mb-2"
-                        style={{ color: C.textMuted }}
+                        style={{ color: "var(--text)"Muted }}
                       >
                         {course.shortDesc ||
                           "Learn essential skills with hands-on projects"}
@@ -588,14 +588,14 @@ export const UserDashboard = () => {
                           style={{
                             background: `${C.brand}20`,
                             color: C.brand,
-                            border: `1px solid ${C.border}`,
+                            border: `1px solid ${"var(--border)"}`,
                           }}
                         >
                           {course.level || "Beginner"}
                         </span>
                         <span
                           className="text-xs flex items-center gap-1"
-                          style={{ color: C.textDim }}
+                          style={{ color: "var(--text-muted)" }}
                         >
                           <Clock size={12} />
                           {course.duration || "8 weeks"}
@@ -612,14 +612,14 @@ export const UserDashboard = () => {
           <section>
             <h2
               className="text-xl font-bold flex items-center gap-2 mb-4"
-              style={{ fontFamily: "'Fraunces', serif", color: C.text }}
+              style={{ fontFamily: "'Fraunces', serif", color: "var(--text)" }}
             >
               <Activity size={20} style={{ color: C.brand }} />
               Recent Activity
             </h2>
 
             <GlowCard className="p-0 overflow-hidden" gradient={false}>
-              <div className="divide-y" style={{ borderColor: C.border }}>
+              <div className="divide-y" style={{ borderColor: "var(--border)" }}>
                 {dashboard.recentActivity.length > 0 ? (
                   dashboard.recentActivity.map((activity, idx) => (
                     <motion.div
@@ -636,10 +636,10 @@ export const UserDashboard = () => {
                         <Zap size={18} style={{ color: C.brand }} />
                       </div>
                       <div className="flex-1 min-w-0">
-                        <p style={{ color: C.text }}>{activity.message}</p>
+                        <p style={{ color: "var(--text)" }}>{activity.message}</p>
                         <p
                           className="text-xs mt-1"
-                          style={{ color: C.textDim }}
+                          style={{ color: "var(--text-muted)" }}
                         >
                           {new Date(activity.createdAt).toLocaleDateString(
                             undefined,
@@ -655,7 +655,7 @@ export const UserDashboard = () => {
                     </motion.div>
                   ))
                 ) : (
-                  <div className="p-8 text-center" style={{ color: C.textDim }}>
+                  <div className="p-8 text-center" style={{ color: "var(--text-muted)" }}>
                     <Activity size={32} className="mx-auto mb-2 opacity-50" />
                     <p>No recent activity</p>
                   </div>
@@ -671,7 +671,7 @@ export const UserDashboard = () => {
           <section>
             <h2
               className="text-lg font-bold mb-4"
-              style={{ fontFamily: "'Fraunces', serif", color: C.text }}
+              style={{ fontFamily: "'Fraunces', serif", color: "var(--text)" }}
             >
               Quick Actions
             </h2>
@@ -706,8 +706,8 @@ export const UserDashboard = () => {
                   onClick={item.action}
                   className="w-full flex items-center gap-3 p-3 rounded-xl transition-all text-left group"
                   style={{
-                    background: C.surface2,
-                    border: `1px solid ${C.border}`,
+                    background: "var(--surface)"2,
+                    border: `1px solid ${"var(--border)"}`,
                   }}
                 >
                   <div
@@ -718,14 +718,14 @@ export const UserDashboard = () => {
                   </div>
                   <span
                     className="text-sm font-medium"
-                    style={{ color: C.textMuted }}
+                    style={{ color: "var(--text)"Muted }}
                   >
                     {item.label}
                   </span>
                   <ChevronRight
                     size={16}
                     className="ml-auto transition-colors"
-                    style={{ color: C.textDim }}
+                    style={{ color: "var(--text-muted)" }}
                   />
                 </motion.button>
               ))}
@@ -737,7 +737,7 @@ export const UserDashboard = () => {
             <div className="flex items-center justify-between mb-4">
               <h2
                 className="text-lg font-bold flex items-center gap-2"
-                style={{ fontFamily: "'Fraunces', serif", color: C.text }}
+                style={{ fontFamily: "'Fraunces', serif", color: "var(--text)" }}
               >
                 <Bell size={18} style={{ color: C.brand }} />
                 Notifications
@@ -755,7 +755,7 @@ export const UserDashboard = () => {
             <GlowCard className="p-0 max-h-80 overflow-hidden" gradient={false}>
               <div
                 className="divide-y max-h-80 overflow-y-auto"
-                style={{ borderColor: C.border }}
+                style={{ borderColor: "var(--border)" }}
               >
                 {notifications.length > 0 ? (
                   notifications.slice(0, 5).map((notification, idx) => (
@@ -778,11 +778,11 @@ export const UserDashboard = () => {
                     >
                       <p
                         className="text-sm line-clamp-2"
-                        style={{ color: C.text }}
+                        style={{ color: "var(--text)" }}
                       >
                         {notification.message}
                       </p>
-                      <p className="text-xs mt-1" style={{ color: C.textDim }}>
+                      <p className="text-xs mt-1" style={{ color: "var(--text-muted)" }}>
                         {new Date(notification.createdAt).toLocaleTimeString(
                           [],
                           {
@@ -794,7 +794,7 @@ export const UserDashboard = () => {
                     </motion.div>
                   ))
                 ) : (
-                  <div className="p-6 text-center" style={{ color: C.textDim }}>
+                  <div className="p-6 text-center" style={{ color: "var(--text-muted)" }}>
                     <Bell size={24} className="mx-auto mb-2 opacity-30" />
                     <p className="text-sm">No notifications</p>
                   </div>
@@ -813,10 +813,10 @@ export const UserDashboard = () => {
                 <Flame size={20} style={{ color: C.accent }} />
               </div>
               <div>
-                <h3 className="font-semibold" style={{ color: C.text }}>
+                <h3 className="font-semibold" style={{ color: "var(--text)" }}>
                   3 Day Streak!
                 </h3>
-                <p className="text-xs" style={{ color: C.textDim }}>
+                <p className="text-xs" style={{ color: "var(--text-muted)" }}>
                   Keep learning daily
                 </p>
               </div>
@@ -827,9 +827,9 @@ export const UserDashboard = () => {
                   key={idx}
                   className="flex-1 h-8 rounded-lg flex items-center justify-center text-xs font-medium"
                   style={{
-                    background: idx < 3 ? C.brand : C.surface2,
-                    color: idx < 3 ? C.bg : C.textDim,
-                    border: `1px solid ${idx < 3 ? C.brand : C.border}`,
+                    background: idx < 3 ? C.brand : "var(--surface)"2,
+                    color: idx < 3 ? "var(--bg)" : "var(--text-muted)",
+                    border: `1px solid ${idx < 3 ? C.brand : "var(--border)"}`,
                   }}
                 >
                   {day}

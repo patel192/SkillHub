@@ -83,7 +83,7 @@ const ProgressRing = ({ progress, size = 44, strokeWidth = 4 }) => {
           stroke="currentColor"
           strokeWidth={strokeWidth}
           fill="transparent"
-          style={{ color: C.surface3 }}
+          style={{ color: "var(--surface)"3 }}
         />
         <motion.circle
           cx={size / 2}
@@ -101,7 +101,7 @@ const ProgressRing = ({ progress, size = 44, strokeWidth = 4 }) => {
         />
       </svg>
       <div className="absolute inset-0 flex items-center justify-center">
-        <span className="text-xs font-bold" style={{ color: C.text }}>{progress}%</span>
+        <span className="text-xs font-bold" style={{ color: "var(--text)" }}>{progress}%</span>
       </div>
     </div>
   );
@@ -124,16 +124,16 @@ const CourseCard = ({ course, isMyCourse, viewMode = "grid" }) => {
         onClick={() => navigate(`/user/course/${course._id}`)}
         className="group relative flex items-center gap-4 p-4 rounded-2xl transition-all cursor-pointer"
         style={{ 
-          background: C.surface,
-          border: `1px solid ${C.border}`,
+          background: "var(--surface)",
+          border: `1px solid ${"var(--border)"}`,
         }}
         onMouseEnter={(e) => {
-          e.currentTarget.style.borderColor = C.borderHov;
-          e.currentTarget.style.background = C.surface2;
+          e.currentTarget.style.borderColor = "var(--border)"Hov;
+          e.currentTarget.style.background = "var(--surface)"2;
         }}
         onMouseLeave={(e) => {
-          e.currentTarget.style.borderColor = C.border;
-          e.currentTarget.style.background = C.surface;
+          e.currentTarget.style.borderColor = "var(--border)";
+          e.currentTarget.style.background = "var(--surface)";
         }}
       >
         <div className="relative w-24 h-24 rounded-xl overflow-hidden flex-shrink-0">
@@ -149,11 +149,11 @@ const CourseCard = ({ course, isMyCourse, viewMode = "grid" }) => {
             <div>
               <h3 
                 className="font-semibold line-clamp-1 transition-colors"
-                style={{ fontFamily: "'Fraunces', serif", color: C.text }}
+                style={{ fontFamily: "'Fraunces', serif", color: "var(--text)" }}
               >
                 {course.title}
               </h3>
-              <p className="text-sm mt-1 line-clamp-1" style={{ color: C.textMuted }}>{course.description}</p>
+              <p className="text-sm mt-1 line-clamp-1" style={{ color: "var(--text)"Muted }}>{course.description}</p>
             </div>
             {isMyCourse && course.progress !== undefined && (
               <ProgressRing progress={course.progress} />
@@ -161,11 +161,11 @@ const CourseCard = ({ course, isMyCourse, viewMode = "grid" }) => {
           </div>
           
           <div className="flex items-center gap-4 mt-3">
-            <span className="flex items-center gap-1 text-xs" style={{ color: C.textDim }}>
+            <span className="flex items-center gap-1 text-xs" style={{ color: "var(--text-muted)" }}>
               <Clock size={12} />
               {course.duration || "8 weeks"}
             </span>
-            <span className="flex items-center gap-1 text-xs" style={{ color: C.textDim }}>
+            <span className="flex items-center gap-1 text-xs" style={{ color: "var(--text-muted)" }}>
               <Users size={12} />
               {course.students || "1.2k"} students
             </span>
@@ -174,7 +174,7 @@ const CourseCard = ({ course, isMyCourse, viewMode = "grid" }) => {
               style={{ 
                 background: `${C.brand}20`,
                 color: C.brand,
-                border: `1px solid ${C.border}`,
+                border: `1px solid ${"var(--border)"}`,
               }}
             >
               {course.level || "Beginner"}
@@ -206,16 +206,16 @@ const CourseCard = ({ course, isMyCourse, viewMode = "grid" }) => {
       transition={{ duration: 0.3 }}
       className="group relative rounded-2xl overflow-hidden transition-all cursor-pointer"
       style={{ 
-        background: C.surface,
-        border: `1px solid ${C.border}`,
+        background: "var(--surface)",
+        border: `1px solid ${"var(--border)"}`,
       }}
       onClick={() => navigate(`/user/course/${course._id}`)}
       onMouseEnter={(e) => {
-        e.currentTarget.style.borderColor = C.borderHov;
+        e.currentTarget.style.borderColor = "var(--border)"Hov;
         e.currentTarget.style.boxShadow = `0 20px 40px ${C.brand}15`;
       }}
       onMouseLeave={(e) => {
-        e.currentTarget.style.borderColor = C.border;
+        e.currentTarget.style.borderColor = "var(--border)";
         e.currentTarget.style.boxShadow = 'none';
       }}
     >
@@ -240,8 +240,8 @@ const CourseCard = ({ course, isMyCourse, viewMode = "grid" }) => {
               className="px-2 py-1 rounded-lg backdrop-blur-sm text-xs font-medium"
               style={{ 
                 background: 'rgba(10,15,13,0.8)',
-                color: C.text,
-                border: `1px solid ${C.border}`,
+                color: "var(--text)",
+                border: `1px solid ${"var(--border)"}`,
               }}
             >
               {course.level}
@@ -253,7 +253,7 @@ const CourseCard = ({ course, isMyCourse, viewMode = "grid" }) => {
               style={{ 
                 background: `${C.brand}30`,
                 color: C.brandLight,
-                border: `1px solid ${C.border}`,
+                border: `1px solid ${"var(--border)"}`,
               }}
             >
               New
@@ -273,16 +273,16 @@ const CourseCard = ({ course, isMyCourse, viewMode = "grid" }) => {
       <div className="p-5">
         <h3 
           className="text-lg font-semibold mb-2 line-clamp-1 transition-colors group-hover:text-emerald-300"
-          style={{ fontFamily: "'Fraunces', serif", color: C.text }}
+          style={{ fontFamily: "'Fraunces', serif", color: "var(--text)" }}
         >
           {course.title}
         </h3>
-        <p className="text-sm mb-4 line-clamp-2" style={{ color: C.textMuted }}>
+        <p className="text-sm mb-4 line-clamp-2" style={{ color: "var(--text)"Muted }}>
           {course.description || "Master the fundamentals with hands-on projects and expert guidance."}
         </p>
 
         {/* Meta Info */}
-        <div className="flex items-center gap-4 text-xs mb-4" style={{ color: C.textDim }}>
+        <div className="flex items-center gap-4 text-xs mb-4" style={{ color: "var(--text-muted)" }}>
           <span className="flex items-center gap-1">
             <Clock size={14} />
             {course.duration || "8 weeks"}
@@ -304,12 +304,12 @@ const CourseCard = ({ course, isMyCourse, viewMode = "grid" }) => {
           className="w-full py-2.5 rounded-xl font-medium text-sm flex items-center justify-center gap-2 transition-all"
           style={isMyCourse ? {
             background: `linear-gradient(135deg, ${C.brand}, ${C.brandLight})`,
-            color: C.bg,
+            color: "var(--bg)",
             boxShadow: `0 4px 20px ${C.brand}40`,
           } : {
-            background: C.surface2,
-            color: C.text,
-            border: `1px solid ${C.border}`,
+            background: "var(--surface)"2,
+            color: "var(--text)",
+            border: `1px solid ${"var(--border)"}`,
           }}
         >
           <Play size={16} fill="currentColor" />
@@ -389,7 +389,7 @@ export const MyCourses = () => {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-[calc(100vh-4rem)]" style={{ background: C.bg }}>
+      <div className="flex items-center justify-center h-[calc(100vh-4rem)]" style={{ background: "var(--bg)" }}>
         <motion.div
           animate={{ rotate: 360 }}
           transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
@@ -401,7 +401,7 @@ export const MyCourses = () => {
   }
 
   return (
-    <div className="space-y-8 pb-8" style={{ color: C.text }}>
+    <div className="space-y-8 pb-8" style={{ color: "var(--text)" }}>
       {/* Header Section */}
       <motion.div
         initial={{ opacity: 0, y: -20 }}
@@ -411,11 +411,11 @@ export const MyCourses = () => {
         <div>
           <h1 
             className="text-3xl md:text-4xl font-bold mb-2"
-            style={{ fontFamily: "'Fraunces', serif", color: C.text }}
+            style={{ fontFamily: "'Fraunces', serif", color: "var(--text)" }}
           >
             {activeTab === "my" ? "My Learning" : "Discover Courses"}
           </h1>
-          <p style={{ color: C.textMuted }}>
+          <p style={{ color: "var(--text)"Muted }}>
             {activeTab === "my" 
               ? `You have ${stats.total} courses in your library`
               : "Explore new skills and expand your knowledge"
@@ -429,7 +429,7 @@ export const MyCourses = () => {
             {[
               { label: "Completed", value: stats.completed, icon: Award, color: C.brand },
               { label: "In Progress", value: stats.inProgress, icon: Target, color: C.accent },
-              { label: "Hours", value: stats.hours, icon: Clock, color: C.textMuted }
+              { label: "Hours", value: stats.hours, icon: Clock, color: "var(--text)"Muted }
             ].map((stat, idx) => (
               <motion.div
                 key={stat.label}
@@ -438,17 +438,17 @@ export const MyCourses = () => {
                 transition={{ delay: idx * 0.1 }}
                 className="px-4 py-3 rounded-xl"
                 style={{ 
-                  background: C.surface,
-                  border: `1px solid ${C.border}`,
+                  background: "var(--surface)",
+                  border: `1px solid ${"var(--border)"}`,
                 }}
               >
                 <div className="flex items-center gap-2 mb-1">
                   <stat.icon size={14} style={{ color: stat.color }} />
-                  <span className="text-xs" style={{ color: C.textDim }}>{stat.label}</span>
+                  <span className="text-xs" style={{ color: "var(--text-muted)" }}>{stat.label}</span>
                 </div>
                 <div 
                   className="text-xl font-bold"
-                  style={{ fontFamily: "'Fraunces', serif", color: C.text }}
+                  style={{ fontFamily: "'Fraunces', serif", color: "var(--text)" }}
                 >
                   <AnimatedCounter value={stat.value} />
                 </div>
@@ -462,8 +462,8 @@ export const MyCourses = () => {
       <div 
         className="flex flex-col sm:flex-row gap-4 items-center justify-between p-4 rounded-2xl"
         style={{ 
-          background: C.surface,
-          border: `1px solid ${C.border}`,
+          background: "var(--surface)",
+          border: `1px solid ${"var(--border)"}`,
         }}
       >
         {/* Tab Switcher */}
@@ -471,8 +471,8 @@ export const MyCourses = () => {
           <div 
             className="relative flex rounded-xl p-1"
             style={{ 
-              background: C.surface2,
-              border: `1px solid ${C.border}`,
+              background: "var(--surface)"2,
+              border: `1px solid ${"var(--border)"}`,
             }}
           >
             {tabs.map((tab) => {
@@ -484,7 +484,7 @@ export const MyCourses = () => {
                   key={tab.id}
                   onClick={() => setActiveTab(tab.id)}
                   className="relative flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium transition-colors"
-                  style={{ color: isActive ? C.bg : C.textMuted }}
+                  style={{ color: isActive ? "var(--bg)" : "var(--text)"Muted }}
                 >
                   {isActive && (
                     <motion.div
@@ -504,8 +504,8 @@ export const MyCourses = () => {
                       <span 
                         className="px-1.5 py-0.5 rounded-md text-xs"
                         style={{ 
-                          background: isActive ? 'rgba(10,15,13,0.2)' : C.surface3,
-                          color: isActive ? C.bg : C.textMuted,
+                          background: isActive ? 'rgba(10,15,13,0.2)' : "var(--surface)"3,
+                          color: isActive ? "var(--bg)" : "var(--text)"Muted,
                         }}
                       >
                         {tab.count}
@@ -524,7 +524,7 @@ export const MyCourses = () => {
             <Search 
               className="absolute left-3 top-1/2 -translate-y-1/2" 
               size={16} 
-              style={{ color: C.textDim }} 
+              style={{ color: "var(--text-muted)" }} 
             />
             <input
               type="text"
@@ -533,16 +533,16 @@ export const MyCourses = () => {
               onChange={(e) => setSearchQuery(e.target.value)}
               className="w-full sm:w-64 pl-10 pr-4 py-2.5 rounded-xl text-sm outline-none transition-all"
               style={{ 
-                background: C.surface2,
-                border: `1px solid ${C.border}`,
-                color: C.text,
+                background: "var(--surface)"2,
+                border: `1px solid ${"var(--border)"}`,
+                color: "var(--text)",
               }}
               onFocus={(e) => {
                 e.target.style.borderColor = C.brand;
                 e.target.style.boxShadow = `0 0 0 3px ${C.brand}20`;
               }}
               onBlur={(e) => {
-                e.target.style.borderColor = C.border;
+                e.target.style.borderColor = "var(--border)";
                 e.target.style.boxShadow = 'none';
               }}
             />
@@ -551,16 +551,16 @@ export const MyCourses = () => {
           <div 
             className="flex rounded-xl p-1"
             style={{ 
-              background: C.surface2,
-              border: `1px solid ${C.border}`,
+              background: "var(--surface)"2,
+              border: `1px solid ${"var(--border)"}`,
             }}
           >
             <button
               onClick={() => setViewMode("grid")}
               className="p-2 rounded-lg transition-colors"
               style={{ 
-                background: viewMode === "grid" ? C.surface3 : 'transparent',
-                color: viewMode === "grid" ? C.text : C.textDim,
+                background: viewMode === "grid" ? "var(--surface)"3 : 'transparent',
+                color: viewMode === "grid" ? "var(--text)" : "var(--text-muted)",
               }}
             >
               <Grid3X3 size={18} />
@@ -569,8 +569,8 @@ export const MyCourses = () => {
               onClick={() => setViewMode("list")}
               className="p-2 rounded-lg transition-colors"
               style={{ 
-                background: viewMode === "list" ? C.surface3 : 'transparent',
-                color: viewMode === "list" ? C.text : C.textDim,
+                background: viewMode === "list" ? "var(--surface)"3 : 'transparent',
+                color: viewMode === "list" ? "var(--text)" : "var(--text-muted)",
               }}
             >
               <List size={18} />
@@ -605,17 +605,17 @@ export const MyCourses = () => {
             <div className="col-span-full py-20 text-center">
               <div 
                 className="w-20 h-20 mx-auto mb-4 rounded-full flex items-center justify-center"
-                style={{ background: C.surface2 }}
+                style={{ background: "var(--surface)"2 }}
               >
-                <Sparkles className="w-10 h-10" style={{ color: C.textDim }} />
+                <Sparkles className="w-10 h-10" style={{ color: "var(--text-muted)" }} />
               </div>
               <h3 
                 className="text-lg font-semibold mb-2"
-                style={{ fontFamily: "'Fraunces', serif", color: C.text }}
+                style={{ fontFamily: "'Fraunces', serif", color: "var(--text)" }}
               >
                 No courses found
               </h3>
-              <p className="text-sm" style={{ color: C.textMuted }}>
+              <p className="text-sm" style={{ color: "var(--text)"Muted }}>
                 {searchQuery ? "Try adjusting your search terms" : "Start exploring to find your next learning adventure"}
               </p>
             </div>

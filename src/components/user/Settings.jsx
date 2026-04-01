@@ -61,7 +61,7 @@ const Toast = ({ message, type, onClose }) => (
     className="fixed top-6 left-1/2 z-50 px-6 py-3 rounded-xl flex items-center gap-3 shadow-2xl"
     style={{
       background: type === 'error' ? C.danger : C.brand,
-      color: C.bg,
+      color: "var(--bg)",
       boxShadow: `0 10px 40px ${type === 'error' ? 'rgba(239,68,68,0.3)' : 'rgba(22,168,128,0.3)'}`
     }}
   >
@@ -85,8 +85,8 @@ const CustomToggle = ({ label, checked, onChange, disabled = false }) => (
     <motion.div 
       className="w-12 h-6 rounded-full relative transition-colors duration-300"
       style={{ 
-        background: checked ? C.brand : C.surface3,
-        border: `1px solid ${checked ? C.brand : C.border}`
+        background: checked ? C.brand : "var(--surface)"3,
+        border: `1px solid ${checked ? C.brand : "var(--border)"}`
       }}
       whileTap={{ scale: 0.95 }}
     >
@@ -96,16 +96,16 @@ const CustomToggle = ({ label, checked, onChange, disabled = false }) => (
         transition={{ type: "spring", stiffness: 500, damping: 30 }}
       />
     </motion.div>
-    <span style={{ color: C.text }}>{label}</span>
+    <span style={{ color: "var(--text)" }}>{label}</span>
   </label>
 );
 
 const InputField = ({ label, type = "text", value, onChange, placeholder, error, icon: Icon, disabled = false }) => (
   <div className="space-y-1.5">
-    <label className="text-sm font-medium" style={{ color: C.textMuted }}>{label}</label>
+    <label className="text-sm font-medium" style={{ color: "var(--text)"Muted }}>{label}</label>
     <div className="relative">
       {Icon && (
-        <div className="absolute left-3 top-1/2 -translate-y-1/2" style={{ color: C.textDim }}>
+        <div className="absolute left-3 top-1/2 -translate-y-1/2" style={{ color: "var(--text-muted)" }}>
           <Icon size={18} />
         </div>
       )}
@@ -117,9 +117,9 @@ const InputField = ({ label, type = "text", value, onChange, placeholder, error,
         disabled={disabled}
         className="w-full p-3 rounded-xl outline-none transition-all disabled:opacity-50"
         style={{
-          background: C.surface2,
-          border: `1px solid ${error ? C.error : C.border}`,
-          color: C.text,
+          background: "var(--surface)"2,
+          border: `1px solid ${error ? C.error : "var(--border)"}`,
+          color: "var(--text)",
           paddingLeft: Icon ? '2.5rem' : '1rem'
         }}
       />
@@ -143,20 +143,20 @@ const SectionCard = ({ children, title, description, danger = false }) => (
     animate={{ opacity: 1, y: 0 }}
     className="rounded-2xl p-6 space-y-4"
     style={{
-      background: C.surface,
-      border: `1px solid ${danger ? 'rgba(239,68,68,0.3)' : C.border}`,
+      background: "var(--surface)",
+      border: `1px solid ${danger ? 'rgba(239,68,68,0.3)' : "var(--border)"}`,
       boxShadow: danger ? 'none' : `0 4px 20px rgba(0,0,0,0.2)`
     }}
   >
     <div>
       <h3 className="text-xl font-bold" style={{ 
         fontFamily: "'Fraunces', serif", 
-        color: danger ? C.danger : C.text 
+        color: danger ? C.danger : "var(--text)" 
       }}>
         {title}
       </h3>
       {description && (
-        <p className="text-sm mt-1" style={{ color: C.textMuted }}>{description}</p>
+        <p className="text-sm mt-1" style={{ color: "var(--text)"Muted }}>{description}</p>
       )}
     </div>
     {children}
@@ -172,7 +172,7 @@ const SaveButton = ({ onClick, loading, children, danger = false }) => (
     className="px-6 py-2.5 rounded-xl font-medium flex items-center gap-2 transition-all disabled:opacity-50"
     style={{
       background: danger ? C.danger : `linear-gradient(135deg, ${C.brand}, ${C.brandLight})`,
-      color: danger ? 'white' : C.bg,
+      color: danger ? 'white' : "var(--bg)",
       boxShadow: danger ? 'none' : `0 4px 20px ${C.brand}40`
     }}
   >
@@ -297,8 +297,8 @@ export const Settings = () => {
     
     if (isDark) {
       root.classList.add('dark');
-      root.style.setProperty('--bg-primary', C.bg);
-      root.style.setProperty('--text-primary', C.text);
+      root.style.setProperty('--bg-primary', "var(--bg)");
+      root.style.setProperty('--text-primary', "var(--text)");
     } else {
       root.classList.remove('dark');
       root.style.setProperty('--bg-primary', '#ffffff');
@@ -537,22 +537,22 @@ export const Settings = () => {
               {userData.avatar ? (
                 <img src={userData.avatar} alt="Avatar" className="w-full h-full object-cover" />
               ) : (
-                <div className="w-full h-full flex items-center justify-center" style={{ background: C.surface2 }}>
-                  <UserCog size={32} style={{ color: C.textDim }} />
+                <div className="w-full h-full flex items-center justify-center" style={{ background: "var(--surface)"2 }}>
+                  <UserCog size={32} style={{ color: "var(--text-muted)" }} />
                 </div>
               )}
             </div>
             <label 
               className="absolute -bottom-1 -right-1 p-2 rounded-full cursor-pointer hover:scale-110 transition-transform"
-              style={{ background: C.brand, color: C.bg }}
+              style={{ background: C.brand, color: "var(--bg)" }}
             >
               <Upload size={14} />
               <input type="file" className="hidden" accept="image/*" onChange={handleAvatarUpload} />
             </label>
           </div>
           <div>
-            <p className="font-semibold" style={{ color: C.text }}>{userData.fullname || 'User'}</p>
-            <p className="text-sm" style={{ color: C.textMuted }}>Member since {new Date(userData.createdAt).toLocaleDateString()}</p>
+            <p className="font-semibold" style={{ color: "var(--text)" }}>{userData.fullname || 'User'}</p>
+            <p className="text-sm" style={{ color: "var(--text)"Muted }}>Member since {new Date(userData.createdAt).toLocaleDateString()}</p>
           </div>
         </div>
 
@@ -586,7 +586,7 @@ export const Settings = () => {
         </div>
 
         <div className="space-y-1.5">
-          <label className="text-sm font-medium" style={{ color: C.textMuted }}>Bio</label>
+          <label className="text-sm font-medium" style={{ color: "var(--text)"Muted }}>Bio</label>
           <textarea
             value={userData.bio}
             onChange={(e) => setUserData(prev => ({ ...prev, bio: e.target.value }))}
@@ -594,14 +594,14 @@ export const Settings = () => {
             rows={3}
             className="w-full p-3 rounded-xl outline-none resize-none"
             style={{
-              background: C.surface2,
-              border: `1px solid ${C.border}`,
-              color: C.text
+              background: "var(--surface)"2,
+              border: `1px solid ${"var(--border)"}`,
+              color: "var(--text)"
             }}
           />
         </div>
 
-        <div className="flex items-center gap-2 text-sm" style={{ color: C.textMuted }}>
+        <div className="flex items-center gap-2 text-sm" style={{ color: "var(--text)"Muted }}>
           <div className={`w-2 h-2 rounded-full ${userData.emailVerified ? 'bg-green-500' : 'bg-yellow-500'}`} />
           Email {userData.emailVerified ? 'verified' : 'not verified'}
           {!userData.emailVerified && (
@@ -633,7 +633,7 @@ export const Settings = () => {
             <button
               onClick={() => setSecurity(prev => ({ ...prev, showCurrent: !prev.showCurrent }))}
               className="absolute right-3 top-8"
-              style={{ color: C.textDim }}
+              style={{ color: "var(--text-muted)" }}
             >
               {security.showCurrent ? <EyeOff size={18} /> : <Eye size={18} />}
             </button>
@@ -650,7 +650,7 @@ export const Settings = () => {
             <button
               onClick={() => setSecurity(prev => ({ ...prev, showNew: !prev.showNew }))}
               className="absolute right-3 top-8"
-              style={{ color: C.textDim }}
+              style={{ color: "var(--text-muted)" }}
             >
               {security.showNew ? <EyeOff size={18} /> : <Eye size={18} />}
             </button>
@@ -692,7 +692,7 @@ export const Settings = () => {
           onChange={() => setSettings(prev => ({ ...prev, showProgress: !prev.showProgress }))}
         />
         
-        <div className="pt-4 border-t" style={{ borderColor: C.border }}>
+        <div className="pt-4 border-t" style={{ borderColor: "var(--border)" }}>
           <SaveButton onClick={savePrivacySettings} loading={saving}>
             Save Privacy Settings
           </SaveButton>
@@ -709,7 +709,7 @@ export const Settings = () => {
       <div className="space-y-6">
         {/* Theme Selector */}
         <div className="space-y-3">
-          <label className="text-sm font-medium" style={{ color: C.textMuted }}>Theme</label>
+          <label className="text-sm font-medium" style={{ color: "var(--text)"Muted }}>Theme</label>
           <div className="grid grid-cols-3 gap-3">
             {[
               { key: 'light', icon: Sun, label: 'Light' },
@@ -723,9 +723,9 @@ export const Settings = () => {
                 onClick={() => handleThemeChange(key)}
                 className="p-4 rounded-xl flex flex-col items-center gap-2 transition-all"
                 style={{
-                  background: settings.theme === key ? C.brand : C.surface2,
-                  border: `1px solid ${settings.theme === key ? C.brand : C.border}`,
-                  color: settings.theme === key ? C.bg : C.text
+                  background: settings.theme === key ? C.brand : "var(--surface)"2,
+                  border: `1px solid ${settings.theme === key ? C.brand : "var(--border)"}`,
+                  color: settings.theme === key ? "var(--bg)" : "var(--text)"
                 }}
               >
                 <Icon size={24} />
@@ -747,7 +747,7 @@ export const Settings = () => {
           onChange={() => setSettings(prev => ({ ...prev, compactMode: !prev.compactMode }))}
         />
 
-        <div className="pt-4 border-t" style={{ borderColor: C.border }}>
+        <div className="pt-4 border-t" style={{ borderColor: "var(--border)" }}>
           <SaveButton onClick={saveAppearanceSettings} loading={saving}>
             Save Appearance
           </SaveButton>
@@ -763,7 +763,7 @@ export const Settings = () => {
     >
       <div className="space-y-6">
         <div className="space-y-4">
-          <h4 className="font-semibold" style={{ color: C.text }}>Channels</h4>
+          <h4 className="font-semibold" style={{ color: "var(--text)" }}>Channels</h4>
           <CustomToggle
             label="Email notifications"
             checked={settings.emailNotifications}
@@ -776,8 +776,8 @@ export const Settings = () => {
           />
         </div>
 
-        <div className="space-y-4 pt-4 border-t" style={{ borderColor: C.border }}>
-          <h4 className="font-semibold" style={{ color: C.text }}>Content</h4>
+        <div className="space-y-4 pt-4 border-t" style={{ borderColor: "var(--border)" }}>
+          <h4 className="font-semibold" style={{ color: "var(--text)" }}>Content</h4>
           <CustomToggle
             label="Course updates and announcements"
             checked={settings.courseUpdates}
@@ -795,7 +795,7 @@ export const Settings = () => {
           />
         </div>
 
-        <div className="pt-4 border-t" style={{ borderColor: C.border }}>
+        <div className="pt-4 border-t" style={{ borderColor: "var(--border)" }}>
           <SaveButton onClick={saveNotificationSettings} loading={saving}>
             Update Notification Settings
           </SaveButton>
@@ -831,8 +831,8 @@ export const Settings = () => {
             whileHover={{ scale: 1.01 }}
             className="flex items-center justify-between p-4 rounded-xl"
             style={{
-              background: C.surface2,
-              border: `1px solid ${connected ? `${color}40` : C.border}`
+              background: "var(--surface)"2,
+              border: `1px solid ${connected ? `${color}40` : "var(--border)"}`
             }}
           >
             <div className="flex items-center gap-3">
@@ -843,8 +843,8 @@ export const Settings = () => {
                 <Icon size={20} />
               </div>
               <div>
-                <p className="font-medium" style={{ color: C.text }}>{label}</p>
-                <p className="text-xs" style={{ color: C.textMuted }}>
+                <p className="font-medium" style={{ color: "var(--text)" }}>{label}</p>
+                <p className="text-xs" style={{ color: "var(--text)"Muted }}>
                   {connected ? 'Connected' : 'Not connected'}
                 </p>
               </div>
@@ -861,9 +861,9 @@ export const Settings = () => {
               }}
               className="px-4 py-2 rounded-lg text-sm font-medium transition-colors"
               style={{
-                background: connected ? 'transparent' : C.surface3,
-                border: `1px solid ${connected ? C.danger : C.border}`,
-                color: connected ? C.danger : C.text
+                background: connected ? 'transparent' : "var(--surface)"3,
+                border: `1px solid ${connected ? C.danger : "var(--border)"}`,
+                color: connected ? C.danger : "var(--text)"
               }}
             >
               {connected ? 'Disconnect' : 'Connect'}
@@ -885,13 +885,13 @@ export const Settings = () => {
             <div 
               key={session.id}
               className="flex items-center justify-between p-3 rounded-lg"
-              style={{ background: C.surface2 }}
+              style={{ background: "var(--surface)"2 }}
             >
               <div className="flex items-center gap-3">
-                <Monitor size={18} style={{ color: C.textDim }} />
+                <Monitor size={18} style={{ color: "var(--text-muted)" }} />
                 <div>
-                  <p className="text-sm" style={{ color: C.text }}>{session.device}</p>
-                  <p className="text-xs" style={{ color: C.textMuted }}>
+                  <p className="text-sm" style={{ color: "var(--text)" }}>{session.device}</p>
+                  <p className="text-xs" style={{ color: "var(--text)"Muted }}>
                     {session.location} • {new Date(session.lastActive).toLocaleDateString()}
                   </p>
                 </div>
@@ -906,7 +906,7 @@ export const Settings = () => {
             </div>
           ))}
           {sessions.length === 0 && (
-            <p className="text-sm text-center py-4" style={{ color: C.textMuted }}>
+            <p className="text-sm text-center py-4" style={{ color: "var(--text)"Muted }}>
               No active sessions found
             </p>
           )}
@@ -924,7 +924,7 @@ export const Settings = () => {
               <AlertTriangle size={18} />
               Delete Account
             </h4>
-            <p className="text-sm mt-2" style={{ color: C.textMuted }}>
+            <p className="text-sm mt-2" style={{ color: "var(--text)"Muted }}>
               Once deleted, all your data including courses, certificates, and progress will be permanently removed. This action cannot be undone.
             </p>
           </div>
@@ -953,7 +953,7 @@ export const Settings = () => {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-96" style={{ background: C.bg }}>
+      <div className="flex items-center justify-center h-96" style={{ background: "var(--bg)" }}>
         <motion.div
           animate={{ rotate: 360 }}
           transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
@@ -965,7 +965,7 @@ export const Settings = () => {
   }
 
   return (
-    <div className="p-6 max-w-4xl mx-auto space-y-8" style={{ color: C.text, background: C.bg, minHeight: '100vh' }}>
+    <div className="p-6 max-w-4xl mx-auto space-y-8" style={{ color: "var(--text)", background: "var(--bg)", minHeight: '100vh' }}>
       <AnimatePresence>
         {toast && <Toast {...toast} onClose={() => setToast(null)} />}
       </AnimatePresence>
@@ -978,7 +978,7 @@ export const Settings = () => {
         <h1 className="text-3xl font-bold" style={{ fontFamily: "'Fraunces', serif" }}>
           Settings
         </h1>
-        <p className="text-sm mt-1" style={{ color: C.textMuted }}>
+        <p className="text-sm mt-1" style={{ color: "var(--text)"Muted }}>
           Manage your account preferences & customization
         </p>
       </motion.div>
@@ -993,9 +993,9 @@ export const Settings = () => {
             onClick={() => setActiveTab(tab.key)}
             className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium transition-all"
             style={{
-              background: activeTab === tab.key ? C.surface2 : 'transparent',
-              border: `1px solid ${activeTab === tab.key ? (tab.danger ? C.danger : C.brand) : C.border}`,
-              color: activeTab === tab.key ? (tab.danger ? C.danger : C.brand) : C.textMuted
+              background: activeTab === tab.key ? "var(--surface)"2 : 'transparent',
+              border: `1px solid ${activeTab === tab.key ? (tab.danger ? C.danger : C.brand) : "var(--border)"}`,
+              color: activeTab === tab.key ? (tab.danger ? C.danger : C.brand) : "var(--text)"Muted
             }}
           >
             <tab.icon size={16} />

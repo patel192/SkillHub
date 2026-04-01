@@ -238,7 +238,7 @@ const SectionBadge = ({ children }) => (
     className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-[12px] font-bold uppercase tracking-[1.2px] border mb-5"
     style={{
       background: `${C.brand}14`,
-      borderColor: C.border,
+      borderColor: "var(--border)",
       color: C.brand,
     }}
   >
@@ -262,7 +262,7 @@ const GradientHeading = ({
   return (
     <h2
       className={`font-bold leading-[1.1] tracking-tight ${sizes[size]} ${className}`}
-      style={{ fontFamily: "'Fraunces', serif", color: C.text }}
+      style={{ fontFamily: "'Fraunces', serif", color: "var(--text)" }}
     >
       {pre && <>{pre} </>}
       <span
@@ -357,7 +357,7 @@ const GlowCard = ({ children, className = "", accentColor = C.brand }) => (
     />
     <div
       className="relative rounded-2xl h-full border"
-      style={{ background: C.surface, borderColor: C.border }}
+      style={{ background: "var(--surface)", borderColor: "var(--border)" }}
     >
       {children}
     </div>
@@ -427,8 +427,8 @@ export const PublicLayout = () => {
       ref={containerRef}
       className="min-h-screen overflow-x-hidden selection:bg-teal-500/20"
       style={{
-        background: C.bg,
-        color: C.text,
+        background: "var(--bg)",
+        color: "var(--text)",
         fontFamily: "'DM Sans', sans-serif",
       }}
     >
@@ -437,7 +437,7 @@ export const PublicLayout = () => {
         @import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,700&family=DM+Sans:wght@400;500;600&display=swap');
         ::selection { background: ${C.brand}33; }
         ::-webkit-scrollbar { width: 5px; }
-        ::-webkit-scrollbar-track { background: ${C.bg}; }
+        ::-webkit-scrollbar-track { background: ${"var(--bg)"}; }
         ::-webkit-scrollbar-thumb { background: ${C.brand}55; border-radius: 99px; }
       `}</style>
 
@@ -451,10 +451,10 @@ export const PublicLayout = () => {
         transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
         className="fixed top-0 left-0 right-0 z-50 transition-all duration-500"
         style={{
-          background: isScrolled ? `${C.bg}CC` : "transparent",
+          background: isScrolled ? `${"var(--bg)"}CC` : "transparent",
           backdropFilter: isScrolled ? "blur(16px)" : "none",
           borderBottom: isScrolled
-            ? `1px solid ${C.border}`
+            ? `1px solid ${"var(--border)"}`
             : "1px solid transparent",
         }}
       >
@@ -482,7 +482,7 @@ export const PublicLayout = () => {
                 className="text-xl font-bold"
                 style={{
                   fontFamily: "'Fraunces', serif",
-                  background: `linear-gradient(135deg, ${C.text}, ${C.textMuted})`,
+                  background: `linear-gradient(135deg, ${"var(--text)"}, ${"var(--text)"Muted})`,
                   WebkitBackgroundClip: "text",
                   WebkitTextFillColor: "transparent",
                 }}
@@ -500,8 +500,8 @@ export const PublicLayout = () => {
                   smooth
                   offset={-80}
                   className="text-sm font-medium cursor-pointer relative group transition-colors"
-                  style={{ color: C.textMuted }}
-                  activeStyle={{ color: C.text }}
+                  style={{ color: "var(--text)"Muted }}
+                  activeStyle={{ color: "var(--text)" }}
                 >
                   <span className="group-hover:text-white transition-colors">
                     {item}
@@ -519,9 +519,9 @@ export const PublicLayout = () => {
               <Link
                 to="/login"
                 className="text-sm font-medium transition-colors"
-                style={{ color: C.textMuted }}
-                onMouseEnter={(e) => (e.target.style.color = C.text)}
-                onMouseLeave={(e) => (e.target.style.color = C.textMuted)}
+                style={{ color: "var(--text)"Muted }}
+                onMouseEnter={(e) => (e.target.style.color = "var(--text)")}
+                onMouseLeave={(e) => (e.target.style.color = "var(--text)"Muted)}
               >
                 Sign in
               </Link>
@@ -541,7 +541,7 @@ export const PublicLayout = () => {
             <button
               onClick={() => setMenuOpen(!menuOpen)}
               className="lg:hidden p-2 transition-colors"
-              style={{ color: C.textMuted }}
+              style={{ color: "var(--text)"Muted }}
             >
               {menuOpen ? <X size={22} /> : <Menu size={22} />}
             </button>
@@ -556,8 +556,8 @@ export const PublicLayout = () => {
               animate={{ opacity: 1, height: "auto" }}
               exit={{ opacity: 0, height: 0 }}
               style={{
-                background: `${C.surface}F5`,
-                borderBottom: `1px solid ${C.border}`,
+                background: `${"var(--surface)"}F5`,
+                borderBottom: `1px solid ${"var(--border)"}`,
               }}
               className="lg:hidden backdrop-blur-xl"
             >
@@ -569,19 +569,19 @@ export const PublicLayout = () => {
                     smooth
                     onClick={() => setMenuOpen(false)}
                     className="block py-2 text-[17px] font-medium transition-colors"
-                    style={{ color: C.textMuted }}
+                    style={{ color: "var(--text)"Muted }}
                   >
                     {item}
                   </ScrollLink>
                 ))}
                 <div
                   className="pt-4 space-y-3 border-t"
-                  style={{ borderColor: C.border }}
+                  style={{ borderColor: "var(--border)" }}
                 >
                   <Link
                     to="/login"
                     className="block w-full py-3 text-center rounded-xl text-sm font-medium border transition-colors"
-                    style={{ borderColor: C.border, color: C.textMuted }}
+                    style={{ borderColor: "var(--border)", color: "var(--text)"Muted }}
                   >
                     Sign in
                   </Link>
@@ -643,7 +643,7 @@ export const PublicLayout = () => {
                   className="inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium border"
                   style={{
                     background: `${C.brand}12`,
-                    borderColor: C.border,
+                    borderColor: "var(--border)",
                     color: C.brand,
                   }}
                 >
@@ -665,7 +665,7 @@ export const PublicLayout = () => {
               <motion.h1
                 variants={fadeUp}
                 className="text-5xl sm:text-6xl lg:text-7xl font-bold leading-[1.08] tracking-tight"
-                style={{ fontFamily: "'Fraunces', serif", color: C.text }}
+                style={{ fontFamily: "'Fraunces', serif", color: "var(--text)" }}
               >
                 Master coding through{" "}
                 <span
@@ -683,7 +683,7 @@ export const PublicLayout = () => {
               <motion.p
                 variants={fadeUp}
                 className="text-xl leading-relaxed max-w-xl"
-                style={{ color: C.textMuted }}
+                style={{ color: "var(--text)"Muted }}
               >
                 Join 120,000+ developers learning by building. Get personalized
                 mentorship, ship production-grade projects, and land your dream
@@ -714,7 +714,7 @@ export const PublicLayout = () => {
                 </Link>
                 <button
                   className="inline-flex items-center justify-center gap-2 px-8 py-4 rounded-full font-semibold text-lg transition-all border hover:border-opacity-60"
-                  style={{ border: `1px solid ${C.border}`, color: C.text }}
+                  style={{ border: `1px solid ${"var(--border)"}`, color: "var(--text)" }}
                   onMouseEnter={(e) =>
                     (e.currentTarget.style.background = `${C.brand}10`)
                   }
@@ -731,17 +731,17 @@ export const PublicLayout = () => {
               <motion.div
                 variants={fadeUp}
                 className="grid grid-cols-2 sm:grid-cols-4 gap-6 pt-8 border-t"
-                style={{ borderColor: C.border }}
+                style={{ borderColor: "var(--border)" }}
               >
                 {STATS.map((stat, idx) => (
                   <div key={idx} className="space-y-1">
                     <div
                       className="text-2xl sm:text-3xl font-bold"
-                      style={{ color: C.text, fontFamily: "'Fraunces', serif" }}
+                      style={{ color: "var(--text)", fontFamily: "'Fraunces', serif" }}
                     >
                       <AnimatedCounter value={stat.value} />
                     </div>
-                    <div className="text-sm" style={{ color: C.textMuted }}>
+                    <div className="text-sm" style={{ color: "var(--text)"Muted }}>
                       {stat.label}
                     </div>
                   </div>
@@ -763,15 +763,15 @@ export const PublicLayout = () => {
               <div
                 className="relative rounded-2xl overflow-hidden backdrop-blur-sm shadow-2xl border"
                 style={{
-                  background: C.surface,
-                  borderColor: C.border,
-                  boxShadow: `0 40px 80px ${C.brand}10, 0 0 0 1px ${C.border}`,
+                  background: "var(--surface)",
+                  borderColor: "var(--border)",
+                  boxShadow: `0 40px 80px ${C.brand}10, 0 0 0 1px ${"var(--border)"}`,
                 }}
               >
                 {/* IDE titlebar */}
                 <div
                   className="flex items-center gap-2 px-5 py-3.5 border-b"
-                  style={{ borderColor: C.border, background: C.surface2 }}
+                  style={{ borderColor: "var(--border)", background: "var(--surface)"2 }}
                 >
                   <div className="flex gap-1.5">
                     {["#FF5F57", "#FFBD2E", "#28C840"].map((c) => (
@@ -784,7 +784,7 @@ export const PublicLayout = () => {
                   </div>
                   <div
                     className="flex-1 text-center text-xs font-mono"
-                    style={{ color: C.textDim }}
+                    style={{ color: "var(--text-muted)" }}
                   >
                     dashboard.tsx — SkillHub
                   </div>
@@ -795,7 +795,7 @@ export const PublicLayout = () => {
                   <div className="flex gap-5">
                     <div
                       className="select-none text-right"
-                      style={{ color: C.textDim, minWidth: 16 }}
+                      style={{ color: "var(--text-muted)", minWidth: 16 }}
                     >
                       {[1, 2, 3, 4, 5, 6, 7].map((n) => (
                         <div key={n}>{n}</div>
@@ -804,12 +804,12 @@ export const PublicLayout = () => {
                     <div className="space-y-0 flex-1">
                       <div style={{ color: "#7C9EA5" }}>
                         <span style={{ color: "#78B9C2" }}>import </span>
-                        <span style={{ color: C.text }}>React </span>
+                        <span style={{ color: "var(--text)" }}>React </span>
                         <span style={{ color: "#78B9C2" }}>from </span>
                         <span style={{ color: `${C.brand}CC` }}>'react'</span>
-                        <span style={{ color: C.textMuted }}>;</span>
+                        <span style={{ color: "var(--text)"Muted }}>;</span>
                       </div>
-                      <div style={{ color: C.textDim }}>
+                      <div style={{ color: "var(--text-muted)" }}>
                         {"// SkillHub — Live Dashboard"}
                       </div>
                       <div>&nbsp;</div>
@@ -818,23 +818,23 @@ export const PublicLayout = () => {
                           export default function{" "}
                         </span>
                         <span style={{ color: C.accent }}>Dashboard</span>
-                        <span style={{ color: C.textMuted }}>() {"{"}</span>
+                        <span style={{ color: "var(--text)"Muted }}>() {"{"}</span>
                       </div>
                       <div className="pl-5">
                         <span style={{ color: "#78B9C2" }}>const </span>
                         <span style={{ color: C.brandLight }}>data </span>
-                        <span style={{ color: C.textMuted }}>= </span>
+                        <span style={{ color: "var(--text)"Muted }}>= </span>
                         <span style={{ color: C.accent }}>useRealTime</span>
-                        <span style={{ color: C.textMuted }}>{"();"}</span>
+                        <span style={{ color: "var(--text)"Muted }}>{"();"}</span>
                       </div>
                       <div className="pl-5">
                         <span style={{ color: "#78B9C2" }}>return </span>
-                        <span style={{ color: C.textMuted }}>{"("}</span>
+                        <span style={{ color: "var(--text)"Muted }}>{"("}</span>
                       </div>
                       <div className="pl-10">
                         <span style={{ color: C.brand }}>{"<Dashboard "}</span>
                         <span style={{ color: C.accent }}>data</span>
-                        <span style={{ color: C.textMuted }}>=</span>
+                        <span style={{ color: "var(--text)"Muted }}>=</span>
                         <span style={{ color: "#78B9C2" }}>{"{data}"}</span>
                         <span style={{ color: C.brand }}>{" />"}</span>
                       </div>
@@ -854,14 +854,14 @@ export const PublicLayout = () => {
                 <div className="px-6 pb-5">
                   <div
                     className="flex justify-between text-[11px] mb-1.5"
-                    style={{ color: C.textMuted }}
+                    style={{ color: "var(--text)"Muted }}
                   >
                     <span>Module 7 / 12</span>
                     <span>58% complete</span>
                   </div>
                   <div
                     className="h-1 rounded-full"
-                    style={{ background: C.surface2 }}
+                    style={{ background: "var(--surface)"2 }}
                   >
                     <motion.div
                       className="h-full rounded-full"
@@ -889,7 +889,7 @@ export const PublicLayout = () => {
                   ease: "easeInOut",
                 }}
                 className="absolute -right-5 top-14 p-3.5 rounded-2xl border backdrop-blur-md shadow-xl hidden sm:flex items-center gap-3"
-                style={{ background: `${C.surface}E8`, borderColor: C.border }}
+                style={{ background: `${"var(--surface)"}E8`, borderColor: "var(--border)" }}
               >
                 <div
                   className="w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0"
@@ -903,11 +903,11 @@ export const PublicLayout = () => {
                 <div>
                   <p
                     className="text-[12px] font-bold"
-                    style={{ color: C.text }}
+                    style={{ color: "var(--text)" }}
                   >
                     Tests Passing
                   </p>
-                  <p className="text-[11px]" style={{ color: C.textMuted }}>
+                  <p className="text-[11px]" style={{ color: "var(--text)"Muted }}>
                     24 / 24 completed
                   </p>
                 </div>
@@ -923,7 +923,7 @@ export const PublicLayout = () => {
                   delay: 1.2,
                 }}
                 className="absolute -left-5 bottom-14 p-3.5 rounded-2xl border backdrop-blur-md shadow-xl hidden sm:flex items-center gap-3"
-                style={{ background: `${C.surface}E8`, borderColor: C.border }}
+                style={{ background: `${"var(--surface)"}E8`, borderColor: "var(--border)" }}
               >
                 <div
                   className="w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0 relative"
@@ -932,17 +932,17 @@ export const PublicLayout = () => {
                   <Users className="w-4 h-4 text-indigo-400" />
                   <span
                     className="absolute top-0.5 right-0.5 w-2 h-2 rounded-full border"
-                    style={{ background: C.brand, borderColor: C.surface }}
+                    style={{ background: C.brand, borderColor: "var(--surface)" }}
                   />
                 </div>
                 <div>
                   <p
                     className="text-[12px] font-bold"
-                    style={{ color: C.text }}
+                    style={{ color: "var(--text)" }}
                   >
                     Mentor Online
                   </p>
-                  <p className="text-[11px]" style={{ color: C.textMuted }}>
+                  <p className="text-[11px]" style={{ color: "var(--text)"Muted }}>
                     Available now
                   </p>
                 </div>
@@ -965,7 +965,7 @@ export const PublicLayout = () => {
             <GradientHeading pre="Everything you need to" accent="go pro" />
             <p
               className="mt-4 text-lg max-w-2xl mx-auto"
-              style={{ color: C.textMuted }}
+              style={{ color: "var(--text)"Muted }}
             >
               A comprehensive platform designed to take you from beginner to
               industry-ready professional.
@@ -1003,11 +1003,11 @@ export const PublicLayout = () => {
 
                     <h3
                       className="text-xl font-bold mb-2"
-                      style={{ color: C.text, fontFamily: "'Fraunces', serif" }}
+                      style={{ color: "var(--text)", fontFamily: "'Fraunces', serif" }}
                     >
                       {feature.title}
                     </h3>
-                    <p className="flex-grow" style={{ color: C.textMuted }}>
+                    <p className="flex-grow" style={{ color: "var(--text)"Muted }}>
                       {feature.desc}
                     </p>
 
@@ -1017,7 +1017,7 @@ export const PublicLayout = () => {
                         className="mt-6 p-4 rounded-xl border"
                         style={{
                           background: `${C.brand}08`,
-                          borderColor: C.border,
+                          borderColor: "var(--border)",
                         }}
                       >
                         <div
@@ -1037,7 +1037,7 @@ export const PublicLayout = () => {
                           <div
                             key={item}
                             className="flex items-center gap-2 text-sm py-1"
-                            style={{ color: C.textMuted }}
+                            style={{ color: "var(--text)"Muted }}
                           >
                             <CheckCircle2
                               className="w-4 h-4 flex-shrink-0"
@@ -1059,11 +1059,11 @@ export const PublicLayout = () => {
       {/* ── TECH STACK MARQUEE ─────────────────── */}
       <section
         className="py-14 overflow-hidden border-y"
-        style={{ borderColor: C.border, background: `${C.surface}80` }}
+        style={{ borderColor: "var(--border)", background: `${"var(--surface)"}80` }}
       >
         <p
           className="text-center text-xs font-bold uppercase tracking-[2px] mb-8"
-          style={{ color: C.textDim }}
+          style={{ color: "var(--text-muted)" }}
         >
           Learn the technologies that power the world's best products
         </p>
@@ -1073,13 +1073,13 @@ export const PublicLayout = () => {
           <div
             className="absolute left-0 top-0 bottom-0 w-32 z-10"
             style={{
-              background: `linear-gradient(to right, ${C.surface}CC, transparent)`,
+              background: `linear-gradient(to right, ${"var(--surface)"}CC, transparent)`,
             }}
           />
           <div
             className="absolute right-0 top-0 bottom-0 w-32 z-10"
             style={{
-              background: `linear-gradient(to left, ${C.surface}CC, transparent)`,
+              background: `linear-gradient(to left, ${"var(--surface)"}CC, transparent)`,
             }}
           />
 
@@ -1092,13 +1092,13 @@ export const PublicLayout = () => {
               <div
                 key={idx}
                 className="flex items-center gap-3 px-5 py-3 rounded-full border whitespace-nowrap transition-all duration-300 group cursor-default"
-                style={{ background: `${C.brand}08`, borderColor: C.border }}
+                style={{ background: `${C.brand}08`, borderColor: "var(--border)" }}
                 onMouseEnter={(e) => {
                   e.currentTarget.style.borderColor = `${tech.color}55`;
                   e.currentTarget.style.background = `${tech.color}10`;
                 }}
                 onMouseLeave={(e) => {
-                  e.currentTarget.style.borderColor = C.border;
+                  e.currentTarget.style.borderColor = "var(--border)";
                   e.currentTarget.style.background = `${C.brand}08`;
                 }}
               >
@@ -1109,7 +1109,7 @@ export const PublicLayout = () => {
                 />
                 <span
                   className="font-medium text-sm"
-                  style={{ color: C.textMuted }}
+                  style={{ color: "var(--text)"Muted }}
                 >
                   {tech.name}
                 </span>
@@ -1128,7 +1128,7 @@ export const PublicLayout = () => {
               <GradientHeading accent="Featured" post="Courses" />
               <p
                 className="mt-4 text-lg max-w-xl"
-                style={{ color: C.textMuted }}
+                style={{ color: "var(--text)"Muted }}
               >
                 Industry-vetted curriculum designed to get you hired at top tech
                 companies.
@@ -1155,12 +1155,12 @@ export const PublicLayout = () => {
                 viewport={{ once: true }}
                 transition={{ delay: idx * 0.1 }}
                 className="group relative rounded-2xl overflow-hidden border transition-all duration-300"
-                style={{ background: C.surface, borderColor: C.border }}
+                style={{ background: "var(--surface)", borderColor: "var(--border)" }}
                 onMouseEnter={(e) =>
                   (e.currentTarget.style.borderColor = `${course.color}44`)
                 }
                 onMouseLeave={(e) =>
-                  (e.currentTarget.style.borderColor = C.border)
+                  (e.currentTarget.style.borderColor = "var(--border)")
                 }
               >
                 {/* Thumbnail */}
@@ -1173,7 +1173,7 @@ export const PublicLayout = () => {
                   <div
                     className="absolute inset-0"
                     style={{
-                      background: `linear-gradient(to top, ${C.surface} 0%, transparent 60%)`,
+                      background: `linear-gradient(to top, ${"var(--surface)"} 0%, transparent 60%)`,
                     }}
                   />
                 </div>
@@ -1189,7 +1189,7 @@ export const PublicLayout = () => {
                     >
                       {course.level}
                     </span>
-                    <span className="text-sm" style={{ color: C.textMuted }}>
+                    <span className="text-sm" style={{ color: "var(--text)"Muted }}>
                       {course.duration}
                     </span>
                   </div>
@@ -1197,7 +1197,7 @@ export const PublicLayout = () => {
                   <h3
                     className="text-xl font-bold mb-2 transition-colors group-hover:text-[var(--c)]"
                     style={{
-                      color: C.text,
+                      color: "var(--text)",
                       fontFamily: "'Fraunces', serif",
                       "--c": course.color,
                     }}
@@ -1207,7 +1207,7 @@ export const PublicLayout = () => {
 
                   <div
                     className="flex items-center gap-4 text-sm mb-4"
-                    style={{ color: C.textMuted }}
+                    style={{ color: "var(--text)"Muted }}
                   >
                     <span className="flex items-center gap-1">
                       <Users className="w-4 h-4" />
@@ -1240,7 +1240,7 @@ export const PublicLayout = () => {
       {/* ── TESTIMONIALS ───────────────────────── */}
       <section
         className="py-24 lg:py-32 border-y"
-        style={{ background: `${C.surface}60`, borderColor: C.border }}
+        style={{ background: `${"var(--surface)"}60`, borderColor: "var(--border)" }}
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div
@@ -1266,12 +1266,12 @@ export const PublicLayout = () => {
                 viewport={{ once: true }}
                 transition={{ delay: idx * 0.1 }}
                 className="p-6 rounded-2xl border transition-all duration-300"
-                style={{ background: C.surface, borderColor: C.border }}
+                style={{ background: "var(--surface)", borderColor: "var(--border)" }}
                 onMouseEnter={(e) =>
                   (e.currentTarget.style.borderColor = `${t.color}44`)
                 }
                 onMouseLeave={(e) =>
-                  (e.currentTarget.style.borderColor = C.border)
+                  (e.currentTarget.style.borderColor = "var(--border)")
                 }
               >
                 <div className="flex gap-1 mb-4">
@@ -1285,7 +1285,7 @@ export const PublicLayout = () => {
                 </div>
                 <p
                   className="mb-6 leading-relaxed italic text-[15px]"
-                  style={{ color: C.textMuted }}
+                  style={{ color: "var(--text)"Muted }}
                 >
                   "{t.content}"
                 </p>
@@ -1301,11 +1301,11 @@ export const PublicLayout = () => {
                   <div>
                     <p
                       className="font-semibold text-sm"
-                      style={{ color: C.text }}
+                      style={{ color: "var(--text)" }}
                     >
                       {t.name}
                     </p>
-                    <p className="text-xs" style={{ color: C.textMuted }}>
+                    <p className="text-xs" style={{ color: "var(--text)"Muted }}>
                       {t.role}
                     </p>
                   </div>
@@ -1404,7 +1404,7 @@ export const PublicLayout = () => {
       {/* ── FOOTER ─────────────────────────────── */}
       <footer
         className="py-16 border-t"
-        style={{ background: C.surface, borderColor: C.border }}
+        style={{ background: "var(--surface)", borderColor: "var(--border)" }}
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-10 mb-14">
@@ -1421,14 +1421,14 @@ export const PublicLayout = () => {
                 </div>
                 <span
                   className="text-xl font-bold"
-                  style={{ fontFamily: "'Fraunces', serif", color: C.text }}
+                  style={{ fontFamily: "'Fraunces', serif", color: "var(--text)" }}
                 >
                   SkillHub
                 </span>
               </Link>
               <p
                 className="text-sm max-w-xs mb-6 leading-relaxed"
-                style={{ color: C.textMuted }}
+                style={{ color: "var(--text)"Muted }}
               >
                 Empowering the next generation of developers through
                 project-based learning and expert mentorship.
@@ -1439,14 +1439,14 @@ export const PublicLayout = () => {
                     key={s}
                     href="#"
                     className="w-9 h-9 rounded-full flex items-center justify-center transition-all border"
-                    style={{ borderColor: C.border, color: C.textMuted }}
+                    style={{ borderColor: "var(--border)", color: "var(--text)"Muted }}
                     onMouseEnter={(e) => {
                       e.currentTarget.style.borderColor = C.brand;
                       e.currentTarget.style.color = C.brand;
                     }}
                     onMouseLeave={(e) => {
-                      e.currentTarget.style.borderColor = C.border;
-                      e.currentTarget.style.color = C.textMuted;
+                      e.currentTarget.style.borderColor = "var(--border)";
+                      e.currentTarget.style.color = "var(--text)"Muted;
                     }}
                   >
                     <Globe className="w-4 h-4" />
@@ -1460,7 +1460,7 @@ export const PublicLayout = () => {
               <div key={section.title}>
                 <h4
                   className="font-bold text-xs uppercase tracking-widest mb-5"
-                  style={{ color: C.text }}
+                  style={{ color: "var(--text)" }}
                 >
                   {section.title}
                 </h4>
@@ -1470,10 +1470,10 @@ export const PublicLayout = () => {
                       <a
                         href="#"
                         className="text-sm transition-colors"
-                        style={{ color: C.textMuted }}
-                        onMouseEnter={(e) => (e.target.style.color = C.text)}
+                        style={{ color: "var(--text)"Muted }}
+                        onMouseEnter={(e) => (e.target.style.color = "var(--text)")}
                         onMouseLeave={(e) =>
-                          (e.target.style.color = C.textMuted)
+                          (e.target.style.color = "var(--text)"Muted)
                         }
                       >
                         {link}
@@ -1488,7 +1488,7 @@ export const PublicLayout = () => {
           {/* Bottom bar */}
           <div
             className="pt-8 border-t flex flex-col md:flex-row items-center justify-between gap-4 text-sm"
-            style={{ borderColor: C.border, color: C.textDim }}
+            style={{ borderColor: "var(--border)", color: "var(--text-muted)" }}
           >
             <p>© {new Date().getFullYear()} SkillHub. All rights reserved.</p>
             <div className="flex gap-6">
@@ -1498,8 +1498,8 @@ export const PublicLayout = () => {
                     key={l}
                     href="#"
                     className="transition-colors"
-                    onMouseEnter={(e) => (e.target.style.color = C.text)}
-                    onMouseLeave={(e) => (e.target.style.color = C.textDim)}
+                    onMouseEnter={(e) => (e.target.style.color = "var(--text)")}
+                    onMouseLeave={(e) => (e.target.style.color = "var(--text-muted)")}
                   >
                     {l}
                   </a>

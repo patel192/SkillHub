@@ -81,7 +81,7 @@ const InputField = ({
       <div className="flex items-center justify-between">
         <label
           className="text-[13px] font-semibold uppercase tracking-wider"
-          style={{ color: C.textMuted }}
+          style={{ color: "var(--text)"Muted }}
         >
           {label}
         </label>
@@ -108,16 +108,16 @@ const InputField = ({
             ? `0 0 0 1.5px ${C.errorBorder}`
             : focused
             ? `0 0 0 1.5px ${C.brand}88, 0 0 22px ${C.brand}18`
-            : `0 0 0 1px ${C.border}`,
+            : `0 0 0 1px ${"var(--border)"}`,
         }}
         transition={{ duration: 0.2 }}
         className="relative rounded-xl overflow-hidden"
-        style={{ background: C.surface2 }}
+        style={{ background: "var(--surface)"2 }}
       >
         {/* Left icon */}
         <div
           className="absolute left-4 top-1/2 -translate-y-1/2 transition-colors duration-200"
-          style={{ color: focused ? C.brand : C.textDim }}
+          style={{ color: focused ? C.brand : "var(--text-muted)" }}
         >
           <Icon size={17} />
         </div>
@@ -132,7 +132,7 @@ const InputField = ({
           placeholder={placeholder}
           autoComplete={autoComplete}
           className="w-full pl-11 pr-12 py-4 bg-transparent outline-none text-[15px] placeholder-[#3D5C4E]"
-          style={{ color: C.text }}
+          style={{ color: "var(--text)" }}
         />
 
         {/* Right slot — eye toggle */}
@@ -141,7 +141,7 @@ const InputField = ({
             type="button"
             onClick={onTogglePassword}
             className="absolute right-4 top-1/2 -translate-y-1/2 transition-colors duration-200"
-            style={{ color: focused ? C.brand : C.textDim }}
+            style={{ color: focused ? C.brand : "var(--text-muted)" }}
           >
             {showPassword ? <EyeOff size={17} /> : <Eye size={17} />}
           </button>
@@ -164,14 +164,14 @@ const SocialButton = ({ icon: Icon, label }) => (
     whileTap={{ scale: 0.97 }}
     type="button"
     className="w-full flex items-center justify-center gap-2.5 py-3 rounded-xl text-[14px] font-medium border transition-all duration-200"
-    style={{ background: C.surface3, borderColor: C.border, color: C.textMuted }}
+    style={{ background: "var(--surface)"3, borderColor: "var(--border)", color: "var(--text)"Muted }}
     onMouseEnter={(e) => {
-      e.currentTarget.style.borderColor = C.borderHov;
-      e.currentTarget.style.color = C.text;
+      e.currentTarget.style.borderColor = "var(--border)"Hov;
+      e.currentTarget.style.color = "var(--text)";
     }}
     onMouseLeave={(e) => {
-      e.currentTarget.style.borderColor = C.border;
-      e.currentTarget.style.color = C.textMuted;
+      e.currentTarget.style.borderColor = "var(--border)";
+      e.currentTarget.style.color = "var(--text)"Muted;
     }}
   >
     <Icon size={17} />
@@ -268,7 +268,7 @@ export const Login = () => {
   return (
     <div
       className="min-h-screen flex overflow-hidden relative"
-      style={{ background: C.bg, fontFamily: "'DM Sans', sans-serif", color: C.text }}
+      style={{ background: "var(--bg)", fontFamily: "'DM Sans', sans-serif", color: "var(--text)" }}
     >
       {/* Google Fonts */}
       <style>{`@import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,700&family=DM+Sans:wght@400;500;600&display=swap');`}</style>
@@ -308,7 +308,7 @@ export const Login = () => {
         transition={{ duration: 0.85, ease: [0.22, 1, 0.36, 1] }}
         className="hidden lg:flex lg:w-[48%] relative flex-col justify-between p-12 xl:p-16 border-r"
         style={{
-          borderColor: C.border,
+          borderColor: "var(--border)",
           transform: `translate(${mousePos.x * 0.35}px, ${mousePos.y * 0.35}px)`,
         }}
       >
@@ -326,7 +326,7 @@ export const Login = () => {
           </motion.div>
           <span
             className="text-xl font-bold"
-            style={{ fontFamily: "'Fraunces', serif", color: C.text }}
+            style={{ fontFamily: "'Fraunces', serif", color: "var(--text)" }}
           >
             SkillHub
           </span>
@@ -356,7 +356,7 @@ export const Login = () => {
                 SkillHub
               </span>
             </h1>
-            <p className="text-[17px] leading-relaxed" style={{ color: C.textMuted }}>
+            <p className="text-[17px] leading-relaxed" style={{ color: "var(--text)"Muted }}>
               Continue your journey to mastery. Your next project awaits — pick
               up right where you left off.
             </p>
@@ -373,18 +373,18 @@ export const Login = () => {
               <div
                 key={idx}
                 className="p-4 rounded-2xl border flex flex-col gap-1"
-                style={{ background: C.surface2, borderColor: C.border }}
+                style={{ background: "var(--surface)"2, borderColor: "var(--border)" }}
               >
                 <div className="flex items-center gap-2">
                   <stat.icon size={14} style={{ color: C.brand }} />
                 </div>
                 <div
                   className="text-2xl font-bold"
-                  style={{ fontFamily: "'Fraunces', serif", color: C.text }}
+                  style={{ fontFamily: "'Fraunces', serif", color: "var(--text)" }}
                 >
                   {stat.value}
                 </div>
-                <div className="text-[13px]" style={{ color: C.textMuted }}>{stat.label}</div>
+                <div className="text-[13px]" style={{ color: "var(--text)"Muted }}>{stat.label}</div>
               </div>
             ))}
           </motion.div>
@@ -403,11 +403,11 @@ export const Login = () => {
                 animate={{ x: 0,   opacity: 1 }}
                 transition={{ delay: 0.72 + idx * 0.1 }}
                 className="flex items-center gap-3 text-[15px]"
-                style={{ color: C.textMuted }}
+                style={{ color: "var(--text)"Muted }}
               >
                 <div
                   className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0"
-                  style={{ background: `${C.brand}18`, border: `1px solid ${C.border}` }}
+                  style={{ background: `${C.brand}18`, border: `1px solid ${"var(--border)"}` }}
                 >
                   <f.icon size={14} style={{ color: C.brand }} />
                 </div>
@@ -423,10 +423,10 @@ export const Login = () => {
           animate={{ y: 0, opacity: 1 }}
           transition={{ delay: 0.95 }}
           className="relative z-10 p-5 rounded-2xl border"
-          style={{ background: C.surface2, borderColor: C.border }}
+          style={{ background: "var(--surface)"2, borderColor: "var(--border)" }}
         >
           <span className="text-3xl font-bold leading-none" style={{ color: `${C.brand}44` }}>"</span>
-          <p className="text-[14px] leading-relaxed -mt-1 mb-4" style={{ color: C.textMuted }}>
+          <p className="text-[14px] leading-relaxed -mt-1 mb-4" style={{ color: "var(--text)"Muted }}>
             SkillHub's project-based approach helped me land my dream job at a
             Fortune 500 company. The mentorship was invaluable.
           </p>
@@ -438,8 +438,8 @@ export const Login = () => {
               SM
             </div>
             <div>
-              <p className="text-[13px] font-semibold" style={{ color: C.text }}>Sarah Miller</p>
-              <p className="text-[12px]" style={{ color: C.textDim }}>Senior Developer at Microsoft</p>
+              <p className="text-[13px] font-semibold" style={{ color: "var(--text)" }}>Sarah Miller</p>
+              <p className="text-[12px]" style={{ color: "var(--text-muted)" }}>Senior Developer at Microsoft</p>
             </div>
             <div className="ml-auto flex gap-0.5">
               {[...Array(5)].map((_, i) => (
@@ -480,9 +480,9 @@ export const Login = () => {
             animate="visible"
             className="rounded-2xl p-7 sm:p-8 border shadow-2xl"
             style={{
-              background: C.surface,
-              borderColor: C.border,
-              boxShadow: `0 32px 64px ${C.bg}88, 0 0 0 1px ${C.border}`,
+              background: "var(--surface)",
+              borderColor: "var(--border)",
+              boxShadow: `0 32px 64px ${"var(--bg)"}88, 0 0 0 1px ${"var(--border)"}`,
             }}
           >
             {/* Heading */}
@@ -492,18 +492,18 @@ export const Login = () => {
                 className="w-14 h-14 rounded-2xl flex items-center justify-center mx-auto mb-4"
                 style={{
                   background: `linear-gradient(135deg, ${C.brand}22, ${C.brandLight}22)`,
-                  border: `1px solid ${C.border}`,
+                  border: `1px solid ${"var(--border)"}`,
                 }}
               >
                 <Code className="w-6 h-6" style={{ color: C.brand }} />
               </div>
               <h2
                 className="text-[28px] font-bold mb-1"
-                style={{ fontFamily: "'Fraunces', serif", color: C.text }}
+                style={{ fontFamily: "'Fraunces', serif", color: "var(--text)" }}
               >
                 Welcome back
               </h2>
-              <p className="text-[14px]" style={{ color: C.textMuted }}>
+              <p className="text-[14px]" style={{ color: "var(--text)"Muted }}>
                 Sign in to continue your learning journey
               </p>
             </motion.div>
@@ -517,12 +517,12 @@ export const Login = () => {
             {/* Divider */}
             <motion.div variants={itemVariants} className="relative mb-6">
               <div className="absolute inset-0 flex items-center">
-                <div className="w-full border-t" style={{ borderColor: C.border }} />
+                <div className="w-full border-t" style={{ borderColor: "var(--border)" }} />
               </div>
               <div className="relative flex justify-center">
                 <span
                   className="px-3 text-[12px] font-medium uppercase tracking-wider"
-                  style={{ background: C.surface, color: C.textDim }}
+                  style={{ background: "var(--surface)", color: "var(--text-muted)" }}
                 >
                   Or continue with email
                 </span>
@@ -565,13 +565,13 @@ export const Login = () => {
               >
                 <label
                   className="flex items-center gap-2 cursor-pointer group select-none"
-                  style={{ color: C.textMuted }}
+                  style={{ color: "var(--text)"Muted }}
                 >
                   <div
                     className="relative w-4 h-4 rounded flex items-center justify-center border transition-all"
                     style={{
                       background: form.rememberMe ? C.brand : "transparent",
-                      borderColor: form.rememberMe ? C.brand : C.textDim,
+                      borderColor: form.rememberMe ? C.brand : "var(--text-muted)",
                     }}
                   >
                     {form.rememberMe && <CheckCircle2 size={10} className="text-white" />}
@@ -656,7 +656,7 @@ export const Login = () => {
             <motion.p
               variants={itemVariants}
               className="mt-5 text-center text-[13px]"
-              style={{ color: C.textMuted }}
+              style={{ color: "var(--text)"Muted }}
             >
               Don't have an account?{" "}
               <Link
@@ -675,15 +675,15 @@ export const Login = () => {
             <motion.p
               variants={itemVariants}
               className="mt-5 text-center text-[11px]"
-              style={{ color: C.textDim }}
+              style={{ color: "var(--text-muted)" }}
             >
               Protected by reCAPTCHA and subject to our{" "}
               <a
                 href="#"
                 className="transition-colors"
-                style={{ color: C.textMuted }}
-                onMouseEnter={(e) => (e.target.style.color = C.text)}
-                onMouseLeave={(e) => (e.target.style.color = C.textMuted)}
+                style={{ color: "var(--text)"Muted }}
+                onMouseEnter={(e) => (e.target.style.color = "var(--text)")}
+                onMouseLeave={(e) => (e.target.style.color = "var(--text)"Muted)}
               >
                 Privacy Policy
               </a>{" "}
@@ -691,9 +691,9 @@ export const Login = () => {
               <a
                 href="#"
                 className="transition-colors"
-                style={{ color: C.textMuted }}
-                onMouseEnter={(e) => (e.target.style.color = C.text)}
-                onMouseLeave={(e) => (e.target.style.color = C.textMuted)}
+                style={{ color: "var(--text)"Muted }}
+                onMouseEnter={(e) => (e.target.style.color = "var(--text)")}
+                onMouseLeave={(e) => (e.target.style.color = "var(--text)"Muted)}
               >
                 Terms of Service
               </a>
@@ -705,9 +705,9 @@ export const Login = () => {
             <Link
               to="/"
               className="inline-flex items-center gap-2 text-[13px] transition-colors"
-              style={{ color: C.textDim }}
-              onMouseEnter={(e) => (e.currentTarget.style.color = C.text)}
-              onMouseLeave={(e) => (e.currentTarget.style.color = C.textDim)}
+              style={{ color: "var(--text-muted)" }}
+              onMouseEnter={(e) => (e.currentTarget.style.color = "var(--text)")}
+              onMouseLeave={(e) => (e.currentTarget.style.color = "var(--text-muted)")}
             >
               <ChevronLeft className="w-4 h-4" />
               Back to home

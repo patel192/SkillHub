@@ -63,8 +63,8 @@ const NOTIFICATION_TYPES = {
   },
   DEFAULT: {
     icon: Bell,
-    color: C.textMuted,
-    bg: C.surface2,
+    color: "var(--text)"Muted,
+    bg: "var(--surface)"2,
     label: "Notification",
   },
 };
@@ -102,8 +102,8 @@ const GlowCard = ({ children, className = "", unread = false, onClick }) => (
     onClick={onClick}
     className={`relative group cursor-pointer overflow-hidden rounded-xl ${className}`}
     style={{
-      background: C.surface,
-      border: `1px solid ${unread ? C.brand : C.border}`,
+      background: "var(--surface)",
+      border: `1px solid ${unread ? C.brand : "var(--border)"}`,
       borderLeft: unread ? `3px solid ${C.brand}` : undefined,
     }}
   >
@@ -137,17 +137,17 @@ const EmptyState = ({ onRefresh }) => (
   >
     <div
       className="w-20 h-20 rounded-full flex items-center justify-center mb-5"
-      style={{ background: `${C.brand}15`, border: `1px solid ${C.border}` }}
+      style={{ background: `${C.brand}15`, border: `1px solid ${"var(--border)"}` }}
     >
       <MailOpen size={32} style={{ color: C.brand }} />
     </div>
     <h3
       className="text-lg font-bold mb-2"
-      style={{ fontFamily: "'Fraunces', serif", color: C.text }}
+      style={{ fontFamily: "'Fraunces', serif", color: "var(--text)" }}
     >
       All Caught Up!
     </h3>
-    <p className="text-center max-w-sm mb-6 text-sm" style={{ color: C.textMuted }}>
+    <p className="text-center max-w-sm mb-6 text-sm" style={{ color: "var(--text)"Muted }}>
       You have no new notifications. Check back later for updates on your courses and achievements.
     </p>
     <motion.button
@@ -157,7 +157,7 @@ const EmptyState = ({ onRefresh }) => (
       className="flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-medium"
       style={{
         background: `linear-gradient(135deg, ${C.brand}, ${C.brandLight})`,
-        color: C.bg,
+        color: "var(--bg)",
       }}
     >
       <Zap size={16} />
@@ -177,11 +177,11 @@ const NotificationIcon = ({ type, unread }) => {
       transition={{ type: "spring", stiffness: 200 }}
       className="flex-shrink-0 w-12 h-12 rounded-xl flex items-center justify-center relative"
       style={{ 
-        background: unread ? config.bg : C.surface2, 
-        border: `1px solid ${unread ? config.color : C.border}` 
+        background: unread ? config.bg : "var(--surface)"2, 
+        border: `1px solid ${unread ? config.color : "var(--border)"}` 
       }}
     >
-      <Icon size={22} style={{ color: unread ? config.color : C.textMuted }} />
+      <Icon size={22} style={{ color: unread ? config.color : "var(--text)"Muted }} />
       
       {/* Unread Dot */}
       {unread && (
@@ -189,7 +189,7 @@ const NotificationIcon = ({ type, unread }) => {
           initial={{ scale: 0 }}
           animate={{ scale: 1 }}
           className="absolute -top-1 -right-1 w-3 h-3 rounded-full"
-          style={{ background: C.brand, border: `2px solid ${C.surface}` }}
+          style={{ background: C.brand, border: `2px solid ${"var(--surface)"}` }}
         />
       )}
     </motion.div>
@@ -227,7 +227,7 @@ const NotificationItem = ({ notification, onMarkRead, onDelete }) => {
             <div>
               <p 
                 className={`font-medium text-sm sm:text-base leading-relaxed ${unread ? "" : "line-clamp-2"}`}
-                style={{ color: unread ? C.text : C.textMuted }}
+                style={{ color: unread ? "var(--text)" : "var(--text)"Muted }}
               >
                 {notification.message}
               </p>
@@ -247,7 +247,7 @@ const NotificationItem = ({ notification, onMarkRead, onDelete }) => {
                 
                 <span
                   className="flex items-center gap-1 text-xs"
-                  style={{ color: C.textDim }}
+                  style={{ color: "var(--text-muted)" }}
                 >
                   <Clock size={12} />
                   {formatDate(notification.createdAt)}
@@ -281,7 +281,7 @@ const NotificationItem = ({ notification, onMarkRead, onDelete }) => {
                   onDelete(notification._id);
                 }}
                 className="p-2 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity"
-                style={{ color: C.textDim }}
+                style={{ color: "var(--text-muted)" }}
                 title="Delete"
               >
                 <Trash2 size={16} />
@@ -331,7 +331,7 @@ const StatsBar = ({ notifications }) => {
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: idx * 0.1 }}
           className="flex items-center gap-3 p-3 sm:p-4 rounded-xl"
-          style={{ background: C.surface, border: `1px solid ${C.border}` }}
+          style={{ background: "var(--surface)", border: `1px solid ${"var(--border)"}` }}
         >
           <div 
             className="p-2 rounded-lg flex-shrink-0"
@@ -342,11 +342,11 @@ const StatsBar = ({ notifications }) => {
           <div className="min-w-0">
             <p 
               className="text-lg sm:text-xl font-bold"
-              style={{ fontFamily: "'Fraunces', serif", color: C.text }}
+              style={{ fontFamily: "'Fraunces', serif", color: "var(--text)" }}
             >
               <AnimatedCounter value={stat.value} />
             </p>
-            <p className="text-xs truncate" style={{ color: C.textMuted }}>
+            <p className="text-xs truncate" style={{ color: "var(--text)"Muted }}>
               {stat.label}
             </p>
           </div>
@@ -428,7 +428,7 @@ export const Notifications = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center p-6" style={{ background: C.bg }}>
+      <div className="min-h-screen flex items-center justify-center p-6" style={{ background: "var(--bg)" }}>
         <motion.div
           animate={{ rotate: 360 }}
           transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
@@ -440,7 +440,7 @@ export const Notifications = () => {
   }
 
   return (
-    <div className="min-h-screen p-4 sm:p-6 lg:p-8 pb-20" style={{ background: C.bg, color: C.text }}>
+    <div className="min-h-screen p-4 sm:p-6 lg:p-8 pb-20" style={{ background: "var(--bg)", color: "var(--text)" }}>
       <div className="max-w-4xl mx-auto">
         
         {/* Header */}
@@ -453,13 +453,13 @@ export const Notifications = () => {
             <div className="flex items-center gap-3 mb-2">
               <div
                 className="p-2 rounded-xl relative"
-                style={{ background: `${C.brand}20`, border: `1px solid ${C.border}` }}
+                style={{ background: `${C.brand}20`, border: `1px solid ${"var(--border)"}` }}
               >
                 <Bell size={24} style={{ color: C.brand }} />
                 {unreadCount > 0 && (
                   <span 
                     className="absolute -top-1 -right-1 w-5 h-5 rounded-full flex items-center justify-center text-xs font-bold"
-                    style={{ background: C.accent, color: C.bg, border: `2px solid ${C.surface}` }}
+                    style={{ background: C.accent, color: "var(--bg)", border: `2px solid ${"var(--surface)"}` }}
                   >
                     {unreadCount > 9 ? "9+" : unreadCount}
                   </span>
@@ -467,7 +467,7 @@ export const Notifications = () => {
               </div>
               <h1
                 className="text-2xl sm:text-3xl lg:text-4xl font-bold"
-                style={{ fontFamily: "'Fraunces', serif", color: C.text }}
+                style={{ fontFamily: "'Fraunces', serif", color: "var(--text)" }}
               >
                 <span
                   style={{
@@ -480,7 +480,7 @@ export const Notifications = () => {
                 </span>
               </h1>
             </div>
-            <p className="text-sm sm:text-base max-w-lg" style={{ color: C.textMuted }}>
+            <p className="text-sm sm:text-base max-w-lg" style={{ color: "var(--text)"Muted }}>
               Stay updated with your course progress, achievements, and important announcements.
             </p>
           </div>
@@ -493,9 +493,9 @@ export const Notifications = () => {
                 onClick={handleMarkAllRead}
                 className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium"
                 style={{
-                  background: C.surface2,
-                  border: `1px solid ${C.border}`,
-                  color: C.textMuted,
+                  background: "var(--surface)"2,
+                  border: `1px solid ${"var(--border)"}`,
+                  color: "var(--text)"Muted,
                 }}
               >
                 <Check size={16} />
@@ -509,9 +509,9 @@ export const Notifications = () => {
               onClick={fetchNotifications}
               className="p-2.5 rounded-xl"
               style={{
-                background: C.surface2,
-                border: `1px solid ${C.border}`,
-                color: C.textMuted,
+                background: "var(--surface)"2,
+                border: `1px solid ${"var(--border)"}`,
+                color: "var(--text)"Muted,
               }}
             >
               <Loader2 size={16} className={loading ? "animate-spin" : ""} />
@@ -539,17 +539,17 @@ export const Notifications = () => {
               onClick={() => setFilter(f.id)}
               className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium whitespace-nowrap transition-all"
               style={{
-                background: filter === f.id ? C.brand : C.surface,
-                color: filter === f.id ? C.bg : C.textMuted,
-                border: `1px solid ${filter === f.id ? C.brand : C.border}`,
+                background: filter === f.id ? C.brand : "var(--surface)",
+                color: filter === f.id ? "var(--bg)" : "var(--text)"Muted,
+                border: `1px solid ${filter === f.id ? C.brand : "var(--border)"}`,
               }}
             >
               {f.label}
               <span
                 className="px-1.5 py-0.5 rounded-full text-xs"
                 style={{
-                  background: filter === f.id ? "rgba(0,0,0,0.2)" : C.surface2,
-                  color: filter === f.id ? C.bg : C.textMuted,
+                  background: filter === f.id ? "rgba(0,0,0,0.2)" : "var(--surface)"2,
+                  color: filter === f.id ? "var(--bg)" : "var(--text)"Muted,
                 }}
               >
                 <AnimatedCounter value={f.count} />
@@ -595,7 +595,7 @@ export const Notifications = () => {
             animate={{ opacity: 1 }}
             className="text-center py-8"
           >
-            <p className="text-sm" style={{ color: C.textDim }}>
+            <p className="text-sm" style={{ color: "var(--text-muted)" }}>
               Showing {filteredNotifications.length} of {notifications.length} notifications
             </p>
           </motion.div>

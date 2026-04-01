@@ -89,7 +89,7 @@ const InputField = ({
     <motion.div variants={itemVariants} className="space-y-1.5">
       {/* Label row */}
       <div className="flex items-center justify-between">
-        <label className="text-[13px] font-semibold uppercase tracking-wider" style={{ color: C.textMuted }}>
+        <label className="text-[13px] font-semibold uppercase tracking-wider" style={{ color: "var(--text)"Muted }}>
           {label}
         </label>
         <AnimatePresence>
@@ -115,16 +115,16 @@ const InputField = ({
             ? `0 0 0 1.5px ${C.errorBorder}`
             : focused
             ? `0 0 0 1.5px ${C.brand}88, 0 0 20px ${C.brand}18`
-            : `0 0 0 1px ${C.border}`,
+            : `0 0 0 1px ${"var(--border)"}`,
         }}
         transition={{ duration: 0.2 }}
         className="relative rounded-xl overflow-hidden"
-        style={{ background: C.surface2 }}
+        style={{ background: "var(--surface)"2 }}
       >
         {/* Left icon */}
         <div
           className="absolute left-4 top-1/2 -translate-y-1/2 transition-colors duration-200"
-          style={{ color: focused ? C.brand : C.textDim }}
+          style={{ color: focused ? C.brand : "var(--text-muted)" }}
         >
           <Icon size={17} />
         </div>
@@ -139,7 +139,7 @@ const InputField = ({
           placeholder={placeholder}
           autoComplete={name === "password" ? "new-password" : name}
           className="w-full pl-11 pr-11 py-4 bg-transparent outline-none text-[15px] placeholder-[#3D5C4E]"
-          style={{ color: C.text }}
+          style={{ color: "var(--text)" }}
         />
 
         {/* Right — toggle or checkmark */}
@@ -149,7 +149,7 @@ const InputField = ({
               type="button"
               onClick={onTogglePassword}
               className="transition-colors duration-200"
-              style={{ color: focused ? C.brand : C.textDim }}
+              style={{ color: focused ? C.brand : "var(--text-muted)" }}
             >
               {showPassword ? <EyeOff size={17} /> : <Eye size={17} />}
             </button>
@@ -173,12 +173,12 @@ const InputField = ({
               <motion.div
                 key={lvl}
                 className="flex-1 rounded-full"
-                animate={{ background: strength >= lvl ? strengthColor[strength] : C.surface3 }}
+                animate={{ background: strength >= lvl ? strengthColor[strength] : "var(--surface)"3 }}
                 transition={{ duration: 0.3 }}
               />
             ))}
           </div>
-          <p className="text-[11px]" style={{ color: strengthColor[strength] || C.textDim }}>
+          <p className="text-[11px]" style={{ color: strengthColor[strength] || "var(--text-muted)" }}>
             {strengthLabel[strength] || "Enter a password"}
           </p>
         </motion.div>
@@ -197,9 +197,9 @@ const SocialButton = ({ icon: Icon, label }) => (
     whileTap={{ scale: 0.97 }}
     type="button"
     className="w-full flex items-center justify-center gap-2.5 py-3 rounded-xl text-[14px] font-medium border transition-all duration-200"
-    style={{ background: C.surface3, borderColor: C.border, color: C.textMuted }}
-    onMouseEnter={(e) => { e.currentTarget.style.borderColor = C.borderHov; e.currentTarget.style.color = C.text; }}
-    onMouseLeave={(e) => { e.currentTarget.style.borderColor = C.border; e.currentTarget.style.color = C.textMuted; }}
+    style={{ background: "var(--surface)"3, borderColor: "var(--border)", color: "var(--text)"Muted }}
+    onMouseEnter={(e) => { e.currentTarget.style.borderColor = "var(--border)"Hov; e.currentTarget.style.color = "var(--text)"; }}
+    onMouseLeave={(e) => { e.currentTarget.style.borderColor = "var(--border)"; e.currentTarget.style.color = "var(--text)"Muted; }}
   >
     <Icon size={18} />
     {label}
@@ -225,24 +225,24 @@ const StepIndicator = ({ current }) => (
               animate={{
                 background: idx <= current
                   ? `linear-gradient(135deg, ${C.brand}, ${C.brandLight})`
-                  : C.surface3,
+                  : "var(--surface)"3,
                 scale: idx === current ? 1.12 : 1,
                 boxShadow: idx === current ? `0 0 16px ${C.brand}55` : "none",
               }}
               className="w-8 h-8 rounded-full flex items-center justify-center text-[12px] font-bold text-white border"
-              style={{ borderColor: idx <= current ? C.brand : C.border }}
+              style={{ borderColor: idx <= current ? C.brand : "var(--border)" }}
             >
               {idx < current ? <CheckCircle2 size={14} /> : idx + 1}
             </motion.div>
             <span
               className="text-[11px] font-semibold uppercase tracking-wider"
-              style={{ color: idx === current ? C.brand : C.textDim }}
+              style={{ color: idx === current ? C.brand : "var(--text-muted)" }}
             >
               {step.title}
             </span>
           </div>
           {idx < steps.length - 1 && (
-            <div className="flex-1 mx-3 h-[1.5px] rounded-full" style={{ background: idx < current ? C.brand : C.surface3 }} />
+            <div className="flex-1 mx-3 h-[1.5px] rounded-full" style={{ background: idx < current ? C.brand : "var(--surface)"3 }} />
           )}
         </React.Fragment>
       ))}
@@ -332,7 +332,7 @@ export const SignUp = () => {
   return (
     <div
       className="min-h-screen flex overflow-hidden relative"
-      style={{ background: C.bg, fontFamily: "'DM Sans', sans-serif", color: C.text }}
+      style={{ background: "var(--bg)", fontFamily: "'DM Sans', sans-serif", color: "var(--text)" }}
     >
       {/* Google Fonts */}
       <style>{`@import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,700&family=DM+Sans:wght@400;500;600&display=swap');`}</style>
@@ -360,7 +360,7 @@ export const SignUp = () => {
         transition={{ duration: 0.85, ease: [0.22, 1, 0.36, 1] }}
         className="hidden lg:flex lg:w-[48%] relative flex-col justify-between p-12 xl:p-16 border-r"
         style={{
-          borderColor: C.border,
+          borderColor: "var(--border)",
           transform: `translate(${mousePos.x * 0.4}px, ${mousePos.y * 0.4}px)`,
         }}
       >
@@ -373,7 +373,7 @@ export const SignUp = () => {
           >
             <Code className="w-5 h-5 text-white" />
           </motion.div>
-          <span className="text-xl font-bold" style={{ fontFamily: "'Fraunces', serif", color: C.text }}>
+          <span className="text-xl font-bold" style={{ fontFamily: "'Fraunces', serif", color: "var(--text)" }}>
             SkillHub
           </span>
         </Link>
@@ -406,7 +406,7 @@ export const SignUp = () => {
             animate={{ y: 0, opacity: 1 }}
             transition={{ delay: 0.5 }}
             className="text-[17px] leading-relaxed max-w-md"
-            style={{ color: C.textMuted }}
+            style={{ color: "var(--text)"Muted }}
           >
             Join 120,000+ developers learning by building real-world projects
             with expert mentorship and AI-powered paths.
@@ -426,11 +426,11 @@ export const SignUp = () => {
                 animate={{ x: 0, opacity: 1 }}
                 transition={{ delay: 0.78 + idx * 0.1 }}
                 className="flex items-center gap-3 text-[15px]"
-                style={{ color: C.textMuted }}
+                style={{ color: "var(--text)"Muted }}
               >
                 <div
                   className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0"
-                  style={{ background: `${C.brand}18`, border: `1px solid ${C.border}` }}
+                  style={{ background: `${C.brand}18`, border: `1px solid ${"var(--border)"}` }}
                 >
                   <f.icon size={15} style={{ color: C.brand }} />
                 </div>
@@ -446,11 +446,11 @@ export const SignUp = () => {
           animate={{ y: 0, opacity: 1 }}
           transition={{ delay: 1.1 }}
           className="relative z-10 p-5 rounded-2xl border"
-          style={{ background: C.surface2, borderColor: C.border }}
+          style={{ background: "var(--surface)"2, borderColor: "var(--border)" }}
         >
           {/* Quote mark */}
           <span className="text-3xl font-bold leading-none" style={{ color: `${C.brand}44` }}>"</span>
-          <p className="text-[14px] leading-relaxed -mt-1 mb-4" style={{ color: C.textMuted }}>
+          <p className="text-[14px] leading-relaxed -mt-1 mb-4" style={{ color: "var(--text)"Muted }}>
             SkillHub transformed my career. I went from bootcamp grad to senior
             engineer in 18 months.
           </p>
@@ -462,8 +462,8 @@ export const SignUp = () => {
               AC
             </div>
             <div>
-              <p className="text-[13px] font-semibold" style={{ color: C.text }}>Alex Chen</p>
-              <p className="text-[12px]" style={{ color: C.textDim }}>Senior Engineer at Google</p>
+              <p className="text-[13px] font-semibold" style={{ color: "var(--text)" }}>Alex Chen</p>
+              <p className="text-[12px]" style={{ color: "var(--text-muted)" }}>Senior Engineer at Google</p>
             </div>
             {/* Stars */}
             <div className="ml-auto flex gap-0.5">
@@ -511,20 +511,20 @@ export const SignUp = () => {
             animate="visible"
             className="rounded-2xl p-7 sm:p-8 border shadow-2xl"
             style={{
-              background: C.surface,
-              borderColor: C.border,
-              boxShadow: `0 32px 64px ${C.bg}88, 0 0 0 1px ${C.border}`,
+              background: "var(--surface)",
+              borderColor: "var(--border)",
+              boxShadow: `0 32px 64px ${"var(--bg)"}88, 0 0 0 1px ${"var(--border)"}`,
             }}
           >
             {/* Heading */}
             <motion.div variants={itemVariants} className="mb-6">
               <h2
                 className="text-[28px] font-bold mb-1"
-                style={{ fontFamily: "'Fraunces', serif", color: C.text }}
+                style={{ fontFamily: "'Fraunces', serif", color: "var(--text)" }}
               >
                 Create your account
               </h2>
-              <p className="text-[14px]" style={{ color: C.textMuted }}>
+              <p className="text-[14px]" style={{ color: "var(--text)"Muted }}>
                 Enter your details to get started for free
               </p>
             </motion.div>
@@ -538,12 +538,12 @@ export const SignUp = () => {
             {/* Divider */}
             <motion.div variants={itemVariants} className="relative mb-6">
               <div className="absolute inset-0 flex items-center">
-                <div className="w-full border-t" style={{ borderColor: C.border }} />
+                <div className="w-full border-t" style={{ borderColor: "var(--border)" }} />
               </div>
               <div className="relative flex justify-center">
                 <span
                   className="px-3 text-[12px] font-medium uppercase tracking-wider"
-                  style={{ background: C.surface, color: C.textDim }}
+                  style={{ background: "var(--surface)", color: "var(--text-muted)" }}
                 >
                   Or continue with email
                 </span>
@@ -644,7 +644,7 @@ export const SignUp = () => {
             <motion.p
               variants={itemVariants}
               className="mt-5 text-center text-[13px]"
-              style={{ color: C.textMuted }}
+              style={{ color: "var(--text)"Muted }}
             >
               Already have an account?{" "}
               <Link
@@ -663,15 +663,15 @@ export const SignUp = () => {
             <motion.p
               variants={itemVariants}
               className="mt-5 text-center text-[11px]"
-              style={{ color: C.textDim }}
+              style={{ color: "var(--text-muted)" }}
             >
               By creating an account, you agree to our{" "}
               <a
                 href="#"
                 className="transition-colors"
-                style={{ color: C.textMuted }}
-                onMouseEnter={(e) => (e.target.style.color = C.text)}
-                onMouseLeave={(e) => (e.target.style.color = C.textMuted)}
+                style={{ color: "var(--text)"Muted }}
+                onMouseEnter={(e) => (e.target.style.color = "var(--text)")}
+                onMouseLeave={(e) => (e.target.style.color = "var(--text)"Muted)}
               >
                 Terms
               </a>{" "}
@@ -679,9 +679,9 @@ export const SignUp = () => {
               <a
                 href="#"
                 className="transition-colors"
-                style={{ color: C.textMuted }}
-                onMouseEnter={(e) => (e.target.style.color = C.text)}
-                onMouseLeave={(e) => (e.target.style.color = C.text)}
+                style={{ color: "var(--text)"Muted }}
+                onMouseEnter={(e) => (e.target.style.color = "var(--text)")}
+                onMouseLeave={(e) => (e.target.style.color = "var(--text)")}
               >
                 Privacy Policy
               </a>
@@ -693,9 +693,9 @@ export const SignUp = () => {
             <Link
               to="/"
               className="inline-flex items-center gap-2 text-[13px] transition-colors"
-              style={{ color: C.textDim }}
-              onMouseEnter={(e) => (e.currentTarget.style.color = C.text)}
-              onMouseLeave={(e) => (e.currentTarget.style.color = C.textDim)}
+              style={{ color: "var(--text-muted)" }}
+              onMouseEnter={(e) => (e.currentTarget.style.color = "var(--text)")}
+              onMouseLeave={(e) => (e.currentTarget.style.color = "var(--text-muted)")}
             >
               <ChevronLeft className="w-4 h-4" />
               Back to home

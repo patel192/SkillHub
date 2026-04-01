@@ -67,8 +67,8 @@ const ACTIVITY_TYPES = {
   },
   DEFAULT: {
     icon: Clock,
-    color: C.textMuted,
-    bg: C.surface2,
+    color: "var(--text)"Muted,
+    bg: "var(--surface)"2,
     label: "Activity",
   },
 };
@@ -106,8 +106,8 @@ const GlowCard = ({ children, className = "", onClick }) => (
     onClick={onClick}
     className={`relative group cursor-pointer overflow-hidden rounded-xl ${className}`}
     style={{
-      background: C.surface,
-      border: `1px solid ${C.border}`,
+      background: "var(--surface)",
+      border: `1px solid ${"var(--border)"}`,
     }}
   >
     <div
@@ -129,17 +129,17 @@ const EmptyState = ({ onRefresh }) => (
   >
     <div
       className="w-20 h-20 rounded-full flex items-center justify-center mb-5"
-      style={{ background: `${C.brand}15`, border: `1px solid ${C.border}` }}
+      style={{ background: `${C.brand}15`, border: `1px solid ${"var(--border)"}` }}
     >
       <Clock size={32} style={{ color: C.brand }} />
     </div>
     <h3
       className="text-lg font-bold mb-2"
-      style={{ fontFamily: "'Fraunces', serif", color: C.text }}
+      style={{ fontFamily: "'Fraunces', serif", color: "var(--text)" }}
     >
       No Activity Yet
     </h3>
-    <p className="text-center max-w-sm mb-6 text-sm" style={{ color: C.textMuted }}>
+    <p className="text-center max-w-sm mb-6 text-sm" style={{ color: "var(--text)"Muted }}>
       Your learning journey is just beginning. Enroll in courses and start tracking your progress!
     </p>
     <motion.button
@@ -149,7 +149,7 @@ const EmptyState = ({ onRefresh }) => (
       className="flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-medium"
       style={{
         background: `linear-gradient(135deg, ${C.brand}, ${C.brandLight})`,
-        color: C.bg,
+        color: "var(--bg)",
       }}
     >
       <Zap size={16} />
@@ -203,7 +203,7 @@ const ActivityItem = ({ activity, index, onDelete }) => {
         <div className="flex-1 min-w-0">
           <div className="flex items-start justify-between gap-2">
             <div>
-              <p className="font-medium text-sm sm:text-base leading-relaxed" style={{ color: C.text }}>
+              <p className="font-medium text-sm sm:text-base leading-relaxed" style={{ color: "var(--text)" }}>
                 {activity.message}
               </p>
               
@@ -222,7 +222,7 @@ const ActivityItem = ({ activity, index, onDelete }) => {
                 
                 <span
                   className="flex items-center gap-1 text-xs"
-                  style={{ color: C.textDim }}
+                  style={{ color: "var(--text-muted)" }}
                 >
                   <Calendar size={12} />
                   {formatDate(activity.createdAt)}
@@ -238,7 +238,7 @@ const ActivityItem = ({ activity, index, onDelete }) => {
                 onDelete(activity._id);
               }}
               className="p-2 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0"
-              style={{ color: C.textDim }}
+              style={{ color: "var(--text-muted)" }}
             >
               <Trash2 size={16} />
             </motion.button>
@@ -284,7 +284,7 @@ const StatsBar = ({ activities }) => {
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: idx * 0.1 }}
           className="flex items-center gap-3 p-3 sm:p-4 rounded-xl"
-          style={{ background: C.surface, border: `1px solid ${C.border}` }}
+          style={{ background: "var(--surface)", border: `1px solid ${"var(--border)"}` }}
         >
           <div 
             className="p-2 rounded-lg flex-shrink-0"
@@ -295,11 +295,11 @@ const StatsBar = ({ activities }) => {
           <div className="min-w-0">
             <p 
               className="text-lg sm:text-xl font-bold"
-              style={{ fontFamily: "'Fraunces', serif", color: C.text }}
+              style={{ fontFamily: "'Fraunces', serif", color: "var(--text)" }}
             >
               <AnimatedCounter value={stat.value} />
             </p>
-            <p className="text-xs truncate" style={{ color: C.textMuted }}>
+            <p className="text-xs truncate" style={{ color: "var(--text)"Muted }}>
               {stat.label}
             </p>
           </div>
@@ -356,7 +356,7 @@ export const Activities = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center p-6" style={{ background: C.bg }}>
+      <div className="min-h-screen flex items-center justify-center p-6" style={{ background: "var(--bg)" }}>
         <motion.div
           animate={{ rotate: 360 }}
           transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
@@ -368,7 +368,7 @@ export const Activities = () => {
   }
 
   return (
-    <div className="min-h-screen p-4 sm:p-6 lg:p-8 pb-20" style={{ background: C.bg, color: C.text }}>
+    <div className="min-h-screen p-4 sm:p-6 lg:p-8 pb-20" style={{ background: "var(--bg)", color: "var(--text)" }}>
       <div className="max-w-4xl mx-auto">
         
         {/* Header */}
@@ -381,13 +381,13 @@ export const Activities = () => {
             <div className="flex items-center gap-3 mb-2">
               <div
                 className="p-2 rounded-xl"
-                style={{ background: `${C.brand}20`, border: `1px solid ${C.border}` }}
+                style={{ background: `${C.brand}20`, border: `1px solid ${"var(--border)"}` }}
               >
                 <Zap size={24} style={{ color: C.brand }} />
               </div>
               <h1
                 className="text-2xl sm:text-3xl lg:text-4xl font-bold"
-                style={{ fontFamily: "'Fraunces', serif", color: C.text }}
+                style={{ fontFamily: "'Fraunces', serif", color: "var(--text)" }}
               >
                 <span
                   style={{
@@ -400,7 +400,7 @@ export const Activities = () => {
                 </span>
               </h1>
             </div>
-            <p className="text-sm sm:text-base max-w-lg" style={{ color: C.textMuted }}>
+            <p className="text-sm sm:text-base max-w-lg" style={{ color: "var(--text)"Muted }}>
               Track your learning journey, course completions, and achievements in one place.
             </p>
           </div>
@@ -411,9 +411,9 @@ export const Activities = () => {
             onClick={fetchActivities}
             className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium self-start sm:self-auto"
             style={{
-              background: C.surface2,
-              border: `1px solid ${C.border}`,
-              color: C.textMuted,
+              background: "var(--surface)"2,
+              border: `1px solid ${"var(--border)"}`,
+              color: "var(--text)"Muted,
             }}
           >
             <Clock size={16} />
@@ -437,17 +437,17 @@ export const Activities = () => {
               onClick={() => setFilter(f.id)}
               className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium whitespace-nowrap transition-all"
               style={{
-                background: filter === f.id ? C.brand : C.surface,
-                color: filter === f.id ? C.bg : C.textMuted,
-                border: `1px solid ${filter === f.id ? C.brand : C.border}`,
+                background: filter === f.id ? C.brand : "var(--surface)",
+                color: filter === f.id ? "var(--bg)" : "var(--text)"Muted,
+                border: `1px solid ${filter === f.id ? C.brand : "var(--border)"}`,
               }}
             >
               {f.label}
               <span
                 className="px-1.5 py-0.5 rounded-full text-xs"
                 style={{
-                  background: filter === f.id ? "rgba(0,0,0,0.2)" : C.surface2,
-                  color: filter === f.id ? C.bg : C.textMuted,
+                  background: filter === f.id ? "rgba(0,0,0,0.2)" : "var(--surface)"2,
+                  color: filter === f.id ? "var(--bg)" : "var(--text)"Muted,
                 }}
               >
                 <AnimatedCounter value={f.count} />
@@ -493,7 +493,7 @@ export const Activities = () => {
             animate={{ opacity: 1 }}
             className="text-center py-8"
           >
-            <p className="text-sm" style={{ color: C.textDim }}>
+            <p className="text-sm" style={{ color: "var(--text-muted)" }}>
               Showing {filteredActivities.length} of {activities.length} activities
             </p>
           </motion.div>

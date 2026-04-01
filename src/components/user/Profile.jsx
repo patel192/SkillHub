@@ -64,26 +64,26 @@ const uploadToCloudinary = async (file) => {
 // LOADING COMPONENT (Fixes stuck loading)
 // ==========================================
 const ProfileSkeleton = () => (
-  <div className="min-h-screen p-4 sm:p-6 lg:p-8" style={{ background: C.bg }}>
+  <div className="min-h-screen p-4 sm:p-6 lg:p-8" style={{ background: "var(--bg)" }}>
     <div className="max-w-6xl mx-auto">
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Sidebar Skeleton */}
         <div className="lg:col-span-1 space-y-6">
           <div 
             className="rounded-2xl p-6 space-y-6 animate-pulse"
-            style={{ background: C.surface, border: `1px solid ${C.border}` }}
+            style={{ background: "var(--surface)", border: `1px solid ${"var(--border)"}` }}
           >
             <div className="flex flex-col items-center space-y-4">
               <div 
                 className="w-28 h-28 rounded-full"
-                style={{ background: C.surface2 }}
+                style={{ background: "var(--surface)"2 }}
               />
-              <div className="h-6 w-32 rounded" style={{ background: C.surface2 }} />
-              <div className="h-4 w-48 rounded" style={{ background: C.surface3 }} />
+              <div className="h-6 w-32 rounded" style={{ background: "var(--surface)"2 }} />
+              <div className="h-4 w-48 rounded" style={{ background: "var(--surface)"3 }} />
             </div>
             <div className="space-y-3 pt-4">
               {[1, 2, 3].map((i) => (
-                <div key={i} className="h-10 rounded-xl" style={{ background: C.surface2 }} />
+                <div key={i} className="h-10 rounded-xl" style={{ background: "var(--surface)"2 }} />
               ))}
             </div>
           </div>
@@ -93,14 +93,14 @@ const ProfileSkeleton = () => (
         <div className="lg:col-span-2">
           <div 
             className="rounded-2xl p-6 min-h-[400px] animate-pulse"
-            style={{ background: C.surface, border: `1px solid ${C.border}` }}
+            style={{ background: "var(--surface)", border: `1px solid ${"var(--border)"}` }}
           >
-            <div className="h-8 w-48 rounded mb-6" style={{ background: C.surface2 }} />
+            <div className="h-8 w-48 rounded mb-6" style={{ background: "var(--surface)"2 }} />
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
               {[1, 2, 3, 4].map((i) => (
                 <div key={i} className="space-y-2">
-                  <div className="h-4 w-24 rounded" style={{ background: C.surface3 }} />
-                  <div className="h-10 rounded-xl" style={{ background: C.surface2 }} />
+                  <div className="h-4 w-24 rounded" style={{ background: "var(--surface)"3 }} />
+                  <div className="h-10 rounded-xl" style={{ background: "var(--surface)"2 }} />
                 </div>
               ))}
             </div>
@@ -118,12 +118,12 @@ const EmptyState = ({ icon: Icon, title, subtitle }) => (
   <div className="flex flex-col items-center justify-center py-16 px-4">
     <div
       className="w-16 h-16 rounded-full flex items-center justify-center mb-4"
-      style={{ background: `${C.brand}15`, border: `1px solid ${C.border}` }}
+      style={{ background: `${C.brand}15`, border: `1px solid ${"var(--border)"}` }}
     >
       <Icon size={28} style={{ color: C.brand }} />
     </div>
-    <h3 className="text-lg font-semibold mb-1" style={{ color: C.text }}>{title}</h3>
-    <p className="text-sm text-center max-w-sm" style={{ color: C.textMuted }}>{subtitle}</p>
+    <h3 className="text-lg font-semibold mb-1" style={{ color: "var(--text)" }}>{title}</h3>
+    <p className="text-sm text-center max-w-sm" style={{ color: "var(--text)"Muted }}>{subtitle}</p>
   </div>
 );
 
@@ -139,7 +139,7 @@ const TabButton = ({ active, onClick, icon: Icon, label }) => (
     style={{
       background: active ? `${C.brand}15` : "transparent",
       borderLeft: active ? `3px solid ${C.brand}` : "3px solid transparent",
-      color: active ? C.brand : C.textMuted,
+      color: active ? C.brand : "var(--text)"Muted,
     }}
   >
     <Icon size={18} />
@@ -159,7 +159,7 @@ const TabButton = ({ active, onClick, icon: Icon, label }) => (
 // ==========================================
 const FormField = ({ label, name, value, onChange, disabled, type = "text", multiline = false }) => (
   <div className="space-y-2">
-    <label className="text-sm font-medium flex items-center gap-2" style={{ color: C.textMuted }}>
+    <label className="text-sm font-medium flex items-center gap-2" style={{ color: "var(--text)"Muted }}>
       {label}
     </label>
     {multiline ? (
@@ -171,9 +171,9 @@ const FormField = ({ label, name, value, onChange, disabled, type = "text", mult
         onChange={onChange}
         className="w-full px-4 py-3 rounded-xl outline-none transition-all resize-none"
         style={{
-          background: disabled ? C.surface2 : C.surface3,
-          border: `1px solid ${disabled ? C.border : C.borderHov}`,
-          color: C.text,
+          background: disabled ? "var(--surface)"2 : "var(--surface)"3,
+          border: `1px solid ${disabled ? "var(--border)" : "var(--border)"Hov}`,
+          color: "var(--text)",
         }}
       />
     ) : (
@@ -185,9 +185,9 @@ const FormField = ({ label, name, value, onChange, disabled, type = "text", mult
         onChange={onChange}
         className="w-full px-4 py-3 rounded-xl outline-none transition-all"
         style={{
-          background: disabled ? C.surface2 : C.surface3,
-          border: `1px solid ${disabled ? C.border : C.borderHov}`,
-          color: C.text,
+          background: disabled ? "var(--surface)"2 : "var(--surface)"3,
+          border: `1px solid ${disabled ? "var(--border)" : "var(--border)"Hov}`,
+          color: "var(--text)",
         }}
       />
     )}
@@ -285,7 +285,7 @@ export const Profile = () => {
   // Show error state if no data
   if (!userData) {
     return (
-      <div className="min-h-screen flex items-center justify-center p-6" style={{ background: C.bg }}>
+      <div className="min-h-screen flex items-center justify-center p-6" style={{ background: "var(--bg)" }}>
         <div className="text-center">
           <div
             className="w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4"
@@ -293,12 +293,12 @@ export const Profile = () => {
           >
             <X size={32} style={{ color: C.error }} />
           </div>
-          <h2 className="text-xl font-bold mb-2" style={{ color: C.text }}>Failed to Load Profile</h2>
-          <p className="mb-4" style={{ color: C.textMuted }}>Please try again later</p>
+          <h2 className="text-xl font-bold mb-2" style={{ color: "var(--text)" }}>Failed to Load Profile</h2>
+          <p className="mb-4" style={{ color: "var(--text)"Muted }}>Please try again later</p>
           <button
             onClick={() => window.location.reload()}
             className="px-4 py-2 rounded-xl text-sm font-medium"
-            style={{ background: C.brand, color: C.bg }}
+            style={{ background: C.brand, color: "var(--bg)" }}
           >
             Retry
           </button>
@@ -310,7 +310,7 @@ export const Profile = () => {
   const displayAvatar = avatarPreview || userData.avatar || `https://ui-avatars.com/api/?name=${userData.fullname}&background=16A880&color=fff`;
 
   return (
-    <div className="min-h-screen p-4 sm:p-6 lg:p-8 pb-20" style={{ background: C.bg, color: C.text }}>
+    <div className="min-h-screen p-4 sm:p-6 lg:p-8 pb-20" style={{ background: "var(--bg)", color: "var(--text)" }}>
       <div className="max-w-6xl mx-auto">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           
@@ -322,7 +322,7 @@ export const Profile = () => {
           >
             <div
               className="rounded-2xl p-6 space-y-6 sticky top-6"
-              style={{ background: C.surface, border: `1px solid ${C.border}` }}
+              style={{ background: "var(--surface)", border: `1px solid ${"var(--border)"}` }}
             >
               {/* Avatar Section */}
               <div className="flex flex-col items-center">
@@ -343,7 +343,7 @@ export const Profile = () => {
                     
                     {editMode && (
                       <label className="absolute bottom-0 right-0 p-2 rounded-full cursor-pointer shadow-lg"
-                        style={{ background: C.brand, color: C.bg }}
+                        style={{ background: C.brand, color: "var(--bg)" }}
                       >
                         <Camera size={16} />
                         <input
@@ -357,13 +357,13 @@ export const Profile = () => {
                   </div>
                 </div>
 
-                <h2 className="text-xl font-bold mt-4 text-center" style={{ fontFamily: "'Fraunces', serif", color: C.text }}>
+                <h2 className="text-xl font-bold mt-4 text-center" style={{ fontFamily: "'Fraunces', serif", color: "var(--text)" }}>
                   {userData.fullname}
                 </h2>
-                <p className="text-sm mt-1" style={{ color: C.textMuted }}>{userData.email}</p>
+                <p className="text-sm mt-1" style={{ color: "var(--text)"Muted }}>{userData.email}</p>
                 
                 {/* Member Since */}
-                <div className="flex items-center gap-2 mt-3 text-xs" style={{ color: C.textDim }}>
+                <div className="flex items-center gap-2 mt-3 text-xs" style={{ color: "var(--text-muted)" }}>
                   <Calendar size={14} />
                   <span>Member since {new Date(userData.createdAt).toLocaleDateString()}</span>
                 </div>
@@ -380,7 +380,7 @@ export const Profile = () => {
                         className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl font-medium text-sm disabled:opacity-50"
                         style={{ 
                           background: `linear-gradient(135deg, ${C.brand}, ${C.brandLight})`,
-                          color: C.bg,
+                          color: "var(--bg)",
                         }}
                       >
                         {saving ? <Loader2 size={16} className="animate-spin" /> : <Save size={16} />}
@@ -392,9 +392,9 @@ export const Profile = () => {
                         onClick={cancelEdit}
                         className="flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl font-medium text-sm"
                         style={{ 
-                          background: C.surface2,
-                          border: `1px solid ${C.border}`,
-                          color: C.textMuted,
+                          background: "var(--surface)"2,
+                          border: `1px solid ${"var(--border)"}`,
+                          color: "var(--text)"Muted,
                         }}
                       >
                         <X size={16} />
@@ -407,9 +407,9 @@ export const Profile = () => {
                       onClick={() => setEditMode(true)}
                       className="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl font-medium text-sm"
                       style={{ 
-                        background: C.surface2,
-                        border: `1px solid ${C.border}`,
-                        color: C.text,
+                        background: "var(--surface)"2,
+                        border: `1px solid ${"var(--border)"}`,
+                        color: "var(--text)",
                       }}
                     >
                       <Edit3 size={16} />
@@ -420,8 +420,8 @@ export const Profile = () => {
               </div>
 
               {/* Navigation Tabs */}
-              <div className="pt-4 border-t" style={{ borderColor: C.border }}>
-                <p className="text-xs font-medium mb-3 uppercase tracking-wider" style={{ color: C.textDim }}>
+              <div className="pt-4 border-t" style={{ borderColor: "var(--border)" }}>
+                <p className="text-xs font-medium mb-3 uppercase tracking-wider" style={{ color: "var(--text-muted)" }}>
                   Menu
                 </p>
                 <div className="space-y-1">
@@ -456,7 +456,7 @@ export const Profile = () => {
           >
             <div
               className="rounded-2xl p-6 min-h-[500px]"
-              style={{ background: C.surface, border: `1px solid ${C.border}` }}
+              style={{ background: "var(--surface)", border: `1px solid ${"var(--border)"}` }}
             >
               <AnimatePresence mode="wait">
                 
@@ -469,12 +469,12 @@ export const Profile = () => {
                     exit={{ opacity: 0, y: -10 }}
                   >
                     <div className="flex items-center justify-between mb-6">
-                      <h2 className="text-2xl font-bold" style={{ fontFamily: "'Fraunces', serif", color: C.text }}>
+                      <h2 className="text-2xl font-bold" style={{ fontFamily: "'Fraunces', serif", color: "var(--text)" }}>
                         Profile Information
                       </h2>
                       {editMode && (
                         <span className="px-3 py-1 rounded-full text-xs font-medium" 
-                          style={{ background: `${C.brand}20`, color: C.brand, border: `1px solid ${C.border}` }}
+                          style={{ background: `${C.brand}20`, color: C.brand, border: `1px solid ${"var(--border)"}` }}
                         >
                           Editing
                         </span>
@@ -510,25 +510,25 @@ export const Profile = () => {
 
                     {/* Additional Info Display */}
                     {!editMode && (
-                      <div className="mt-8 pt-6 border-t" style={{ borderColor: C.border }}>
-                        <h3 className="text-sm font-medium mb-4 uppercase tracking-wider" style={{ color: C.textDim }}>
+                      <div className="mt-8 pt-6 border-t" style={{ borderColor: "var(--border)" }}>
+                        <h3 className="text-sm font-medium mb-4 uppercase tracking-wider" style={{ color: "var(--text-muted)" }}>
                           Additional Information
                         </h3>
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                          <div className="flex items-center gap-3 p-3 rounded-xl" style={{ background: C.surface2 }}>
+                          <div className="flex items-center gap-3 p-3 rounded-xl" style={{ background: "var(--surface)"2 }}>
                             <MapPin size={18} style={{ color: C.brand }} />
                             <div>
-                              <p className="text-xs" style={{ color: C.textDim }}>Location</p>
-                              <p className="text-sm font-medium" style={{ color: C.textMuted }}>
+                              <p className="text-xs" style={{ color: "var(--text-muted)" }}>Location</p>
+                              <p className="text-sm font-medium" style={{ color: "var(--text)"Muted }}>
                                 {userData.location || "Not specified"}
                               </p>
                             </div>
                           </div>
-                          <div className="flex items-center gap-3 p-3 rounded-xl" style={{ background: C.surface2 }}>
+                          <div className="flex items-center gap-3 p-3 rounded-xl" style={{ background: "var(--surface)"2 }}>
                             <LinkIcon size={18} style={{ color: C.brand }} />
                             <div>
-                              <p className="text-xs" style={{ color: C.textDim }}>Website</p>
-                              <p className="text-sm font-medium" style={{ color: C.textMuted }}>
+                              <p className="text-xs" style={{ color: "var(--text-muted)" }}>Website</p>
+                              <p className="text-sm font-medium" style={{ color: "var(--text)"Muted }}>
                                 {userData.website || "Not specified"}
                               </p>
                             </div>
@@ -547,7 +547,7 @@ export const Profile = () => {
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: -10 }}
                   >
-                    <h2 className="text-2xl font-bold mb-6" style={{ fontFamily: "'Fraunces', serif", color: C.text }}>
+                    <h2 className="text-2xl font-bold mb-6" style={{ fontFamily: "'Fraunces', serif", color: "var(--text)" }}>
                       Activity
                     </h2>
                     <EmptyState 
@@ -566,7 +566,7 @@ export const Profile = () => {
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: -10 }}
                   >
-                    <h2 className="text-2xl font-bold mb-6" style={{ fontFamily: "'Fraunces'", color: C.text }}>
+                    <h2 className="text-2xl font-bold mb-6" style={{ fontFamily: "'Fraunces'", color: "var(--text)" }}>
                       Achievements
                     </h2>
 
@@ -581,8 +581,8 @@ export const Profile = () => {
                             whileHover={{ scale: 1.02, y: -4 }}
                             className="p-4 rounded-xl relative overflow-hidden group cursor-pointer"
                             style={{ 
-                              background: C.surface2, 
-                              border: `1px solid ${C.border}`,
+                              background: "var(--surface)"2, 
+                              border: `1px solid ${"var(--border)"}`,
                             }}
                           >
                             <div 
@@ -593,12 +593,12 @@ export const Profile = () => {
                             <div className="relative z-10 flex flex-col items-center text-center">
                               <div 
                                 className="w-16 h-16 rounded-2xl flex items-center justify-center mb-3"
-                                style={{ background: `${C.brand}15`, border: `1px solid ${C.border}` }}
+                                style={{ background: `${C.brand}15`, border: `1px solid ${"var(--border)"}` }}
                               >
                                 <Award size={28} style={{ color: C.brand }} />
                               </div>
-                              <h3 className="font-bold text-sm mb-1" style={{ color: C.text }}>{ach.name}</h3>
-                              <p className="text-xs mb-2" style={{ color: C.textMuted }}>
+                              <h3 className="font-bold text-sm mb-1" style={{ color: "var(--text)" }}>{ach.name}</h3>
+                              <p className="text-xs mb-2" style={{ color: "var(--text)"Muted }}>
                                 {ach.description || "Achievement unlocked"}
                               </p>
                               <span 

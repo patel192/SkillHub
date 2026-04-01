@@ -67,7 +67,7 @@ export const UserSidebar = ({ isOpen, toggle, isMobile }) => {
             exit={{ x: "-100%" }}
             transition={{ type: "spring", stiffness: 320, damping: 32 }}
             className="fixed top-0 left-0 h-full w-72 z-40 shadow-2xl"
-            style={{ background: `${C.surface}FA`, backdropFilter: "blur(20px)", borderRight: `1px solid ${C.border}` }}
+            style={{ background: `${"var(--surface)"}FA`, backdropFilter: "blur(20px)", borderRight: `1px solid ${"var(--border)"}` }}
           >
             <SidebarContent
               isOpen={true}
@@ -88,9 +88,9 @@ export const UserSidebar = ({ isOpen, toggle, isMobile }) => {
           transition={{ type: "spring", stiffness: 400, damping: 35 }}
           className="fixed top-0 left-0 h-full z-40"
           style={{
-            background: `${C.surface}EE`,
+            background: `${"var(--surface)"}EE`,
             backdropFilter: "blur(20px)",
-            borderRight: `1px solid ${C.border}`,
+            borderRight: `1px solid ${"var(--border)"}`,
           }}
         >
           <SidebarContent
@@ -120,7 +120,7 @@ const SidebarContent = ({ isOpen, toggle, currentPath, onLogout, isMobile }) => 
       {/* ── Logo / Header ───────────────── */}
       <div
         className="h-16 flex items-center justify-between px-4 border-b"
-        style={{ borderColor: C.border }}
+        style={{ borderColor: "var(--border)" }}
       >
         <Link to="/user/dashboard" className="flex items-center gap-3 overflow-hidden min-w-0">
           <motion.div
@@ -160,9 +160,9 @@ const SidebarContent = ({ isOpen, toggle, currentPath, onLogout, isMobile }) => 
         <button
           onClick={toggle}
           className="p-1.5 rounded-lg transition-colors flex-shrink-0"
-          style={{ color: C.textDim }}
+          style={{ color: "var(--text-muted)" }}
           onMouseEnter={(e) => { e.currentTarget.style.background = `${C.brand}18`; e.currentTarget.style.color = C.brand; }}
-          onMouseLeave={(e) => { e.currentTarget.style.background = "transparent"; e.currentTarget.style.color = C.textDim; }}
+          onMouseLeave={(e) => { e.currentTarget.style.background = "transparent"; e.currentTarget.style.color = "var(--text-muted)"; }}
         >
           {isOpen
             ? <ChevronLeft size={17} />
@@ -192,7 +192,7 @@ const SidebarContent = ({ isOpen, toggle, currentPath, onLogout, isMobile }) => 
                   : hovered === idx
                   ? `${C.brand}0C`
                   : "transparent",
-                border: active ? `1px solid ${C.border}` : "1px solid transparent",
+                border: active ? `1px solid ${"var(--border)"}` : "1px solid transparent",
               }}
             >
               {/* Active left accent bar */}
@@ -208,7 +208,7 @@ const SidebarContent = ({ isOpen, toggle, currentPath, onLogout, isMobile }) => 
               {/* Icon */}
               <div
                 className="relative z-10 flex-shrink-0 transition-colors duration-150"
-                style={{ color: active ? C.brand : hovered === idx ? C.textMuted : C.textDim }}
+                style={{ color: active ? C.brand : hovered === idx ? "var(--text)"Muted : "var(--text-muted)" }}
               >
                 <Icon size={19} />
                 {/* Active icon glow */}
@@ -229,7 +229,7 @@ const SidebarContent = ({ isOpen, toggle, currentPath, onLogout, isMobile }) => 
                     exit={{ opacity: 0,  width: 0  }}
                     transition={{ duration: 0.16 }}
                     className="relative z-10 text-[13px] font-medium whitespace-nowrap overflow-hidden flex-1 transition-colors duration-150"
-                    style={{ color: active ? C.text : hovered === idx ? C.textMuted : C.textDim }}
+                    style={{ color: active ? "var(--text)" : hovered === idx ? "var(--text)"Muted : "var(--text-muted)" }}
                   >
                     {item.label}
                   </motion.span>
@@ -244,7 +244,7 @@ const SidebarContent = ({ isOpen, toggle, currentPath, onLogout, isMobile }) => 
                   className="relative z-10 ml-auto text-[10px] font-bold px-2 py-0.5 rounded-full"
                   style={
                     isNew
-                      ? { background: `${C.brand}20`, color: C.brand,  border: `1px solid ${C.border}` }
+                      ? { background: `${C.brand}20`, color: C.brand,  border: `1px solid ${"var(--border)"}` }
                       : { background: `${C.accent}20`, color: C.accent, border: `1px solid rgba(245,158,11,0.2)` }
                   }
                 >
@@ -258,15 +258,15 @@ const SidebarContent = ({ isOpen, toggle, currentPath, onLogout, isMobile }) => 
                   className="absolute left-full ml-3 px-3 py-2 rounded-xl text-[12px] font-medium whitespace-nowrap z-50 shadow-xl border pointer-events-none
                     opacity-0 group-hover:opacity-100 translate-x-1 group-hover:translate-x-0 transition-all duration-200"
                   style={{
-                    background: C.surface2,
-                    borderColor: C.border,
-                    color: C.text,
+                    background: "var(--surface)"2,
+                    borderColor: "var(--border)",
+                    color: "var(--text)",
                   }}
                 >
                   {/* Arrow */}
                   <div
                     className="absolute left-0 top-1/2 -translate-x-1 -translate-y-1/2 w-2 h-2 rotate-45 border-l border-b"
-                    style={{ background: C.surface2, borderColor: C.border }}
+                    style={{ background: "var(--surface)"2, borderColor: "var(--border)" }}
                   />
                   {item.label}
                   {item.badge && (
@@ -282,15 +282,15 @@ const SidebarContent = ({ isOpen, toggle, currentPath, onLogout, isMobile }) => 
       </nav>
 
       {/* ── Bottom Section ───────────────── */}
-      <div className="p-2.5 border-t space-y-0.5" style={{ borderColor: C.border }}>
+      <div className="p-2.5 border-t space-y-0.5" style={{ borderColor: "var(--border)" }}>
 
         {/* Help */}
         <Link
           to="/help"
           className="flex items-center gap-3 px-3 py-2.5 rounded-xl transition-colors group"
-          style={{ color: C.textDim }}
-          onMouseEnter={(e) => { e.currentTarget.style.background = `${C.brand}0C`; e.currentTarget.style.color = C.textMuted; }}
-          onMouseLeave={(e) => { e.currentTarget.style.background = "transparent"; e.currentTarget.style.color = C.textDim; }}
+          style={{ color: "var(--text-muted)" }}
+          onMouseEnter={(e) => { e.currentTarget.style.background = `${C.brand}0C`; e.currentTarget.style.color = "var(--text)"Muted; }}
+          onMouseLeave={(e) => { e.currentTarget.style.background = "transparent"; e.currentTarget.style.color = "var(--text-muted)"; }}
         >
           <HelpCircle size={18} className="flex-shrink-0" />
           <AnimatePresence>
@@ -343,7 +343,7 @@ const SidebarContent = ({ isOpen, toggle, currentPath, onLogout, isMobile }) => 
                 className="p-3 rounded-xl border"
                 style={{
                   background: `linear-gradient(135deg, ${C.brand}10, ${C.brandLight}08)`,
-                  borderColor: C.border,
+                  borderColor: "var(--border)",
                 }}
               >
                 <div className="flex items-center gap-3">
@@ -357,10 +357,10 @@ const SidebarContent = ({ isOpen, toggle, currentPath, onLogout, isMobile }) => 
                     Pro
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="text-[12px] font-semibold truncate" style={{ color: C.text }}>
+                    <p className="text-[12px] font-semibold truncate" style={{ color: "var(--text)" }}>
                       Pro Plan
                     </p>
-                    <p className="text-[10px]" style={{ color: C.textDim }}>
+                    <p className="text-[10px]" style={{ color: "var(--text-muted)" }}>
                       Valid until Dec 2025
                     </p>
                   </div>

@@ -47,8 +47,8 @@ const GlowCard = ({ children, className = "", onClick, gradient = true }) => (
     onClick={onClick}
     className={`relative group cursor-pointer overflow-hidden rounded-2xl ${className}`}
     style={{ 
-      background: C.surface,
-      border: `1px solid ${C.border}`,
+      background: "var(--surface)",
+      border: `1px solid ${"var(--border)"}`,
     }}
   >
     {/* Ambient Glow Effect */}
@@ -101,9 +101,9 @@ const AnimatedCounter = ({ value }) => {
 
 const Badge = ({ children, type = "default", icon: Icon }) => {
   const styles = {
-    default: { bg: `${C.brand}20`, color: C.brand, border: C.border },
+    default: { bg: `${C.brand}20`, color: C.brand, border: "var(--border)" },
     accent: { bg: `${C.accent}20`, color: C.accent, border: `rgba(245,158,11,0.3)` },
-    ghost: { bg: 'transparent', color: C.textMuted, border: C.border },
+    ghost: { bg: 'transparent', color: "var(--text)"Muted, border: "var(--border)" },
   };
   
   const style = styles[type] || styles.default;
@@ -133,18 +133,18 @@ const EmptyState = ({ onAction }) => (
       className="w-24 h-24 rounded-full flex items-center justify-center mb-6"
       style={{ 
         background: `linear-gradient(135deg, ${C.brand}20, ${C.brand}05)`,
-        border: `1px solid ${C.border}`,
+        border: `1px solid ${"var(--border)"}`,
       }}
     >
       <Users size={40} style={{ color: C.brand }} />
     </div>
     <h3 
       className="text-xl font-bold mb-2"
-      style={{ fontFamily: "'Fraunces', serif", color: C.text }}
+      style={{ fontFamily: "'Fraunces', serif", color: "var(--text)" }}
     >
       No Communities Yet
     </h3>
-    <p className="text-center max-w-md mb-6" style={{ color: C.textMuted }}>
+    <p className="text-center max-w-md mb-6" style={{ color: "var(--text)"Muted }}>
       Be the first to create a community and start connecting with learners who share your interests.
     </p>
     <motion.button
@@ -154,7 +154,7 @@ const EmptyState = ({ onAction }) => (
       className="flex items-center gap-2 px-6 py-3 rounded-xl font-medium"
       style={{ 
         background: `linear-gradient(135deg, ${C.brand}, ${C.brandLight})`,
-        color: C.bg,
+        color: "var(--bg)",
         boxShadow: `0 4px 20px ${C.brand}40`,
       }}
     >
@@ -167,33 +167,33 @@ const EmptyState = ({ onAction }) => (
 const SkeletonCard = () => (
   <div 
     className="rounded-2xl overflow-hidden"
-    style={{ background: C.surface, border: `1px solid ${C.border}` }}
+    style={{ background: "var(--surface)", border: `1px solid ${"var(--border)"}` }}
   >
     <div 
       className="h-40 w-full animate-pulse"
-      style={{ background: C.surface2 }}
+      style={{ background: "var(--surface)"2 }}
     />
     <div className="p-5 space-y-3">
       <div 
         className="h-6 w-3/4 rounded animate-pulse"
-        style={{ background: C.surface2 }}
+        style={{ background: "var(--surface)"2 }}
       />
       <div 
         className="h-4 w-full rounded animate-pulse"
-        style={{ background: C.surface3 }}
+        style={{ background: "var(--surface)"3 }}
       />
       <div 
         className="h-4 w-2/3 rounded animate-pulse"
-        style={{ background: C.surface3 }}
+        style={{ background: "var(--surface)"3 }}
       />
       <div className="flex justify-between items-center pt-2">
         <div 
           className="h-4 w-20 rounded animate-pulse"
-          style={{ background: C.surface3 }}
+          style={{ background: "var(--surface)"3 }}
         />
         <div 
           className="h-8 w-16 rounded-full animate-pulse"
-          style={{ background: C.surface2 }}
+          style={{ background: "var(--surface)"2 }}
         />
       </div>
     </div>
@@ -253,11 +253,11 @@ export const Community = ({ basePath }) => {
 
   if (loading) {
     return (
-      <div className="min-h-screen p-4 sm:p-6 lg:p-8" style={{ background: C.bg }}>
+      <div className="min-h-screen p-4 sm:p-6 lg:p-8" style={{ background: "var(--bg)" }}>
         <div className="max-w-7xl mx-auto">
           <div 
             className="h-8 w-64 rounded mb-8 animate-pulse"
-            style={{ background: C.surface2 }}
+            style={{ background: "var(--surface)"2 }}
           />
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
             {[1, 2, 3, 4, 5, 6].map(i => <SkeletonCard key={i} />)}
@@ -268,7 +268,7 @@ export const Community = ({ basePath }) => {
   }
 
   return (
-    <div className="min-h-screen p-4 sm:p-6 lg:p-8 pb-20" style={{ background: C.bg, color: C.text }}>
+    <div className="min-h-screen p-4 sm:p-6 lg:p-8 pb-20" style={{ background: "var(--bg)", color: "var(--text)" }}>
       <div className="max-w-7xl mx-auto space-y-6">
         
         {/* Header Section */}
@@ -282,13 +282,13 @@ export const Community = ({ basePath }) => {
             <div className="flex items-center gap-3 mb-2">
               <div 
                 className="p-2 rounded-xl"
-                style={{ background: `${C.brand}20`, border: `1px solid ${C.border}` }}
+                style={{ background: `${C.brand}20`, border: `1px solid ${"var(--border)"}` }}
               >
                 <Globe size={24} style={{ color: C.brand }} />
               </div>
               <h1 
                 className="text-2xl sm:text-3xl lg:text-4xl font-bold"
-                style={{ fontFamily: "'Fraunces', serif", color: C.text }}
+                style={{ fontFamily: "'Fraunces', serif", color: "var(--text)" }}
               >
                 Explore{" "}
                 <span style={{ 
@@ -300,7 +300,7 @@ export const Community = ({ basePath }) => {
                 </span>
               </h1>
             </div>
-            <p style={{ color: C.textMuted }} className="text-sm sm:text-base max-w-xl">
+            <p style={{ color: "var(--text)"Muted }} className="text-sm sm:text-base max-w-xl">
               Connect, collaborate, and grow with <AnimatedCounter value={totalMembers} /> learners who share your passions.
             </p>
           </div>
@@ -313,7 +313,7 @@ export const Community = ({ basePath }) => {
               className="flex items-center gap-2 px-4 py-2.5 rounded-xl font-medium text-sm whitespace-nowrap"
               style={{ 
                 background: `linear-gradient(135deg, ${C.brand}, ${C.brandLight})`,
-                color: C.bg,
+                color: "var(--bg)",
                 boxShadow: `0 4px 20px ${C.brand}40`,
               }}
             >
@@ -340,7 +340,7 @@ export const Community = ({ basePath }) => {
             <div 
               key={idx}
               className="flex items-center gap-3 p-3 sm:p-4 rounded-xl"
-              style={{ background: C.surface, border: `1px solid ${C.border}` }}
+              style={{ background: "var(--surface)", border: `1px solid ${"var(--border)"}` }}
             >
               <div 
                 className="p-2 rounded-lg"
@@ -351,11 +351,11 @@ export const Community = ({ basePath }) => {
               <div>
                 <p 
                   className="text-lg sm:text-xl font-bold"
-                  style={{ fontFamily: "'Fraunces', serif", color: C.text }}
+                  style={{ fontFamily: "'Fraunces', serif", color: "var(--text)" }}
                 >
                   <AnimatedCounter value={stat.value} />
                 </p>
-                <p className="text-xs" style={{ color: C.textMuted }}>{stat.label}</p>
+                <p className="text-xs" style={{ color: "var(--text)"Muted }}>{stat.label}</p>
               </div>
             </div>
           ))}
@@ -373,7 +373,7 @@ export const Community = ({ basePath }) => {
             <Search 
               className="absolute left-3 top-1/2 -translate-y-1/2" 
               size={18} 
-              style={{ color: C.textDim }}
+              style={{ color: "var(--text-muted)" }}
             />
             <input
               type="text"
@@ -382,12 +382,12 @@ export const Community = ({ basePath }) => {
               onChange={(e) => setSearchQuery(e.target.value)}
               className="w-full pl-10 pr-4 py-3 rounded-xl text-sm outline-none transition-all"
               style={{ 
-                background: C.surface,
-                border: `1px solid ${C.border}`,
-                color: C.text,
+                background: "var(--surface)",
+                border: `1px solid ${"var(--border)"}`,
+                color: "var(--text)",
               }}
               onFocus={(e) => e.target.style.borderColor = C.brand}
-              onBlur={(e) => e.target.style.borderColor = C.border}
+              onBlur={(e) => e.target.style.borderColor = "var(--border)"}
             />
           </div>
           
@@ -403,9 +403,9 @@ export const Community = ({ basePath }) => {
                 onClick={() => setActiveFilter(filter.id)}
                 className="flex items-center gap-1.5 px-4 py-2.5 rounded-xl text-sm font-medium whitespace-nowrap transition-all"
                 style={{ 
-                  background: activeFilter === filter.id ? C.brand : C.surface,
-                  color: activeFilter === filter.id ? C.bg : C.textMuted,
-                  border: `1px solid ${activeFilter === filter.id ? C.brand : C.border}`,
+                  background: activeFilter === filter.id ? C.brand : "var(--surface)",
+                  color: activeFilter === filter.id ? "var(--bg)" : "var(--text)"Muted,
+                  border: `1px solid ${activeFilter === filter.id ? C.brand : "var(--border)"}`,
                 }}
               >
                 <filter.icon size={14} />
@@ -445,7 +445,7 @@ export const Community = ({ basePath }) => {
                     <div 
                       className="absolute inset-0"
                       style={{ 
-                        background: `linear-gradient(to top, ${C.surface} 0%, transparent 60%)` 
+                        background: `linear-gradient(to top, ${"var(--surface)"} 0%, transparent 60%)` 
                       }}
                     />
                     
@@ -473,21 +473,21 @@ export const Community = ({ basePath }) => {
                   <div className="p-4 sm:p-5 flex-1 flex flex-col">
                     <h3 
                       className="text-lg font-bold mb-2 line-clamp-1"
-                      style={{ fontFamily: "'Fraunces', serif", color: C.text }}
+                      style={{ fontFamily: "'Fraunces', serif", color: "var(--text)" }}
                     >
                       {community.name}
                     </h3>
                     
                     <p 
                       className="text-sm line-clamp-2 mb-4 flex-1"
-                      style={{ color: C.textMuted }}
+                      style={{ color: "var(--text)"Muted }}
                     >
                       {community.description || "Join this community to connect with like-minded learners and share knowledge."}
                     </p>
                     
                     {/* Footer */}
-                    <div className="flex items-center justify-between pt-3 border-t" style={{ borderColor: C.border }}>
-                      <div className="flex items-center gap-2" style={{ color: C.textMuted }}>
+                    <div className="flex items-center justify-between pt-3 border-t" style={{ borderColor: "var(--border)" }}>
+                      <div className="flex items-center gap-2" style={{ color: "var(--text)"Muted }}>
                         <Users size={16} style={{ color: C.brand }} />
                         <span className="text-sm">
                           <AnimatedCounter value={community.members?.length || 0} /> members
@@ -519,7 +519,7 @@ export const Community = ({ basePath }) => {
             animate={{ opacity: 1 }}
             className="text-center py-8"
           >
-            <p style={{ color: C.textDim }}>
+            <p style={{ color: "var(--text-muted)" }}>
               Showing {filteredCommunities.length} of {communities.length} communities
             </p>
           </motion.div>

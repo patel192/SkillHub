@@ -1,4 +1,4 @@
-import {jwtDecode} from "jwt-decode";
+import { jwtDecode } from "jwt-decode";
 import {
   createContext,
   useCallback,
@@ -38,7 +38,7 @@ export const AuthProvider = ({ children }) => {
     });
     resetTimer();
     return () => {
-      events.forEach((event) => {
+      events.forEach((event) => { 
         window.removeEventListener(event, resetTimer);
       });
       clearTimeout(timerRef.current);
