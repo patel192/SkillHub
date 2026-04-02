@@ -36,8 +36,8 @@ export const UserLayout = () => {
     <div
       className="min-h-screen overflow-hidden selection:bg-teal-500/20"
       style={{
-        background: "#0A0F0D",
-        color: "#E8F5F0",
+        background: "var(--bg)",
+        color: "var(--text)",
         fontFamily: "'DM Sans', sans-serif",
       }}
     >
@@ -45,19 +45,19 @@ export const UserLayout = () => {
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,700&family=DM+Sans:wght@400;500;600&display=swap');
         ::-webkit-scrollbar { width: 4px; }
-        ::-webkit-scrollbar-track { background: #0A0F0D; }
-        ::-webkit-scrollbar-thumb { background: rgba(22,168,128,0.4); border-radius: 99px; }
+        ::-webkit-scrollbar-track { background: var(--bg); }
+        ::-webkit-scrollbar-thumb { background: var(--brand); opacity: 0.4; border-radius: 99px; }
       `}</style>
 
-      {/* Ambient background glows — brand-tinted */}
+      {/* Ambient background glows — theme-aware */}
       <div className="fixed inset-0 pointer-events-none overflow-hidden">
         <div
           className="absolute top-0 left-0 w-[700px] h-[700px] rounded-full blur-[130px] -translate-x-1/2 -translate-y-1/2"
-          style={{ background: "rgba(22,168,128,0.06)" }}
+          style={{ background: "var(--glow-primary)" }}
         />
         <div
           className="absolute bottom-0 right-0 w-[550px] h-[550px] rounded-full blur-[110px] translate-x-1/3 translate-y-1/3"
-          style={{ background: "rgba(99,102,241,0.05)" }}
+          style={{ background: "var(--glow-secondary)" }}
         />
       </div>
 
@@ -71,7 +71,7 @@ export const UserLayout = () => {
             transition={{ duration: 0.2 }}
             onClick={() => setIsSidebarOpen(false)}
             className="fixed inset-0 z-30 lg:hidden"
-            style={{ background: "rgba(0,0,0,0.65)", backdropFilter: "blur(4px)" }}
+            style={{ background: "var(--backdrop)", backdropFilter: "blur(4px)" }}
           />
         )}
       </AnimatePresence>
@@ -97,7 +97,7 @@ export const UserLayout = () => {
 
         <main
           className="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8"
-          style={{ background: "rgba(10,15,13,0.5)" }}
+          style={{ background: "var(--surface-alpha)" }}
         >
           <motion.div
             key={location.pathname}
