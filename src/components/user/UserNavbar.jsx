@@ -17,7 +17,6 @@ import {
 import { motion, AnimatePresence } from "framer-motion";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import axios from "axios";
-import { useSettings } from "../../context/SettingsContext";
 import { useAuth } from "../../context/AuthContext";
 // ─────────────────────────────────────────
 // DESIGN TOKENS
@@ -59,8 +58,7 @@ export const UserNavbar = ({ toggleSidebar, isSidebarOpen, isMobile }) => {
 
   const notifRef = useRef(null);
   const dropdownRef = useRef(null);
-  const { userId, user, token } = useAuth();
-  const fullname = user ? user.fullname : "User";
+  const { userId, token } = useAuth();
   const pageTitle = ROUTE_LABELS[location.pathname] || "SkillHub";
 
   // Clock
