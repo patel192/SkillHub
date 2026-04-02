@@ -4,58 +4,63 @@
 
 import React, { useEffect, useState, useRef } from "react";
 import {
-  Menu, Bell, Search, LogOut, Settings,
-  User, ChevronDown, X, Code,
+  Menu,
+  Bell,
+  Search,
+  LogOut,
+  Settings,
+  User,
+  ChevronDown,
+  X,
+  Code,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import axios from "axios";
-import {useSettings} from "../../context/SettingsContext";
+import { useSettings } from "../../context/SettingsContext";
+import { useAuth } from "../../context/AuthContext";
 // ─────────────────────────────────────────
 // DESIGN TOKENS
 // ─────────────────────────────────────────
 const C = {
-  brand:      "#16A880",
+  brand: "#16A880",
   brandLight: "#1FC99A",
-  accent:     "#F59E0B",
-  error:      "#F87171",
+  accent: "#F59E0B",
+  error: "#F87171",
 };
 
 // Route label map for the page title
 const ROUTE_LABELS = {
-  "/user/dashboard":    "Dashboard",
-  "/user/mycourses":    "My Courses",
-  "/user/communities":  "Communities",
-  "/user/messages":     "Messages",
+  "/user/dashboard": "Dashboard",
+  "/user/mycourses": "My Courses",
+  "/user/communities": "Communities",
+  "/user/messages": "Messages",
   "/user/certificates": "Certificates",
-  "/user/leaderboard":  "Leaderboard",
-  "/user/profile":      "Profile",
-  "/user/settings":     "Settings",
-  "/user/activities":   "Activities",
-  "/user/notifications":"Notifications",
+  "/user/leaderboard": "Leaderboard",
+  "/user/profile": "Profile",
+  "/user/settings": "Settings",
+  "/user/activities": "Activities",
+  "/user/notifications": "Notifications",
 };
 
 export const UserNavbar = ({ toggleSidebar, isSidebarOpen, isMobile }) => {
-  const navigate  = useNavigate();
-  const location  = useLocation();
+  const navigate = useNavigate();
+  const location = useLocation();
 
-  const [time,         setTime]         = useState(new Date());
-  const [notifOpen,    setNotifOpen]    = useState(false);
+  const [time, setTime] = useState(new Date());
+  const [notifOpen, setNotifOpen] = useState(false);
   const [dropdownOpen, setDropdownOpen] = useState(false);
-  const [searchQuery,  setSearchQuery]  = useState("");
-  const [searchFocused,setSearchFocused]= useState(false);
-  const [notifications,setNotifications]= useState([]);
-  const [avatar,       setAvatar]       = useState("");
-  const [userName,     setUserName]     = useState("");
-  const [unreadCount,  setUnreadCount]  = useState(0);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [searchFocused, setSearchFocused] = useState(false);
+  const [notifications, setNotifications] = useState([]);
+  const [avatar, setAvatar] = useState("");
+  const [userName, setUserName] = useState("");
+  const [unreadCount, setUnreadCount] = useState(0);
 
-  const notifRef    = useRef(null);
+  const notifRef = useRef(null);
   const dropdownRef = useRef(null);
-
-  const userId  = localStorage.getItem("userId");
-  const token   = localStorage.getItem("token");
-  const fullname= localStorage.getItem("fullname") || "User";
-
+  const { userId, user, token } = useAuth();
+  const fullname = user ? user.fullname : "User";
   const pageTitle = ROUTE_LABELS[location.pathname] || "SkillHub";
 
   // Clock
@@ -67,8 +72,10 @@ export const UserNavbar = ({ toggleSidebar, isSidebarOpen, isMobile }) => {
   // Click-outside to close dropdowns
   useEffect(() => {
     const handler = (e) => {
-      if (notifRef.current    && !notifRef.current.contains(e.target))    setNotifOpen(false);
-      if (dropdownRef.current && !dropdownRef.current.contains(e.target)) setDropdownOpen(false);
+      if (notifRef.current && !notifRef.current.contains(e.target))
+        setNotifOpen(false);
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target))
+        setDropdownOpen(false);
     };
     document.addEventListener("mousedown", handler);
     return () => document.removeEventListener("mousedown", handler);
@@ -90,7 +97,9 @@ export const UserNavbar = ({ toggleSidebar, isSidebarOpen, isMobile }) => {
   useEffect(() => {
     if (!notifOpen || !userId) return;
     axios
-      .get(`/notifications/${userId}`, { headers: { Authorization: `Bearer ${token}` } })
+      .get(`/notifications/${userId}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      })
       .then((res) => {
         const notifs = res.data.data || [];
         setNotifications(notifs);
@@ -101,23 +110,37 @@ export const UserNavbar = ({ toggleSidebar, isSidebarOpen, isMobile }) => {
 
   const markAllAsRead = async () => {
     try {
-      await axios.put(`/notifications/read-all/${userId}`, {}, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      await axios.put(
+        `/notifications/read-all/${userId}`,
+        {},
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        },
+      );
       setNotifications((p) => p.map((n) => ({ ...n, read: true })));
       setUnreadCount(0);
     } catch {}
   };
 
-  const handleLogout = () => { localStorage.clear(); navigate("/login"); };
+  const handleLogout = () => {
+    localStorage.clear();
+    navigate("/login");
+  };
 
-  const formattedTime = time.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
-  const formattedDate = time.toLocaleDateString([], { weekday: "short", month: "short", day: "numeric" });
+  const formattedTime = time.toLocaleTimeString([], {
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+  const formattedDate = time.toLocaleDateString([], {
+    weekday: "short",
+    month: "short",
+    day: "numeric",
+  });
 
   return (
     <motion.header
       initial={{ y: -20, opacity: 0 }}
-      animate={{ y: 0,   opacity: 1 }}
+      animate={{ y: 0, opacity: 1 }}
       transition={{ duration: 0.4, ease: "easeOut" }}
       className="sticky top-0 z-30 h-16"
       style={{
@@ -127,7 +150,6 @@ export const UserNavbar = ({ toggleSidebar, isSidebarOpen, isMobile }) => {
       }}
     >
       <div className="h-full px-4 sm:px-6 flex items-center justify-between gap-4">
-
         {/* ── LEFT ──────────────────────────── */}
         <div className="flex items-center gap-3">
           {/* Hamburger — mobile */}
@@ -136,7 +158,10 @@ export const UserNavbar = ({ toggleSidebar, isSidebarOpen, isMobile }) => {
             whileTap={{ scale: 0.95 }}
             onClick={toggleSidebar}
             className="p-2.5 rounded-xl transition-colors lg:hidden"
-            style={{ background: `${C.brand}12`, border: `1px solid ${"var(--border)"}` }}
+            style={{
+              background: `${C.brand}12`,
+              border: `1px solid ${"var(--border)"}`,
+            }}
           >
             <Menu size={19} style={{ color: C.brand }} />
           </motion.button>
@@ -146,7 +171,10 @@ export const UserNavbar = ({ toggleSidebar, isSidebarOpen, isMobile }) => {
             <button
               onClick={toggleSidebar}
               className="hidden lg:flex p-2.5 rounded-xl transition-colors"
-              style={{ background: `${C.brand}12`, border: `1px solid ${"var(--border)"}` }}
+              style={{
+                background: `${C.brand}12`,
+                border: `1px solid ${"var(--border)"}`,
+              }}
             >
               <Menu
                 size={19}
@@ -167,7 +195,10 @@ export const UserNavbar = ({ toggleSidebar, isSidebarOpen, isMobile }) => {
             >
               {pageTitle}
             </h1>
-            <p className="text-[11px] uppercase tracking-wider" style={{ color: "var(--text-muted)" }}>
+            <p
+              className="text-[11px] uppercase tracking-wider"
+              style={{ color: "var(--text-muted)" }}
+            >
               {formattedDate}
             </p>
           </div>
@@ -218,7 +249,6 @@ export const UserNavbar = ({ toggleSidebar, isSidebarOpen, isMobile }) => {
 
         {/* ── RIGHT ─────────────────────────── */}
         <div className="flex items-center gap-2 sm:gap-3">
-
           {/* Live clock — desktop only */}
           <div className="hidden lg:flex flex-col items-end mr-1">
             <span
@@ -240,9 +270,15 @@ export const UserNavbar = ({ toggleSidebar, isSidebarOpen, isMobile }) => {
             <motion.button
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
-              onClick={() => { setNotifOpen(!notifOpen); setDropdownOpen(false); }}
+              onClick={() => {
+                setNotifOpen(!notifOpen);
+                setDropdownOpen(false);
+              }}
               className="relative p-2.5 rounded-xl transition-colors"
-              style={{ background: `${C.brand}10`, border: `1px solid ${"var(--border)"}` }}
+              style={{
+                background: `${C.brand}10`,
+                border: `1px solid ${"var(--border)"}`,
+              }}
             >
               <Bell size={18} style={{ color: "var(--text-muted)" }} />
               <AnimatePresence>
@@ -267,18 +303,27 @@ export const UserNavbar = ({ toggleSidebar, isSidebarOpen, isMobile }) => {
               {notifOpen && (
                 <motion.div
                   initial={{ opacity: 0, y: 10, scale: 0.95 }}
-                  animate={{ opacity: 1, y: 0,  scale: 1 }}
-                  exit={{ opacity: 0, y: 10,  scale: 0.95 }}
+                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                  exit={{ opacity: 0, y: 10, scale: 0.95 }}
                   transition={{ duration: 0.18 }}
                   className="absolute right-0 mt-3 w-80 sm:w-96 rounded-2xl shadow-2xl overflow-hidden z-50"
-                  style={{ background: "var(--surface)", border: `1px solid ${"var(--border)"}` }}
+                  style={{
+                    background: "var(--surface)",
+                    border: `1px solid ${"var(--border)"}`,
+                  }}
                 >
                   {/* Header */}
                   <div
                     className="p-4 flex items-center justify-between border-b"
-                    style={{ background: "var(--surface2)", borderColor: "var(--border)" }}
+                    style={{
+                      background: "var(--surface2)",
+                      borderColor: "var(--border)",
+                    }}
                   >
-                    <h3 className="font-semibold text-[15px]" style={{ color: "var(--text)" }}>
+                    <h3
+                      className="font-semibold text-[15px]"
+                      style={{ color: "var(--text)" }}
+                    >
                       Notifications
                     </h3>
                     {unreadCount > 0 && (
@@ -286,7 +331,9 @@ export const UserNavbar = ({ toggleSidebar, isSidebarOpen, isMobile }) => {
                         onClick={markAllAsRead}
                         className="text-[12px] font-semibold transition-colors"
                         style={{ color: C.brand }}
-                        onMouseEnter={(e) => (e.target.style.color = C.brandLight)}
+                        onMouseEnter={(e) =>
+                          (e.target.style.color = C.brandLight)
+                        }
                         onMouseLeave={(e) => (e.target.style.color = C.brand)}
                       >
                         Mark all read
@@ -306,23 +353,42 @@ export const UserNavbar = ({ toggleSidebar, isSidebarOpen, isMobile }) => {
                           className="p-4 border-b cursor-pointer transition-colors"
                           style={{
                             borderColor: "var(--border)",
-                            background: !n.read ? `${C.brand}08` : "transparent",
+                            background: !n.read
+                              ? `${C.brand}08`
+                              : "transparent",
                           }}
-                          onMouseEnter={(e) => (e.currentTarget.style.background = `${C.brand}10`)}
-                          onMouseLeave={(e) => (e.currentTarget.style.background = !n.read ? `${C.brand}08` : "transparent")}
+                          onMouseEnter={(e) =>
+                            (e.currentTarget.style.background = `${C.brand}10`)
+                          }
+                          onMouseLeave={(e) =>
+                            (e.currentTarget.style.background = !n.read
+                              ? `${C.brand}08`
+                              : "transparent")
+                          }
                         >
                           <div className="flex items-start gap-3">
                             <div
                               className="w-2 h-2 mt-2 rounded-full flex-shrink-0"
-                              style={{ background: !n.read ? C.brand : "var(--text-muted)" }}
+                              style={{
+                                background: !n.read
+                                  ? C.brand
+                                  : "var(--text-muted)",
+                              }}
                             />
                             <div className="flex-1 min-w-0">
-                              <p className="text-[13px] leading-relaxed" style={{ color: "var(--text)" }}>
+                              <p
+                                className="text-[13px] leading-relaxed"
+                                style={{ color: "var(--text)" }}
+                              >
                                 {n.message}
                               </p>
-                              <span className="text-[11px] mt-1 block" style={{ color: "var(--text-muted)" }}>
+                              <span
+                                className="text-[11px] mt-1 block"
+                                style={{ color: "var(--text-muted)" }}
+                              >
                                 {new Date(n.createdAt).toLocaleTimeString([], {
-                                  hour: "2-digit", minute: "2-digit",
+                                  hour: "2-digit",
+                                  minute: "2-digit",
                                 })}
                               </span>
                             </div>
@@ -331,8 +397,15 @@ export const UserNavbar = ({ toggleSidebar, isSidebarOpen, isMobile }) => {
                       ))
                     ) : (
                       <div className="p-8 text-center">
-                        <Bell size={30} className="mx-auto mb-3 opacity-20" style={{ color: "var(--text-muted)" }} />
-                        <p className="text-[13px]" style={{ color: "var(--text-muted)" }}>
+                        <Bell
+                          size={30}
+                          className="mx-auto mb-3 opacity-20"
+                          style={{ color: "var(--text-muted)" }}
+                        />
+                        <p
+                          className="text-[13px]"
+                          style={{ color: "var(--text-muted)" }}
+                        >
                           No notifications yet
                         </p>
                       </div>
@@ -348,9 +421,15 @@ export const UserNavbar = ({ toggleSidebar, isSidebarOpen, isMobile }) => {
             <motion.button
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
-              onClick={() => { setDropdownOpen(!dropdownOpen); setNotifOpen(false); }}
+              onClick={() => {
+                setDropdownOpen(!dropdownOpen);
+                setNotifOpen(false);
+              }}
               className="flex items-center gap-2 sm:gap-2.5 p-1.5 pr-3 rounded-full transition-colors border"
-              style={{ background: `${C.brand}10`, borderColor: "var(--border)" }}
+              style={{
+                background: `${C.brand}10`,
+                borderColor: "var(--border)",
+              }}
             >
               <img
                 src={
@@ -381,28 +460,46 @@ export const UserNavbar = ({ toggleSidebar, isSidebarOpen, isMobile }) => {
               {dropdownOpen && (
                 <motion.div
                   initial={{ opacity: 0, y: 10, scale: 0.95 }}
-                  animate={{ opacity: 1, y: 0,  scale: 1 }}
-                  exit={{ opacity: 0, y: 10,  scale: 0.95 }}
+                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                  exit={{ opacity: 0, y: 10, scale: 0.95 }}
                   transition={{ duration: 0.18 }}
                   className="absolute right-0 mt-3 w-56 rounded-2xl shadow-2xl overflow-hidden z-50"
-                  style={{ background: "var(--surface)", border: `1px solid ${"var(--border)"}` }}
+                  style={{
+                    background: "var(--surface)",
+                    border: `1px solid ${"var(--border)"}`,
+                  }}
                 >
                   {/* User info */}
                   <div
                     className="p-4 border-b"
-                    style={{ background: "var(--surface2)", borderColor: "var(--border)" }}
+                    style={{
+                      background: "var(--surface2)",
+                      borderColor: "var(--border)",
+                    }}
                   >
-                    <p className="font-semibold text-[14px] truncate" style={{ color: "var(--text)" }}>
+                    <p
+                      className="font-semibold text-[14px] truncate"
+                      style={{ color: "var(--text)" }}
+                    >
                       {userName}
                     </p>
-                    <p className="text-[12px]" style={{ color: "var(--text-muted)" }}>Student Account</p>
+                    <p
+                      className="text-[12px]"
+                      style={{ color: "var(--text-muted)" }}
+                    >
+                      Student Account
+                    </p>
                   </div>
 
                   {/* Links */}
                   <div className="p-2">
                     {[
-                      { to: "/user/profile",  Icon: User,     label: "Profile"  },
-                      { to: "/user/settings", Icon: Settings, label: "Settings" },
+                      { to: "/user/profile", Icon: User, label: "Profile" },
+                      {
+                        to: "/user/settings",
+                        Icon: Settings,
+                        label: "Settings",
+                      },
                     ].map(({ to, Icon, label }) => (
                       <Link
                         key={to}
@@ -426,13 +523,21 @@ export const UserNavbar = ({ toggleSidebar, isSidebarOpen, isMobile }) => {
                   </div>
 
                   {/* Logout */}
-                  <div className="p-2 border-t" style={{ borderColor: "var(--border)" }}>
+                  <div
+                    className="p-2 border-t"
+                    style={{ borderColor: "var(--border)" }}
+                  >
                     <button
                       onClick={handleLogout}
                       className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-[13px] transition-colors"
                       style={{ color: C.error }}
-                      onMouseEnter={(e) => (e.currentTarget.style.background = "rgba(248,113,113,0.08)")}
-                      onMouseLeave={(e) => (e.currentTarget.style.background = "transparent")}
+                      onMouseEnter={(e) =>
+                        (e.currentTarget.style.background =
+                          "rgba(248,113,113,0.08)")
+                      }
+                      onMouseLeave={(e) =>
+                        (e.currentTarget.style.background = "transparent")
+                      }
                     >
                       <LogOut size={15} />
                       Sign out

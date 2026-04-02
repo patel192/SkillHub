@@ -58,7 +58,7 @@ export const UserSidebar = ({ isOpen, toggle, isMobile }) => {
             exit={{ x: "-100%" }}
             transition={{ type: "spring", stiffness: 320, damping: 32 }}
             className="fixed top-0 left-0 h-full w-72 z-40 shadow-2xl"
-            style={{ background: `${"var(--surface)"}FA`, backdropFilter: "blur(20px)", borderRight: `1px solid ${"var(--border)"}` }}
+            style={{ background: `${"var(--surface)"}`, backdropFilter: "blur(20px)", borderRight: `1px solid ${"var(--border)"}` }}
           >
             <SidebarContent
               isOpen={true}
@@ -79,7 +79,7 @@ export const UserSidebar = ({ isOpen, toggle, isMobile }) => {
           transition={{ type: "spring", stiffness: 400, damping: 35 }}
           className="fixed top-0 left-0 h-full z-40"
           style={{
-            background: `${"var(--surface)"}EE`,
+            background: `${"var(--surface)"}`,
             backdropFilter: "blur(20px)",
             borderRight: `1px solid ${"var(--border)"}`,
           }}
