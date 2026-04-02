@@ -58,7 +58,7 @@ export const UserNavbar = ({ toggleSidebar, isSidebarOpen, isMobile }) => {
 
   const notifRef = useRef(null);
   const dropdownRef = useRef(null);
-  const { userId, token } = useAuth();
+  const { userId, token,user } = useAuth();
   const pageTitle = ROUTE_LABELS[location.pathname] || "SkillHub";
 
   // Clock
@@ -86,10 +86,10 @@ export const UserNavbar = ({ toggleSidebar, isSidebarOpen, isMobile }) => {
       .get(`/user/${userId}`, { headers: { Authorization: `Bearer ${token}` } })
       .then((res) => {
         setAvatar(res.data.data.avatar);
-        setUserName(res.data.data.fullname || fullname);
+        setUserName(res.data.data.fullname || user);
       })
-      .catch(() => setUserName(fullname));
-  }, [userId, token, fullname]);
+      .catch(() => setUserName(user));
+  }, [userId, token, user]);
 
   // Fetch notifications when panel opens
   useEffect(() => {
