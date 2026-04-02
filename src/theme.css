@@ -4,8 +4,8 @@
   --surface2: #f8fafc;     /* Slightly off-white for contrast */
   --surface3: #f1f5f9;     /* Light gray only for deeper levels */
   --text: #0f172a;         /* Near-black for better contrast on white */
-  --text-muted: #64748b;   /* Slate-500 for secondary text */
-  --text-dim: #94a3b8;     /* Slate-400 for disabled */
+  --text-muted: #ffffff;   /* Slate-500 for secondary text */
+  --text-dim: #dcdcdc;     /* Slate-400 for disabled */
   --border: rgba(0,0,0,0.06);
 }
 
