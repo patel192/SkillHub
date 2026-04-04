@@ -18,6 +18,9 @@ import {
   Wifi,
   WifiOff,
   CheckCheck,
+  Compass,
+  Zap,
+  Loader2
 } from "lucide-react";
 import { useAuth } from "../../../context/AuthContext";
 import toast from "react-hot-toast";
@@ -62,6 +65,8 @@ export const Messages = () => {
 
   const [activeSidebarTab, setActiveSidebarTab] = useState("friends");
   const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [discoverUsers, setDiscoverUsers] = useState([]);
+  const [discoverLoading, setDiscoverLoading] = useState(false);
 
   const [replyTo, setReplyTo] = useState(null);
   const [editMsg, setEditMsg] = useState(null);
@@ -316,6 +321,25 @@ export const Messages = () => {
     }
   };
 
+  const fetchDiscoverUsers = useCallback(async () => {
+    if (!currentUserId) return;
+    try {
+      setDiscoverLoading(true);
+      const res = await apiClient.get("/users/search?q=");
+      const allUsers = res.data?.data || res.data || [];
+      const existingFriends = new Set(friends.map(f => String(f._id)));
+      const filtered = allUsers.filter(u => 
+        String(u._id) !== String(currentUserId) && 
+        !existingFriends.has(String(u._id))
+      );
+      setDiscoverUsers(filtered.slice(0, 15));
+    } catch (err) {
+      console.error("Discovery error:", err);
+    } finally {
+      setDiscoverLoading(false);
+    }
+  }, [currentUserId, friends]);
+
   const fetchMessages = async (friendId) => {
     if (!friendId) return setMessages([]);
     try {
@@ -330,7 +354,14 @@ export const Messages = () => {
     fetchFriends();
     fetchIncoming();
     fetchOutgoing();
-  }, []);
+    fetchDiscoverUsers();
+  }, [currentUserId]);
+
+  useEffect(() => {
+    if (activeSidebarTab === "discover" && discoverUsers.length === 0) {
+      fetchDiscoverUsers();
+    }
+  }, [activeSidebarTab]);
 
   useEffect(() => {
     fetchMessages(selectedUserId);
@@ -590,8 +621,9 @@ export const Messages = () => {
         socket.emit("send_friend_request", { recipientId: id });
       }
 
-      await fetchOutgoing();
       toast.success("Friend request sent");
+      fetchOutgoing();
+      if (activeSidebarTab === "discover") fetchDiscoverUsers();
     } catch (err) {
       console.error("send request error", err);
       toast.error("Failed to send friend request");
@@ -1039,7 +1071,7 @@ export const Messages = () => {
                   </motion.div>
                 ))
               )
-            ) : (
+            ) : activeSidebarTab === "requests" ? (
               <div className="space-y-6">
                 {/* Incoming */}
                 <div>
@@ -1156,7 +1188,70 @@ export const Messages = () => {
                   )}
                 </div>
               </div>
-            )}
+            ) : activeSidebarTab === "discover" ? (
+              <div className="space-y-4">
+                <div className="flex items-center justify-between mb-4 px-1">
+                  <h3 className="text-sm font-semibold" style={{ color: "var(--text-muted)" }}>Suggested Connections</h3>
+                  <button onClick={fetchDiscoverUsers} disabled={discoverLoading} className="p-1 hover:bg-surface2 rounded-lg transition-colors">
+                    <Zap size={14} className={discoverLoading ? "animate-spin" : ""} style={{ color: C.brand }} />
+                  </button>
+                </div>
+                
+                {discoverLoading && discoverUsers.length === 0 ? (
+                  <div className="space-y-3">
+                    {[1, 2, 3].map(i => (
+                      <div key={i} className="h-16 rounded-xl animate-pulse" style={{ background: "var(--surface2)" }} />
+                    ))}
+                  </div>
+                ) : discoverUsers.length === 0 ? (
+                  <div className="text-center py-8 opacity-60">
+                    <p className="text-xs">No users suggested right now.</p>
+                  </div>
+                ) : (
+                  discoverUsers.map((u) => {
+                    const id = String(u._id || u.id);
+                    const alreadyRequested = requestedSet.has(id);
+                    const adding = addingRequestIds.has(id);
+
+                    return (
+                      <motion.div
+                        key={id}
+                        initial={{ opacity: 0, x: -10 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        className="flex items-center justify-between p-3 rounded-xl hover:bg-surface2 group transition-colors border"
+                        style={{ background: "var(--surface)", borderColor: "var(--border)" }}
+                      >
+                        <div className="flex items-center gap-3 cursor-pointer" onClick={() => navigate(`/user/view-profile/${id}`)}>
+                          <img
+                            src={u.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(nameOf(u))}&background=16A880&color=fff`}
+                            className="w-10 h-10 rounded-full"
+                          />
+                          <div className="min-w-0">
+                            <div className="text-sm font-bold truncate" style={{ color: "var(--text)" }}>{nameOf(u)}</div>
+                            <div className="text-[10px] opacity-60 truncate">Student Learner</div>
+                          </div>
+                        </div>
+                        
+                        {alreadyRequested ? (
+                          <div className="text-[10px] font-bold uppercase tracking-wider" style={{ color: C.accent }}>Pending</div>
+                        ) : (
+                          <motion.button
+                            whileHover={{ scale: 1.1 }}
+                            whileTap={{ scale: 0.9 }}
+                            onClick={() => sendFriendRequest(id)}
+                            disabled={adding}
+                            className="p-2 rounded-lg"
+                            style={{ background: `${C.brand}15`, color: C.brand }}
+                          >
+                            {adding ? <Loader2 size={16} className="animate-spin" /> : <UserPlus size={16} />}
+                          </motion.button>
+                        )}
+                      </motion.div>
+                    );
+                  })
+                )}
+              </div>
+            ) : null}
           </div>
         </div>
       </motion.aside>
