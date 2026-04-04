@@ -33,20 +33,20 @@ import apiClient from "../../api/axiosConfig";
 // DESIGN TOKENS
 // ==========================================
 const C = {
-  brand: "#16A880",
-  brandDark: "#0D7A5F",
-  brandLight: "#1FC99A",
-  accent: "#F59E0B",
-  danger: "#EF4444",
-  bg: "#0A0F0D",
-  surface: "#111814",
-  surface2: "#182219",
-  surface3: "#1E2B22",
-  border: "rgba(22,168,128,0.15)",
-  text: "#E8F5F0",
-  textMuted: "#7A9E8E",
-  textDim: "#3D5C4E",
-  error: "#F87171",
+  brand: "var(--brand)",
+  brandDark: "var(--brand-dark)",
+  brandLight: "var(--brand-light)",
+  accent: "var(--accent)",
+  danger: "var(--error)",
+  bg: "var(--bg)",
+  surface: "var(--surface)",
+  surface2: "var(--surface2)",
+  surface3: "var(--surface3)",
+  border: "var(--border)",
+  text: "var(--text)",
+  textMuted: "var(--text-muted)",
+  textDim: "var(--text-dim)",
+  error: "var(--error)",
   success: "#4ADE80"
 };
 
@@ -521,13 +521,42 @@ export const Settings = () => {
     <SectionCard title="Appearance" description="Customize how the application looks">
       <div className="space-y-6">
         <div className="space-y-3">
-          <label className="text-sm font-medium" style={{ color: "var(--text-muted)" }}>Theme</label>
-          <div className="grid grid-cols-3 gap-3">
-            {[ { key: 'light', icon: Sun, label: 'Light' }, { key: 'dark', icon: Moon, label: 'Dark' }, { key: 'system', icon: Monitor, label: 'System' } ].map(({ key, icon: Icon, label }) => (
-              <motion.button key={key} whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} onClick={() => setLocalSettings(prev => ({ ...prev, theme: key }))}
-                className="p-4 rounded-xl flex flex-col items-center gap-2 transition-all"
-                style={{ background: localSettings.theme === key ? C.brand : "var(--surface2)", border: `1px solid ${localSettings.theme === key ? C.brand : "var(--border)"}`, color: localSettings.theme === key ? "var(--bg)" : "var(--text)" }}>
-                <Icon size={24} /><span className="text-sm font-medium">{label}</span>
+          <label className="text-sm font-medium" style={{ color: "var(--text-muted)" }}>Application Theme</label>
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3">
+            {[ 
+              { key: 'emerald', label: 'Emerald', primary: '#16A880', bg: '#0A0F0D' }, 
+              { key: 'royal', label: 'Royal', primary: '#6366F1', bg: '#0A0E1A' }, 
+              { key: 'midnight', label: 'Midnight', primary: '#8B5CF6', bg: '#030303' }, 
+              { key: 'sunset', label: 'Sunset', primary: '#F97316', bg: '#0F0D0C' },
+              { key: 'light', label: 'Light', primary: '#16A880', bg: '#FAFAF9' }
+            ].map(({ key, label, primary, bg }) => (
+              <motion.button 
+                key={key} 
+                whileHover={{ scale: 1.05, y: -2 }} 
+                whileTap={{ scale: 0.95 }} 
+                onClick={() => {
+                  setLocalSettings(prev => ({ ...prev, theme: key }));
+                  // Immediate feedback
+                  document.documentElement.setAttribute('data-theme', key);
+                }}
+                className="group relative h-24 rounded-2xl overflow-hidden border-2 transition-all"
+                style={{ 
+                  background: bg, 
+                  borderColor: localSettings.theme === key ? primary : "var(--border)",
+                  boxShadow: localSettings.theme === key ? `0 0 20px ${primary}30` : 'none'
+                }}
+              >
+                <div className="absolute inset-0 flex flex-col items-center justify-center gap-2">
+                  <div className="w-8 h-8 rounded-full shadow-lg flex items-center justify-center" style={{ background: primary }}>
+                    {localSettings.theme === key && <Check size={16} className="text-white" />}
+                  </div>
+                  <span className="text-xs font-bold uppercase tracking-wider" style={{ color: localSettings.theme === key ? primary : '#888' }}>
+                    {label}
+                  </span>
+                </div>
+                {localSettings.theme === key && (
+                  <motion.div layoutId="active-theme" className="absolute inset-0 border-2" style={{ borderColor: primary }} />
+                )}
               </motion.button>
             ))}
           </div>

@@ -29,12 +29,12 @@ import toast from "react-hot-toast";
 // DESIGN TOKENS (Matching MyCourses Theme)
 // ==========================================
 const C = {
-  brand: "#16A880",
-  brandDark: "#0D7A5F",
-  brandLight: "#1FC99A",
-  accent: "#F59E0B",
-  error: "#F87171",
-  success: "#22C55E",
+  brand: "var(--brand)",
+  brandDark: "var(--brand-dark)",
+  brandLight: "var(--brand-light)",
+  accent: "var(--accent)",
+  error: "var(--error)",
+  success: "#22C55E", // Success is usually fine as is
 };
 
 // WebSocket singleton

@@ -40,12 +40,15 @@
     }
     const applyTheme = (theme) => {
       const root = document.documentElement;
-      if(theme === "dark"){
-        root.classList.add("dark");
-      }else{
-        root.classList.remove("dark");
-      }
-      localStorage.setItem("theme",theme);
+      
+      // Clear legacy dark class if present
+      root.classList.remove("dark");
+      
+      // Force "emerald" if theme is the legacy "dark"
+      const currentTheme = theme === "dark" ? "emerald" : theme || "emerald";
+      
+      root.setAttribute("data-theme", currentTheme);
+      localStorage.setItem("theme", currentTheme);
     }
 return (
     <SettingsContext.Provider value={{settings,loading,updateSettings,refreshSettings:fetchSettings,}}>

@@ -22,10 +22,10 @@ import { useAuth } from "../../context/AuthContext";
 // DESIGN TOKENS
 // ─────────────────────────────────────────
 const C = {
-  brand: "#16A880",
-  brandLight: "#1FC99A",
-  accent: "#F59E0B",
-  error: "#F87171",
+  brand: "var(--brand)",
+  brandLight: "var(--brand-light)",
+  accent: "var(--accent)",
+  error: "var(--error)",
 };
 
 // Route label map for the page title
@@ -215,8 +215,8 @@ export const UserNavbar = ({ toggleSidebar, isSidebarOpen, isMobile }) => {
           <motion.div
             animate={{
               boxShadow: searchFocused
-                ? `0 0 0 1.5px ${C.brand}88, 0 0 20px ${C.brand}14`
-                : `0 0 0 1px ${"var(--border)"}`,
+                ? `0 0 0 1.5px var(--brand)88, 0 0 20px rgba(var(--brand-rgb), 0.14)`
+                : `0 0 0 1px var(--border)`,
             }}
             className="relative rounded-xl overflow-hidden"
             style={{ background: "var(--surface)" }}

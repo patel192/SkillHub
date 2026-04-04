@@ -27,11 +27,11 @@ import { useAuth } from "../../context/AuthContext";
 // DESIGN TOKENS (Matching Your Theme)
 // ==========================================
 const C = {
-  brand: "#16A880",
-  brandDark: "#0D7A5F",
-  brandLight: "#1FC99A",
-  accent: "#F59E0B",
-  error: "#F87171",
+  brand: "var(--brand)",
+  brandDark: "var(--brand-dark)",
+  brandLight: "var(--brand-light)",
+  accent: "var(--accent)",
+  error: "var(--error)",
 };
 
 // ==========================================

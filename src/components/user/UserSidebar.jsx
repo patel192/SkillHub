@@ -16,11 +16,11 @@ import { useAuth } from "../../context/AuthContext";
 // DESIGN TOKENS
 // ─────────────────────────────────────────
 const C = {
-  brand:      "#16A880",
-  brandDark:  "#0D7A5F",
-  brandLight: "#1FC99A",
-  accent:     "#F59E0B",
-  error:      "#F87171",
+  brand:      "var(--brand)",
+  brandDark:  "var(--brand-dark)",
+  brandLight: "var(--brand-light)",
+  accent:     "var(--accent)",
+  error:      "var(--error)",
 };
 
 // ─────────────────────────────────────────
@@ -138,7 +138,7 @@ const SidebarContent = ({ isOpen, toggle, currentPath, onLogout, isMobile }) => 
                 className="text-[19px] font-bold whitespace-nowrap overflow-hidden"
                 style={{
                   fontFamily: "'Fraunces', serif",
-                  background: `linear-gradient(135deg, ${C.brand}, ${C.brandLight})`,
+                  background: `linear-gradient(135deg, var(--brand), var(--brand-light))`,
                   WebkitBackgroundClip: "text",
                   WebkitTextFillColor: "transparent",
                 }}
