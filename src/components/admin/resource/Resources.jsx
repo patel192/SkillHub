@@ -132,4 +132,3 @@ const ResourceCourseCard = ({ course, idx, onLessons, onQuiz }) => (
 
 export default Resources;
 
-export default Resources;
