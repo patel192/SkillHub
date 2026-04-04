@@ -16,7 +16,9 @@ import {
   UserPlus,
   Clock,
   CheckCircle2,
-  MessageSquare
+  MessageSquare,
+  Lock,
+  Shield
 } from "lucide-react";
 import { useAuth } from "../../context/AuthContext";
 import toast from "react-hot-toast";
@@ -63,6 +65,11 @@ export const PublicProfile = () => {
   const [activeTab, setActiveTab] = useState("profile");
   const [friendStatus, setFriendStatus] = useState("none"); // none, pending_out, pending_in, friends
   const [actionLoading, setActionLoading] = useState(false);
+  const [settings, setSettings] = useState({
+    profilePublic: true,
+    showActivity: true,
+    showProgress: true
+  });
 
   const checkFriendStatus = async () => {
     if (!currentUserId || !userId) return;
@@ -104,9 +111,25 @@ export const PublicProfile = () => {
       if (!userId) return;
       try {
         setLoading(true);
+        // Fetch User Data
         const res = await apiClient.get(`/user/${userId}`);
         const data = res.data?.data || res.data;
         setUserData(data);
+
+        // Fetch User Settings for Privacy
+        try {
+          const settingsRes = await apiClient.get(`/user/${userId}/settings`);
+          if (settingsRes.data?.data) {
+            setSettings({
+              profilePublic: settingsRes.data.data.profilePublic ?? true,
+              showActivity: settingsRes.data.data.showActivity ?? true,
+              showProgress: settingsRes.data.data.showProgress ?? true
+            });
+          }
+        } catch (settingsErr) {
+          console.warn("Failed to fetch settings for user, using defaults:", settingsErr);
+        }
+
         await checkFriendStatus();
       } catch (err) {
         console.error("Public Profile fetch error:", err);
@@ -264,82 +287,109 @@ export const PublicProfile = () => {
                 )}
               </div>
 
-              <div className="space-y-4 pt-4 border-t" style={{ borderColor: "var(--border)" }}>
-                <h3 className="text-xs font-bold uppercase tracking-widest opacity-60">About User</h3>
-                <p className="text-sm leading-relaxed opacity-80">
-                  {userData.bio || "No bio provided yet."}
-                </p>
-                
-                <div className="space-y-3 pt-2">
-                  <div className="flex items-center gap-3 text-sm opacity-80">
-                    <Mail size={16} style={{ color: C.brand }} />
-                    {userData.email}
-                  </div>
-                  {userData.location && (
+              {settings.profilePublic || currentUserId === userId ? (
+                <div className="space-y-4 pt-4 border-t" style={{ borderColor: "var(--border)" }}>
+                  <h3 className="text-xs font-bold uppercase tracking-widest opacity-60">About User</h3>
+                  <p className="text-sm leading-relaxed opacity-80">
+                    {userData.bio || "No bio provided yet."}
+                  </p>
+                  
+                  <div className="space-y-3 pt-2">
                     <div className="flex items-center gap-3 text-sm opacity-80">
-                      <MapPin size={16} style={{ color: C.brand }} />
-                      {userData.location}
+                      <Mail size={16} style={{ color: C.brand }} />
+                      {userData.email}
                     </div>
-                  )}
+                    {userData.location && (
+                      <div className="flex items-center gap-3 text-sm opacity-80">
+                        <MapPin size={16} style={{ color: C.brand }} />
+                        {userData.location}
+                      </div>
+                    )}
+                  </div>
                 </div>
-              </div>
+              ) : (
+                <div className="pt-6 border-t text-center space-y-2" style={{ borderColor: "var(--border)" }}>
+                   <Lock size={24} className="mx-auto opacity-20" />
+                   <p className="text-[10px] font-bold uppercase tracking-widest opacity-40">Private Account</p>
+                </div>
+              )}
             </div>
           </motion.div>
 
           {/* Main Content Areas */}
           <motion.div initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} className="lg:col-span-2 space-y-6">
-            {/* Achievements Section */}
-            <div className="rounded-3xl p-8 border" style={{ background: "var(--surface)", borderColor: "var(--border)" }}>
-              <div className="flex items-center justify-between mb-8">
-                <div className="flex items-center gap-3">
-                  <div className="p-2 rounded-xl" style={{ background: `${C.accent}15`, color: C.accent }}>
-                    <Award size={24} />
-                  </div>
-                  <h3 className="text-xl font-bold" style={{ fontFamily: "'Fraunces', serif" }}>Badges & Achievements</h3>
+            {!settings.profilePublic && currentUserId !== userId ? (
+              <div className="rounded-3xl p-12 border border-dashed flex flex-col items-center justify-center text-center space-y-4" 
+                style={{ background: "var(--surface)", borderColor: "var(--border)" }}
+              >
+                <div className="p-4 rounded-full" style={{ background: `${C.brand}10` }}>
+                   <Shield size={48} style={{ color: C.brand }} />
+                </div>
+                <div>
+                   <h3 className="text-xl font-bold mb-1" style={{ fontFamily: "'Fraunces', serif" }}>Profile is Private</h3>
+                   <p className="text-sm opacity-60 max-w-sm">This user has restricted their profile visibility. You can only see their basic info.</p>
                 </div>
               </div>
-
-              {userData.achievements?.length > 0 ? (
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  {userData.achievements.map((ach, idx) => (
-                    <div key={idx} className="p-5 rounded-2xl border flex items-center gap-4 transition-transform hover:scale-[1.02]"
-                      style={{ background: "var(--surface2)", borderColor: "var(--border)" }}
-                    >
-                      <div className="w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0"
-                        style={{ background: `${C.brand}15`, color: C.brand }}
-                      >
-                        <Award size={22} />
-                      </div>
-                      <div>
-                        <h4 className="font-bold text-sm tracking-tight">{ach.name}</h4>
-                        <p className="text-[11px] opacity-60 mt-0.5">{ach.description || "Earned through excellence."}</p>
+            ) : (
+              <>
+                {/* Achievements Section */}
+                {(settings.showProgress || currentUserId === userId) && (
+                  <div className="rounded-3xl p-8 border" style={{ background: "var(--surface)", borderColor: "var(--border)" }}>
+                    <div className="flex items-center justify-between mb-8">
+                      <div className="flex items-center gap-3">
+                        <div className="p-2 rounded-xl" style={{ background: `${C.accent}15`, color: C.accent }}>
+                          <Award size={24} />
+                        </div>
+                        <h3 className="text-xl font-bold" style={{ fontFamily: "'Fraunces', serif" }}>Badges & Achievements</h3>
                       </div>
                     </div>
-                  ))}
-                </div>
-              ) : (
-                <div className="py-12 text-center border-2 border-dashed rounded-3xl" style={{ borderColor: "var(--border)" }}>
-                  <Award size={40} className="mx-auto mb-3 opacity-20" />
-                  <p className="text-sm opacity-60">No achievements recorded yet.</p>
-                </div>
-              )}
-            </div>
 
-            {/* Recent Activity Section (Placeholder logic if empty) */}
-            <div className="rounded-3xl p-8 border" style={{ background: "var(--surface)", borderColor: "var(--border)" }}>
-              <div className="flex items-center gap-3 mb-8">
-                <div className="p-2 rounded-xl" style={{ background: `${C.brand}15`, color: C.brand }}>
-                  <Activity size={24} />
-                </div>
-                <h3 className="text-xl font-bold" style={{ fontFamily: "'Fraunces', serif" }}>Recent Learning Activity</h3>
-              </div>
-              
-              <div className="space-y-4">
-                 <div className="p-4 rounded-xl text-center opacity-60 text-sm border border-dashed" style={{ borderColor: "var(--border)" }}>
-                   Learning activity is currently private or restricted.
-                 </div>
-              </div>
-            </div>
+                    {userData.achievements?.length > 0 ? (
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        {userData.achievements.map((ach, idx) => (
+                          <div key={idx} className="p-5 rounded-2xl border flex items-center gap-4 transition-transform hover:scale-[1.02]"
+                            style={{ background: "var(--surface2)", borderColor: "var(--border)" }}
+                          >
+                            <div className="w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0"
+                              style={{ background: `${C.brand}15`, color: C.brand }}
+                            >
+                              <Award size={22} />
+                            </div>
+                            <div>
+                              <h4 className="font-bold text-sm tracking-tight">{ach.name}</h4>
+                              <p className="text-[11px] opacity-60 mt-0.5">{ach.description || "Earned through excellence."}</p>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    ) : (
+                      <div className="py-12 text-center border-2 border-dashed rounded-3xl" style={{ borderColor: "var(--border)" }}>
+                        <Award size={40} className="mx-auto mb-3 opacity-20" />
+                        <p className="text-sm opacity-60">No achievements recorded yet.</p>
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                {/* Recent Activity Section */}
+                {(settings.showActivity || currentUserId === userId) && (
+                  <div className="rounded-3xl p-8 border" style={{ background: "var(--surface)", borderColor: "var(--border)" }}>
+                    <div className="flex items-center gap-3 mb-8">
+                      <div className="p-2 rounded-xl" style={{ background: `${C.brand}15`, color: C.brand }}>
+                        <Activity size={24} />
+                      </div>
+                      <h3 className="text-xl font-bold" style={{ fontFamily: "'Fraunces', serif" }}>Recent Learning Activity</h3>
+                    </div>
+                    
+                    <div className="space-y-4">
+                       <div className="p-4 rounded-xl text-center opacity-60 text-sm border border-dashed" style={{ borderColor: "var(--border)" }}>
+                         Learning activity is currently private or restricted.
+                       </div>
+                    </div>
+                  </div>
+                )}
+              </>
+            )}
           </motion.div>
 
         </div>
