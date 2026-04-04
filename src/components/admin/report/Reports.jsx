@@ -1,15 +1,23 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import { motion } from "framer-motion";
-import { AlertTriangle, User, BookOpen, MessageSquare } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
+import { AlertTriangle, User, BookOpen, MessageSquare, ChevronRight, Filter, Clock, ShieldCheck } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { Spinner } from "../../../utils/Spinner";
+import { useAuth } from "../../../context/AuthContext";
+
+const C = {
+  brand: "var(--brand)",
+  brandLight: "var(--brand-light)",
+  accent: "var(--accent)",
+  error: "var(--error)",
+  success: "#22C55E",
+};
 
 export const Reports = () => {
   const [reports, setReports] = useState([]);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
-  const token = localStorage.getItem("token");
+  const { token } = useAuth();
 
   useEffect(() => {
     const fetchReports = async () => {
@@ -27,112 +35,88 @@ export const Reports = () => {
     fetchReports();
   }, [token]);
 
-  if (loading) {
-    return (
-      <div className="flex justify-center items-center h-screen text-white">
-        <Spinner />
-      </div>
-    );
-  }
-
-  if (reports.length === 0) {
-    return (
-      <div className="text-center text-gray-400 mt-10 text-lg">
-        No reports submitted yet.
-      </div>
-    );
-  }
-
-  const renderTarget = (r) => {
-    if (!r.targetId) return "Unknown";
-    if (r.targetType === "User") return r.targetId.fullname || "Unknown User";
-    if (r.targetType === "Course") return r.targetId.title || "Unknown Course";
-    if (r.targetType === "Post") return `Post ID: ${r.targetId._id}`;
-    return "Unknown Target";
-  };
-
   const getTargetIcon = (type) => {
     switch (type) {
-      case "User":
-        return <User className="text-blue-400" size={18} />;
-      case "Course":
-        return <BookOpen className="text-green-400" size={18} />;
-      case "Post":
-        return <MessageSquare className="text-purple-400" size={18} />;
-      default:
-        return <AlertTriangle className="text-red-400" size={18} />;
+      case "User": return <User className="opacity-50" size={16} />;
+      case "Course": return <BookOpen className="opacity-50" size={16} />;
+      case "Post": return <MessageSquare className="opacity-50" size={16} />;
+      default: return <AlertTriangle className="opacity-50" size={16} />;
     }
   };
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 25 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.4 }}
-      className="p-6 sm:p-10 min-h-screen bg-gradient-to-br 
-                 from-[#0f172a] via-[#1e1b4b] to-[#0f172a] 
-                 text-white rounded-2xl"
-    >
-      {/* Page Title */}
-      <h2 className="text-2xl sm:text-4xl font-extrabold mb-10 
-                     bg-clip-text text-transparent 
-                     bg-gradient-to-r from-purple-400 to-cyan-400 
-                     drop-shadow-lg">
-        Reports Overview
-      </h2>
-
-      {/* Reports List */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {reports.map((r, index) => (
-          <motion.div
-            key={r._id}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: index * 0.05 }}
-            whileHover={{ scale: 1.02 }}
-            onClick={() => navigate(`/admin/reports/${r._id}`)}
-            className="cursor-pointer p-5 rounded-2xl border border-purple-700/40
-                       bg-white/5 backdrop-blur-lg shadow-lg hover:shadow-purple-500/40
-                       transition-all"
-          >
-            {/* Target Row */}
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2 text-gray-200">
-                {getTargetIcon(r.targetType)}
-                <span className="font-medium text-white">
-                  {r.targetType} → {renderTarget(r)}
-                </span>
-              </div>
-
-              <span
-                className={`px-3 py-1 text-xs rounded-full border font-semibold
-                  ${
-                    r.status === "resolved"
-                      ? "bg-green-500/20 text-green-300 border-green-400/20"
-                      : "bg-purple-500/20 text-purple-300 border-purple-400/30"
-                  }`}
-              >
-                {r.status || "pending"}
-              </span>
-            </div>
-
-            {/* Description */}
-            <p className="mt-3 text-gray-400 text-sm line-clamp-3">
-              {r.description || "No description provided"}
-            </p>
-
-            {/* Footer */}
-            <div className="mt-4 flex justify-between items-center text-xs text-gray-500">
-              <span className="text-purple-300">
-                Reporter: {r.reporter?.fullname || "Anonymous"}
-              </span>
-              <span className="text-cyan-400">
-                {new Date(r.createdAt).toLocaleString()}
-              </span>
-            </div>
-          </motion.div>
-        ))}
+    <div className="space-y-8">
+      {/* Header */}
+      <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
+        <div>
+           <h2 className="text-3xl font-bold tracking-tight" style={{ fontFamily: "'Fraunces', serif" }}>
+             System <span style={{ color: C.brand }}>Reports</span>
+           </h2>
+           <p className="text-sm opacity-50 mt-1">Review user-submitted reports for courses, profiles, and community posts.</p>
+        </div>
       </div>
-    </motion.div>
+
+      {loading ? (
+        <div className="flex justify-center py-20">
+           <div className="w-10 h-10 border-4 border-t-transparent animate-spin rounded-full" style={{ borderColor: C.brand }} />
+        </div>
+      ) : reports.length === 0 ? (
+        <div className="text-center py-24 rounded-3xl border border-dashed opacity-40" style={{ borderColor: 'var(--border)' }}>
+           <AlertTriangle size={48} className="mx-auto mb-4" />
+           <p className="text-lg font-medium">No reports currently in the queue.</p>
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <AnimatePresence>
+            {reports.map((r, idx) => (
+              <motion.div
+                key={r._id}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: idx * 0.05 }}
+                onClick={() => navigate(`/admin/reports/${r._id}`)}
+                className="group relative p-6 rounded-3xl border shadow-xl flex flex-col gap-4 cursor-pointer transition-all hover:scale-[1.01]"
+                style={{ background: 'var(--surface)', borderColor: 'var(--border)' }}
+              >
+                <div className="flex items-start justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className="p-2.5 rounded-xl transition-colors" style={{ background: 'var(--surface2)', border: '1px solid var(--border)' }}>
+                       {getTargetIcon(r.targetType)}
+                    </div>
+                    <div>
+                      <p className="text-[10px] font-black uppercase tracking-widest opacity-40">{r.targetType}</p>
+                      <h3 className="font-bold text-sm leading-tight text-white line-clamp-1">
+                        {r.targetType === "User" ? r.targetId?.fullname : r.targetType === "Course" ? r.targetId?.title : "System Post"}
+                      </h3>
+                    </div>
+                  </div>
+                  <span className={`px-2.5 py-1 rounded-lg text-[9px] font-black uppercase tracking-tighter ${r.status === 'resolved' ? 'bg-emerald-500/10 text-emerald-400' : 'bg-amber-400/10 text-amber-400'}`}>
+                    {r.status || 'pending'}
+                  </span>
+                </div>
+
+                <div className="p-4 rounded-2xl border bg-white/5" style={{ borderColor: 'var(--border)' }}>
+                  <p className="text-[13px] opacity-70 italic line-clamp-2 leading-relaxed">
+                    "{r.description || "No description provided"}"
+                  </p>
+                </div>
+
+                <div className="flex items-center justify-between mt-auto pt-2 border-t" style={{ borderColor: 'var(--border)' }}>
+                  <div className="flex items-center gap-2">
+                    <div className="w-5 h-5 rounded-full bg-indigo-500/20 flex items-center justify-center text-[10px] font-black">{r.reporter?.fullname?.[0] || 'A'}</div>
+                    <span className="text-[11px] opacity-40">By {r.reporter?.fullname || 'Anonymous'}</span>
+                  </div>
+                  <div className="flex items-center gap-1.5 opacity-40 text-[10px] font-bold">
+                     <Clock size={12} />
+                     {new Date(r.createdAt).toLocaleDateString()}
+                  </div>
+                </div>
+              </motion.div>
+            ))}
+          </AnimatePresence>
+        </div>
+      )}
+    </div>
   );
 };
+

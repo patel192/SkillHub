@@ -1,15 +1,22 @@
 import React, { useState, useEffect } from "react";
-import { BookOpen, Clock, User, Zap, Star, DollarSign } from "lucide-react";
+import { BookOpen, Clock, User, Zap, Star, Layout, Library, ChevronRight, GraduationCap } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import axios from "axios";
-import { Spinner } from "../../../utils/Spinner";
+import { useAuth } from "../../../context/AuthContext";
+
+const C = {
+  brand: "var(--brand)",
+  brandDark: "var(--brand-dark)",
+  brandLight: "var(--brand-light)",
+  accent: "var(--accent)",
+  error: "var(--error)",
+};
 
 export const Resources = () => {
-  const token = localStorage.getItem("token");
+  const { token } = useAuth();
   const [courses, setCourses] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -20,7 +27,7 @@ export const Resources = () => {
         });
         setCourses(response.data.data);
       } catch (e) {
-        setError(e.response?.data?.message || e.message);
+        console.error("Resource course fetch error:", e);
       } finally {
         setLoading(false);
       }
@@ -28,102 +35,87 @@ export const Resources = () => {
     fetchCourses();
   }, [token]);
 
-  if (loading) {
-    return (
-      <div className="flex justify-center items-center h-screen text-white">
-        <Spinner />
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="p-6 text-center text-red-400">
-        Error fetching data: {error}
-      </div>
-    );
-  }
-
-  const CourseCard = ({ course }) => {
-    const defaultImageUrl =
-      "https://via.placeholder.com/400x200?text=Course+Image";
-
-    return (
-      <motion.div
-        whileHover={{ scale: 1.03, boxShadow: "0 0 25px rgba(0,255,255,0.3)" }}
-        className="bg-gray-900/40 backdrop-blur-lg border border-white/10 rounded-2xl overflow-hidden flex flex-col transition-transform duration-300"
-      >
-        {/* Image */}
-        <div className="relative">
-          <img
-            src={course.imageUrl || defaultImageUrl}
-            alt={course.title}
-            className="w-full h-48 object-cover"
-          />
-          <span className="absolute top-2 left-2 bg-indigo-500/80 text-white text-xs font-semibold px-2 py-1 rounded-lg shadow-md">
-            {course.category}
-          </span>
-        </div>
-
-        {/* Content */}
-        <div className="p-5 flex flex-col flex-grow">
-          <h3 className="text-lg sm:text-xl font-bold text-white mb-2 line-clamp-2">
-            {course.title}
-          </h3>
-          <p className="text-gray-300 text-sm mb-4 line-clamp-3">{course.description}</p>
-
-          <div className="flex flex-wrap gap-2 text-xs sm:text-sm text-gray-300 mb-4">
-            <div className="flex items-center gap-1">
-              <User size={14} className="text-cyan-400" /> {course.instructor}
-            </div>
-            <div className="flex items-center gap-1">
-              <Zap size={14} className="text-purple-400" /> {course.level}
-            </div>
-            <div className="flex items-center gap-1">
-              <Clock size={14} className="text-gray-400" /> {course.duration}
-            </div>
-            <div className="flex items-center gap-1">
-              <Star size={14} className="text-yellow-400" /> {course.rating?.toFixed(1)} (
-              {course.enrollemntCount} enrolled)
-            </div>
-            <div className="flex items-center gap-1 font-semibold text-green-400">
-              <DollarSign size={14} /> ${course.price?.toFixed(2)}
-            </div>
-          </div>
-
-          {/* Action Buttons */}
-          <div className="flex flex-col sm:flex-row gap-3 mt-auto">
-            <motion.button
-              whileHover={{ scale: 1.05, boxShadow: "0 0 15px #00FFFF" }}
-              onClick={() => navigate(`/admin/resources/${course._id}`)}
-              className="flex-1 py-2 px-4 rounded-lg bg-cyan-600 hover:bg-cyan-700 text-white font-medium transition"
-            >
-              Lessons
-            </motion.button>
-
-            <motion.button
-              whileHover={{ scale: 1.05, boxShadow: "0 0 15px #FF00FF" }}
-              onClick={() => navigate(`/admin/quiz/${course._id}`)}
-              className="flex-1 py-2 px-4 rounded-lg bg-purple-600 hover:bg-purple-700 text-white font-medium transition"
-            >
-              Quiz
-            </motion.button>
-          </div>
-        </div>
-      </motion.div>
-    );
-  };
-
   return (
-    <div className="p-6 bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 min-h-screen">
-      <h1 className="text-2xl sm:text-3xl font-bold mb-6 text-white">
-        Select a Course
-      </h1>
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-        {courses.map((course) => (
-          <CourseCard key={course._id} course={course} />
-        ))}
+    <div className="space-y-8">
+      {/* Header */}
+      <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
+        <div>
+           <h2 className="text-3xl font-bold tracking-tight" style={{ fontFamily: "'Fraunces', serif" }}>
+             Resource <span style={{ color: C.brand }}>Manager</span>
+           </h2>
+           <p className="text-sm opacity-50 mt-1">Select a course to manage lessons, quizzes, and educational assets.</p>
+        </div>
       </div>
+
+      {loading ? (
+        <div className="flex justify-center py-20">
+           <div className="w-10 h-10 border-4 border-t-transparent animate-spin rounded-full" style={{ borderColor: C.brand }} />
+        </div>
+      ) : courses.length === 0 ? (
+        <div className="text-center py-24 rounded-3xl border border-dashed opacity-40" style={{ borderColor: 'var(--border)' }}>
+           <Library size={48} className="mx-auto mb-4" />
+           <p className="text-lg font-medium">No courses available to manage.</p>
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+           <AnimatePresence>
+             {courses.map((course, idx) => (
+                <ResourceCourseCard key={course._id} course={course} idx={idx} onClick={() => navigate(`/admin/resources/${course._id}`)} />
+             ))}
+           </AnimatePresence>
+        </div>
+      )}
     </div>
   );
 };
+
+const ResourceCourseCard = ({ course, idx, onClick }) => (
+  <motion.div
+    layout
+    initial={{ opacity: 0, scale: 0.95 }}
+    animate={{ opacity: 1, scale: 1 }}
+    transition={{ delay: idx * 0.05 }}
+    onClick={onClick}
+    className="group relative flex flex-col rounded-3xl border shadow-xl overflow-hidden cursor-pointer bg-surface hover:ring-2 transition-all"
+    style={{ background: 'var(--surface)', borderColor: 'var(--border)', '--tw-ring-color': 'var(--brand)' }}
+  >
+    <div className="relative h-40 overflow-hidden bg-black/20">
+      <img
+        src={course.imageUrl || "https://images.unsplash.com/photo-1501504905252-473c47e087f8?w=800"}
+        alt={course.title}
+        className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+      />
+      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-60" />
+      <div className="absolute top-4 left-4">
+        <span className="px-2.5 py-1 rounded-lg text-[9px] font-black uppercase tracking-widest backdrop-blur-md bg-white/20 text-white">
+          {course.category}
+        </span>
+      </div>
+    </div>
+
+    <div className="p-5 flex flex-col gap-3">
+      <h3 className="font-bold text-base leading-tight line-clamp-2 min-h-[2.5rem]">
+         {course.title}
+      </h3>
+      
+      <div className="flex items-center gap-4 text-[10px] uppercase tracking-widest font-black opacity-30">
+         <span className="flex items-center gap-1.5"><GraduationCap size={14} /> Admin Tools</span>
+      </div>
+
+      <div className="flex gap-2 mt-2">
+         <div className="flex-1 flex items-center justify-center gap-2 py-2 rounded-xl text-[11px] font-extrabold transition-all border"
+              style={{ background: 'var(--surface2)', borderColor: 'var(--border)' }}>
+            <Layout size={14} style={{ color: C.brand }} />
+            Lessons
+         </div>
+         <div className="flex-1 flex items-center justify-center gap-2 py-2 rounded-xl text-[11px] font-extrabold transition-all border"
+              style={{ background: 'var(--surface2)', borderColor: 'var(--border)' }}>
+            <Zap size={14} style={{ color: C.accent }} />
+            Quizzes
+         </div>
+      </div>
+    </div>
+  </motion.div>
+);
+
+export default Resources;

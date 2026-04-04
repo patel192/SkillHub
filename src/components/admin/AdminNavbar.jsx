@@ -1,39 +1,47 @@
-import React, { useEffect, useState } from "react";
-import { motion } from "framer-motion";
-import { Menu, X, Bell } from "lucide-react";
+import React, { useEffect, useState, useRef } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { Menu, Bell, User, LogOut, ChevronDown, Search, X } from "lucide-react";
 import axios from "axios";
+import { useAuth } from "../../context/AuthContext";
+import { useNavigate } from "react-router-dom";
 
-export const AdminNavbar = ({ toggleSidebar, isSidebarOpen, leftOffset = 0 }) => {
+const C = {
+  brand: "var(--brand)",
+  brandLight: "var(--brand-light)",
+  accent: "var(--accent)",
+  error: "var(--error)",
+};
+
+export const AdminNavbar = ({ toggleSidebar, isSidebarOpen, isMobile }) => {
+  const navigate = useNavigate();
+  const { user, userId, token, logout } = useAuth();
+
   const [time, setTime] = useState(new Date());
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [avatar, setAvatar] = useState("");
-  const [isScrolled, setIsScrolled] = useState(false);
-
-  const userId = localStorage.getItem("userId");
-
-  const fetchUser = async () => {
-    try {
-      const res = await axios.get(`/user/${userId}`);
-      setAvatar(res.data.data?.avatar || "/avatars/default.png");
-    } catch (err) {
-      console.error("Error fetching user:", err);
-      setAvatar("/avatars/default.png");
-    }
-  };
+  const dropdownRef = useRef(null);
 
   useEffect(() => {
-    fetchUser();
-  }, [userId]);
+    if (!userId) return;
+    axios.get(`/user/${userId}`, {
+      headers: { Authorization: `Bearer ${token}` }
+    }).then(res => {
+      setAvatar(res.data?.data?.avatar || res.data?.avatar);
+    }).catch(err => console.error("Admin user fetch error:", err));
+  }, [userId, token]);
 
   useEffect(() => {
-    const timer = setInterval(() => setTime(new Date()), 60000);
+    const timer = setInterval(() => setTime(new Date()), 1000);
     return () => clearInterval(timer);
   }, []);
 
   useEffect(() => {
-    const onScroll = () => setIsScrolled(window.scrollY > 8);
-    window.addEventListener("scroll", onScroll);
-    return () => window.removeEventListener("scroll", onScroll);
+    const handler = (e) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target))
+        setDropdownOpen(false);
+    };
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
   }, []);
 
   const formattedTime = time.toLocaleTimeString([], {
@@ -45,61 +53,96 @@ export const AdminNavbar = ({ toggleSidebar, isSidebarOpen, leftOffset = 0 }) =>
     <motion.header
       initial={{ y: -20, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}
-      transition={{ duration: 0.45 }}
-      className={`fixed top-0 z-50 left-0 right-0 flex items-center justify-between px-4 sm:px-6 
-        h-16 bg-opacity-70 backdrop-blur-md border-b transition-all duration-300`}
-      // IMPORTANT: we set left style so navbar aligns with main content when sidebar changes
+      className="sticky top-0 z-30 h-16"
       style={{
-        left: leftOffset,
-        right: 0,
-        backgroundColor: isScrolled ? "rgba(15,23,42,0.9)" : "rgba(15,23,42,0.7)",
-        borderBottom: isScrolled ? "1px solid rgba(59,130,246,0.12)" : "1px solid rgba(59,130,246,0.06)",
-        // ensure navbar stretches the remainder of the screen (left offset already applied)
+        background: `var(--surface-alpha)`,
+        backdropFilter: "blur(20px)",
+        borderBottom: `1px solid var(--border)`,
       }}
     >
-      {/* left: sidebar toggle */}
-      <button onClick={toggleSidebar} className="p-2 rounded-md hover:bg-white/8 transition">
-        {isSidebarOpen ? <X size={20} /> : <Menu size={20} />}
-      </button>
-
-      <h1 className="text-base sm:text-lg md:text-xl font-semibold truncate ml-4">
-        Admin Dashboard
-      </h1>
-
-      <div className="flex items-center gap-3 ml-auto">
-        <span className="hidden sm:block text-xs text-gray-300">{formattedTime}</span>
-
-        <div className="relative cursor-pointer">
-          <Bell size={18} className="hover:text-cyan-400 transition" />
-          <span className="absolute top-0 right-0 h-2 w-2 rounded-full bg-red-500 animate-ping" />
+      <div className="h-full px-4 sm:px-6 flex items-center justify-between gap-4">
+        {/* Left Side */}
+        <div className="flex items-center gap-3">
+          <motion.button
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            onClick={toggleSidebar}
+            className="p-2.5 rounded-xl transition-colors"
+            style={{
+              background: `rgba(var(--brand-rgb), 0.1)`,
+              border: `1px solid var(--border)`,
+            }}
+          >
+            <Menu size={19} style={{ color: C.brand }} />
+          </motion.button>
+          
+          <div className="hidden md:block">
+            <h1 className="text-[17px] font-bold tracking-tight" style={{ fontFamily: "'Fraunces', serif" }}>
+              Admin Console
+            </h1>
+            <p className="text-[10px] uppercase tracking-wider opacity-50">
+              System Management
+            </p>
+          </div>
         </div>
 
-        <div className="relative">
-          <img
-            onClick={() => setDropdownOpen((d) => !d)}
-            src={avatar}
-            alt="avatar"
-            className="w-8 h-8 rounded-full cursor-pointer border border-blue-500 object-cover"
-          />
+        {/* Center - Simple Search Placeholder or info */}
+        <div className="flex-1 max-w-xs hidden lg:block">
+           <div className="flex items-center gap-2 px-4 py-2 rounded-xl border opacity-40 cursor-not-allowed" style={{ background: 'var(--surface2)', borderColor: 'var(--border)' }}>
+             <Search size={14} />
+             <span className="text-xs">Search logs, users...</span>
+           </div>
+        </div>
 
-          {dropdownOpen && (
-            <motion.div
-              initial={{ opacity: 0, y: -8 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -8 }}
-              className="absolute right-0 mt-2 w-36 bg-[#1E293B] border border-blue-500/30 rounded-lg shadow-md py-2 z-20"
+        {/* Right Side */}
+        <div className="flex items-center gap-3">
+          <div className="hidden sm:flex flex-col items-end mr-2">
+            <span className="text-sm font-mono font-bold" style={{ color: "var(--text)" }}>{formattedTime}</span>
+            <span className="text-[9px] uppercase tracking-widest opacity-40">Server Local</span>
+          </div>
+
+          <button className="p-2.5 rounded-xl border relative" style={{ background: 'var(--surface2)', borderColor: 'var(--border)' }}>
+             <Bell size={18} style={{ color: 'var(--text-muted)' }} />
+             <span className="absolute top-2 right-2 w-2 h-2 rounded-full" style={{ background: C.error }} />
+          </button>
+
+          {/* User Dropdown */}
+          <div className="relative" ref={dropdownRef}>
+            <motion.button
+              whileHover={{ scale: 1.02 }}
+              onClick={() => setDropdownOpen(!dropdownOpen)}
+              className="flex items-center gap-2 p-1.5 pr-3 rounded-full border transition-all"
+              style={{ background: 'var(--surface2)', borderColor: 'var(--border)' }}
             >
-              <button
-                onClick={() => {
-                  localStorage.clear();
-                  window.location.href = "/login";
-                }}
-                className="block w-full text-left px-4 py-2 text-sm text-gray-200 hover:bg-blue-600/20"
-              >
-                Logout
-              </button>
-            </motion.div>
-          )}
+              <img
+                src={avatar || `https://ui-avatars.com/api/?name=Admin&background=16A880&color=fff`}
+                alt="admin"
+                className="w-8 h-8 rounded-full object-cover ring-2 ring-transparent group-hover:ring-brand/20 transition-all"
+              />
+              <ChevronDown size={14} className={`transition-transform opacity-50 ${dropdownOpen ? 'rotate-180' : ''}`} />
+            </motion.button>
+
+            <AnimatePresence>
+              {dropdownOpen && (
+                <motion.div
+                  initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                  exit={{ opacity: 0, y: 10, scale: 0.95 }}
+                  className="absolute right-0 mt-3 w-48 rounded-2xl shadow-2xl border overflow-hidden p-2"
+                  style={{ background: "var(--surface)", borderColor: "var(--border)" }}
+                >
+                  <p className="px-3 py-2 text-[11px] font-bold uppercase tracking-widest opacity-40">Administrator</p>
+                  <button
+                    onClick={() => { logout(); navigate("/login"); }}
+                    className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm transition-colors text-red-400 hover:bg-red-400/10"
+                  >
+                    <LogOut size={16} />
+                    Sign out
+                  </button>
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
         </div>
       </div>
     </motion.header>

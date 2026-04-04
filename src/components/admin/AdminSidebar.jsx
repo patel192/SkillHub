@@ -1,6 +1,6 @@
-import React from "react";
+import React, { useState } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import {
   LayoutDashboard,
   LogOut,
@@ -8,123 +8,139 @@ import {
   Users,
   FileText,
   FileArchiveIcon,
+  ChevronLeft,
+  ChevronRight,
+  Code,
+  ShieldCheck,
+  Settings,
+  Bell
 } from "lucide-react";
+import { useAuth } from "../../context/AuthContext";
 
-export const AdminSidebar = ({ isOpen }) => {
-  const { pathname } = useLocation();
+const C = {
+  brand: "var(--brand)",
+  brandDark: "var(--brand-dark)",
+  brandLight: "var(--brand-light)",
+  accent: "var(--accent)",
+  error: "var(--error)",
+};
+
+const MENU_ITEMS = [
+  { label: "Dashboard", icon: LayoutDashboard, to: "/admin/admindashboard" },
+  { label: "Courses", icon: Book, to: "/admin/courses" },
+  { label: "Users", icon: Users, to: "/admin/users" },
+  { label: "Resources", icon: FileText, to: "/admin/resources" },
+  { label: "Reports", icon: FileArchiveIcon, to: "/admin/reports" },
+  { label: "Communities", icon: Users, to: "/admin/communities" },
+];
+
+export const AdminSidebar = ({ isOpen, toggle, isMobile }) => {
   const navigate = useNavigate();
-
-  const navItems = [
-    { label: "Dashboard", icon: LayoutDashboard, path: "/admin/admindashboard" },
-    { label: "Courses", icon: Book, path: "/admin/courses" },
-    { label: "Users", icon: Users, path: "/admin/users" },
-    { label: "Resources", icon: FileText, path: "/admin/resources" },
-    { label: "Reports", icon: FileArchiveIcon, path: "/admin/reports" },
-    { label: "Communities", icon: Users, path: "/admin/communities" },
-  ];
+  const location = useLocation();
+  const { logout } = useAuth();
 
   return (
-    <motion.aside
-      initial={{ width: isOpen ? 256 : 80 }}
-      animate={{ width: isOpen ? 256 : 80 }}
-      transition={{ duration: 0.35, ease: "easeInOut" }}
-      className="
-        h-full bg-[#0b0d12]/80 backdrop-blur-xl border-r border-white/10 
-        shadow-2xl flex flex-col overflow-hidden relative
-      "
-    >
-      {/* ========== Sidebar Header (Admin Branding) ========== */}
-      <div className="
-        h-16 flex items-center gap-3 px-4 border-b border-white/10 
-        bg-gradient-to-r from-indigo-700/40 to-cyan-500/20
-      ">
-        <div className="
-          w-10 h-10 rounded-xl bg-indigo-500/30 border border-indigo-400/40
-          flex items-center justify-center shadow-md
-        ">
-          <LayoutDashboard size={20} className="text-indigo-300" />
-        </div>
-
-        {isOpen && (
-          <span className="font-semibold text-lg bg-gradient-to-r from-indigo-300 to-cyan-300 bg-clip-text text-transparent">
-            Admin Panel
-          </span>
+    <>
+      <AnimatePresence>
+        {isMobile && isOpen && (
+          <motion.aside
+            initial={{ x: "-100%" }}
+            animate={{ x: 0 }}
+            exit={{ x: "-100%" }}
+            className="fixed top-0 left-0 h-full w-72 z-[60] shadow-2xl"
+            style={{ background: `var(--surface)`, borderRight: `1px solid var(--border)` }}
+          >
+            <SidebarContent isOpen={true} toggle={toggle} currentPath={location.pathname} onLogout={logout} isMobile={true} />
+          </motion.aside>
         )}
-      </div>
+      </AnimatePresence>
 
-      {/* ========== Navigation Items ========== */}
-      <nav className="flex flex-col mt-4 gap-1 px-2 flex-1">
-        {navItems.map((item) => {
-          const Icon = item.icon;
-          const active = pathname === item.path;
-
-          return (
-            <motion.div key={item.label} className="relative">
-              {/* Active glowing bar */}
-              {active && (
-                <motion.div
-                  layoutId="activeIndicator"
-                  className="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-indigo-400 to-cyan-400 rounded-r-lg"
-                />
-              )}
-
-              <Link
-                to={item.path}
-                title={item.label}
-                className={`
-                  flex items-center gap-4 px-4 py-3 rounded-lg relative group
-                  transition-all duration-300
-                  ${active 
-                    ? "bg-indigo-600/30 text-indigo-200 shadow-md shadow-indigo-900/40" 
-                    : "text-gray-300 hover:bg-white/10 hover:text-indigo-300"
-                  }
-                `}
-              >
-                {/* Icon Container */}
-                <div className={`
-                  w-10 h-10 flex items-center justify-center rounded-lg border
-                  transition-all duration-300
-                  ${active 
-                    ? "border-indigo-400/40 bg-indigo-500/20 shadow-[0_0_10px_#6366f1]" 
-                    : "border-white/10 bg-white/5 group-hover:border-indigo-400/40"
-                  }
-                `}>
-                  <Icon size={18} className="text-indigo-300" />
-                </div>
-
-                {/* Label */}
-                {isOpen && (
-                  <motion.span
-                    initial={{ opacity: 0, x: -8 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    className="truncate text-sm font-medium"
-                  >
-                    {item.label}
-                  </motion.span>
-                )}
-              </Link>
-            </motion.div>
-          );
-        })}
-
-        {/* ========== Logout Button ========== */}
-        <button
-          onClick={() => navigate("/login")}
-          title="Logout"
-          className="
-            mt-auto flex items-center gap-4 px-4 py-3 mb-4 text-red-400
-            hover:bg-red-500/10 rounded-lg transition-all duration-300
-          "
+      {!isMobile && (
+        <motion.aside
+          animate={{ width: isOpen ? "16rem" : "5rem" }}
+          className="fixed top-0 left-0 h-full z-40"
+          style={{ background: `var(--surface)`, borderRight: `1px solid var(--border)` }}
         >
-          <div className="
-            w-10 h-10 rounded-lg flex items-center justify-center 
-            border border-red-500/40 bg-red-500/10
-          ">
-            <LogOut size={18} />
-          </div>
-          {isOpen && <span className="text-sm font-medium">Logout</span>}
-        </button>
-      </nav>
-    </motion.aside>
+          <SidebarContent isOpen={isOpen} toggle={toggle} currentPath={location.pathname} onLogout={logout} isMobile={false} />
+        </motion.aside>
+      )}
+    </>
   );
 };
+
+const SidebarContent = ({ isOpen, toggle, currentPath, onLogout, isMobile }) => {
+  const [hovered, setHovered] = useState(null);
+  const isActive = (path) => currentPath === path;
+
+  return (
+    <div className="flex flex-col h-full">
+      {/* Header */}
+      <div className="h-16 flex items-center justify-between px-4 border-b" style={{ borderColor: "var(--border)" }}>
+        <Link to="/admin/admindashboard" className="flex items-center gap-3 overflow-hidden">
+          <motion.div
+            whileHover={{ rotate: 180 }}
+            className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0"
+            style={{ background: `linear-gradient(135deg, var(--brand), var(--brand-light))` }}
+          >
+            <ShieldCheck className="w-5 h-5 text-white" />
+          </motion.div>
+          
+          <AnimatePresence>
+            {isOpen && (
+              <motion.div initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }}>
+                <span className="text-lg font-bold" style={{ fontFamily: "'Fraunces', serif", color: 'var(--text)' }}>
+                  Admin<span style={{ color: C.brand }}>Hub</span>
+                </span>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </Link>
+        
+        <button onClick={toggle} className="p-1.5 rounded-lg opacity-50 hover:opacity-100 transition-opacity">
+           {isOpen ? <ChevronLeft size={16} /> : <ChevronRight size={16} />}
+        </button>
+      </div>
+
+      {/* Nav */}
+      <nav className="flex-1 overflow-y-auto py-4 px-3 space-y-1">
+        {MENU_ITEMS.map((item, idx) => {
+          const active = isActive(item.to);
+          const Icon = item.icon;
+          return (
+            <Link
+              key={item.to}
+              to={item.to}
+              onMouseEnter={() => setHovered(idx)}
+              onMouseLeave={() => setHovered(null)}
+              className="relative flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all"
+              style={{
+                background: active ? `rgba(var(--brand-rgb), 0.15)` : hovered === idx ? `var(--surface2)` : 'transparent',
+              }}
+            >
+              {active && <motion.div layoutId="adminActive" className="absolute left-0 w-1 h-5 rounded-r-full" style={{ background: C.brand }} />}
+              <Icon size={19} style={{ color: active ? C.brand : 'var(--text-muted)' }} />
+              {isOpen && (
+                <span className="text-[13px] font-medium transition-colors" style={{ color: active ? 'var(--text)' : 'var(--text-muted)' }}>
+                  {item.label}
+                </span>
+              )}
+            </Link>
+          );
+        })}
+      </nav>
+
+      {/* Footer */}
+      <div className="p-3 border-t space-y-1" style={{ borderColor: 'var(--border)' }}>
+        <button
+          onClick={() => { onLogout(); window.location.href = "/login"; }}
+          className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-red-400 hover:bg-red-400/10 transition-colors"
+        >
+          <LogOut size={18} />
+          {isOpen && <span className="text-sm font-bold">Log Out</span>}
+        </button>
+      </div>
+    </div>
+  );
+};
+
+export default AdminSidebar;

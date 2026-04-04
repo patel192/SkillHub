@@ -1,84 +1,124 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import { AdminSidebar } from "./AdminSidebar";
 import { AdminNavbar } from "./AdminNavbar";
-import { Outlet } from "react-router-dom";
+import { Outlet, useLocation, useNavigate } from "react-router-dom";
+import { motion, AnimatePresence } from "framer-motion";
+import { useAuth } from "../../context/AuthContext";
 
 export const AdminLayout = () => {
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false); // default closed on small
-  const [isDesktop, setIsDesktop] = useState(window.innerWidth >= 1024);
+  const { user, role, loading: authLoading } = useAuth();
+  const navigate = useNavigate();
+  const location = useLocation();
 
-  // keep a single source of truth for sidebar widths (pixels)
-  const SIDEBAR_OPEN_PX = 256; // w-64 = 16rem = 256px
-  const SIDEBAR_COLLAPSED_PX = 80; // approximate collapsed width (5rem)
+  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+  const [isMobile, setIsMobile] = useState(false);
 
-  // responsive resize handler
+  // 1. Auth Guard - Only admins allowed
   useEffect(() => {
-    const handleResize = () => setIsDesktop(window.innerWidth >= 1024);
+    if (!authLoading && (!user || role !== "admin")) {
+      navigate("/login");
+    }
+  }, [user, role, authLoading, navigate]);
+
+  // Handle responsive behavior
+  useEffect(() => {
+    const handleResize = () => {
+      const mobile = window.innerWidth < 1024;
+      setIsMobile(mobile);
+      setIsSidebarOpen(!mobile);
+    };
+    handleResize();
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
-  // auto-open on desktop
-  useEffect(() => {
-    if (isDesktop) setIsSidebarOpen(true);
-    else setIsSidebarOpen(false);
-  }, [isDesktop]);
+  const toggleSidebar = useCallback(() => setIsSidebarOpen((p) => !p), []);
 
-  // compute left offset applied to header + main so they stay aligned with sidebar
-  const leftOffset = isDesktop
-    ? isSidebarOpen
-      ? SIDEBAR_OPEN_PX
-      : SIDEBAR_COLLAPSED_PX
-    : 0;
+  if (authLoading) {
+     return (
+       <div className="min-h-screen flex items-center justify-center" style={{ background: "var(--bg)" }}>
+         <div className="w-12 h-12 border-4 border-t-transparent animate-spin rounded-full" style={{ borderColor: "var(--brand)" }} />
+       </div>
+     );
+  }
+
+  // If not admin, don't render content (useEffect will handle redirect)
+  if (!user || role !== "admin") return null;
 
   return (
-    <div className="flex min-h-screen bg-[#0F172A] text-white relative overflow-hidden">
-      {/* Sidebar — still fixed so it overlays on mobile */}
-      <div
-        className={`fixed top-0 left-0 h-full z-[60] transition-transform duration-300`}
-        style={{
-          width: isSidebarOpen ? SIDEBAR_OPEN_PX : SIDEBAR_COLLAPSED_PX,
-          transform: isDesktop ? "translateX(0)" : isSidebarOpen ? "translateX(0)" : `translateX(-100%)`,
-        }}
-      >
-        <AdminSidebar isOpen={isSidebarOpen} />
-      </div>
+    <div
+      className="min-h-screen overflow-hidden selection:bg-indigo-500/20"
+      style={{
+        background: "var(--bg)",
+        color: "var(--text)",
+        fontFamily: "'DM Sans', sans-serif",
+      }}
+    >
+      <style>{`
+        ::-webkit-scrollbar { width: 4px; }
+        ::-webkit-scrollbar-track { background: var(--bg); }
+        ::-webkit-scrollbar-thumb { background: var(--brand); opacity: 0.4; border-radius: 99px; }
+      `}</style>
 
-      {/* optional mobile overlay when sidebar open */}
-      {!isDesktop && isSidebarOpen && (
+      {/* Ambient background glows — Admin specific colors or synced themes */}
+      <div className="fixed inset-0 pointer-events-none overflow-hidden">
         <div
-          className="fixed inset-0 z-[55] bg-black/50"
-          onClick={() => setIsSidebarOpen(false)}
+          className="absolute top-0 left-0 w-[800px] h-[800px] rounded-full blur-[140px] -translate-x-1/3 -translate-y-1/3 opacity-30"
+          style={{ background: "var(--brand)" }}
         />
-      )}
-
-      {/* Main wrapper — we apply leftOffset to align with sidebar, and top padding for navbar */}
-      <div
-        className="flex-1 flex flex-col transition-all duration-300"
-        style={{
-          marginLeft: leftOffset,
-        }}
-      >
-        {/* Navbar receives leftOffset so it also visually aligns */}
-        <AdminNavbar
-          toggleSidebar={() => setIsSidebarOpen((s) => !s)}
-          isSidebarOpen={isSidebarOpen}
-          leftOffset={leftOffset}
+        <div
+          className="absolute bottom-0 right-0 w-[600px] h-[600px] rounded-full blur-[120px] translate-x-1/4 translate-y-1/4 opacity-20"
+          style={{ background: "var(--accent)" }}
         />
-
-        {/* Page content — add top padding equal to navbar height so Outlet not hidden */}
-        <main
-          className="flex-1 overflow-y-auto transition-all duration-300"
-          style={{
-            paddingTop: 64, // matches navbar height (h-16). adjust if navbar height changes
-            paddingLeft: 24,
-            paddingRight: 24,
-            paddingBottom: 24,
-          }}
-        >
-          <Outlet />
-        </main>
       </div>
+
+      {/* Mobile backdrop overlay */}
+      <AnimatePresence>
+        {isMobile && isSidebarOpen && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={() => setIsSidebarOpen(false)}
+            className="fixed inset-0 z-50 lg:hidden backdrop-blur-sm"
+            style={{ background: "rgba(0,0,0,0.4)" }}
+          />
+        )}
+      </AnimatePresence>
+
+      {/* Sidebar */}
+      <AdminSidebar
+        isOpen={isSidebarOpen}
+        toggle={toggleSidebar}
+        isMobile={isMobile}
+      />
+
+      {/* Main content area */}
+      <motion.div
+        className="flex flex-col min-h-screen relative z-10"
+        animate={{ marginLeft: isMobile ? 0 : isSidebarOpen ? "16rem" : "5rem" }}
+        transition={{ type: "spring", stiffness: 400, damping: 35 }}
+      >
+        <AdminNavbar
+          toggleSidebar={toggleSidebar}
+          isSidebarOpen={isSidebarOpen}
+          isMobile={isMobile}
+        />
+
+        <main
+          className="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8"
+        >
+          <motion.div
+            key={location.pathname}
+            initial={{ opacity: 0, y: 14 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.22, ease: "easeOut" }}
+            className="max-w-7xl mx-auto"
+          >
+            <Outlet />
+          </motion.div>
+        </main>
+      </motion.div>
     </div>
   );
 };

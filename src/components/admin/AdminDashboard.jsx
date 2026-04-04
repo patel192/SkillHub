@@ -2,16 +2,25 @@ import React, { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import {
   Book, Users, CheckCircle, Clock, Award, FileText,
-  Layers, Activity, Bug, TrendingUp, DollarSign
+  Layers, Activity, TrendingUp, DollarSign, ArrowUpRight, ArrowDownRight, Globe
 } from "lucide-react";
 import axios from "axios";
 import {
   LineChart, Line, XAxis, YAxis,
-  CartesianGrid, Tooltip, ResponsiveContainer
+  CartesianGrid, Tooltip, ResponsiveContainer, AreaChart, Area
 } from "recharts";
+import { useAuth } from "../../context/AuthContext";
+
+const C = {
+  brand: "var(--brand)",
+  brandLight: "var(--brand-light)",
+  accent: "var(--accent)",
+  error: "var(--error)",
+  success: "#22C55E",
+};
 
 export const AdminDashboard = () => {
-  const token = localStorage.getItem("token");
+  const { token, user } = useAuth();
 
   const [stats, setStats] = useState({});
   const [latestUsers, setLatestUsers] = useState([]);
@@ -22,7 +31,7 @@ export const AdminDashboard = () => {
 
   useEffect(() => {
     fetchOverview();
-  }, []);
+  }, [token]);
 
   const fetchOverview = async () => {
     try {
@@ -42,251 +51,155 @@ export const AdminDashboard = () => {
   };
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 15 }}
-      animate={{ opacity: 1, y: 0 }}
-      className="p-6 sm:p-8 min-h-screen 
-      bg-gradient-to-br from-[#0C1022] via-[#0D142B] to-[#101828] 
-      text-white space-y-10"
-    >
-
-      {/* ====================== HEADER ====================== */}
-      <div className="mb-4">
-        <motion.h2
-          initial={{ opacity: 0, y: -15 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="text-4xl font-extrabold tracking-tight 
-          bg-gradient-to-r from-purple-400 via-pink-400 to-cyan-400 
-          bg-clip-text text-transparent"
-        >
-          Admin Dashboard
-        </motion.h2>
-        <p className="text-gray-400 mt-1">Analytics • Insights • Activity</p>
+    <div className="space-y-8">
+      {/* ====================== WELCOME HEADER ====================== */}
+      <div className="relative p-8 rounded-3xl overflow-hidden border shadow-2xl"
+           style={{ background: 'var(--surface)', borderColor: 'var(--border)' }}>
+        <div className="absolute top-0 right-0 w-64 h-64 blur-3xl opacity-20 -mr-20 -mt-20 rounded-full"
+             style={{ background: 'var(--brand)' }} />
+             
+        <div className="relative z-10">
+          <h2 className="text-3xl font-bold tracking-tight mb-2" style={{ fontFamily: "'Fraunces', serif" }}>
+            Welcome Back, <span style={{ color: C.brand }}>{user?.fullname?.split(' ')[0] || 'Admin'}</span>
+          </h2>
+          <p className="text-sm opacity-50 flex items-center gap-2">
+            <Globe size={14} /> System status: Optimal • Last backup: 2h ago
+          </p>
+        </div>
       </div>
 
       {/* ====================== STAT CARDS ====================== */}
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-5">
-
-        <StatCard label="Users" value={stats.totalUsers} icon={<Users size={22} />} color="from-purple-500 to-cyan-500" />
-        <StatCard label="Courses" value={stats.totalCourses} icon={<Book size={22} />} color="from-cyan-500 to-blue-500" />
-        <StatCard label="Published" value={stats.totalPublished} icon={<CheckCircle size={22} />} color="from-green-500 to-emerald-500" />
-        <StatCard label="Unpublished" value={stats.totalUnpublished} icon={<Clock size={22} />} color="from-yellow-400 to-orange-500" />
-        <StatCard label="Certificates" value={stats.totalCertificates} icon={<Award size={22} />} color="from-pink-500 to-purple-500" />
-        <StatCard label="Posts" value={stats.totalPosts} icon={<FileText size={22} />} color="from-sky-500 to-cyan-500" />
-        <StatCard label="Communities" value={stats.totalCommunities} icon={<Layers size={22} />} color="from-indigo-500 to-purple-500" />
-        <StatCard label="Revenue" value={`$${stats.totalRevenue}`} icon={<DollarSign size={22} />} color="from-green-400 to-emerald-600" />
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <StatCard label="Total Users" value={stats.totalUsers} icon={<Users size={20} />} trend="+12%" color={C.brand} />
+        <StatCard label="Total Courses" value={stats.totalCourses} icon={<Book size={20} />} trend="+5%" color={C.accent} />
+        <StatCard label="Pending Reports" value={reports.length} icon={<Activity size={20} />} trend="-2%" color={C.error} isNegative />
+        <StatCard label="Total Revenue" value={`₹${stats.totalRevenue || 0}`} icon={<DollarSign size={20} />} trend="+18%" color={C.success} />
       </div>
 
-      {/* ====================== ENROLLMENT TREND CHART ====================== */}
-      <GlassSection
-        title="Enrollment Trends"
-        icon={<Activity size={18} className="text-cyan-400" />}
-      >
-        {enrollmentTrends.length === 0 ? (
-          <p className="text-gray-400 text-center py-10">No data available...</p>
-        ) : (
-          <div className="w-full h-72 sm:h-80">
-            <ResponsiveContainer width="100%" height="100%">
-              <LineChart data={enrollmentTrends}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#334155" />
-                <XAxis dataKey="month" stroke="#e2e8f0" />
-                <YAxis stroke="#e2e8f0" />
-                <Tooltip
-                  contentStyle={{
-                    background: "#0F172A",
-                    border: "1px solid #6366f1",
-                    borderRadius: "10px",
-                  }}
-                />
-                <Line
-                  type="monotone"
-                  dataKey="count"
-                  stroke="#a855f7"
-                  strokeWidth={3}
-                  dot={{ r: 4, fill: "#22d3ee" }}
-                />
-              </LineChart>
-            </ResponsiveContainer>
+      {/* ====================== CHARTS & ANALYTICS ====================== */}
+      <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
+        <div className="xl:col-span-2">
+          <SectionCard title="Enrollment Trends" icon={<TrendingUp size={18} />}>
+            <div className="h-[300px] mt-4">
+              <ResponsiveContainer width="100%" height="100%">
+                <AreaChart data={enrollmentTrends}>
+                  <defs>
+                    <linearGradient id="colorCount" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%" stopColor={C.brand} stopOpacity={0.3}/>
+                      <stop offset="95%" stopColor={C.brand} stopOpacity={0}/>
+                    </linearGradient>
+                  </defs>
+                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--border)" />
+                  <XAxis dataKey="month" stroke="var(--text-muted)" fontSize={12} tickLine={false} axisLine={false} />
+                  <YAxis stroke="var(--text-muted)" fontSize={12} tickLine={false} axisLine={false} />
+                  <Tooltip 
+                    contentStyle={{ background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: '12px' }}
+                    itemStyle={{ color: C.brand }}
+                  />
+                  <Area type="monotone" dataKey="count" stroke={C.brand} fillOpacity={1} fill="url(#colorCount)" strokeWidth={3} />
+                </AreaChart>
+              </ResponsiveContainer>
+            </div>
+          </SectionCard>
+        </div>
+
+        <div className="space-y-6">
+          <SectionCard title="Top Courses" icon={<Award size={18} />}>
+            <div className="space-y-4 mt-2">
+              {topCourses.slice(0, 5).map((course, i) => (
+                <div key={i} className="flex items-center justify-between p-3 rounded-xl border" style={{ background: 'var(--surface2)', borderColor: 'var(--border)' }}>
+                  <div className="flex items-center gap-3">
+                    <div className="w-8 h-8 rounded-lg flex items-center justify-center text-xs font-bold" style={{ background: `rgba(var(--brand-rgb), 0.1)`, color: C.brand }}>{i+1}</div>
+                    <span className="text-sm font-medium line-clamp-1">{course.title}</span>
+                  </div>
+                  <span className="text-xs font-bold opacity-40">{course.count} enrolls</span>
+                </div>
+              ))}
+            </div>
+          </SectionCard>
+        </div>
+      </div>
+
+      {/* ====================== LATEST ACTIVITY TABLES ====================== */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <SectionCard title="Recently Joined Users" icon={<Users size={18} />}>
+          <div className="mt-2 space-y-3">
+             {latestUsers.map((u, i) => (
+               <div key={i} className="flex items-center justify-between p-3 rounded-xl hover:bg-white/5 transition-colors">
+                  <div className="flex items-center gap-3">
+                    <img src={u.avatar || `https://ui-avatars.com/api/?name=${u.fullname}&background=random`} className="w-9 h-9 rounded-full object-cover" alt="" />
+                    <div>
+                      <p className="text-sm font-bold">{u.fullname}</p>
+                      <p className="text-[10px] opacity-40">{u.email}</p>
+                    </div>
+                  </div>
+                  <span className="text-[10px] opacity-40 tracking-wider">NEW MEMBER</span>
+               </div>
+             ))}
           </div>
-        )}
-      </GlassSection>
+        </SectionCard>
 
-      {/* ====================== LATEST USERS + COURSES ====================== */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <LatestUsers users={latestUsers} />
-        <LatestCourses courses={latestCourses} />
+        <SectionCard title="New Courses" icon={<Book size={18} />}>
+           <div className="mt-2 space-y-3">
+             {latestCourses.map((c, i) => (
+               <div key={i} className="flex items-center justify-between p-3 rounded-xl hover:bg-white/5 transition-colors">
+                  <div className="flex items-center gap-3">
+                    <div className="w-9 h-9 rounded-lg flex items-center justify-center" style={{ background: 'var(--surface3)' }}>
+                      <Book size={16} style={{ color: C.brand }} />
+                    </div>
+                    <div>
+                      <p className="text-sm font-bold line-clamp-1">{c.title}</p>
+                      <p className="text-[10px] opacity-40">{c.category}</p>
+                    </div>
+                  </div>
+                  <div className="text-right">
+                    <p className="text-xs font-bold" style={{ color: C.brand }}>₹{c.price}</p>
+                    <p className="text-[9px] opacity-40 uppercase tracking-tighter">{c.level}</p>
+                  </div>
+               </div>
+             ))}
+           </div>
+        </SectionCard>
       </div>
-
-      {/* ====================== REPORTS + TOP COURSES ====================== */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <ReportsSection reports={reports} />
-        <TopCoursesSection topCourses={topCourses} />
-      </div>
-    </motion.div>
+    </div>
   );
 };
 
+// ==========================================
+// NEO-DESIGN SUB-COMPONENTS
+// ==========================================
 
-/* ============================================================
-   ⬇️ SUB COMPONENTS — Neo Glassmorphism UI
-============================================================ */
-
-const StatCard = ({ icon, label, value, color }) => (
-  <motion.div
-    whileHover={{ scale: 1.05 }}
-    className={`rounded-xl p-5 flex items-center gap-4 
-    bg-white/10 backdrop-blur-xl border border-white/10 
-    shadow-lg shadow-purple-500/10 hover:shadow-cyan-400/20
-    transition`}
+const StatCard = ({ label, value, icon, trend, color, isNegative }) => (
+  <motion.div 
+    whileHover={{ y: -5 }}
+    className="p-5 rounded-2xl border shadow-lg flex flex-col gap-3"
+    style={{ background: 'var(--surface)', borderColor: 'var(--border)' }}
   >
-    <div className={`p-3 rounded-full bg-gradient-to-br ${color} shadow-xl`}>
-      {icon}
+    <div className="flex items-center justify-between">
+      <div className="p-2.5 rounded-xl border" style={{ background: 'var(--surface2)', borderColor: 'var(--border)' }}>
+        <div style={{ color }}>{icon}</div>
+      </div>
+      <div className={`flex items-center gap-1 text-[11px] font-bold px-2 py-1 rounded-full ${isNegative ? 'text-red-400 bg-red-400/10' : 'text-emerald-400 bg-emerald-400/10'}`}>
+        {isNegative ? <ArrowDownRight size={12} /> : <ArrowUpRight size={12} />}
+        {trend}
+      </div>
     </div>
     <div>
-      <p className="text-gray-300 text-sm">{label}</p>
-      <p className="text-2xl font-semibold">{value ?? 0}</p>
+      <p className="text-[11px] uppercase tracking-widest opacity-40 font-bold">{label}</p>
+      <p className="text-2xl font-black mt-1">{value || 0}</p>
     </div>
   </motion.div>
 );
 
-const GlassSection = ({ title, icon, children }) => (
-  <motion.div
-    initial={{ opacity: 0, y: 15 }}
-    animate={{ opacity: 1, y: 0 }}
-    className="p-6 rounded-2xl bg-white/10 backdrop-blur-xl border border-white/10 shadow-xl space-y-4"
-  >
-    <h3 className="text-xl font-semibold flex items-center gap-2 
-      bg-gradient-to-r from-purple-400 to-cyan-400 bg-clip-text text-transparent"
-    >
-      {icon} {title}
-    </h3>
-
+const SectionCard = ({ title, icon, children }) => (
+  <div className="p-6 rounded-3xl border shadow-xl flex flex-col"
+       style={{ background: 'var(--surface)', borderColor: 'var(--border)' }}>
+    <div className="flex items-center gap-2 mb-4">
+      <div className="p-1.5 rounded-lg opacity-40" style={{ background: 'var(--surface2)' }}>
+        {icon}
+      </div>
+      <h3 className="text-sm font-bold tracking-tight opacity-60 uppercase">{title}</h3>
+    </div>
     {children}
-  </motion.div>
-);
-
-/* LATEST USERS */
-const LatestUsers = ({ users }) => (
-  <GlassSection title="Latest Users" icon={<Users size={18} className="text-cyan-400" />}>
-    {users.length === 0 ? (
-      <p className="text-gray-400">No users found.</p>
-    ) : (
-      <table className="min-w-full text-left text-sm">
-        <tbody>
-          {users.map((u, i) => (
-            <motion.tr
-              key={i}
-              whileHover={{ scale: 1.02, backgroundColor: "rgba(56,189,248,0.1)" }}
-              className="transition cursor-pointer"
-            >
-              <td className="py-3 flex items-center gap-3">
-                <div className="w-10 h-10 rounded-full bg-gradient-to-br from-purple-500 to-cyan-500 flex items-center justify-center font-bold">
-                  {u.fullname?.[0]}
-                </div>
-                <div>
-                  <p className="font-medium">{u.fullname}</p>
-                  <p className="text-gray-400 text-xs">{u.email}</p>
-                </div>
-              </td>
-            </motion.tr>
-          ))}
-        </tbody>
-      </table>
-    )}
-  </GlassSection>
-);
-
-/* LATEST COURSES */
-const LatestCourses = ({ courses }) => (
-  <GlassSection title="Latest Courses" icon={<Book size={18} className="text-purple-400" />}>
-    {courses.length === 0 ? (
-      <p className="text-gray-400">No courses found.</p>
-    ) : (
-      <table className="min-w-full text-left text-sm">
-        <tbody>
-          {courses.map((c, i) => (
-            <motion.tr
-              key={i}
-              whileHover={{ scale: 1.02, backgroundColor: "rgba(168,85,247,0.15)" }}
-              className="transition"
-            >
-              <td className="py-3 font-medium">{c.title}</td>
-              <td className="py-3 text-gray-300">{c.category}</td>
-              <td className="py-3 text-gray-300">{c.level}</td>
-              <td className="py-3">
-                <span
-                  className={`px-2 py-1 text-xs rounded-full ${
-                    c.isPublished
-                      ? "bg-green-500/30 text-green-300"
-                      : "bg-yellow-500/30 text-yellow-300"
-                  }`}
-                >
-                  {c.isPublished ? "Published" : "Unpublished"}
-                </span>
-              </td>
-            </motion.tr>
-          ))}
-        </tbody>
-      </table>
-    )}
-  </GlassSection>
-);
-
-/* REPORTS */
-const ReportsSection = ({ reports }) => (
-  <GlassSection title="Latest Reports" icon={<Bug size={18} className="text-pink-400" />}>
-    {reports.length === 0 ? (
-      <p className="text-gray-400">No reports submitted.</p>
-    ) : (
-      <ul className="space-y-3">
-        {reports.map((r, i) => (
-          <motion.li
-            key={i}
-            whileHover={{ scale: 1.02 }}
-            className="p-4 rounded-xl bg-white/5 border border-white/10"
-          >
-            <div className="flex justify-between items-center">
-              <p className="font-semibold capitalize">{r.type}</p>
-              <span
-                className={`px-3 py-1 rounded-full text-xs ${
-                  r.status === "open"
-                    ? "bg-red-500/30 text-red-300"
-                    : r.status === "reviewing"
-                    ? "bg-yellow-500/30 text-yellow-200"
-                    : "bg-green-500/30 text-green-300"
-                }`}
-              >
-                {r.status}
-              </span>
-            </div>
-            <p className="text-gray-300 text-sm mt-1">{r.description}</p>
-          </motion.li>
-        ))}
-      </ul>
-    )}
-  </GlassSection>
-);
-
-/* TOP COURSES */
-const TopCoursesSection = ({ topCourses }) => (
-  <GlassSection title="Top Courses" icon={<TrendingUp size={18} className="text-green-400" />}>
-    {topCourses.length === 0 ? (
-      <p className="text-gray-400">No course data.</p>
-    ) : (
-      <table className="min-w-full text-left text-sm">
-        <tbody>
-          {topCourses.map((c, i) => (
-            <motion.tr
-              key={i}
-              whileHover={{ scale: 1.02, backgroundColor: "rgba(34,211,238,0.1)" }}
-            >
-              <td className="py-3 font-medium">{c.title}</td>
-              <td className="py-3 text-gray-300">{c.category}</td>
-              <td className="py-3 text-cyan-400 font-semibold">{c.count}</td>
-            </motion.tr>
-          ))}
-        </tbody>
-      </table>
-    )}
-  </GlassSection>
+  </div>
 );

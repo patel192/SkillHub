@@ -1,12 +1,23 @@
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { Link } from "react-router-dom";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
+import { Search, UserPlus, Shield, Power, Trash2, Mail, Calendar, User as UserIcon, ShieldCheck, ShieldAlert } from "lucide-react";
+import { useAuth } from "../../../context/AuthContext";
+
+const C = {
+  brand: "var(--brand)",
+  brandLight: "var(--brand-light)",
+  accent: "var(--accent)",
+  error: "var(--error)",
+  success: "#22C55E",
+};
 
 export const Users = () => {
-  const token = localStorage.getItem("token");
+  const { token } = useAuth();
   const [users, setUsers] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
+  const [loading, setLoading] = useState(true);
 
   const fetchUsers = async () => {
     try {
@@ -17,34 +28,29 @@ export const Users = () => {
     } catch (error) {
       console.error("Failed to fetch users:", error);
       setUsers([]);
+    } finally {
+      setLoading(false);
     }
   };
 
   useEffect(() => {
     fetchUsers();
-  }, []);
+  }, [token]);
 
   const toggleActive = async (id, currentStatus) => {
     try {
-      await axios.patch(
-        `/user/${id}`,
-        { isActive: !currentStatus },
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
-      fetchUsers();
+      await axios.patch(`/user/${id}`, { isActive: !currentStatus }, { headers: { Authorization: `Bearer ${token}` } });
+      setUsers(prev => prev.map(u => u._id === id ? { ...u, isActive: !currentStatus } : u));
     } catch (error) {
       console.error("Failed to update status:", error);
     }
   };
 
   const toggleRole = async (id, currentRole) => {
+    const newRole = currentRole === "admin" ? "user" : "admin";
     try {
-      await axios.patch(
-        `/user/${id}`,
-        { role: currentRole === "admin" ? "user" : "admin" },
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
-      fetchUsers();
+      await axios.patch(`/user/${id}`, { role: newRole }, { headers: { Authorization: `Bearer ${token}` } });
+      setUsers(prev => prev.map(u => u._id === id ? { ...u, role: newRole } : u));
     } catch (error) {
       console.error("Failed to update role:", error);
     }
@@ -59,151 +65,141 @@ export const Users = () => {
   });
 
   return (
-    <div className="p-6 md:p-10 min-h-screen bg-gradient-to-br from-[#05070f] via-[#0f172a] to-[#1e293b] text-white">
-      {/* Header */}
-      <div className="mb-10">
-        <h2 className="text-4xl font-extrabold bg-gradient-to-r from-indigo-400 to-purple-500 bg-clip-text text-transparent">
-          User Management
-        </h2>
-        <p className="text-gray-400 mt-1">Manage users • Permissions • Account states</p>
+    <div className="space-y-8">
+      {/* Header & Search */}
+      <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
+        <div>
+           <h2 className="text-3xl font-bold tracking-tight" style={{ fontFamily: "'Fraunces', serif" }}>
+             User <span style={{ color: C.brand }}>Management</span>
+           </h2>
+           <p className="text-sm opacity-50 mt-1">Manage global user accounts, permissions, and security states.</p>
+        </div>
+
+        <div className="relative w-full md:w-96">
+          <Search className="absolute left-4 top-1/2 -translate-y-1/2 opacity-30" size={18} />
+          <input
+            type="text"
+            placeholder="Search by name or email..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="w-full pl-12 pr-4 py-3 rounded-2xl border transition-all text-sm outline-none focus:ring-2"
+            style={{ 
+              background: 'var(--surface)', 
+              borderColor: 'var(--border)',
+              '--tw-ring-color': 'rgba(var(--brand-rgb), 0.2)'
+            }}
+          />
+        </div>
       </div>
 
-      {/* Search */}
-      <div className="mb-10">
-        <input
-          type="text"
-          placeholder="Search by name or email..."
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          className="
-            w-full md:w-1/3 px-4 py-3 rounded-xl
-            bg-white/10 backdrop-blur-md border border-white/10
-            text-white placeholder-gray-400
-            focus:outline-none focus:ring-2 focus:ring-purple-500
-          "
-        />
-      </div>
-
-      {/* User Cards */}
-      {filteredUsers.length === 0 ? (
-        <p className="text-gray-400 text-center">No users found.</p>
+      {loading ? (
+        <div className="flex justify-center py-20">
+          <div className="w-10 h-10 border-4 border-t-transparent animate-spin rounded-full" style={{ borderColor: C.brand }} />
+        </div>
+      ) : filteredUsers.length === 0 ? (
+        <div className="text-center py-20 opacity-40">
+           <UserIcon size={48} className="mx-auto mb-4" />
+           <p>No users found matching your search.</p>
+        </div>
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-10">
-          {filteredUsers.map((user, index) => (
-            <Link key={user._id} to={`${user._id}`}>
-              <motion.div
-                initial={{ opacity: 0, y: 40, scale: 0.9 }}
-                animate={{ opacity: 1, y: 0, scale: 1 }}
-                transition={{
-                  delay: index * 0.06,
-                  type: "spring",
-                  stiffness: 120,
-                }}
-                whileHover={{
-                  rotateX: 6,
-                  rotateY: -6,
-                  scale: 1.05,
-                  boxShadow: "0px 0px 30px rgba(139,92,246,0.5)",
-                }}
-                className="
-                  relative rounded-2xl p-6 cursor-pointer
-                  bg-white/10 backdrop-blur-2xl border border-white/10
-                  shadow-lg hover:shadow-purple-500/30
-                "
-              >
-                {/* Floating neon glow */}
-                <div className="absolute inset-0 bg-gradient-to-br from-purple-600/20 to-cyan-600/20 blur-2xl opacity-0 hover:opacity-40 transition duration-500 rounded-2xl"></div>
-
-                {/* Avatar + Basic Info */}
-                <div className="relative flex items-center gap-4 mb-4 z-10">
-                  {user.avatar ? (
-                    <motion.img
-                      src={user.avatar}
-                      alt={user.fullname}
-                      className="w-14 h-14 rounded-full object-cover border border-purple-500 shadow-md"
-                      animate={{ boxShadow: ["0 0 10px #8b5cf6", "0 0 15px #22d3ee", "0 0 10px #8b5cf6"] }}
-                      transition={{ repeat: Infinity, duration: 3 }}
-                    />
-                  ) : (
-                    <div className="w-14 h-14 rounded-full bg-indigo-600 flex items-center justify-center text-xl font-bold">
-                      {user.fullname?.[0] || "U"}
-                    </div>
-                  )}
-
-                  <div>
-                    <h3 className="text-xl font-semibold">{user.fullname}</h3>
-                    <p className="text-gray-400 text-sm">{user.email}</p>
-                  </div>
-                </div>
-
-                {/* Status + Role Badges */}
-                <div className="flex justify-between mb-5">
-                  <span
-                    className={`px-3 py-1 rounded-full text-xs font-semibold tracking-wide ${
-                      user.isActive
-                        ? "bg-green-600/70 text-white"
-                        : "bg-red-600/70 text-white"
-                    }`}
-                  >
-                    {user.isActive ? "Active" : "Inactive"}
-                  </span>
-
-                  <span
-                    className={`px-3 py-1 rounded-full text-xs font-semibold tracking-wide ${
-                      user.role === "admin"
-                        ? "bg-yellow-500/70 text-white"
-                        : "bg-purple-500/70 text-white"
-                    }`}
-                  >
-                    {user.role}
-                  </span>
-                </div>
-
-                {/* Created Date */}
-                <p className="text-gray-400 text-sm mb-5">
-                  Created:{" "}
-                  {user.createdAt
-                    ? new Date(user.createdAt).toLocaleDateString()
-                    : "N/A"}
-                </p>
-
-                {/* Action Buttons */}
-                <div className="relative z-10 flex flex-col sm:flex-row gap-3">
-                  <motion.button
-                    onClick={(e) => {
-                      e.preventDefault();
-                      toggleActive(user._id, user.isActive);
-                    }}
-                    whileHover={{ scale: 1.07 }}
-                    className={`py-2 rounded-xl font-medium flex-1 transition ${
-                      user.isActive
-                        ? "bg-red-500 hover:bg-red-600"
-                        : "bg-green-500 hover:bg-green-600"
-                    }`}
-                  >
-                    {user.isActive ? "Deactivate" : "Activate"}
-                  </motion.button>
-
-                  <motion.button
-                    onClick={(e) => {
-                      e.preventDefault();
-                      toggleRole(user._id, user.role);
-                    }}
-                    whileHover={{ scale: 1.07 }}
-                    className="py-2 rounded-xl font-medium flex-1 
-                               bg-gradient-to-r from-indigo-500 to-purple-600 
-                               hover:from-indigo-600 hover:to-purple-700"
-                  >
-                    Make {user.role === "admin" ? "User" : "Admin"}
-                  </motion.button>
-                </div>
-              </motion.div>
-            </Link>
-          ))}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <AnimatePresence>
+            {filteredUsers.map((user, idx) => (
+              <UserCard 
+                key={user._id} 
+                user={user} 
+                idx={idx} 
+                onToggleActive={toggleActive} 
+                onToggleRole={toggleRole} 
+              />
+            ))}
+          </AnimatePresence>
         </div>
       )}
     </div>
   );
 };
+
+const UserCard = ({ user, idx, onToggleActive, onToggleRole }) => (
+  <motion.div
+    layout
+    initial={{ opacity: 0, y: 20 }}
+    animate={{ opacity: 1, y: 0 }}
+    transition={{ delay: idx * 0.05 }}
+    className="group relative p-6 rounded-3xl border shadow-xl flex flex-col gap-5 overflow-hidden"
+    style={{ background: 'var(--surface)', borderColor: 'var(--border)' }}
+  >
+    {/* Gradient Glow */}
+    <div className="absolute top-0 right-0 w-32 h-32 blur-3xl opacity-0 group-hover:opacity-10 transition-opacity rounded-full pointer-events-none"
+         style={{ background: C.brand }} />
+
+    {/* Identity Section */}
+    <div className="flex items-start justify-between">
+      <div className="flex gap-4">
+        <div className="relative">
+          <img 
+            src={user.avatar || `https://ui-avatars.com/api/?name=${user.fullname}&background=random`} 
+            className="w-14 h-14 rounded-2xl object-cover border-2 shadow-lg"
+            style={{ borderColor: 'var(--surface2)' }}
+            alt="" 
+          />
+          <div className={`absolute -bottom-1 -right-1 w-4 h-4 rounded-full border-2 border-surface shadow-sm ${user.isActive ? 'bg-emerald-500' : 'bg-red-500'}`} />
+        </div>
+        <div>
+          <h3 className="font-bold text-lg leading-tight">{user.fullname}</h3>
+          <p className="text-xs opacity-40 flex items-center gap-1 mt-1">
+            <Mail size={12} /> {user.email}
+          </p>
+        </div>
+      </div>
+      
+      <div className={`px-2.5 py-1 rounded-lg text-[10px] font-black uppercase tracking-widest ${user.role === 'admin' ? 'text-amber-400 bg-amber-400/10' : 'text-indigo-400 bg-indigo-400/10'}`}>
+        {user.role}
+      </div>
+    </div>
+
+    {/* Metatdata */}
+    <div className="grid grid-cols-2 gap-4">
+       <div className="p-3 rounded-2xl border" style={{ background: 'var(--surface2)', borderColor: 'var(--border)' }}>
+          <p className="text-[9px] uppercase tracking-wider opacity-40 font-bold mb-1">Joined Date</p>
+          <div className="flex items-center gap-2 text-xs font-medium">
+             <Calendar size={14} className="opacity-40" />
+             {new Date(user.createdAt).toLocaleDateString()}
+          </div>
+       </div>
+       <div className="p-3 rounded-2xl border" style={{ background: 'var(--surface2)', borderColor: 'var(--border)' }}>
+          <p className="text-[9px] uppercase tracking-wider opacity-40 font-bold mb-1">Account State</p>
+          <div className="flex items-center gap-2 text-xs font-bold" style={{ color: user.isActive ? '#22C55E' : C.error }}>
+             {user.isActive ? 'Active' : 'Restricted'}
+          </div>
+       </div>
+    </div>
+
+    {/* Actions */}
+    <div className="flex gap-3 mt-auto">
+      <button
+        onClick={() => onToggleActive(user._id, user.isActive)}
+        className="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl text-xs font-bold transition-all border"
+        style={{ 
+          background: user.isActive ? 'transparent' : 'var(--surface2)',
+          borderColor: user.isActive ? C.error : 'var(--border)',
+          color: user.isActive ? C.error : 'var(--text)'
+        }}
+      >
+        <Power size={14} />
+        {user.isActive ? 'Suspend' : 'Restore'}
+      </button>
+
+      <button
+        onClick={() => onToggleRole(user._id, user.role)}
+        className="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl text-xs font-bold transition-all"
+        style={{ background: user.role === 'admin' ? 'var(--surface2)' : C.brand, color: user.role === 'admin' ? 'var(--text)' : 'white' }}
+      >
+        {user.role === 'admin' ? <ShieldAlert size={14} /> : <ShieldCheck size={14} />}
+        {user.role === 'admin' ? 'Demote' : 'Promote'}
+      </button>
+    </div>
+  </motion.div>
+);
 
 export default Users;
