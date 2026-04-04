@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from "react";
-import axios from "axios";
+import apiClient from "../../../api/axiosConfig";
 import { Link } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { Search, UserPlus, Shield, Power, Trash2, Mail, Calendar, User as UserIcon, ShieldCheck, ShieldAlert } from "lucide-react";
+import { Search, UserPlus, Shield, Power, Trash2, Mail, Calendar, User as UserIcon, ShieldCheck, ShieldAlert } from "lucide-center";
 import { useAuth } from "../../../context/AuthContext";
 
 const C = {
@@ -14,16 +14,14 @@ const C = {
 };
 
 export const Users = () => {
-  const { token } = useAuth();
+  const { token, loading: authLoading } = useAuth();
   const [users, setUsers] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [loading, setLoading] = useState(true);
 
   const fetchUsers = async () => {
     try {
-      const res = await axios.get("/users", {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const res = await apiClient.get("/users");
       setUsers(res.data.users || []);
     } catch (error) {
       console.error("Failed to fetch users:", error);
@@ -34,12 +32,13 @@ export const Users = () => {
   };
 
   useEffect(() => {
+    if (!token || authLoading) return;
     fetchUsers();
-  }, [token]);
+  }, [token, authLoading]);
 
   const toggleActive = async (id, currentStatus) => {
     try {
-      await axios.patch(`/user/${id}`, { isActive: !currentStatus }, { headers: { Authorization: `Bearer ${token}` } });
+      await apiClient.patch(`/user/${id}`, { isActive: !currentStatus });
       setUsers(prev => prev.map(u => u._id === id ? { ...u, isActive: !currentStatus } : u));
     } catch (error) {
       console.error("Failed to update status:", error);
@@ -49,7 +48,7 @@ export const Users = () => {
   const toggleRole = async (id, currentRole) => {
     const newRole = currentRole === "admin" ? "user" : "admin";
     try {
-      await axios.patch(`/user/${id}`, { role: newRole }, { headers: { Authorization: `Bearer ${token}` } });
+      await apiClient.patch(`/user/${id}`, { role: newRole });
       setUsers(prev => prev.map(u => u._id === id ? { ...u, role: newRole } : u));
     } catch (error) {
       console.error("Failed to update role:", error);

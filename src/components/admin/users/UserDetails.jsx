@@ -1,12 +1,11 @@
-import { useEffect, useState } from "react";
-import { useParams, useNavigate } from "react-router-dom";
-import axios from "axios";
+import apiClient from "../../../api/axiosConfig";
+import { useAuth } from "../../../context/AuthContext";
 import { motion } from "framer-motion";
 import { ArrowLeft, Edit, ShieldAlert, Trash2 } from "lucide-react";
 import { Spinner } from "../../../utils/Spinner";
 
 export const UserDetails = () => {
-  const token = localStorage.getItem("token");
+  const { token, loading: authLoading } = useAuth();
   const { id } = useParams();
   const navigate = useNavigate();
 
@@ -15,9 +14,7 @@ export const UserDetails = () => {
 
   const fetchUser = async () => {
     try {
-      const res = await axios.get(`/user/${id}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const res = await apiClient.get(`/user/${id}`);
       setUser(res.data.data);
     } catch (err) {
       console.error("Failed to fetch user:", err);
@@ -28,8 +25,9 @@ export const UserDetails = () => {
   };
 
   useEffect(() => {
+    if (!token || authLoading) return;
     fetchUser();
-  }, [id]);
+  }, [id, token, authLoading]);
 
   if (loading)
     return (

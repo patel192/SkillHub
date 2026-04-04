@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import axios from "axios";
+import apiClient from "../../../api/axiosConfig";
 import { useNavigate } from "react-router-dom";
 import { Pencil, Trash, CheckCircle, XCircle, Plus, BookOpen, Layers, IndianRupee, MoreVertical, Eye, Share2 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
@@ -16,18 +16,17 @@ const C = {
 export const Courses = () => {
   const [courses, setCourses] = useState([]);
   const [loading, setLoading] = useState(true);
-  const { token } = useAuth();
+  const { token, loading: authLoading } = useAuth();
   const navigate = useNavigate();
 
   useEffect(() => {
+    if (!token || authLoading) return;
     fetchCourses();
-  }, [token]);
+  }, [token, authLoading]);
 
   const fetchCourses = async () => {
     try {
-      const res = await axios.get("/courses", {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const res = await apiClient.get("/courses");
       setCourses(res.data.data || []);
     } catch (err) {
       console.error("Failed to fetch courses:", err.message);
@@ -39,9 +38,7 @@ export const Courses = () => {
   const deleteCourse = async (id) => {
     if (!window.confirm("Are you sure you want to delete this course? This action is permanent.")) return;
     try {
-      await axios.delete(`/courses/${id}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      await apiClient.delete(`/courses/${id}`);
       setCourses((prev) => prev.filter((c) => c._id !== id));
     } catch (err) {
       console.error("Course delete failed:", err.message);
@@ -50,7 +47,7 @@ export const Courses = () => {
 
   const togglePublish = async (id, currentStatus) => {
     try {
-      await axios.patch(`/courses/${id}`, { isPublished: !currentStatus }, { headers: { Authorization: `Bearer ${token}` } });
+      await apiClient.patch(`/courses/${id}`, { isPublished: !currentStatus });
       setCourses((prev) => prev.map((c) => c._id === id ? { ...c, isPublished: !currentStatus } : c));
     } catch (err) {
       console.error("Publish toggle failed:", err.message);

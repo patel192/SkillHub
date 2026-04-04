@@ -1,6 +1,5 @@
-import React, { useEffect, useState, useRef } from "react";
-import { useParams, useNavigate } from "react-router-dom";
-import axios from "axios";
+import apiClient from "../../../api/axiosConfig";
+import { useAuth } from "../../../context/AuthContext";
 import { motion, AnimatePresence } from "framer-motion";
 import toast from "react-hot-toast";
 import {
@@ -22,7 +21,7 @@ export const CourseLessons = ({ courseId: propCourseId }) => {
   const params = useParams();
   const navigate = useNavigate();
   const courseId = propCourseId || params.courseId;
-  const token = localStorage.getItem("token");
+  const { token, loading: authLoading } = useAuth();
   const [lessons, setLessons] = useState([]);
   const [selected, setSelected] = useState(null);
   const [openAdd, setOpenAdd] = useState(false);
@@ -35,16 +34,15 @@ export const CourseLessons = ({ courseId: propCourseId }) => {
   const listRef = useRef(null);
 
   useEffect(() => {
+    if (!token || authLoading) return;
     fetchLessons();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [courseId]);
+  }, [courseId, token, authLoading]);
 
   const fetchLessons = async () => {
     setLoading(true);
     try {
-      const res = await axios.get(`/lessons/${courseId}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const res = await apiClient.get(`/lessons/${courseId}`);
       const data = res.data?.data ?? [];
       const sorted = data.sort(
         (a, b) => new Date(a.createdAt) - new Date(b.createdAt)
@@ -80,9 +78,7 @@ export const CourseLessons = ({ courseId: propCourseId }) => {
         content: newLesson.content.trim(),
         courseId,
       };
-      const res = await axios.post("/lessons", payload, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const res = await apiClient.post("/lessons", payload);
       const added = res.data?.data;
       setLessons((p) => [...p, added]);
       setNewLesson({ title: "", content: "" });
@@ -101,9 +97,7 @@ export const CourseLessons = ({ courseId: propCourseId }) => {
     if (!window.confirm("Delete this lesson?")) return;
     setDeletingId(lessonId);
     try {
-      await axios.delete(`/lessons/${lessonId}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      await apiClient.delete(`/lessons/${lessonId}`);
       setLessons((p) => p.filter((l) => l._id !== lessonId));
       toast.success("Lesson deleted");
       if (selected && String(selected._id) === String(lessonId)) {

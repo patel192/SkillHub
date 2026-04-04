@@ -1,7 +1,5 @@
-import React, { useEffect, useState } from "react";
-import { useParams, useNavigate } from "react-router-dom";
-import { motion, AnimatePresence } from "framer-motion";
-import axios from "axios";
+import apiClient from "../../../api/axiosConfig";
+import { useAuth } from "../../../context/AuthContext";
 import {
   Plus,
   CheckCircle,
@@ -15,7 +13,7 @@ import {
 import { Spinner } from "../../../utils/Spinner";
 
 export const CourseQuiz = () => {
-  const token = localStorage.getItem("token");
+  const { token, loading: authLoading } = useAuth();
   const { courseId } = useParams();
   const navigate = useNavigate();
 
@@ -39,11 +37,10 @@ export const CourseQuiz = () => {
 
   // fetch questions
   useEffect(() => {
+    if (!token || authLoading) return;
     const fetchQuestions = async () => {
       try {
-        const res = await axios.get(`/questions/${courseId}`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
+        const res = await apiClient.get(`/questions/${courseId}`);
 
         const data = res.data;
         setQuestions(data.data);
@@ -64,7 +61,7 @@ export const CourseQuiz = () => {
       }
     };
     fetchQuestions();
-  }, [courseId, token]);
+  }, [courseId, token, authLoading]);
 
   const handleSelectQuestion = (q) => {
     setSelectedQuestion(q);
@@ -74,9 +71,7 @@ export const CourseQuiz = () => {
 
   const handleAddQuestion = async () => {
     try {
-      const res = await axios.post(`/questions/${courseId}`, newQuestion, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const res = await apiClient.post(`/questions/${courseId}`, newQuestion);
 
       const data = res.data;
       setQuestions((prev) => [...prev, data]);

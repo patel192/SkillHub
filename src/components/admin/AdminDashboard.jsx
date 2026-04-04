@@ -4,7 +4,7 @@ import {
   Book, Users, CheckCircle, Clock, Award, FileText,
   Layers, Activity, TrendingUp, DollarSign, ArrowUpRight, ArrowDownRight, Globe
 } from "lucide-react";
-import axios from "axios";
+import apiClient from "../../api/axiosConfig";
 import {
   LineChart, Line, XAxis, YAxis,
   CartesianGrid, Tooltip, ResponsiveContainer, AreaChart, Area
@@ -20,7 +20,7 @@ const C = {
 };
 
 export const AdminDashboard = () => {
-  const { token, user } = useAuth();
+  const { token, user, loading: authLoading } = useAuth();
 
   const [stats, setStats] = useState({});
   const [latestUsers, setLatestUsers] = useState([]);
@@ -30,14 +30,13 @@ export const AdminDashboard = () => {
   const [topCourses, setTopCourses] = useState([]);
 
   useEffect(() => {
+    if (!token || authLoading) return;
     fetchOverview();
-  }, [token]);
+  }, [token, authLoading]);
 
   const fetchOverview = async () => {
     try {
-      const res = await axios.get("/admin/overview", {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const res = await apiClient.get("/admin/overview");
 
       setStats(res.data.stats || {});
       setLatestUsers(res.data.latestUsers || []);

@@ -1,8 +1,9 @@
-import React, { useState } from "react";
+import apiClient from "../../../api/axiosConfig";
+import { useAuth } from "../../../context/AuthContext";
 import { motion } from "framer-motion";
 
 export const AddCourse = () => {
-  const token = localStorage.getItem("token");
+  const { token, loading: authLoading } = useAuth();
   const [formData, setFormData] = useState({
     title: "",
     description: "",
@@ -27,18 +28,10 @@ export const AddCourse = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (!token || authLoading) return;
     try {
-      const response = await fetch("/course",{
-          headers:{Authorization:`Bearer ${token}`}
-        }, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(formData),
-      });
-      const result = await response.json();
-      console.log("Course added:", result);
+      const response = await apiClient.post("/course", formData);
+      console.log("Course added:", response.data);
       alert("Course added successfully!");
     } catch (error) {
       console.error("Error adding course:", error);

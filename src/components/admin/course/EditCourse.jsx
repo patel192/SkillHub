@@ -1,6 +1,5 @@
-import React, { useEffect, useState } from "react";
-import { useParams, useNavigate } from "react-router-dom";
-import axios from "axios";
+import apiClient from "../../../api/axiosConfig";
+import { useAuth } from "../../../context/AuthContext";
 import { Save, ArrowLeft, Loader2, GraduationCap } from "lucide-react";
 import { motion } from "framer-motion";
 import { Spinner } from "../../../utils/Spinner";
@@ -8,7 +7,7 @@ import { Spinner } from "../../../utils/Spinner";
 export const EditCourse = () => {
   const { id } = useParams();
   const navigate = useNavigate();
-  const token = localStorage.getItem("token");
+  const { token, loading: authLoading } = useAuth();
 
   const [courseData, setCourseData] = useState({
     title: "",
@@ -35,15 +34,14 @@ export const EditCourse = () => {
 
   /* ---------------- Fetch Course ---------------- */
   useEffect(() => {
+    if (!token || authLoading) return;
     fetchCourse();
-  }, [id]);
+  }, [id, token, authLoading]);
 
   const fetchCourse = async () => {
     try {
       setLoading(true);
-      const res = await axios.get(`/course/${id}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const res = await apiClient.get(`/course/${id}`);
       setCourseData(res.data.data);
     } catch (err) {
       console.error("Error fetching course:", err);
@@ -66,9 +64,7 @@ export const EditCourse = () => {
   const handleSave = async () => {
     try {
       setSaving(true);
-      await axios.patch(`/course/${id}`, courseData, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      await apiClient.patch(`/course/${id}`, courseData);
       navigate("/admin/courses");
     } catch (err) {
       console.error("Saving failed:", err.message);

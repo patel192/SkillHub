@@ -1,6 +1,5 @@
-import React, { useEffect, useState } from "react";
-import { useParams, useNavigate, Link } from "react-router-dom";
-import axios from "axios";
+import apiClient from "../../../api/axiosConfig";
+import { useAuth } from "../../../context/AuthContext";
 import { motion } from "framer-motion";
 import {
   ArrowLeft,
@@ -17,7 +16,7 @@ import {
 } from "lucide-react";
 
 export const ReportsDetail = () => {
-  const token = localStorage.getItem("token");
+  const { token, loading: authLoading } = useAuth();
   const { id } = useParams();
   const navigate = useNavigate();
 
@@ -25,11 +24,10 @@ export const ReportsDetail = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    if (!token || authLoading) return;
     const fetchReport = async () => {
       try {
-        const res = await axios.get(`/reports/${id}`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
+        const res = await apiClient.get(`/reports/${id}`);
         setReport(res.data.report);
       } catch (err) {
         console.error("Failed to fetch report:", err);
@@ -38,14 +36,13 @@ export const ReportsDetail = () => {
       }
     };
     fetchReport();
-  }, [id]);
+  }, [id, token, authLoading]);
 
   const handleResolve = async () => {
     try {
-      await axios.patch(
+      await apiClient.patch(
         `/reports/${id}`,
-        { status: "resolved" },
-        { headers: { Authorization: `Bearer ${token}` } }
+        { status: "resolved" }
       );
       setReport((prev) => ({ ...prev, status: "resolved" }));
     } catch (err) {
@@ -57,10 +54,7 @@ export const ReportsDetail = () => {
     if (!window.confirm("Delete this report permanently?")) return;
 
     try {
-      await axios.delete(`/report/${id}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-
+      await apiClient.delete(`/report/${id}`);
       navigate("/admin/reports");
     } catch (err) {
       console.error("Failed to delete report:", err);

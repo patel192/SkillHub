@@ -1,5 +1,4 @@
-import React, { useEffect, useState } from "react";
-import axios from "axios";
+import apiClient from "../../../api/axiosConfig";
 import { motion, AnimatePresence } from "framer-motion";
 import { AlertTriangle, User, BookOpen, MessageSquare, ChevronRight, Filter, Clock, ShieldCheck } from "lucide-react";
 import { useNavigate } from "react-router-dom";
@@ -17,14 +16,13 @@ export const Reports = () => {
   const [reports, setReports] = useState([]);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
-  const { token } = useAuth();
+  const { token, loading: authLoading } = useAuth();
 
   useEffect(() => {
+    if (!token || authLoading) return;
     const fetchReports = async () => {
       try {
-        const res = await axios.get("/reports", {
-          headers: { Authorization: `Bearer ${token}` },
-        });
+        const res = await apiClient.get("/reports");
         setReports(res.data?.reports || []);
       } catch (err) {
         console.error("❌ Failed to fetch reports:", err);
@@ -33,7 +31,7 @@ export const Reports = () => {
       }
     };
     fetchReports();
-  }, [token]);
+  }, [token, authLoading]);
 
   const getTargetIcon = (type) => {
     switch (type) {

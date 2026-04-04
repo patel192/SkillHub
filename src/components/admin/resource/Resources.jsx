@@ -1,8 +1,4 @@
-import React, { useState, useEffect } from "react";
-import { BookOpen, Clock, User, Zap, Star, Layout, Library, ChevronRight, GraduationCap } from "lucide-react";
-import { useNavigate } from "react-router-dom";
-import { motion, AnimatePresence } from "framer-motion";
-import axios from "axios";
+import apiClient from "../../../api/axiosConfig";
 import { useAuth } from "../../../context/AuthContext";
 
 const C = {
@@ -14,17 +10,16 @@ const C = {
 };
 
 export const Resources = () => {
-  const { token } = useAuth();
+  const { token, loading: authLoading } = useAuth();
   const [courses, setCourses] = useState([]);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
   useEffect(() => {
+    if (!token || authLoading) return;
     const fetchCourses = async () => {
       try {
-        const response = await axios.get("/courses", {
-          headers: { Authorization: `Bearer ${token}` },
-        });
+        const response = await apiClient.get("/courses");
         setCourses(response.data.data);
       } catch (e) {
         console.error("Resource course fetch error:", e);
@@ -33,7 +28,7 @@ export const Resources = () => {
       }
     };
     fetchCourses();
-  }, [token]);
+  }, [token, authLoading]);
 
   return (
     <div className="space-y-8">
