@@ -279,7 +279,7 @@ const SidebarContent = ({ isOpen, toggle, currentPath, onLogout, isMobile }) => 
 
         {/* Help */}
         <Link
-          to="/help"
+          to="/user/help"
           className="flex items-center gap-3 px-3 py-2.5 rounded-xl transition-colors group"
           style={{ color: "var(--text-muted)" }}
           onMouseEnter={(e) => { e.currentTarget.style.background = `${C.brand}0C`; e.currentTarget.style.color = "var(--text-muted)"; }}

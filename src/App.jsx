@@ -34,6 +34,7 @@ import { CourseLessons } from "./components/admin/resource/CourseLessons";
 import { CourseQuiz } from "./components/admin/resource/CourseQuiz";
 import { EditCourse } from "./components/admin/course/EditCourse";
 import { AddCourse } from "./components/admin/course/AddCourse";
+import { HelpSupport } from "./components/user/help/HelpSupport";
 
 function App() {
   return (
@@ -60,6 +61,7 @@ function App() {
           <Route path="activities" element={<Activities />}></Route>
           <Route path="notifications" element={<Notifications />}></Route>
           <Route path="report" element={<Report />}></Route>
+          <Route path="help" element={<HelpSupport />}></Route>
         </Route>
         <Route path="admin" element={<AdminLayout />}>
           <Route path="admindashboard" element={<AdminDashboard />}></Route>
