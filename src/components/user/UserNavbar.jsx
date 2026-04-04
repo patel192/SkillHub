@@ -38,8 +38,9 @@ const ROUTE_LABELS = {
   "/user/leaderboard": "Leaderboard",
   "/user/profile": "Profile",
   "/user/settings": "Settings",
-  "/user/activities": "Activities",
   "/user/notifications": "Notifications",
+  "/user/report": "Report",
+  "/user/help": "Help & Support",
 };
 
 export const UserNavbar = ({ toggleSidebar, isSidebarOpen, isMobile }) => {
