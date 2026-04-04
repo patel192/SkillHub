@@ -245,7 +245,12 @@ export const Login = () => {
     if (!validate()) { controls.start("shake"); return; }
     setLoading(true);
     try {
-      const res = await apiClient.post("/loginuser", form);
+      const loginForm = {
+        ...form,
+        email: form.email.trim(),
+        password: form.password.trim(),
+      };
+      const res = await apiClient.post("/loginuser", loginForm);
       if (res.status === 200) {
         const { data, token } = res.data;
         

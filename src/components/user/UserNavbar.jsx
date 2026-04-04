@@ -56,6 +56,7 @@ export const UserNavbar = ({ toggleSidebar, isSidebarOpen, isMobile }) => {
   const [userName, setUserName] = useState("");
   const [unreadCount, setUnreadCount] = useState(0);
 
+  const notifRef = useRef(null);
   const dropdownRef = useRef(null);
   const { userId, token, user, logout } = useAuth();
   const pageTitle = ROUTE_LABELS[location.pathname] || "SkillHub";

@@ -316,7 +316,13 @@ export const SignUp = () => {
     if (!validate()) { controls.start("shake"); return; }
     setLoading(true);
     try {
-      const res = await apiClient.post("/user", form);
+      const signupForm = {
+        ...form,
+        fullname: form.fullname.trim(),
+        email: form.email.trim(),
+        password: form.password.trim(),
+      };
+      const res = await apiClient.post("/user", signupForm);
       const { user, token } = res.data;
       
       login(user, token);
