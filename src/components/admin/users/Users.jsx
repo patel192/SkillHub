@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import apiClient from "../../../api/axiosConfig";
 import { Link } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { Search, UserPlus, Shield, Power, Trash2, Mail, Calendar, User as UserIcon, ShieldCheck, ShieldAlert } from "lucide-center";
+import { Search, UserPlus, Shield, Power, Trash2, Mail, Calendar, User as UserIcon, ShieldCheck, ShieldAlert } from "lucide-react";
 import { useAuth } from "../../../context/AuthContext";
 
 const C = {
