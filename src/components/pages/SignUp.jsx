@@ -7,6 +7,7 @@ import {
   Shield, Zap, Mail, Lock, User, AlertCircle,
   Github, Chrome, ChevronLeft, Code,
 } from "lucide-react";
+import { useAuth } from "../../context/AuthContext";
 
 // ─────────────────────────────────────────
 // DESIGN TOKENS — matches PublicLayout
@@ -263,6 +264,7 @@ const FEATURES = [
 // MAIN COMPONENT
 // ─────────────────────────────────────────
 export const SignUp = () => {
+  const { login } = useAuth();
   const navigate  = useNavigate();
   const controls  = useAnimation();
   const formRef   = useRef(null);
@@ -315,8 +317,10 @@ export const SignUp = () => {
     setLoading(true);
     try {
       const res = await apiClient.post("/user", form);
-      localStorage.setItem("token", res.data.token);
-      localStorage.setItem("user", JSON.stringify(res.data.user));
+      const { user, token } = res.data;
+      
+      login(user, token);
+      
       setSubmitted(true);
       setCurrentStep(2);
       await new Promise((r) => setTimeout(r, 1100));

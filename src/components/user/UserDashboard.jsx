@@ -218,21 +218,25 @@ export const UserDashboard = () => {
             apiClient.get("/courses"),
           ]);
 
-        setUserName(userRes.data.data.fullname);
-        setNotifications(notifRes.data.data || []);
+        setUserName(userRes.data?.data?.fullname || userRes.data?.fullname || "User");
+        setNotifications(notifRes.data?.data || notifRes.data || []);
 
         // Calculate learning time from localStorage
         let totalSec = 0;
         let courseTimes = [];
 
-        Object.keys(localStorage).forEach((k) => {
-          if (k.startsWith(`learningTime_${userId}_`)) {
-            const sec = parseInt(localStorage.getItem(k)) || 0;
-            totalSec += sec;
-            const id = k.split("_")[2];
-            courseTimes.push({ courseId: id, seconds: sec });
-          }
-        });
+        try {
+          Object.keys(localStorage).forEach((k) => {
+            if (k.startsWith(`learningTime_${userId}_`)) {
+              const sec = parseInt(localStorage.getItem(k)) || 0;
+              totalSec += sec;
+              const id = k.split("_")[2];
+              courseTimes.push({ courseId: id, seconds: sec });
+            }
+          });
+        } catch (e) {
+          console.error("Error reading learning time from localStorage", e);
+        }
 
         const totalMinutes = Math.floor(totalSec / 60);
 
@@ -243,30 +247,46 @@ export const UserDashboard = () => {
           const topCourseId = courseTimes[0].courseId;
           try {
             const c = await apiClient.get(`/course/${topCourseId}`);
-            topCourse = {
-              id: topCourseId,
-              name: c.data.data.title,
-              image: c.data.data.imageUrl,
-              progress: Math.min(
-                100,
-                Math.floor((courseTimes[0].seconds / 3600) * 100),
-              ),
-            };
-          } catch (err) {}
+            const courseData = c.data?.data || c.data;
+            if (courseData) {
+              topCourse = {
+                id: topCourseId,
+                name: courseData.title,
+                image: courseData.imageUrl,
+                progress: Math.min(
+                  100,
+                  Math.floor((courseTimes[0].seconds / 3600) * 100),
+                ),
+              };
+            }
+          } catch (err) {
+            console.error("Error fetching top course:", err);
+          }
         }
 
         setDashboard({
-          coursesCount: coursesRes.data.data.length,
-          certificatesCount: certRes.data.data.length,
+          coursesCount: coursesRes.data?.data?.length || coursesRes.data?.length || 0,
+          certificatesCount: certRes.data?.data?.length || certRes.data?.length || 0,
           challenges: 12,
           totalMinutes,
-          recentActivity: actRes.data.data.slice(0, 5),
-          recommended: recRes.data.data.slice(0, 3),
+          recentActivity: (actRes.data?.data || actRes.data || []).slice(0, 5),
+          recommended: (recRes.data?.data || recRes.data || []).slice(0, 3),
           topCourse,
           weeklyGoal: 75,
         });
       } catch (err) {
         console.error("Dashboard loading error:", err);
+        // Set some default state to avoid infinite loading
+        setDashboard({
+          coursesCount: 0,
+          certificatesCount: 0,
+          challenges: 0,
+          totalMinutes: 0,
+          recentActivity: [],
+          recommended: [],
+          topCourse: null,
+          weeklyGoal: 0,
+        });
       } finally {
         setLoading(false);
       }

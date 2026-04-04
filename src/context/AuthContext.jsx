@@ -20,15 +20,15 @@ export const AuthProvider = ({ children }) => {
     const storedToken = localStorage.getItem("token");
     const storedUser = localStorage.getItem("user");
     const storedUserId = localStorage.getItem("userId");
-    if (storedToken) {
-      setToken(storedToken);
-    }
+    if (storedToken) setToken(storedToken);
     if (storedUser) {
-      setUser(JSON.parse(storedUser));
+      try {
+        setUser(JSON.parse(storedUser));
+      } catch (e) {
+        console.error("Failed to parse stored user", e);
+      }
     }
-    if (storedUserId) {
-      setUserId(storedUserId);
-    }
+    if (storedUserId) setUserId(storedUserId);
     setLoading(false);
   }, []);
   useEffect(() => {
@@ -67,12 +67,14 @@ export const AuthProvider = ({ children }) => {
   }, [token]);
 
   const login = (userData, jwtToken) => {
+    const id = userData._id || userData.id;
     localStorage.setItem("token", jwtToken);
     localStorage.setItem("user", JSON.stringify(userData));
-    localStorage.setItem("userId", userData._id);
-    setUser(userData);
+    localStorage.setItem("userId", id);
+    
     setToken(jwtToken);
-    setUserId(userData._id);
+    setUser(userData);
+    setUserId(id);
   };
   const logout = () => {
     localStorage.removeItem("token");

@@ -7,6 +7,7 @@ import {
   CheckCircle2, Shield, Zap, Github, Chrome, ChevronLeft,
   Loader2, Code, TrendingUp, Users,
 } from "lucide-react";
+import { useAuth } from "../../context/AuthContext";
 
 // ─────────────────────────────────────────
 // DESIGN TOKENS — identical to PublicLayout & SignUp
@@ -195,6 +196,7 @@ const FEATURES = [
 // MAIN COMPONENT
 // ─────────────────────────────────────────
 export const Login = () => {
+  const { login } = useAuth();
   const navigate  = useNavigate();
   const controls  = useAnimation();
   const formRef   = useRef(null);
@@ -246,10 +248,9 @@ export const Login = () => {
       const res = await apiClient.post("/loginuser", form);
       if (res.status === 200) {
         const { data, token } = res.data;
-        localStorage.setItem("token",    token);
-        localStorage.setItem("userId",   data.id);
-        localStorage.setItem("fullname", data.fullname);
-        localStorage.setItem("role",     data.role);
+        
+        login(data, token);
+        
         if (form.rememberMe) localStorage.setItem("rememberedEmail", form.email);
         else                 localStorage.removeItem("rememberedEmail");
 

@@ -56,9 +56,8 @@ export const UserNavbar = ({ toggleSidebar, isSidebarOpen, isMobile }) => {
   const [userName, setUserName] = useState("");
   const [unreadCount, setUnreadCount] = useState(0);
 
-  const notifRef = useRef(null);
   const dropdownRef = useRef(null);
-  const { userId, token,user } = useAuth();
+  const { userId, token, user, logout } = useAuth();
   const pageTitle = ROUTE_LABELS[location.pathname] || "SkillHub";
 
   // Clock
@@ -81,14 +80,14 @@ export const UserNavbar = ({ toggleSidebar, isSidebarOpen, isMobile }) => {
 
   // Fetch user data
   useEffect(() => {
-    if (!userId) return;
+    if (!userId || !token) return;
     axios
       .get(`/user/${userId}`, { headers: { Authorization: `Bearer ${token}` } })
       .then((res) => {
-        setAvatar(res.data.data.avatar);
-        setUserName(res.data.data.fullname || user);
+        setAvatar(res.data?.data?.avatar || res.data?.avatar);
+        setUserName(res.data?.data?.fullname || res.data?.fullname || user?.fullname || "User");
       })
-      .catch(() => setUserName(user));
+      .catch(() => setUserName(user?.fullname || "User"));
   }, [userId, token, user]);
 
   // Fetch notifications when panel opens
@@ -121,8 +120,7 @@ export const UserNavbar = ({ toggleSidebar, isSidebarOpen, isMobile }) => {
   };
 
   const handleLogout = () => {
-    localStorage.clear();
-    navigate("/login");
+    logout();
   };
 
   const formattedTime = time.toLocaleTimeString([], {
