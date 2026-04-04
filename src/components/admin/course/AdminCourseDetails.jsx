@@ -1,12 +1,13 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import axios from "axios";
+import apiClient from "../../../api/axiosConfig";
 import { PlusCircle, MoreHorizontal } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import { useAuth } from "../../../context/AuthContext";
 import { Spinner } from "../../../utils/Spinner";
 
 export const AdminCourseDetails = () => {
-  const token = localStorage.getItem("token");
+  const { token, loading: authLoading } = useAuth();
   const { id } = useParams();
   const navigate = useNavigate();
 
@@ -17,16 +18,15 @@ export const AdminCourseDetails = () => {
   const [menuOpen, setMenuOpen] = useState(false);
 
   useEffect(() => {
+    if (!token || authLoading) return;
     fetchCourse();
     fetchOverview();
-  }, [id]);
+  }, [id, token, authLoading]);
 
   const fetchCourse = async () => {
     try {
       setLoading(true);
-      const res = await axios.get(`/course/${id}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const res = await apiClient.get(`/course/${id}`);
       setCourse(res.data.data);
     } catch (err) {
       console.error("Failed to fetch course:", err.message);
@@ -37,9 +37,7 @@ export const AdminCourseDetails = () => {
 
   const fetchOverview = async () => {
     try {
-      const res = await axios.get(`/overview/${id}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const res = await apiClient.get(`/overview/${id}`);
       setOverview(res.data.data?.overview || []);
     } catch (err) {
       console.error("Failed to fetch overview:", err.message);
@@ -50,10 +48,9 @@ export const AdminCourseDetails = () => {
     if (!newPoint.trim()) return;
 
     try {
-      const res = await axios.patch(
+      const res = await apiClient.patch(
         `/overview/${id}`,
-        { point: newPoint },
-        { headers: { Authorization: `Bearer ${token}` } }
+        { point: newPoint }
       );
       setOverview(res.data.data.overview);
       setNewPoint("");

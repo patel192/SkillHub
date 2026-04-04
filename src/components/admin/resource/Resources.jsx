@@ -1,3 +1,7 @@
+import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { motion, AnimatePresence } from "framer-motion";
+import { Library, Layout, Zap, GraduationCap } from "lucide-react";
 import apiClient from "../../../api/axiosConfig";
 import { useAuth } from "../../../context/AuthContext";
 
@@ -20,7 +24,7 @@ export const Resources = () => {
     const fetchCourses = async () => {
       try {
         const response = await apiClient.get("/courses");
-        setCourses(response.data.data);
+        setCourses(response.data.data || []);
       } catch (e) {
         console.error("Resource course fetch error:", e);
       } finally {
@@ -55,7 +59,13 @@ export const Resources = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
            <AnimatePresence>
              {courses.map((course, idx) => (
-                <ResourceCourseCard key={course._id} course={course} idx={idx} onClick={() => navigate(`/admin/resources/${course._id}`)} />
+                <ResourceCourseCard 
+                  key={course._id} 
+                  course={course} 
+                  idx={idx} 
+                  onLessons={() => navigate(`/admin/resources/${course._id}`)}
+                  onQuiz={() => navigate(`/admin/quiz/${course._id}`)}
+                />
              ))}
            </AnimatePresence>
         </div>
@@ -64,15 +74,14 @@ export const Resources = () => {
   );
 };
 
-const ResourceCourseCard = ({ course, idx, onClick }) => (
+const ResourceCourseCard = ({ course, idx, onLessons, onQuiz }) => (
   <motion.div
     layout
     initial={{ opacity: 0, scale: 0.95 }}
     animate={{ opacity: 1, scale: 1 }}
     transition={{ delay: idx * 0.05 }}
-    onClick={onClick}
-    className="group relative flex flex-col rounded-3xl border shadow-xl overflow-hidden cursor-pointer bg-surface hover:ring-2 transition-all"
-    style={{ background: 'var(--surface)', borderColor: 'var(--border)', '--tw-ring-color': 'var(--brand)' }}
+    className="group relative flex flex-col rounded-3xl border shadow-xl overflow-hidden bg-surface transition-all"
+    style={{ background: 'var(--surface)', borderColor: 'var(--border)' }}
   >
     <div className="relative h-40 overflow-hidden bg-black/20">
       <img
@@ -98,19 +107,29 @@ const ResourceCourseCard = ({ course, idx, onClick }) => (
       </div>
 
       <div className="flex gap-2 mt-2">
-         <div className="flex-1 flex items-center justify-center gap-2 py-2 rounded-xl text-[11px] font-extrabold transition-all border"
-              style={{ background: 'var(--surface2)', borderColor: 'var(--border)' }}>
+         <motion.button 
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            onClick={onLessons}
+            className="flex-1 flex items-center justify-center gap-2 py-2 rounded-xl text-[11px] font-extrabold transition-all border bg-surface2 hover:bg-surface3"
+            style={{ borderColor: 'var(--border)' }}>
             <Layout size={14} style={{ color: C.brand }} />
             Lessons
-         </div>
-         <div className="flex-1 flex items-center justify-center gap-2 py-2 rounded-xl text-[11px] font-extrabold transition-all border"
-              style={{ background: 'var(--surface2)', borderColor: 'var(--border)' }}>
+         </motion.button>
+         <motion.button 
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            onClick={onQuiz}
+            className="flex-1 flex items-center justify-center gap-2 py-2 rounded-xl text-[11px] font-extrabold transition-all border bg-surface2 hover:bg-surface3"
+            style={{ borderColor: 'var(--border)' }}>
             <Zap size={14} style={{ color: C.accent }} />
             Quizzes
-         </div>
+         </motion.button>
       </div>
     </div>
   </motion.div>
 );
+
+export default Resources;
 
 export default Resources;

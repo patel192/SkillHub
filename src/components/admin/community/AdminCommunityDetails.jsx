@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
-import axios from "axios";
+import apiClient from "../../../api/axiosConfig";
+import { useAuth } from "../../../context/AuthContext";
 import { Link, useParams, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import toast from "react-hot-toast";
@@ -24,7 +25,7 @@ import { X } from "lucide-react";
  */
 
 export const AdminCommunityDetails = () => {
-  const token = localStorage.getItem("token");
+  const { token, userId, loading: authLoading } = useAuth();
   const { id } = useParams(); // community id
   const navigate = useNavigate();
 
@@ -54,7 +55,7 @@ export const AdminCommunityDetails = () => {
   const [notifications, setNotifications] = useState([]);
   const [lastSeen, setLastSeen] = useState(Date.now());
 
-  const userId = localStorage.getItem("userId");
+  // const userId = localStorage.getItem("userId"); // Already from useAuth
   const userName = "You";
 
   // helpers
@@ -87,8 +88,8 @@ export const AdminCommunityDetails = () => {
     setLoading(true);
     try {
       const [resComm, resPosts] = await Promise.all([
-        axios.get(`/communities/${id}`, { headers: { Authorization: `Bearer ${token}` } }),
-        axios.get(`/communities/${id}/posts?sort=new&limit=50`, { headers: { Authorization: `Bearer ${token}` } }),
+        apiClient.get(`/communities/${id}`),
+        apiClient.get(`/communities/${id}/posts?sort=new&limit=50`),
       ]);
 
       const communityData = resComm?.data?.data ?? resComm?.data;
@@ -116,7 +117,7 @@ export const AdminCommunityDetails = () => {
   const fetchNotifications = async () => {
     if (!userId) return;
     try {
-      const res = await axios.get(`/notifications/${userId}`, { headers: { Authorization: `Bearer ${token}` } });
+      const res = await apiClient.get(`/notifications/${userId}`);
       const data = res.data?.data ?? res.data ?? [];
       const newOnes = data.filter((n) => new Date(n.createdAt).getTime() > lastSeen);
       if (newOnes.length > 0) {
@@ -130,18 +131,19 @@ export const AdminCommunityDetails = () => {
   };
 
   useEffect(() => {
+    if (!token || authLoading) return;
     fetchCommunityAndPosts();
     fetchNotifications();
     const iv = setInterval(fetchNotifications, 20000);
     return () => clearInterval(iv);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [id, userId]);
+  }, [id, userId, token, authLoading]);
 
   // Membership handlers
   const handleMembership = async (action) => {
     if (!userId) return alert("Please login first");
     try {
-      await axios.patch(`/communities/${id}/${action}`, { userId }, { headers: { Authorization: `Bearer ${token}` } });
+      await apiClient.patch(`/communities/${id}/${action}`, { userId });
       showNotification(`Successfully ${action}ed community`);
       await fetchCommunityAndPosts();
     } catch (err) {
@@ -154,7 +156,7 @@ export const AdminCommunityDetails = () => {
   const handleAddPost = async () => {
     if (!newPost.trim()) return;
     try {
-      await axios.post("/posts", { userId, content: newPost, communityId: id }, { headers: { Authorization: `Bearer ${token}` } });
+      await apiClient.post("/posts", { userId, content: newPost, communityId: id });
       setNewPost("");
       showNotification("Post created");
       await fetchCommunityAndPosts();
@@ -167,7 +169,7 @@ export const AdminCommunityDetails = () => {
   const handleLike = async (postId) => {
     if (!userId) return alert("Please login first");
     try {
-      await axios.post(`/posts/${postId}/like`, { userId }, { headers: { Authorization: `Bearer ${token}` } });
+      await apiClient.post(`/posts/${postId}/like`, { userId });
       showNotification("You liked a post");
       await fetchCommunityAndPosts();
     } catch (err) {
@@ -180,7 +182,7 @@ export const AdminCommunityDetails = () => {
     const txt = (commentText[postId] || "").trim();
     if (!txt) return;
     try {
-      await axios.post(`/posts/${postId}/comment`, { userId, content: txt }, { headers: { Authorization: `Bearer ${token}` } });
+      await apiClient.post(`/posts/${postId}/comment`, { userId, content: txt });
       setCommentText((p) => ({ ...p, [postId]: "" }));
       showNotification("Comment added");
       await fetchCommunityAndPosts();
@@ -194,7 +196,7 @@ export const AdminCommunityDetails = () => {
     const txt = (replyText[commentId] || "").trim();
     if (!txt) return;
     try {
-      await axios.post(`/posts/${postId}/comment/${commentId}/reply`, { userId, content: txt }, { headers: { Authorization: `Bearer ${token}` } });
+      await apiClient.post(`/posts/${postId}/comment/${commentId}/reply`, { userId, content: txt });
       setReplyText((p) => ({ ...p, [commentId]: "" }));
       showNotification("Reply added");
       await fetchCommunityAndPosts();
@@ -207,7 +209,7 @@ export const AdminCommunityDetails = () => {
   const handlePinToggle = async (postId, currentlyPinned) => {
     try {
       const action = currentlyPinned ? "unpin" : "pin";
-      await axios.patch(`/communities/${id}/${action}`, { postId }, { headers: { Authorization: `Bearer ${token}` } });
+      await apiClient.patch(`/communities/${id}/${action}`, { postId });
       showNotification(`Post ${currentlyPinned ? "unpinned" : "pinned"}`);
       await fetchCommunityAndPosts();
     } catch (err) {
@@ -220,7 +222,7 @@ export const AdminCommunityDetails = () => {
   const handleUpdateCommunity = async () => {
     if (!editData.name.trim() || !userId) return alert("Name required");
     try {
-      await axios.put(`/communities/${id}`, { ...editData, userId }, { headers: { Authorization: `Bearer ${token}` } });
+      await apiClient.put(`/communities/${id}`, { ...editData, userId });
       setEditMode(false);
       showNotification("Community updated");
       await fetchCommunityAndPosts();
@@ -233,7 +235,7 @@ export const AdminCommunityDetails = () => {
   const handleRemoveMember = async (memberId) => {
     if (!memberId) return;
     try {
-      await axios.patch(`/communities/${id}/leave`, { userId: memberId }, { headers: { Authorization: `Bearer ${token}` } });
+      await apiClient.patch(`/communities/${id}/leave`, { userId: memberId });
       showNotification("Member removed");
       await fetchCommunityAndPosts();
     } catch (err) {
@@ -245,7 +247,7 @@ export const AdminCommunityDetails = () => {
   const handleAddMember = async () => {
     if (!newMemberId?.trim()) return alert("Enter a user id");
     try {
-      await axios.patch(`/communities/${id}/join`, { userId: newMemberId }, { headers: { Authorization: `Bearer ${token}` } });
+      await apiClient.patch(`/communities/${id}/join`, { userId: newMemberId });
       setNewMemberId("");
       showNotification("Member added");
       await fetchCommunityAndPosts();
@@ -258,7 +260,7 @@ export const AdminCommunityDetails = () => {
   const handlePromoteMember = async (memberId) => {
     if (!memberId) return;
     try {
-      await axios.patch(`/communities/${id}/promote`, { userId: memberId }, { headers: { Authorization: `Bearer ${token}` } });
+      await apiClient.patch(`/communities/${id}/promote`, { userId: memberId });
       showNotification("Member promoted");
       await fetchCommunityAndPosts();
     } catch (err) {
@@ -272,7 +274,7 @@ export const AdminCommunityDetails = () => {
     e.preventDefault();
     if (!reportTarget) return;
     try {
-      await axios.post(
+      await apiClient.post(
         "/report",
         {
           reporter: userId,
@@ -280,8 +282,7 @@ export const AdminCommunityDetails = () => {
           description: reportMessage,
           targetType: reportTarget.type,
           targetId: reportTarget.id,
-        },
-        { headers: { Authorization: `Bearer ${token}` } }
+        }
       );
       toast.success(`${reportTarget.type} reported ✅`);
       setReportType("");

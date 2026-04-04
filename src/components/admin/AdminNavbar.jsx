@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Menu, Bell, User, LogOut, ChevronDown, Search, X } from "lucide-react";
-import axios from "axios";
+import apiClient from "../../api/axiosConfig";
 import { useAuth } from "../../context/AuthContext";
 import { useNavigate } from "react-router-dom";
 
@@ -14,7 +14,7 @@ const C = {
 
 export const AdminNavbar = ({ toggleSidebar, isSidebarOpen, isMobile }) => {
   const navigate = useNavigate();
-  const { user, userId, token, logout } = useAuth();
+  const { user, userId, token, logout, loading: authLoading } = useAuth();
 
   const [time, setTime] = useState(new Date());
   const [dropdownOpen, setDropdownOpen] = useState(false);
@@ -22,10 +22,8 @@ export const AdminNavbar = ({ toggleSidebar, isSidebarOpen, isMobile }) => {
   const dropdownRef = useRef(null);
 
   useEffect(() => {
-    if (!userId) return;
-    axios.get(`/user/${userId}`, {
-      headers: { Authorization: `Bearer ${token}` }
-    }).then(res => {
+    if (!userId || !token || authLoading) return;
+    apiClient.get(`/user/${userId}`).then(res => {
       setAvatar(res.data?.data?.avatar || res.data?.avatar);
     }).catch(err => console.error("Admin user fetch error:", err));
   }, [userId, token]);
