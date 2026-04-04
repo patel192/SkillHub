@@ -41,6 +41,7 @@ const ROUTE_LABELS = {
   "/user/notifications": "Notifications",
   "/user/report": "Report",
   "/user/help": "Help & Support",
+  "/user/view-profile": "User Profile",
 };
 
 export const UserNavbar = ({ toggleSidebar, isSidebarOpen, isMobile }) => {
@@ -60,7 +61,14 @@ export const UserNavbar = ({ toggleSidebar, isSidebarOpen, isMobile }) => {
   const notifRef = useRef(null);
   const dropdownRef = useRef(null);
   const { userId, token, user, logout } = useAuth();
-  const pageTitle = ROUTE_LABELS[location.pathname] || "SkillHub";
+  
+  // Dynamic page title logic
+  const getPageTitle = () => {
+    if (location.pathname.startsWith("/user/view-profile/")) return "User Profile";
+    if (location.pathname.startsWith("/user/community/"))   return "Community Details";
+    return ROUTE_LABELS[location.pathname] || "SkillHub";
+  };
+  const pageTitle = getPageTitle();
 
   // Clock
   useEffect(() => {

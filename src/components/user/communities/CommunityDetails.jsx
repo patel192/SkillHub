@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback, useMemo } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, Link } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import apiClient from "../../../api/axiosConfig";
 import { toast } from "react-hot-toast";
@@ -566,25 +566,29 @@ const CommentSection = ({ post, userId, onComment, onReply }) => {
         {comments.map((comment) => (
           <div key={comment._id} className="space-y-3">
             <div className="flex gap-3">
-              <img
-                src={
-                  comment.userId?.avatar ||
-                  `https://ui-avatars.com/api/?name=${comment.userId?.fullname}&background=16A880&color=fff`
-                }
-                alt={comment.userId?.fullname}
-                className="w-8 h-8 rounded-full"
-              />
+              <Link to={`/user/view-profile/${extractId(comment.userId)}`}>
+                <img
+                  src={
+                    comment.userId?.avatar ||
+                    `https://ui-avatars.com/api/?name=${comment.userId?.fullname}&background=16A880&color=fff`
+                  }
+                  alt={comment.userId?.fullname}
+                  className="w-8 h-8 rounded-full transition-transform hover:scale-110"
+                />
+              </Link>
               <div className="flex-1">
                 <div
                   className="rounded-xl p-3"
                   style={{ background: "var(--surface2)" }}
                 >
-                  <h5
-                    className="font-semibold text-sm mb-1"
-                    style={{ color: C.brand }}
-                  >
-                    {comment.userId?.fullname}
-                  </h5>
+                  <Link to={`/user/view-profile/${extractId(comment.userId)}`}>
+                    <h5
+                      className="font-semibold text-sm mb-1 hover:underline inline-block"
+                      style={{ color: C.brand }}
+                    >
+                      {comment.userId?.fullname}
+                    </h5>
+                  </Link>
                   <p className="text-sm" style={{ color: "var(--text)" }}>
                     {comment.content}
                   </p>
@@ -656,12 +660,14 @@ const CommentSection = ({ post, userId, onComment, onReply }) => {
                           className="flex-1 rounded-xl p-2.5"
                           style={{ background: "var(--surface3)" }}
                         >
-                          <h6
-                            className="font-semibold text-xs mb-0.5"
-                            style={{ color: C.brand }}
-                          >
-                            {reply.userId?.fullname}
-                          </h6>
+                          <Link to={`/user/view-profile/${extractId(reply.userId)}`}>
+                            <h6
+                              className="font-semibold text-xs mb-0.5 hover:underline"
+                              style={{ color: C.brand }}
+                            >
+                              {reply.userId?.fullname}
+                            </h6>
+                          </Link>
                           <p className="text-sm" style={{ color: "var(--text-muted)" }}>
                             {reply.content}
                           </p>
@@ -761,19 +767,23 @@ const PostCard = ({
         {/* Header */}
         <div className="flex items-start justify-between">
           <div className="flex items-center gap-3">
-            <img
-              src={
-                post.userId?.avatar ||
-                `https://ui-avatars.com/api/?name=${post.userId?.fullname}&background=16A880&color=fff`
-              }
-              alt={post.userId?.fullname}
-              className="w-10 h-10 rounded-full object-cover"
-              style={{ border: `2px solid ${"var(--border)"}` }}
-            />
+            <Link to={`/user/view-profile/${extractId(post.userId)}`}>
+              <img
+                src={
+                  post.userId?.avatar ||
+                  `https://ui-avatars.com/api/?name=${post.userId?.fullname}&background=16A880&color=fff`
+                }
+                alt={post.userId?.fullname}
+                className="w-10 h-10 rounded-full object-cover transition-transform hover:scale-110"
+                style={{ border: `2px solid ${"var(--border)"}` }}
+              />
+            </Link>
             <div>
-              <h4 className="font-semibold text-sm" style={{ color: "var(--text)" }}>
-                {post.userId?.fullname}
-              </h4>
+              <Link to={`/user/view-profile/${extractId(post.userId)}`}>
+                <h4 className="font-semibold text-sm hover:underline" style={{ color: "var(--text)" }}>
+                  {post.userId?.fullname}
+                </h4>
+              </Link>
               <p className="text-xs" style={{ color: "var(--text-muted)" }}>
                 {formatDate(post.createdAt)}
               </p>
