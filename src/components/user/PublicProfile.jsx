@@ -77,29 +77,20 @@ export const PublicProfile = () => {
         return;
       }
 
-      // 2. Check incoming requests
-      const incomingRes = await apiClient.get(`/friends/requests/${currentUserId}`);
-      const incomingList = incomingRes.data?.data || [];
-      const hasIncoming = incomingList.some(r => String(r.requester?._id || r.requester) === String(userId));
+      // 2. Check requests (incoming and outgoing are on the same endpoint)
+      const reqRes = await apiClient.get(`/friends/requests/${currentUserId}`);
+      const allRequests = reqRes.data?.data || [];
       
-      if (hasIncoming) {
+      const incoming = allRequests.find(r => String(r.requester?._id || r.requester) === String(userId));
+      if (incoming) {
         setFriendStatus("pending_in");
         return;
       }
 
-      // 3. Check outgoing requests
-      try {
-        const outgoingRes = await apiClient.get(`/friends/requests/sent/${currentUserId}`);
-        const outgoingList = outgoingRes.data?.data || [];
-        const hasOutgoing = outgoingList.some(r => String(r.recipient?._id || r.recipient) === String(userId));
-        
-        if (hasOutgoing) {
-          setFriendStatus("pending_out");
-          return;
-        }
-      } catch (e) {
-        // Fallback or ignore if the "sent" endpoint doesn't exist
-        console.warn("Sent requests endpoint not found or error:", e);
+      const outgoing = allRequests.find(r => String(r.recipient?._id || r.recipient) === String(userId));
+      if (outgoing) {
+        setFriendStatus("pending_out");
+        return;
       }
 
       setFriendStatus("none");

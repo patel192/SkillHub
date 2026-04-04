@@ -303,20 +303,25 @@ export const Messages = () => {
     }
   };
 
-  const fetchIncoming = async () => {
+  const fetchRequests = async () => {
+    if (!currentUserId) return;
     try {
       const res = await apiClient.get(`/friends/requests/${currentUserId}`);
-      setIncoming(res.data?.data ?? []);
-    } catch {
+      const allRequests = res.data?.data ?? [];
+      
+      // Filter into incoming (others requested you) and outgoing (you requested others)
+      const incomingReqs = allRequests.filter(r => 
+        String(r.recipient?._id || r.recipient) === String(currentUserId)
+      );
+      const outgoingReqs = allRequests.filter(r => 
+        String(r.requester?._id || r.requester) === String(currentUserId)
+      );
+      
+      setIncoming(incomingReqs);
+      setOutgoing(outgoingReqs);
+    } catch (err) {
+      console.error("fetchRequests error:", err);
       setIncoming([]);
-    }
-  };
-
-  const fetchOutgoing = async () => {
-    try {
-      const res = await apiClient.get(`/friends/requests/sent/${currentUserId}`);
-      setOutgoing(res.data?.data ?? []);
-    } catch {
       setOutgoing([]);
     }
   };
@@ -352,14 +357,16 @@ export const Messages = () => {
 
   useEffect(() => {
     fetchFriends();
-    fetchIncoming();
-    fetchOutgoing();
+    fetchRequests();
     fetchDiscoverUsers();
   }, [currentUserId]);
 
   useEffect(() => {
     if (activeSidebarTab === "discover" && discoverUsers.length === 0) {
       fetchDiscoverUsers();
+    }
+    if (activeSidebarTab === "requests") {
+      fetchRequests();
     }
   }, [activeSidebarTab]);
 
@@ -599,9 +606,8 @@ export const Messages = () => {
         socket.emit("friend_request_response", { requestId, status: action });
       }
 
-      await fetchIncoming();
+      await fetchRequests();
       await fetchFriends();
-      await fetchOutgoing();
     } catch (err) {
       console.error("handleIncomingAction error", err);
       toast.error("Failed to process request");
@@ -622,7 +628,7 @@ export const Messages = () => {
       }
 
       toast.success("Friend request sent");
-      fetchOutgoing();
+      fetchRequests();
       if (activeSidebarTab === "discover") fetchDiscoverUsers();
     } catch (err) {
       console.error("send request error", err);
