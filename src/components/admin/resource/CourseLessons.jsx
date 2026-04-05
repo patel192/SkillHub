@@ -37,6 +37,7 @@ export const CourseLessons = ({ courseId: propCourseId }) => {
   const [isBuildMode, setIsBuildMode] = useState(false);
   const [isBulkMode, setIsBulkMode] = useState(false);
   const [adding, setAdding] = useState(false);
+  const [editingLessonId, setEditingLessonId] = useState(null);
   // Block-based editor state
   const [lessonTitle, setLessonTitle] = useState("");
   const [blocks, setBlocks] = useState([{ id: Date.now(), type: "text", value: "", lang: "javascript" }]);
@@ -110,6 +111,87 @@ export const CourseLessons = ({ courseId: propCourseId }) => {
       setAdding(false);
     }
   };
+  const handleEditLesson = (lesson) => {
+  setLessonTitle(lesson.title);
+
+  // Convert content back to blocks
+  const parts = lesson.content.split("\n\n");
+
+  const parsedBlocks = parts.map((p) => {
+    if (p.startsWith("```")) {
+      const lines = p.split("\n");
+      const lang = lines[0].replace("```", "") || "javascript";
+      const value = lines.slice(1, -1).join("\n");
+
+      return {
+        id: Date.now() + Math.random(),
+        type: "code",
+        lang,
+        value,
+      };
+    }
+
+    return {
+      id: Date.now() + Math.random(),
+      type: "text",
+      value: p,
+      lang: "javascript",
+    };
+  });
+
+  setBlocks(parsedBlocks);
+  setEditingLessonId(lesson._id);
+  setIsBuildMode(true);
+};
+const handleUpdateLesson = async () => {
+  const content = serializeBlocks(blocks);
+
+  if (!lessonTitle.trim() || !content.trim()) {
+    toast.error("Provide both title and content");
+    return;
+  }
+
+  setAdding(true);
+
+  const toastId = toast.loading("Updating lesson...");
+
+  try {
+    const payload = {
+      title: lessonTitle.trim(),
+      content: content.trim(),
+    };
+
+    const res = await apiClient.put(
+      `/lessons/${editingLessonId}`,
+      payload
+    );
+
+    const updatedLesson = res.data?.data;
+
+    setLessons((prev) =>
+      prev.map((l) =>
+        l._id === editingLessonId ? updatedLesson : l
+      )
+    );
+
+    setSelected(updatedLesson);
+
+    setEditingLessonId(null);
+
+    setIsBuildMode(false);
+
+    toast.success("Lesson updated successfully", {
+      id: toastId,
+    });
+
+  } catch (err) {
+    toast.error("Update failed", {
+      id: toastId,
+    });
+  } finally {
+    setAdding(false);
+  }
+};
 
   const addBlock = (type) => {
     setBlocks((p) => [...p, { id: Date.now(), type, value: "", lang: "javascript" }]);
@@ -407,13 +489,20 @@ export const CourseLessons = ({ courseId: propCourseId }) => {
                      {!isBulkMode ? (
                         <button 
                            disabled={adding}
-                           onClick={handleAddLesson}
+                          onClick={
+  editingLessonId
+    ? handleUpdateLesson
+    : handleAddLesson
+}
                            className="w-full py-4 rounded-2xl bg-brand text-white font-black uppercase tracking-[0.2em] shadow-xl hover:shadow-2xl transition-all flex items-center justify-center gap-3 active:scale-95"
                         >
                            {adding ? (
                               <div className="w-5 h-5 border-2 border-white/30 border-t-white animate-spin rounded-full" />
                            ) : (
-                              <><Save size={18} /> Deploy Module</>
+                              <>
+  <Save size={18} />
+  {editingLessonId ? "Update Lesson" : "Deploy Module"}
+</>
                            )}
                         </button>
                      ) : (
@@ -469,6 +558,12 @@ export const CourseLessons = ({ courseId: propCourseId }) => {
                         {selected.title}
                      </h1>
                      <div className="flex items-center gap-6">
+                     <button
+  onClick={() => handleEditLesson(selected)}
+  className="px-4 py-2 rounded-xl bg-blue-500/10 text-blue-500 border border-blue-500/20 hover:bg-blue-500/20 transition-all text-[10px] font-black uppercase"
+>
+  Edit Lesson
+</button>
                         <div className="flex items-center gap-3 hover:opacity-100 transition-opacity">
                            <div className="w-10 h-10 rounded-full bg-surface border border-border shadow-md flex items-center justify-center">
                               <Activity size={16} className="text-accent" />
