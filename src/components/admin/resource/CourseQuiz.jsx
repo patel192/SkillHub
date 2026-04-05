@@ -33,6 +33,9 @@ export const CourseQuiz = () => {
   const [selectedQuestion, setSelectedQuestion] = useState(null);
   const [loading, setLoading] = useState(true);
   const [adding, setAdding] = useState(false);
+  const [isBulkMode, setIsBulkMode] = useState(false);
+  const [bulkData, setBulkData] = useState("");
+  const [progress, setProgress] = useState({ current: 0, total: 0 });
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [courseTitle, setCourseTitle] = useState("");
@@ -107,6 +110,96 @@ export const CourseQuiz = () => {
     } catch (err) {
       toast.error("Deployment failed", { id: toastId });
     }
+  };
+
+  const handleBulkDeploy = async () => {
+    if (!bulkData.trim()) {
+       toast.error("Telemetry payload empty");
+       return;
+    }
+    setAdding(true);
+    let items = [];
+    try {
+       if (bulkData.trim().startsWith("[") || bulkData.trim().startsWith("{")) {
+          items = JSON.parse(bulkData);
+          if (!Array.isArray(items)) items = [items];
+       } else {
+          // CSV Parser: Question, Opt1, Opt2, Opt3, Opt4, CorrectIdx(0-3), Points
+          const lines = bulkData.split("\n").filter(l => l.includes(","));
+          items = lines.map(l => {
+             const [q, o1, o2, o3, o4, cIdx, pts] = l.split(",").map(s => s.trim());
+             return {
+                question: q,
+                options: [
+                   { text: o1, isCorrect: cIdx === "0" },
+                   { text: o2, isCorrect: cIdx === "1" },
+                   { text: o3, isCorrect: cIdx === "2" },
+                   { text: o4, isCorrect: cIdx === "3" },
+                ],
+                points: parseInt(pts) || 1
+             };
+          });
+       }
+    } catch (err) {
+       toast.error("Parse failure - Check assessment syntax");
+       setAdding(false);
+       return;
+    }
+
+    if (items.length === 0) {
+       toast.error("No valid entities identified");
+       setAdding(false);
+       return;
+    }
+
+    setProgress({ current: 0, total: items.length });
+    const tid = toast.loading(`Synchronizing Matrix: 0/${items.length}`);
+    
+    let deployed = [];
+    for (let i = 0; i < items.length; i++) {
+       try {
+          const res = await apiClient.post(`/questions/${courseId}`, items[i]);
+          deployed.push(res.data?.data || res.data);
+          setProgress(p => ({ ...p, current: i + 1 }));
+          toast.loading(`Synchronizing Matrix: ${i+1}/${items.length}`, { id: tid });
+          await new Promise(r => setTimeout(r, 80)); 
+       } catch (err) {
+          console.error("Assessment node failure", items[i].question);
+       }
+    }
+
+    setQuestions(p => [...p, ...deployed]);
+    toast.success(`${deployed.length} assessment nodes active`, { id: tid });
+    setAdding(false);
+    setIsBulkMode(false);
+    setBulkData("");
+    if (deployed.length > 0) setSelectedQuestion(deployed[deployed.length - 1]);
+  };
+
+  const downloadTemplate = (type) => {
+    let content = "";
+    let filename = "";
+    if (type === 'json') {
+       content = JSON.stringify([{ 
+         question: "What is the primary protocol?", 
+         options: [
+            { text: "Option A", isCorrect: true },
+            { text: "Option B", isCorrect: false }
+         ],
+         points: 5 
+       }], null, 2);
+       filename = "assessment_protocol.json";
+    } else {
+       content = "Question, Opt1, Opt2, Opt3, Opt4, CorrectIdx(0-3), Points\nSample Question, Yes, No, Maybe, N/A, 0, 10";
+       filename = "assessment_protocol.csv";
+    }
+    const blob = new Blob([content], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = filename;
+    link.click();
+    toast.success("Assessment template exported");
   };
 
   const handleDeleteQuestion = async (e, id) => {

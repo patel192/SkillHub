@@ -35,8 +35,11 @@ export const CourseLessons = ({ courseId: propCourseId }) => {
   const [lessons, setLessons] = useState([]);
   const [selected, setSelected] = useState(null);
   const [isBuildMode, setIsBuildMode] = useState(false);
+  const [isBulkMode, setIsBulkMode] = useState(false);
   const [adding, setAdding] = useState(false);
   const [newLesson, setNewLesson] = useState({ title: "", content: "" });
+  const [bulkData, setBulkData] = useState("");
+  const [progress, setProgress] = useState({ current: 0, total: 0 });
   const [loading, setLoading] = useState(true);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [courseTitle, setCourseTitle] = useState("");
@@ -92,6 +95,83 @@ export const CourseLessons = ({ courseId: propCourseId }) => {
     } finally {
       setAdding(false);
     }
+  };
+
+  const handleBulkDeploy = async () => {
+    if (!bulkData.trim()) {
+       toast.error("Telemetry payload empty");
+       return;
+    }
+    setAdding(true);
+    let items = [];
+    try {
+       // Automatic JSON/CSV detection
+       if (bulkData.trim().startsWith("[") || bulkData.trim().startsWith("{")) {
+          items = JSON.parse(bulkData);
+          if (!Array.isArray(items)) items = [items];
+       } else {
+          // Semi-automated CSV parsing
+          const lines = bulkData.split("\n");
+          items = lines.filter(l => l.includes(",")).map(l => {
+             const [title, ...rest] = l.split(",");
+             return { title: title.trim(), content: rest.join(",").trim() };
+          });
+       }
+    } catch (err) {
+       toast.error("Parse failure - Check protocol syntax");
+       setAdding(false);
+       return;
+    }
+
+    if (items.length === 0) {
+       toast.error("No valid entities identified");
+       setAdding(false);
+       return;
+    }
+
+    setProgress({ current: 0, total: items.length });
+    const tid = toast.loading(`Sequential Deployment: 0/${items.length}`);
+    
+    let deployed = [];
+    for (let i = 0; i < items.length; i++) {
+       try {
+          const res = await apiClient.post("/lessons", { ...items[i], courseId });
+          deployed.push(res.data?.data);
+          setProgress(p => ({ ...p, current: i + 1 }));
+          toast.loading(`Sequential Deployment: ${i+1}/${items.length}`, { id: tid });
+          // Sequential delay to ensure system stability
+          await new Promise(r => setTimeout(r, 80)); 
+       } catch (err) {
+          console.error("Node deployment failure", items[i].title);
+       }
+    }
+
+    setLessons(p => [...p, ...deployed]);
+    toast.success(`Deployment complete: ${deployed.length} nodes active`, { id: tid });
+    setIsBuildMode(false);
+    setIsBulkMode(false);
+    setBulkData("");
+    setAdding(false);
+    if (deployed.length > 0) setSelected(deployed[deployed.length - 1]);
+  };
+
+  const downloadTemplate = (type) => {
+    let content = "";
+    let filename = "";
+    if (type === 'json') {
+       content = JSON.stringify([{ title: "Example Lesson", content: "Markdown content here..." }], null, 2);
+       filename = "curriculum_protocol.json";
+    } else {
+       content = "Title, Content\nLesson One, Introduction to Protocol\nLesson Two, Advanced Deployment";
+       filename = "curriculum_protocol.csv";
+    }
+    const blob = new Blob([content], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = filename;
+    link.click();
+    toast.success("Protocol template exported");
   };
 
   const handleDeleteLesson = async (e, lessonId) => {
@@ -188,44 +268,105 @@ export const CourseLessons = ({ courseId: propCourseId }) => {
                   <div className="p-6 border-b border-border flex items-center justify-between">
                      <div className="flex items-center gap-3">
                         <div className="p-2.5 rounded-xl bg-brand text-white shadow-lg"><Edit3 size={18} /></div>
-                        <h2 className="text-xl font-black uppercase tracking-tight">Build Mode</h2>
+                        <h2 className="text-xl font-black uppercase tracking-tight">Provisioning Console</h2>
                      </div>
-                     <button onClick={() => setIsBuildMode(false)} className="p-2 rounded-xl hover:bg-surface2 transition-all"><X size={18} /></button>
+                     <div className="flex items-center gap-2">
+                        <div className="flex bg-surface2 p-1 rounded-xl border border-border mr-4">
+                           <button onClick={() => setIsBulkMode(false)} className={`px-4 py-1.5 rounded-lg text-[9px] font-black uppercase transition-all ${!isBulkMode ? 'bg-surface shadow-sm text-brand' : 'opacity-40 hover:opacity-100'}`}>Manual</button>
+                           <button onClick={() => setIsBulkMode(true)} className={`px-4 py-1.5 rounded-lg text-[9px] font-black uppercase transition-all ${isBulkMode ? 'bg-surface shadow-sm text-brand' : 'opacity-40 hover:opacity-100'}`}>Bulk</button>
+                        </div>
+                        <button onClick={() => setIsBuildMode(false)} className="p-2 rounded-xl hover:bg-surface2 transition-all"><X size={18} /></button>
+                     </div>
                   </div>
                   
-                  <div className="flex-1 p-8 space-y-6 overflow-y-auto">
-                     <div className="space-y-2">
-                        <label className="text-[10px] font-black uppercase tracking-widest opacity-40 ml-1">Module Identity</label>
-                        <input 
-                           value={newLesson.title}
-                           onChange={(e) => setNewLesson(p => ({...p, title: e.target.value}))}
-                           placeholder="Enter lesson title..."
-                           className="w-full bg-surface2 border border-border p-4 rounded-2xl font-black text-lg focus:ring-2 focus:ring-brand/20 outline-none transition-all"
-                        />
+                  {!isBulkMode ? (
+                     <div className="flex-1 p-8 space-y-6 overflow-y-auto">
+                        <div className="space-y-2">
+                           <label className="text-[10px] font-black uppercase tracking-widest opacity-40 ml-1">Module Identity</label>
+                           <input 
+                              value={newLesson.title}
+                              onChange={(e) => setNewLesson(p => ({...p, title: e.target.value}))}
+                              placeholder="Enter lesson title..."
+                              className="w-full bg-surface2 border border-border p-4 rounded-2xl font-black text-lg focus:ring-2 focus:ring-brand/20 outline-none transition-all"
+                           />
+                        </div>
+                        <div className="flex-1 flex flex-col min-h-[400px]">
+                           <label className="text-[10px] font-black uppercase tracking-widest opacity-40 ml-1 mb-2">Content Payload (Markdown Supported)</label>
+                           <textarea 
+                              value={newLesson.content}
+                              onChange={(e) => setNewLesson(p => ({...p, content: e.target.value}))}
+                              placeholder="Enter curriculum content/logic..."
+                              className="flex-1 w-full bg-surface2 border border-border p-6 rounded-3xl font-mono text-sm focus:ring-2 focus:ring-brand/20 outline-none transition-all resize-none"
+                           />
+                        </div>
                      </div>
-                     <div className="flex-1 flex flex-col min-h-[400px]">
-                        <label className="text-[10px] font-black uppercase tracking-widest opacity-40 ml-1 mb-2">Content Payload (Markdown Supported)</label>
-                        <textarea 
-                           value={newLesson.content}
-                           onChange={(e) => setNewLesson(p => ({...p, content: e.target.value}))}
-                           placeholder="Enter curriculum content/logic..."
-                           className="flex-1 w-full bg-surface2 border border-border p-6 rounded-3xl font-mono text-sm focus:ring-2 focus:ring-brand/20 outline-none transition-all resize-none"
-                        />
+                  ) : (
+                     <div className="flex-1 p-8 space-y-6 overflow-y-auto">
+                        <div className="flex items-center justify-between">
+                           <div className="flex flex-col">
+                              <span className="text-[10px] font-black uppercase tracking-widest opacity-40">Bulk Ingestion Protocol</span>
+                              <span className="text-[8px] font-bold opacity-30 mt-0.5 uppercase">Paste JSON array or curriculum metadata</span>
+                           </div>
+                           <div className="flex items-center gap-2">
+                              <button onClick={() => downloadTemplate('json')} className="p-2 rounded-lg bg-surface2 border border-border text-[8px] font-black uppercase opacity-60 hover:opacity-100 transition-all">JSON Schema</button>
+                              <button onClick={() => downloadTemplate('csv')} className="p-2 rounded-lg bg-surface2 border border-border text-[8px] font-black uppercase opacity-60 hover:opacity-100 transition-all">CSV Schema</button>
+                           </div>
+                        </div>
+                        <div className="flex-1 flex flex-col min-h-[500px] relative">
+                           <textarea 
+                              value={bulkData}
+                              onChange={(e) => setBulkData(e.target.value)}
+                              placeholder={`[{\n  "title": "Module One",\n  "content": "Protocol logic here..."\n}]`}
+                              className="flex-1 w-full bg-surface2 border border-border p-6 rounded-3xl font-mono text-sm focus:ring-2 focus:ring-brand/20 outline-none transition-all resize-none shadow-inner"
+                           />
+                           {adding && (
+                              <div className="absolute inset-0 bg-surface/50 backdrop-blur-sm rounded-3xl flex flex-col items-center justify-center p-8 text-center space-y-6">
+                                 <div className="p-6 rounded-[2rem] bg-surface shadow-2xl border border-border max-w-sm w-full">
+                                    <div className="flex justify-between text-[10px] font-black uppercase tracking-widest opacity-60 mb-3">
+                                       <span>Syncing Registry</span>
+                                       <span>{progress.current}/{progress.total}</span>
+                                    </div>
+                                    <div className="h-2 rounded-full bg-surface2 border border-border overflow-hidden">
+                                       <motion.div 
+                                          className="h-full bg-brand shadow-[0_0_10px_var(--brand)]" 
+                                          initial={{ width: 0 }}
+                                          animate={{ width: `${(progress.current/progress.total)*100}%` }}
+                                       />
+                                    </div>
+                                    <p className="text-[11px] font-bold mt-4 animate-pulse uppercase tracking-tight">Deploying Node Cluster...</p>
+                                 </div>
+                              </div>
+                           )}
+                        </div>
                      </div>
-                  </div>
+                  )}
 
-                  <div className="p-6 border-t border-border bg-surface">
-                     <button 
-                        disabled={adding}
-                        onClick={handleAddLesson}
-                        className="w-full py-4 rounded-2xl bg-brand text-white font-black uppercase tracking-[0.2em] shadow-xl hover:shadow-2xl transition-all flex items-center justify-center gap-3 active:scale-95"
-                     >
-                        {adding ? (
-                           <div className="w-5 h-5 border-2 border-white/30 border-t-white animate-spin rounded-full" />
-                        ) : (
-                           <><Save size={18} /> Deploy Module</>
-                        )}
-                     </button>
+                  <div className="p-6 border-t border-border bg-surface flex items-center justify-between gap-4">
+                     {!isBulkMode ? (
+                        <button 
+                           disabled={adding}
+                           onClick={handleAddLesson}
+                           className="w-full py-4 rounded-2xl bg-brand text-white font-black uppercase tracking-[0.2em] shadow-xl hover:shadow-2xl transition-all flex items-center justify-center gap-3 active:scale-95"
+                        >
+                           {adding ? (
+                              <div className="w-5 h-5 border-2 border-white/30 border-t-white animate-spin rounded-full" />
+                           ) : (
+                              <><Save size={18} /> Deploy Module</>
+                           )}
+                        </button>
+                     ) : (
+                        <button 
+                           disabled={adding}
+                           onClick={handleBulkDeploy}
+                           className="w-full py-4 rounded-2xl bg-accent text-white font-black uppercase tracking-[0.2em] shadow-xl hover:shadow-2xl transition-all flex items-center justify-center gap-3 active:scale-95"
+                        >
+                           {adding ? (
+                              <div className="w-5 h-5 border-2 border-white/30 border-t-white animate-spin rounded-full" />
+                           ) : (
+                              <><Zap size={18} /> Provision Payload</>
+                           )}
+                        </button>
+                     )}
                   </div>
                </div>
 
