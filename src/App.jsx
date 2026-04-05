@@ -18,7 +18,7 @@ import { AdminLayout } from "./components/admin/AdminLayout";
 import { AdminDashboard } from "./components/admin/AdminDashboard";
 import { Courses } from "./components/admin/course/Courses";
 import { Users } from "./components/admin/users/Users";
-import UserDetails from "./components/admin/users/UserDetails";
+import {UserDetails} from "./components/admin/users/UserDetails";
 import { Resources } from "./components/admin/resource/Resources";
 import { Community } from "./components/user/communities/Community";
 import { CommunityDetails } from "./components/user/communities/CommunityDetails";
