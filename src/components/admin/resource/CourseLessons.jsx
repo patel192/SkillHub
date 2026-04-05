@@ -50,7 +50,7 @@ export const CourseLessons = ({ courseId: propCourseId }) => {
     setLoading(true);
     try {
       // Fetch Course Title for Context
-      const courseRes = await apiClient.get(`/courses/${courseId}`);
+      const courseRes = await apiClient.get(`/course/${courseId}`);
       setCourseTitle(courseRes.data?.data?.title || "Course");
 
       // Fetch Lessons
@@ -123,7 +123,7 @@ export const CourseLessons = ({ courseId: propCourseId }) => {
   );
 
   return (
-    <div className="flex h-screen bg-surface -m-8 overflow-hidden">
+    <div className="flex h-screen bg-surface overflow-hidden">
       {/* ====================== SIDEBAR LIST ====================== */}
       <aside className={`w-80 lg:w-96 border-r border-border bg-surface flex flex-col transition-all duration-500 shrink-0 ${sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}`}>
          {/* Sidebar Header */}
@@ -220,7 +220,11 @@ export const CourseLessons = ({ courseId: propCourseId }) => {
                         onClick={handleAddLesson}
                         className="w-full py-4 rounded-2xl bg-brand text-white font-black uppercase tracking-[0.2em] shadow-xl hover:shadow-2xl transition-all flex items-center justify-center gap-3 active:scale-95"
                      >
-                        {adding ? <Spinner /> : <><Save size={18} /> Deploy Module</>}
+                        {adding ? (
+                           <div className="w-5 h-5 border-2 border-white/30 border-t-white animate-spin rounded-full" />
+                        ) : (
+                           <><Save size={18} /> Deploy Module</>
+                        )}
                      </button>
                   </div>
                </div>
@@ -253,7 +257,9 @@ export const CourseLessons = ({ courseId: propCourseId }) => {
                   {/* Lesson Header */}
                   <div className="space-y-6 pb-12 border-b border-border/50 relative">
                      <div className="flex items-center gap-3">
-                        <span className="px-2.5 py-1 rounded-lg bg-brand/10 text-brand text-[9px] font-black uppercase tracking-[0.2em] border border-brand/20">Node #{lessons.indexOf(selected) + 1}</span>
+                        <span className="px-2.5 py-1 rounded-lg bg-brand/10 text-brand text-[9px] font-black uppercase tracking-[0.2em] border border-brand/20">
+                           Node #{lessons.findIndex(l => l._id === selected?._id) + 1}
+                        </span>
                         <span className="text-[10px] font-bold opacity-30 uppercase tracking-widest flex items-center gap-2"><Globe size={12} /> Distributed Curriculum Network</span>
                      </div>
                      <h1 className="text-5xl lg:text-6xl font-black tracking-tighter leading-tight" style={{ fontFamily: "'Fraunces', serif" }}>

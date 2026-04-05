@@ -52,7 +52,7 @@ export const CourseQuiz = () => {
     try {
       setLoading(true);
       // Fetch Course Info
-      const courseRes = await apiClient.get(`/courses/${courseId}`);
+      const courseRes = await apiClient.get(`/course/${courseId}`);
       setCourseTitle(courseRes.data?.data?.title || "Assessment");
 
       // Fetch Questions
@@ -89,7 +89,7 @@ export const CourseQuiz = () => {
     const toastId = toast.loading("Deploying question node...");
     try {
       const res = await apiClient.post(`/questions/${courseId}`, newQuestion);
-      const data = res.data;
+      const data = res.data?.data || res.data; // Handle both direct and nested responses
       setQuestions((prev) => [...prev, data]);
       setSelectedQuestion(data);
       setAdding(false);
@@ -135,7 +135,7 @@ export const CourseQuiz = () => {
   );
 
   return (
-    <div className="flex h-screen bg-surface -m-8 overflow-hidden relative">
+    <div className="flex h-screen bg-surface overflow-hidden relative">
       {/* ====================== SIDEBAR ====================== */}
       <aside className={`w-80 lg:w-96 border-r border-border bg-surface flex flex-col transition-all duration-500 shrink-0 ${sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}`}>
          {/* Sidebar Header */}
@@ -262,7 +262,8 @@ export const CourseQuiz = () => {
                                  type="range" min="1" max="100" 
                                  value={newQuestion.points}
                                  onChange={(e) => setNewQuestion({...newQuestion, points: parseInt(e.target.value)})}
-                                 className="flex-1 accent-brand"
+                                 style={{ accentColor: C.brand }}
+                                 className="flex-1"
                               />
                               <span className="w-12 text-center font-black text-brand bg-brand/10 py-1 rounded-lg border border-brand/20">{newQuestion.points}pt</span>
                            </div>
