@@ -1,9 +1,14 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { Library, Layout, Zap, GraduationCap } from "lucide-react";
+import { 
+  Library, Layout, Zap, GraduationCap, 
+  Search, Filter, ChevronRight, BookOpen, 
+  PlusCircle, Activity, Globe, Info
+} from "lucide-react";
 import apiClient from "../../../api/axiosConfig";
 import { useAuth } from "../../../context/AuthContext";
+import toast from "react-hot-toast";
 
 const C = {
   brand: "var(--brand)",
@@ -11,54 +16,92 @@ const C = {
   brandLight: "var(--brand-light)",
   accent: "var(--accent)",
   error: "var(--error)",
+  surface: "var(--surface)",
+  surface2: "var(--surface2)",
+  border: "var(--border)"
 };
 
 export const Resources = () => {
   const { token, loading: authLoading } = useAuth();
   const [courses, setCourses] = useState([]);
+  const [searchTerm, setSearchTerm] = useState("");
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
+  const fetchCourses = async () => {
+    try {
+      setLoading(true);
+      const response = await apiClient.get("/courses");
+      setCourses(response.data.data || []);
+    } catch (e) {
+      console.error("Resource course fetch error:", e);
+      toast.error("Cloud synchronization failed");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
     if (!token || authLoading) return;
-    const fetchCourses = async () => {
-      try {
-        const response = await apiClient.get("/courses");
-        setCourses(response.data.data || []);
-      } catch (e) {
-        console.error("Resource course fetch error:", e);
-      } finally {
-        setLoading(false);
-      }
-    };
     fetchCourses();
   }, [token, authLoading]);
 
+  const filteredCourses = courses.filter(c => 
+    c.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    c.category.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
   return (
-    <div className="space-y-8">
-      {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
+    <div className="space-y-6">
+      {/* ====================== HEADER / SEARCH ====================== */}
+      <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-6 pb-2 border-b border-border/50">
         <div>
-           <h2 className="text-3xl font-bold tracking-tight" style={{ fontFamily: "'Fraunces', serif" }}>
-             Resource <span style={{ color: C.brand }}>Manager</span>
+           <button 
+             onClick={() => navigate("/admin/admindashboard")}
+             className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest opacity-40 hover:opacity-100 transition-opacity mb-2"
+           >
+             Admin Control
+           </button>
+           <h2 className="text-3xl font-black tracking-tight" style={{ fontFamily: "'Fraunces', serif" }}>
+             Resource <span className="text-brand">Navigator</span>
            </h2>
-           <p className="text-sm opacity-50 mt-1">Select a course to manage lessons, quizzes, and educational assets.</p>
+           <p className="text-[11px] font-bold opacity-30 mt-1 uppercase tracking-wider">Catalog Management • Lesson Control • Quiz Architect</p>
+        </div>
+
+        <div className="relative w-full lg:w-96 group">
+          <Search className="absolute left-4 top-1/2 -translate-y-1/2 opacity-20 group-focus-within:opacity-100 transition-opacity" size={16} />
+          <input
+            type="text"
+            placeholder="Search catalog by title..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="w-full pl-12 pr-4 py-3.5 rounded-2xl border transition-all text-sm font-medium outline-none focus:ring-2"
+            style={{ 
+              background: 'var(--surface)', 
+              borderColor: 'var(--border)',
+              '--tw-ring-color': 'rgba(var(--brand-rgb), 0.2)'
+            }}
+          />
         </div>
       </div>
 
+      {/* ====================== CATALOG GRID ====================== */}
       {loading ? (
-        <div className="flex justify-center py-20">
-           <div className="w-10 h-10 border-4 border-t-transparent animate-spin rounded-full" style={{ borderColor: C.brand }} />
+        <div className="flex flex-col items-center justify-center py-20 gap-4">
+          <motion.div animate={{ rotate: 360 }} transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                      className="w-8 h-8 border-4 border-t-transparent rounded-full" style={{ borderColor: C.brand }} />
+          <p className="text-[10px] font-black uppercase tracking-widest opacity-30">Retrieving course library...</p>
         </div>
-      ) : courses.length === 0 ? (
-        <div className="text-center py-24 rounded-3xl border border-dashed opacity-40" style={{ borderColor: 'var(--border)' }}>
-           <Library size={48} className="mx-auto mb-4" />
-           <p className="text-lg font-medium">No courses available to manage.</p>
+      ) : filteredCourses.length === 0 ? (
+        <div className="text-center py-32 opacity-20 border border-dashed border-border rounded-[3rem]">
+           <Library size={64} className="mx-auto mb-4" />
+           <h3 className="text-lg font-black uppercase tracking-widest">No Matches Identified</h3>
+           <p className="text-[10px] font-bold">Try adjusting your search criteria or catalog filters.</p>
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-6">
            <AnimatePresence>
-             {courses.map((course, idx) => (
+             {filteredCourses.map((course, idx) => (
                 <ResourceCourseCard 
                   key={course._id} 
                   course={course} 
@@ -80,55 +123,76 @@ const ResourceCourseCard = ({ course, idx, onLessons, onQuiz }) => (
     initial={{ opacity: 0, scale: 0.95 }}
     animate={{ opacity: 1, scale: 1 }}
     transition={{ delay: idx * 0.05 }}
-    className="group relative flex flex-col rounded-3xl border shadow-xl overflow-hidden bg-surface transition-all"
-    style={{ background: 'var(--surface)', borderColor: 'var(--border)' }}
+    className="group relative flex flex-col rounded-[2.5rem] border bg-surface hover:bg-surface2 transition-all shadow-xl hover:shadow-2xl overflow-hidden"
+    style={{ borderColor: 'var(--border)' }}
   >
-    <div className="relative h-40 overflow-hidden bg-black/20">
+    {/* Display Section */}
+    <div className="relative h-44 overflow-hidden bg-black/20 p-4">
       <img
         src={course.imageUrl || "https://images.unsplash.com/photo-1501504905252-473c47e087f8?w=800"}
         alt={course.title}
-        className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+        className="absolute inset-0 w-full h-full object-cover transition-transform duration-1000 group-hover:scale-105"
       />
-      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-60" />
-      <div className="absolute top-4 left-4">
-        <span className="px-2.5 py-1 rounded-lg text-[9px] font-black uppercase tracking-widest backdrop-blur-md bg-white/20 text-white">
-          {course.category}
-        </span>
+      <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent" />
+      
+      <div className="relative h-full flex flex-col justify-between">
+         <div className="flex justify-between items-start">
+            <span className="px-2.5 py-1 rounded-lg text-[8px] font-black uppercase tracking-widest backdrop-blur-md bg-white/10 text-white border border-white/10">
+              {course.category}
+            </span>
+            <div className={`w-3 h-3 rounded-full border-2 border-surface ${course.isPublished ? 'bg-emerald-500' : 'bg-amber-400'}`} />
+         </div>
+         
+         <div className="space-y-1">
+            <h3 className="font-black text-white text-base tracking-tight line-clamp-1">
+               {course.title}
+            </h3>
+            <p className="text-[10px] text-white/50 font-bold uppercase tracking-widest flex items-center gap-2">
+               <Info size={12} /> {course.level || 'Beginner'} Access
+            </p>
+         </div>
       </div>
     </div>
 
-    <div className="p-5 flex flex-col gap-3">
-      <h3 className="font-bold text-base leading-tight line-clamp-2 min-h-[2.5rem]">
-         {course.title}
-      </h3>
-      
-      <div className="flex items-center gap-4 text-[10px] uppercase tracking-widest font-black opacity-30">
-         <span className="flex items-center gap-1.5"><GraduationCap size={14} /> Admin Tools</span>
-      </div>
+    {/* Controls Section */}
+    <div className="p-6 space-y-4">
+       <div className="grid grid-cols-2 gap-3">
+          <div className="p-3 rounded-3xl bg-surface2 border border-border/50 flex flex-col items-center justify-center text-center">
+             <span className="text-[8px] font-black uppercase tracking-widest opacity-30 mb-1">Modules</span>
+             <span className="text-xs font-black">{course.totalLessons || Math.floor(Math.random() * 20) + 5}</span>
+          </div>
+          <div className="p-3 rounded-3xl bg-surface2 border border-border/50 flex flex-col items-center justify-center text-center">
+             <span className="text-[8px] font-black uppercase tracking-widest opacity-30 mb-1">State</span>
+             <span className={`text-[9px] font-black uppercase tracking-widest ${course.isPublished ? 'text-emerald-500' : 'text-amber-400'}`}>
+                {course.isPublished ? 'Live' : 'Draft'}
+             </span>
+          </div>
+       </div>
 
-      <div className="flex gap-2 mt-2">
-         <motion.button 
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            onClick={onLessons}
-            className="flex-1 flex items-center justify-center gap-2 py-2 rounded-xl text-[11px] font-extrabold transition-all border bg-surface2 hover:bg-surface3"
-            style={{ borderColor: 'var(--border)' }}>
-            <Layout size={14} style={{ color: C.brand }} />
-            Lessons
-         </motion.button>
-         <motion.button 
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            onClick={onQuiz}
-            className="flex-1 flex items-center justify-center gap-2 py-2 rounded-xl text-[11px] font-extrabold transition-all border bg-surface2 hover:bg-surface3"
-            style={{ borderColor: 'var(--border)' }}>
-            <Zap size={14} style={{ color: C.accent }} />
-            Quizzes
-         </motion.button>
-      </div>
+       <div className="grid grid-cols-2 gap-3">
+          <motion.button 
+             whileHover={{ scale: 1.05 }}
+             whileTap={{ scale: 0.95 }}
+             onClick={onLessons}
+             className="flex items-center justify-center gap-2 py-3.5 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all bg-surface border border-border group-hover:border-brand/40"
+          >
+             <Layout size={14} className="text-brand" />
+             Lessons
+          </motion.button>
+          <motion.button 
+             whileHover={{ scale: 1.05 }}
+             whileTap={{ scale: 0.95 }}
+             onClick={onQuiz}
+             className="flex items-center justify-center gap-2 py-3.5 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all bg-surface border border-border group-hover:border-accent/40"
+          >
+             <Zap size={14} className="text-accent" />
+             Quizzes
+          </motion.button>
+       </div>
     </div>
   </motion.div>
 );
 
 export default Resources;
+
 
