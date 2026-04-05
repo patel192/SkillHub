@@ -7,7 +7,8 @@ import toast from "react-hot-toast";
 import {
   PlusCircle, Trash2, X, ChevronDown, ChevronUp, 
   Copy, Menu, ArrowLeft, Layout, BookOpen, 
-  Zap, Save, Eye, Edit3, Layers, Globe
+  Zap, Save, Eye, Edit3, Layers, Globe,
+  Activity, Clock
 } from "lucide-react";
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import { vscDarkPlus } from "react-syntax-highlighter/dist/esm/styles/prism";
