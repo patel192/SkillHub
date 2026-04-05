@@ -32,6 +32,7 @@ const MENU_ITEMS = [
   { label: "Resources", icon: FileText, to: "/admin/resources" },
   { label: "Reports", icon: FileArchiveIcon, to: "/admin/reports" },
   { label: "Communities", icon: Users, to: "/admin/communities" },
+  { label: "Settings", icon: Settings, to: "/admin/settings" },
 ];
 
 export const AdminSidebar = ({ isOpen, toggle, isMobile }) => {

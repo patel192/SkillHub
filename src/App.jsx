@@ -28,6 +28,7 @@ import { Notifications } from "./components/user/notification/Notifications";
 import { Report } from "./components/user/report/Report";
 import { Reports } from "./components/admin/report/Reports";
 import { ReportsDetail } from "./components/admin/report/ReportsDetail";
+import { AdminSettings } from "./components/admin/AdminSettings";
 import { AdminCommunityDetails } from "./components/admin/community/AdminCommunityDetails";
 import { AdminCourseDetails } from "./components/admin/course/AdminCourseDetails";
 import { CourseLessons } from "./components/admin/resource/CourseLessons";
@@ -87,6 +88,7 @@ function App() {
             path="community/:id"
             element={<AdminCommunityDetails basePath="admin" />}
           ></Route>
+          <Route path="settings" element={<AdminSettings />}></Route>
         </Route>
       </Routes>
       <Toaster position="top-right" />

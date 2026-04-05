@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Menu, Bell, User, LogOut, ChevronDown, Search, X } from "lucide-react";
+import { Menu, Bell, User, LogOut, ChevronDown, Search, X, Settings } from "lucide-react";
 import apiClient from "../../api/axiosConfig";
 import { useAuth } from "../../context/AuthContext";
 import { useNavigate } from "react-router-dom";
@@ -130,6 +130,13 @@ export const AdminNavbar = ({ toggleSidebar, isSidebarOpen, isMobile }) => {
                   style={{ background: "var(--surface)", borderColor: "var(--border)" }}
                 >
                   <p className="px-3 py-2 text-[11px] font-bold uppercase tracking-widest opacity-40">Administrator</p>
+                  <button
+                    onClick={() => { setDropdownOpen(false); navigate("/admin/settings"); }}
+                    className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm transition-colors hover:bg-surface2"
+                  >
+                    <Settings size={16} />
+                    Settings
+                  </button>
                   <button
                     onClick={() => { logout(); navigate("/login"); }}
                     className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm transition-colors text-red-400 hover:bg-red-400/10"
