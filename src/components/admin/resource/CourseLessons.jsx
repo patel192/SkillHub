@@ -8,7 +8,7 @@ import {
   PlusCircle, Trash2, X, ChevronDown, ChevronUp, 
   Copy, Menu, ArrowLeft, Layout, BookOpen, 
   Zap, Save, Eye, Edit3, Layers, Globe,
-  Activity, Clock
+  Activity, Clock, Code2, Type, Plus, GripVertical, ChevronRight
 } from "lucide-react";
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import { vscDarkPlus } from "react-syntax-highlighter/dist/esm/styles/prism";
@@ -37,25 +37,14 @@ export const CourseLessons = ({ courseId: propCourseId }) => {
   const [isBuildMode, setIsBuildMode] = useState(false);
   const [isBulkMode, setIsBulkMode] = useState(false);
   const [adding, setAdding] = useState(false);
+  // Block-based editor state
   const [lessonTitle, setLessonTitle] = useState("");
-  const [blocks, setBlocks] = useState([{ id: 1, type: 'text', lang: 'javascript', content: '' }]);
+  const [blocks, setBlocks] = useState([{ id: Date.now(), type: "text", value: "", lang: "javascript" }]);
   const [bulkData, setBulkData] = useState("");
   const [progress, setProgress] = useState({ current: 0, total: 0 });
   const [loading, setLoading] = useState(true);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [courseTitle, setCourseTitle] = useState("");
-
-  const compileBlocks = (bs) => bs
-    .filter(b => b.content.trim())
-    .map(b => b.type === 'code' ? `\`\`\`${b.lang}\n${b.content}\n\`\`\`` : b.content)
-    .join('\n\n');
-
-  const resetBuildMode = () => {
-    setLessonTitle("");
-    setBlocks([{ id: Date.now(), type: 'text', lang: 'javascript', content: '' }]);
-    setIsBuildMode(false);
-    setIsBulkMode(false);
-  };
 
   useEffect(() => {
     if (!token || authLoading) return;
@@ -83,14 +72,20 @@ export const CourseLessons = ({ courseId: propCourseId }) => {
     }
   };
 
+  // Serialize blocks into the markdown string format
+  const serializeBlocks = (bList) => {
+    return bList
+      .map((b) => {
+        if (b.type === "code") return `\`\`\`${b.lang || "bash"}\n${b.value}\n\`\`\``;
+        return b.value;
+      })
+      .join("\n\n");
+  };
+
   const handleAddLesson = async () => {
-    const compiledContent = compileBlocks(blocks);
-    if (!lessonTitle.trim()) {
-      toast.error("Module title required");
-      return;
-    }
-    if (!compiledContent.trim()) {
-      toast.error("Add at least one content block");
+    const content = serializeBlocks(blocks);
+    if (!lessonTitle.trim() || !content.trim()) {
+      toast.error("Provide both title and at least one content block");
       return;
     }
     setAdding(true);
@@ -98,13 +93,15 @@ export const CourseLessons = ({ courseId: propCourseId }) => {
     try {
       const payload = {
         title: lessonTitle.trim(),
-        content: compiledContent,
+        content: content.trim(),
         courseId,
       };
       const res = await apiClient.post("/lessons", payload);
       const added = res.data?.data;
       setLessons((p) => [...p, added]);
-      resetBuildMode();
+      setLessonTitle("");
+      setBlocks([{ id: Date.now(), type: "text", value: "", lang: "javascript" }]);
+      setIsBuildMode(false);
       setSelected(added);
       toast.success("Module deployed successfully", { id: toastId });
     } catch (err) {
@@ -112,6 +109,24 @@ export const CourseLessons = ({ courseId: propCourseId }) => {
     } finally {
       setAdding(false);
     }
+  };
+
+  const addBlock = (type) => {
+    setBlocks((p) => [...p, { id: Date.now(), type, value: "", lang: "javascript" }]);
+  };
+
+  const updateBlock = (id, changes) => {
+    setBlocks((p) => p.map((b) => (b.id === id ? { ...b, ...changes } : b)));
+  };
+
+  const removeBlock = (id) => {
+    setBlocks((p) => p.filter((b) => b.id !== id));
+  };
+
+  const toggleBlockType = (id) => {
+    setBlocks((p) =>
+      p.map((b) => (b.id === id ? { ...b, type: b.type === "text" ? "code" : "text" } : b))
+    );
   };
 
   const handleBulkDeploy = async () => {
@@ -296,8 +311,9 @@ export const CourseLessons = ({ courseId: propCourseId }) => {
                      </div>
                   </div>
                   
-                  {!isBulkMode ? (
-                     <div className="flex-1 p-8 space-y-6 overflow-y-auto">
+                   {!isBulkMode ? (
+                     <div className="flex-1 p-6 space-y-5 overflow-y-auto custom-scrollbar">
+                        {/* Title input */}
                         <div className="space-y-2">
                            <label className="text-[10px] font-black uppercase tracking-widest opacity-40 ml-1">Module Identity</label>
                            <input 
@@ -307,14 +323,43 @@ export const CourseLessons = ({ courseId: propCourseId }) => {
                               className="w-full bg-surface2 border border-border p-4 rounded-2xl font-black text-lg focus:ring-2 focus:ring-brand/20 outline-none transition-all"
                            />
                         </div>
-                        <div className="flex-1 flex flex-col min-h-[400px]">
-                           <label className="text-[10px] font-black uppercase tracking-widest opacity-40 ml-1 mb-2">Content Payload (Markdown Supported)</label>
-                           <textarea 
-                              value={newLesson.content}
-                              onChange={(e) => setNewLesson(p => ({...p, content: e.target.value}))}
-                              placeholder="Enter curriculum content/logic..."
-                              className="flex-1 w-full bg-surface2 border border-border p-6 rounded-3xl font-mono text-sm focus:ring-2 focus:ring-brand/20 outline-none transition-all resize-none"
-                           />
+
+                        {/* Block Editor */}
+                        <div className="space-y-3">
+                           <div className="flex items-center justify-between ml-1">
+                              <label className="text-[10px] font-black uppercase tracking-widest opacity-40">Content Blocks</label>
+                              <span className="text-[9px] font-black uppercase tracking-widest opacity-20">{blocks.length} block{blocks.length !== 1 ? 's' : ''}</span>
+                           </div>
+
+                           <AnimatePresence>
+                             {blocks.map((block, idx) => (
+                               <ContentBlock
+                                 key={block.id}
+                                 block={block}
+                                 idx={idx}
+                                 total={blocks.length}
+                                 onToggleType={() => toggleBlockType(block.id)}
+                                 onUpdate={(changes) => updateBlock(block.id, changes)}
+                                 onRemove={() => removeBlock(block.id)}
+                               />
+                             ))}
+                           </AnimatePresence>
+
+                           {/* Add Block Buttons */}
+                           <div className="flex items-center gap-3 pt-1">
+                             <button
+                               onClick={() => addBlock("text")}
+                               className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-surface2 border border-border text-[9px] font-black uppercase tracking-widest hover:border-brand/40 hover:text-brand transition-all"
+                             >
+                               <Type size={12} /> Add Text Block
+                             </button>
+                             <button
+                               onClick={() => addBlock("code")}
+                               className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-surface2 border border-border text-[9px] font-black uppercase tracking-widest hover:border-accent/40 hover:text-accent transition-all"
+                             >
+                               <Code2 size={12} /> Add Code Block
+                             </button>
+                           </div>
                         </div>
                      </div>
                   ) : (
@@ -398,7 +443,7 @@ export const CourseLessons = ({ courseId: propCourseId }) => {
                      </div>
                      
                      <div className="prose prose-invert max-w-none prose-pre:bg-transparent prose-pre:p-0">
-                        <RenderedContent content={compileBlocks(blocks)} onCopy={handleCopy} />
+                        <RenderedContent content={serializeBlocks(blocks)} onCopy={handleCopy} />
                      </div>
                   </div>
                </div>
@@ -474,6 +519,82 @@ export const CourseLessons = ({ courseId: propCourseId }) => {
     </div>
   );
 };
+
+/* ====================== BLOCK EDITOR COMPONENT ====================== */
+const LANGS = ["javascript", "python", "bash", "html", "css", "typescript", "json", "sql", "java", "cpp"];
+
+const ContentBlock = ({ block, idx, total, onToggleType, onUpdate, onRemove }) => (
+  <motion.div
+    initial={{ opacity: 0, y: 8 }}
+    animate={{ opacity: 1, y: 0 }}
+    exit={{ opacity: 0, y: -8 }}
+    transition={{ duration: 0.18 }}
+    className={`relative rounded-2xl border overflow-hidden ${
+      block.type === "code"
+        ? "border-accent/30 bg-surface"
+        : "border-brand/20 bg-surface"
+    }`}
+  >
+    {/* Block Header */}
+    <div className={`flex items-center justify-between px-4 py-2.5 border-b ${
+      block.type === "code" ? "border-accent/20 bg-accent/5" : "border-brand/10 bg-brand/5"
+    }`}>
+      <div className="flex items-center gap-2.5">
+        <span className="text-[8px] font-black uppercase tracking-widest opacity-30">Block {idx + 1}</span>
+        {/* Toggle pill */}
+        <button
+          onClick={onToggleType}
+          className={`flex items-center gap-1.5 px-3 py-1 rounded-full text-[8px] font-black uppercase tracking-widest transition-all ${
+            block.type === "code"
+              ? "bg-accent/15 text-accent border border-accent/30 hover:bg-accent/25"
+              : "bg-brand/15 text-brand border border-brand/30 hover:bg-brand/25"
+          }`}
+        >
+          {block.type === "code" ? <><Code2 size={9} /> Code</> : <><Type size={9} /> Text</>}
+          <ChevronRight size={9} className="opacity-50" />
+          {block.type === "code" ? <><Type size={9} /> Text</> : <><Code2 size={9} /> Code</>}
+        </button>
+        {block.type === "code" && (
+          <select
+            value={block.lang}
+            onChange={(e) => onUpdate({ lang: e.target.value })}
+            className="bg-surface2 border border-border text-[9px] font-black uppercase tracking-widest rounded-lg px-2 py-1 outline-none focus:ring-1 focus:ring-accent/30 cursor-pointer"
+          >
+            {LANGS.map((l) => <option key={l} value={l}>{l}</option>)}
+          </select>
+        )}
+      </div>
+      {total > 1 && (
+        <button
+          onClick={onRemove}
+          className="p-1.5 rounded-lg hover:bg-red-500/10 hover:text-red-400 opacity-30 hover:opacity-100 transition-all"
+        >
+          <Trash2 size={11} />
+        </button>
+      )}
+    </div>
+
+    {/* Block Body */}
+    {block.type === "code" ? (
+      <textarea
+        value={block.value}
+        onChange={(e) => onUpdate({ value: e.target.value })}
+        placeholder={`# Write your ${block.lang} code here...`}
+        rows={6}
+        spellCheck={false}
+        className="w-full bg-transparent p-4 font-mono text-sm resize-none outline-none text-white/80 leading-relaxed placeholder:opacity-20"
+      />
+    ) : (
+      <textarea
+        value={block.value}
+        onChange={(e) => onUpdate({ value: e.target.value })}
+        placeholder="Write your explanation here... (Markdown supported: **bold**, ## headings, - lists, > quotes)"
+        rows={5}
+        className="w-full bg-transparent p-4 text-sm resize-none outline-none text-white/80 leading-relaxed font-medium placeholder:opacity-20"
+      />
+    )}
+  </motion.div>
+);
 
 const SidebarItem = ({ lesson, isActive, onClick, onDelete, idx }) => (
   <motion.div
@@ -554,129 +675,3 @@ const RenderedContent = ({ content, onCopy }) => {
 };
 
 export default CourseLessons;
-
-// ======= BLOCK EDITOR COMPONENT =======
-const LANGS = ['javascript','typescript','python','bash','html','css','json','sql','jsx','tsx'];
-
-const BlockEditor = ({ blocks, setBlocks }) => {
-  const addBlock = (type, afterId) => {
-    const newBlock = { id: Date.now(), type, lang: 'javascript', content: '' };
-    setBlocks(prev => {
-      const idx = prev.findIndex(b => b.id === afterId);
-      const next = [...prev];
-      next.splice(idx + 1, 0, newBlock);
-      return next;
-    });
-  };
-
-  const removeBlock = (id) => setBlocks(prev => prev.filter(b => b.id !== id));
-
-  const updateBlock = (id, field, val) =>
-    setBlocks(prev => prev.map(b => b.id === id ? { ...b, [field]: val } : b));
-
-  return (
-    <div className="space-y-4">
-      <div className="flex items-center gap-3 px-1">
-        <span className="text-[10px] font-black uppercase tracking-widest opacity-40">Content Blocks</span>
-        <div className="flex-1 h-px bg-border/50" />
-        <span className="text-[8px] font-bold uppercase opacity-20">{blocks.length} block{blocks.length !== 1 ? 's' : ''}</span>
-      </div>
-
-      <div className="space-y-3">
-        {blocks.map((block, idx) => (
-          <div key={block.id} className="group">
-            {/* Block Header */}
-            <div className="flex items-center gap-2 mb-2">
-              <span className="text-[8px] font-black uppercase tracking-widest opacity-20">Block {idx+1}</span>
-              <div className="flex bg-surface2 rounded-lg border border-border/50 p-0.5">
-                <button
-                  onClick={() => updateBlock(block.id, 'type', 'text')}
-                  className={`px-3 py-1 rounded-md text-[8px] font-black uppercase transition-all ${
-                    block.type === 'text' ? 'bg-brand text-white shadow-sm' : 'opacity-40 hover:opacity-100'
-                  }`}
-                >Text</button>
-                <button
-                  onClick={() => updateBlock(block.id, 'type', 'code')}
-                  className={`px-3 py-1 rounded-md text-[8px] font-black uppercase transition-all ${
-                    block.type === 'code' ? 'bg-accent text-white shadow-sm' : 'opacity-40 hover:opacity-100'
-                  }`}
-                >Code</button>
-              </div>
-              {block.type === 'code' && (
-                <select
-                  value={block.lang}
-                  onChange={e => updateBlock(block.id, 'lang', e.target.value)}
-                  className="bg-surface2 border border-border text-[9px] font-black uppercase rounded-lg px-2 py-1 outline-none text-accent"
-                >
-                  {LANGS.map(l => <option key={l} value={l}>{l}</option>)}
-                </select>
-              )}
-              <div className="ml-auto flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                <button
-                  onClick={() => addBlock('text', block.id)}
-                  title="Add Text Block"
-                  className="p-1.5 rounded-lg bg-surface2 border border-border hover:bg-brand/10 hover:text-brand transition-all text-[10px] font-black"
-                >+T</button>
-                <button
-                  onClick={() => addBlock('code', block.id)}
-                  title="Add Code Block"
-                  className="p-1.5 rounded-lg bg-surface2 border border-border hover:bg-accent/10 hover:text-accent transition-all text-[10px] font-black"
-                >{`</>`}</button>
-                {blocks.length > 1 && (
-                  <button
-                    onClick={() => removeBlock(block.id)}
-                    className="p-1.5 rounded-lg hover:bg-red-500/10 hover:text-red-500 border border-transparent hover:border-red-500/20 transition-all"
-                  ><Trash2 size={12} /></button>
-                )}
-              </div>
-            </div>
-
-            {/* Block Textarea */}
-            {block.type === 'text' ? (
-              <textarea
-                value={block.content}
-                onChange={e => updateBlock(block.id, 'content', e.target.value)}
-                placeholder="Write your text here. Supports **bold**, ## headings, - lists..."
-                rows={4}
-                className="w-full bg-surface2 border border-border p-5 rounded-2xl text-sm font-medium focus:ring-2 focus:ring-brand/20 outline-none transition-all resize-none leading-relaxed"
-              />
-            ) : (
-              <div className="rounded-2xl border border-accent/20 overflow-hidden shadow-inner">
-                <div className="flex items-center px-4 py-2 bg-surface border-b border-border/50">
-                  <div className="w-2 h-2 rounded-full bg-red-500/40 mr-1.5" />
-                  <div className="w-2 h-2 rounded-full bg-yellow-500/40 mr-1.5" />
-                  <div className="w-2 h-2 rounded-full bg-green-500/40" />
-                  <span className="ml-auto text-[8px] font-black uppercase tracking-widest text-accent/60">{block.lang}</span>
-                </div>
-                <textarea
-                  value={block.content}
-                  onChange={e => updateBlock(block.id, 'content', e.target.value)}
-                  placeholder={`// Write your ${block.lang} code here...`}
-                  rows={8}
-                  className="w-full bg-surface p-5 font-mono text-sm text-emerald-300 focus:outline-none resize-none leading-relaxed"
-                  spellCheck={false}
-                />
-              </div>
-            )}
-          </div>
-        ))}
-      </div>
-
-      {/* Add First Block Buttons */}
-      <div className="flex items-center gap-3 pt-2">
-        <button
-          onClick={() => addBlock('text', blocks[blocks.length-1]?.id)}
-          className="flex items-center gap-2 px-4 py-2.5 rounded-xl border border-dashed border-border hover:border-brand/40 hover:bg-brand/5 text-[9px] font-black uppercase tracking-widest opacity-50 hover:opacity-100 transition-all"
-        >
-          <PlusCircle size={14} /> Add Text Block
-        </button>
-        <button
-          onClick={() => addBlock('code', blocks[blocks.length-1]?.id)}
-          className="flex items-center gap-2 px-4 py-2.5 rounded-xl border border-dashed border-border hover:border-accent/40 hover:bg-accent/5 text-[9px] font-black uppercase tracking-widest opacity-50 hover:opacity-100 transition-all"
-        >
-          <Zap size={14} /> Add Code Block
-        </button>
-      </div>
-    </div>
-  );
-};
