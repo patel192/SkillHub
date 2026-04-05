@@ -1,38 +1,45 @@
+import React, { useEffect, useState } from "react";
+import { useParams, useNavigate } from "react-router-dom";
 import apiClient from "../../../api/axiosConfig";
 import { useAuth } from "../../../context/AuthContext";
-import { Save, ArrowLeft, Loader2, GraduationCap } from "lucide-react";
-import { motion } from "framer-motion";
-import { Spinner } from "../../../utils/Spinner";
+import { motion, AnimatePresence } from "framer-motion";
+import { 
+  ArrowLeft, Save, Image as ImageIcon, Layout, 
+  DollarSign, BarChart, Globe, Zap, CheckCircle, Info, Loader2
+} from "lucide-react";
+import toast from "react-hot-toast";
+
+const C = {
+  brand: "var(--brand)",
+  brandDark: "var(--brand-dark)",
+  accent: "var(--accent)",
+  surface: "var(--surface)",
+  surface2: "var(--surface2)",
+  border: "var(--border)"
+};
 
 export const EditCourse = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const { token, loading: authLoading } = useAuth();
-
-  const [courseData, setCourseData] = useState({
+  
+  const [formData, setFormData] = useState({
     title: "",
+    description: "",
     instructor: "",
-    category: "",
-    price: "",
-    duration: "",
-    level: "",
+    category: "Web Development",
     imageUrl: "",
+    price: 0,
+    duration: "",
+    level: "Beginner",
+    language: "English",
+    tags: "",
     isPublished: false,
   });
 
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
 
-  const categories = [
-    "Web Development",
-    "Data Science",
-    "Design",
-    "Marketing",
-    "AI",
-    "Other",
-  ];
-
-  /* ---------------- Fetch Course ---------------- */
   useEffect(() => {
     if (!token || authLoading) return;
     fetchCourse();
@@ -42,227 +49,234 @@ export const EditCourse = () => {
     try {
       setLoading(true);
       const res = await apiClient.get(`/course/${id}`);
-      setCourseData(res.data.data);
+      setFormData(res.data.data);
     } catch (err) {
       console.error("Error fetching course:", err);
+      toast.error("Failed to load course details");
     } finally {
       setLoading(false);
     }
   };
 
-  /* ---------------- Form Change Handler ---------------- */
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
-
-    setCourseData((prev) => ({
+    setFormData((prev) => ({
       ...prev,
       [name]: type === "checkbox" ? checked : value,
     }));
   };
 
-  /* ---------------- Save Changes ---------------- */
-  const handleSave = async () => {
+  const handleSave = async (e) => {
+    e.preventDefault();
+    setSaving(true);
+    const toastId = toast.loading("Updating course record...");
+    
     try {
-      setSaving(true);
-      await apiClient.patch(`/course/${id}`, courseData);
-      navigate("/admin/courses");
+      await apiClient.patch(`/course/${id}`, formData);
+      toast.success("Course updated successfully!", { id: toastId });
+      setTimeout(() => navigate("/admin/courses"), 1000);
     } catch (err) {
       console.error("Saving failed:", err.message);
+      toast.error(err.response?.data?.message || "Storage update failed", { id: toastId });
     } finally {
       setSaving(false);
     }
   };
 
-  /* ---------------- Loading Screen ---------------- */
   if (loading) {
     return (
-      <div className="flex justify-center items-center h-screen text-white">
-        <Spinner />
+      <div className="flex flex-col items-center justify-center h-[60vh] gap-4">
+        <motion.div animate={{ rotate: 360 }} transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                    className="w-10 h-10 border-4 border-t-transparent rounded-full" style={{ borderColor: C.brand }} />
+        <p className="text-[10px] font-black uppercase tracking-widest opacity-30">Retrieving course metadata...</p>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen p-6 bg-gradient-to-br from-[#0B0F1A] via-[#111827] to-[#1E293B] text-white flex flex-col items-center">
-
-      {/* ---------------- Back Button ---------------- */}
-      <button
-        onClick={() => navigate(-1)}
-        className="flex items-center gap-2 mb-6 text-gray-300 hover:text-white transition self-start"
-      >
-        <ArrowLeft size={18} /> Back
-      </button>
-
-      {/* ---------------- Icon Animation ---------------- */}
-      <motion.div
-        initial={{ opacity: 0, y: -10 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="mb-6"
-      >
-        <motion.div
-          animate={{
-            scale: [1, 1.1, 1],
-            rotate: [0, 5, 0],
-          }}
-          transition={{ duration: 2, repeat: Infinity }}
-          className="p-5 rounded-full bg-white/10 backdrop-blur-xl border border-purple-500/20 shadow-lg"
+    <div className="space-y-6 pb-20">
+      {/* Header */}
+      <div className="flex items-center justify-between">
+        <button 
+          onClick={() => navigate("/admin/courses")}
+          className="flex items-center gap-2 text-xs font-black uppercase tracking-widest opacity-40 hover:opacity-100 transition-opacity"
         >
-          <GraduationCap className="text-purple-400" size={48} />
+          <ArrowLeft size={16} /> Back to Catalog
+        </button>
+        <div className="flex items-center gap-4">
+           <div className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest ${formData.isPublished ? 'bg-emerald-500/10 text-emerald-400' : 'bg-amber-400/10 text-amber-400'}`}>
+              {formData.isPublished ? 'Live on Marketplace' : 'Draft Mode'}
+           </div>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 xl:grid-cols-12 gap-8 items-start">
+        
+        {/* Form Side (7 units) */}
+        <motion.div 
+          initial={{ opacity: 0, x: -20 }}
+          animate={{ opacity: 1, x: 0 }}
+          className="xl:col-span-7 space-y-6"
+        >
+          <Section icon={<Layout />} title="Course Identity" subtitle="Re-edit fundamental details">
+             <div className="space-y-4">
+                <InputGroup label="Course Title" name="title" value={formData.title} onChange={handleChange} placeholder="e.g. Master React in 30 Days" required />
+                <div className="grid grid-cols-2 gap-4">
+                   <InputGroup label="Instructor Name" name="instructor" value={formData.instructor} onChange={handleChange} placeholder="Admin User" required />
+                   <SelectGroup 
+                      label="Category" 
+                      name="category" 
+                      value={formData.category} 
+                      onChange={handleChange} 
+                      options={["Web Development", "Data Science", "Design", "Marketing", "AI", "Other"]} 
+                   />
+                </div>
+                <div className="flex flex-col gap-1.5">
+                   <label className="text-[10px] font-black uppercase tracking-widest opacity-30 px-1">Description</label>
+                   <textarea 
+                      name="description" 
+                      value={formData.description} 
+                      onChange={handleChange}
+                      rows={4}
+                      className="w-full p-4 rounded-2xl border text-sm focus:ring-2 transition-all"
+                      style={{ background: 'var(--surface2)', borderColor: 'var(--border)', '--tw-ring-color': C.brand }}
+                      placeholder="What will students learn?..."
+                   />
+                </div>
+             </div>
+          </Section>
+
+          <Section icon={<DollarSign />} title="Pricing & Logic" subtitle="Manage access and difficulty levels">
+             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <InputGroup label="Price (INR)" type="number" name="price" value={formData.price} onChange={handleChange} icon={<Zap size={14} />} />
+                <InputGroup label="Duration" name="duration" value={formData.duration} onChange={handleChange} placeholder="e.g. 12 Hours" />
+                <SelectGroup label="Experience Level" name="level" value={formData.level} onChange={handleChange} options={["Beginner", "Intermediate", "Advanced"]} />
+                <SelectGroup label="Language" name="language" value={formData.language} onChange={handleChange} options={["English", "Hindi", "Spanish", "French", "Other"]} />
+             </div>
+          </Section>
+
+          <Section icon={<ImageIcon />} title="Media & Visibility" subtitle="How your course appears to others">
+             <div className="space-y-4">
+                <InputGroup label="Thumbnail URL" name="imageUrl" value={formData.imageUrl} onChange={handleChange} placeholder="https://unsplash.com/..." />
+                <InputGroup label="Tags (Comma separated)" name="tags" value={formData.tags} onChange={handleChange} placeholder="react, webdev, js" />
+                <label className="flex items-center gap-3 p-4 rounded-2xl bg-surface2 border border-border/50 cursor-pointer hover:border-brand/50 transition-all">
+                   <input type="checkbox" name="isPublished" checked={formData.isPublished} onChange={handleChange} className="w-5 h-5 rounded-lg border-2 border-brand text-brand focus:ring-0" />
+                   <div className="flex flex-col">
+                      <span className="text-sm font-black">Publish Immediately</span>
+                      <span className="text-[10px] opacity-40 font-bold uppercase tracking-widest">Enable students to enroll as soon as you save</span>
+                   </div>
+                </label>
+             </div>
+          </Section>
+
+          <motion.button
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
+            onClick={handleSave}
+            disabled={saving}
+            className="w-full py-5 rounded-[2rem] font-black text-sm uppercase tracking-[0.3em] text-white shadow-2xl flex items-center justify-center gap-3 disabled:opacity-50"
+            style={{ background: `linear-gradient(135deg, ${C.brand}, var(--brand-light))` }}
+          >
+            {saving ? <div className="w-5 h-5 border-2 border-t-transparent animate-spin rounded-full" /> : <Save size={18} />}
+            Commit Changes
+          </motion.button>
         </motion.div>
-      </motion.div>
 
-      {/* ---------------- Main Card ---------------- */}
-      <motion.div
-        initial={{ opacity: 0, y: 25 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="w-full max-w-3xl bg-white/10 backdrop-blur-2xl
-        border border-white/10 rounded-2xl p-8 shadow-2xl space-y-6"
-      >
-        <h1 className="text-3xl font-bold text-center bg-gradient-to-r 
-        from-purple-400 to-cyan-400 bg-clip-text text-transparent">
-          Edit Course
-        </h1>
-
-        {/* ---------------- Inputs Grid ---------------- */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-
-          {/* Title */}
-          <InputField
-            label="Title"
-            name="title"
-            value={courseData.title}
-            onChange={handleChange}
-          />
-
-          {/* Instructor */}
-          <InputField
-            label="Instructor"
-            name="instructor"
-            value={courseData.instructor}
-            onChange={handleChange}
-          />
-
-          {/* Category */}
-          <SelectField
-            label="Category"
-            name="category"
-            value={courseData.category}
-            options={categories}
-            onChange={handleChange}
-          />
-
-          {/* Duration */}
-          <InputField
-            label="Duration"
-            name="duration"
-            value={courseData.duration}
-            onChange={handleChange}
-          />
-
-          {/* Level */}
-          <InputField
-            label="Level"
-            name="level"
-            value={courseData.level}
-            onChange={handleChange}
-          />
-
-          {/* Price */}
-          <InputField
-            label="Price (₹)"
-            type="number"
-            name="price"
-            value={courseData.price}
-            onChange={handleChange}
-          />
-
-          {/* Image URL */}
-          <InputField
-            label="Thumbnail URL"
-            name="imageUrl"
-            value={courseData.imageUrl}
-            onChange={handleChange}
-            className="md:col-span-2"
-          />
-        </div>
-
-        {/* ---------------- Image Preview ---------------- */}
-        {courseData.imageUrl && (
-          <motion.img
-            src={courseData.imageUrl}
-            className="w-56 h-32 rounded-lg object-cover border border-white/20 mx-auto"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-          />
-        )}
-
-        {/* ---------------- Publish Toggle ---------------- */}
-        <div className="flex items-center gap-3 mt-4">
-          <input
-            type="checkbox"
-            name="isPublished"
-            checked={courseData.isPublished}
-            onChange={handleChange}
-            className="w-5 h-5 accent-purple-500"
-          />
-          <span className="text-gray-200">Publish Course</span>
-        </div>
-
-        {/* ---------------- Save Button ---------------- */}
-        <motion.button
-          onClick={handleSave}
-          disabled={saving}
-          whileHover={{ scale: 1.05, boxShadow: "0 0 20px rgba(168,85,247,0.8)" }}
-          whileTap={{ scale: 0.95 }}
-          className="w-full mt-6 flex justify-center items-center gap-2 
-          bg-purple-600 hover:bg-purple-700 py-3 rounded-xl font-semibold shadow-lg"
+        {/* Preview Side (5 units) */}
+        <motion.div 
+          initial={{ opacity: 0, x: 20 }}
+          animate={{ opacity: 1, x: 0 }}
+          className="xl:col-span-5 sticky top-8 space-y-6"
         >
-          {saving ? (
-            <Loader2 className="animate-spin" size={18} />
-          ) : (
-            <Save size={18} />
-          )}
-          {saving ? "Saving..." : "Save Changes"}
-        </motion.button>
-      </motion.div>
+          <div className="flex items-center gap-2 px-2 text-[10px] font-black uppercase tracking-widest opacity-30">
+             <Info size={14} /> Live Marketplace Preview
+          </div>
+          
+          <div className="p-4 rounded-[3.5rem] bg-surface/50 border border-border shadow-inner">
+             <div className="rounded-[2.5rem] border bg-surface overflow-hidden shadow-2xl scale-[1.02] origin-top" style={{ borderColor: 'var(--border)' }}>
+                <div className="h-48 bg-surface2 relative overflow-hidden">
+                   {formData.imageUrl ? (
+                      <img src={formData.imageUrl} className="w-full h-full object-cover" alt="" />
+                   ) : (
+                      <div className="flex flex-col items-center justify-center h-full opacity-20"><ImageIcon size={48} /> <p className="text-[10px] font-black uppercase mt-2">No Thumbnail</p></div>
+                   )}
+                   <div className="absolute top-4 left-4 px-3 py-1 rounded-full text-[8px] font-black uppercase bg-white/10 backdrop-blur-md border border-white/20 text-white truncate max-w-[150px]">
+                      {formData.category}
+                   </div>
+                </div>
+                <div className="p-6 space-y-4">
+                   <div className="space-y-1">
+                      <h3 className="font-black text-lg line-clamp-1">{formData.title || 'Untitled Course'}</h3>
+                      <p className="text-[10px] font-black opacity-30 uppercase tracking-widest">By {formData.instructor || 'Staff Instructor'}</p>
+                   </div>
+                   <div className="flex items-center gap-2">
+                       <div className="px-2 py-0.5 rounded bg-surface2 border border-border/10 text-[9px] font-black opacity-40 uppercase">{formData.level}</div>
+                       <div className="px-2 py-0.5 rounded bg-surface2 border border-border/10 text-[9px] font-black opacity-40 uppercase">{formData.duration || '0 Hours'}</div>
+                   </div>
+                   <div className="flex items-center justify-between pt-2 border-t border-border/50">
+                      <span className="text-xl font-black text-brand">₹{formData.price || 0}</span>
+                      <div className="flex items-center gap-1.5 px-3 py-1 bg-surface2 rounded-full border border-border/50 opacity-50">
+                         <Zap size={10} className="text-brand" />
+                         <span className="text-[8px] font-black uppercase">Instant Access</span>
+                      </div>
+                   </div>
+                </div>
+             </div>
+          </div>
+
+          <div className="p-6 rounded-3xl bg-surface2/50 border border-border border-dashed space-y-3" onClick={() => navigate(`/admin/courses/${id}`)}>
+             <h4 className="text-xs font-black uppercase tracking-widest opacity-40 flex items-center gap-2"><Layout size={14} className="text-brand" /> Quick Management</h4>
+             <p className="text-[10px] font-bold opacity-60">Navigate to the Control Center to manage lessons, quizzes, and student lists for this course.</p>
+             <button className="text-[10px] font-black text-brand uppercase tracking-widest underline decoration-brand/30">Go to Control Center</button>
+          </div>
+        </motion.div>
+
+      </div>
     </div>
   );
 };
 
-/* ---------------- Reusable Input ---------------- */
-const InputField = ({ label, name, value, onChange, type = "text", className }) => (
-  <div className={className}>
-    <label className="block mb-1 text-gray-300">{label}</label>
-    <input
-      type={type}
-      name={name}
-      value={value || ""}
-      onChange={onChange}
-      className="w-full p-3 rounded-xl bg-[#0F172A] border border-white/10 
-      focus:border-purple-500 focus:ring-2 focus:ring-purple-500/40 
-      outline-none transition"
-    />
+// ==========================================
+// FORM COMPONENTS (Reused)
+// ==========================================
+
+const Section = ({ icon, title, subtitle, children }) => (
+  <div className="p-8 rounded-[2.5rem] bg-surface border border-border shadow-xl space-y-6">
+     <div className="flex items-center gap-4">
+        <div className="p-3 rounded-2xl bg-surface2 text-brand/60">{icon}</div>
+        <div>
+           <h3 className="text-sm font-black uppercase tracking-widest">{title}</h3>
+           <p className="text-[10px] font-bold opacity-40 uppercase tracking-tight">{subtitle}</p>
+        </div>
+     </div>
+     {children}
   </div>
 );
 
-/* ---------------- Reusable Select ---------------- */
-const SelectField = ({ label, name, value, onChange, options }) => (
-  <div>
-    <label className="block mb-1 text-gray-300">{label}</label>
-    <select
-      name={name}
-      value={value}
-      onChange={onChange}
-      className="w-full p-3 rounded-xl bg-[#0F172A] border border-white/10 
-      focus:border-purple-500 focus:ring-2 focus:ring-purple-500/40 
-      outline-none transition"
-    >
-      <option value="">Select</option>
-      {options.map((op) => (
-        <option key={op} value={op}>
-          {op}
-        </option>
-      ))}
-    </select>
+const InputGroup = ({ label, icon, ...props }) => (
+  <div className="flex flex-col gap-1.5 group">
+     <label className="text-[10px] font-black uppercase tracking-widest opacity-30 px-1">{label}</label>
+     <div className="relative">
+        {icon && <div className="absolute right-4 top-1/2 -translate-y-1/2 text-brand/40">{icon}</div>}
+        <input 
+           {...props} 
+           className="w-full px-4 py-3.5 rounded-2xl border text-sm font-medium focus:ring-2 transition-all"
+           style={{ background: 'var(--surface2)', borderColor: 'var(--border)', '--tw-ring-color': C.brand }}
+        />
+     </div>
   </div>
 );
+
+const SelectGroup = ({ label, options, ...props }) => (
+  <div className="flex flex-col gap-1.5 focus-within:scale-[1.02] transition-transform">
+     <label className="text-[10px] font-black uppercase tracking-widest opacity-30 px-1">{label}</label>
+     <select 
+        {...props} 
+        className="w-full px-4 py-3.5 rounded-2xl border text-sm font-bold focus:ring-2 transition-all appearance-none cursor-pointer"
+        style={{ background: 'var(--surface2)', borderColor: 'var(--border)', '--tw-ring-color': C.brand }}
+     >
+        {options.map(opt => <option key={opt}>{opt}</option>)}
+     </select>
+  </div>
+);
+
