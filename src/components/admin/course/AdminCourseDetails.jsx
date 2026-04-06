@@ -5,7 +5,7 @@ import {
   PlusCircle, MoreHorizontal, ArrowLeft, Edit, 
   Video, Puzzle, Users, CheckCircle, Clock, 
   Globe, Info, BarChart, Settings, ExternalLink, 
-  Trash2, MessageSquare, BookOpen, Layers
+  Trash2, MessageSquare, BookOpen, Layers,Zap
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useAuth } from "../../../context/AuthContext";
