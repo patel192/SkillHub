@@ -230,7 +230,17 @@ export const CourseQuiz = () => {
   return (
     <div className="flex h-screen bg-surface overflow-hidden relative">
       {/* ====================== SIDEBAR ====================== */}
-      <aside className={`w-80 lg:w-96 border-r border-border bg-surface flex flex-col transition-all duration-500 shrink-0 ${sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}`}>
+      <aside
+  className={`
+    hidden lg:flex
+    w-80 lg:w-96
+    border-r border-border
+    bg-surface
+    flex-col
+    transition-all duration-500
+    shrink-0
+  `}
+>
          {/* Sidebar Header */}
          <div className="p-6 border-b border-border space-y-4">
             <button 
@@ -286,11 +296,6 @@ export const CourseQuiz = () => {
 
       {/* ====================== MAIN CONTENT ====================== */}
       <main className="flex-1 flex flex-col bg-surface2/30 relative overflow-hidden">
-         {/* Mobile Menu Trigger */}
-         <button className="lg:hidden absolute top-6 left-6 z-50 p-3 rounded-2xl bg-surface shadow-2xl border border-border" onClick={() => setSidebarOpen(!sidebarOpen)}>
-            <Menu size={20} />
-         </button>
-
          {adding ? (
             /* ADD QUESTION INTERFACE */
             <div className="flex-1 overflow-y-auto p-8 lg:p-16 custom-scrollbar">
@@ -388,7 +393,42 @@ export const CourseQuiz = () => {
          ) : selectedQuestion ? (
             /* VIEW QUESTION INTERFACE */
             <div className="flex-1 overflow-y-auto p-8 lg:p-16 custom-scrollbar">
-               <motion.div key={selectedQuestion._id} initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} className="max-w-3xl mx-auto space-y-12">
+               {/* Mobile Question Selector */}
+<div className="lg:hidden mb-4">
+  <label className="text-[10px] font-black uppercase tracking-widest opacity-40 block mb-2">
+    Select Question
+  </label>
+
+  <select
+    value={selectedQuestion?._id || ""}
+    onChange={(e) => {
+      const question = questions.find(
+        (q) => q._id === e.target.value
+      );
+
+      if (question) setSelectedQuestion(question);
+    }}
+    className="
+      w-full
+      p-3
+      rounded-xl
+      bg-surface
+      border border-border
+      font-semibold
+      text-sm
+      focus:outline-none
+      focus:ring-2
+      focus:ring-brand/20
+    "
+  >
+    {questions.map((q) => (
+      <option key={q._id} value={q._id}>
+        {q.question}
+      </option>
+    ))}
+  </select>
+</div>
+               <motion.div key={selectedQuestion._id} initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} className="w-full lg:max-w-3xl lg:mx-auto space-y-12 px-4 sm:px-6">
                   <div className="space-y-6 pb-12 border-b border-border/50">
                      <div className="flex items-center justify-between">
                         <div className="flex items-center gap-3">
