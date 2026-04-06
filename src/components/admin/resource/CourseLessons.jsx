@@ -319,7 +319,26 @@ const handleUpdateLesson = async () => {
   return (
     <div className="flex h-screen bg-surface overflow-hidden">
       {/* ====================== SIDEBAR LIST ====================== */}
-      <aside className={`w-80 lg:w-96 border-r border-border bg-surface flex flex-col transition-all duration-500 shrink-0 ${sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}`}>
+      <aside
+  className={`
+    fixed lg:relative
+    top-0 left-0 h-full
+    w-80 lg:w-96
+    border-r border-border
+    bg-surface
+    flex flex-col
+    transition-transform duration-300
+    z-40
+    ${sidebarOpen ? "translate-x-0" : "-translate-x-full"}
+    lg:translate-x-0
+  `}
+>
+  {sidebarOpen && (
+  <div
+    className="fixed inset-0 bg-black/40 z-30 lg:hidden"
+    onClick={() => setSidebarOpen(false)}
+  />
+)}
          {/* Sidebar Header */}
          <div className="p-6 border-b border-border space-y-4">
             <button 
