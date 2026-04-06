@@ -539,12 +539,12 @@ const handleUpdateLesson = async () => {
             </div>
          ) : selected ? (
             /* VIEW MODE INTERFACE */
-            <div className="flex-1 overflow-y-auto p-8 lg:p-16 custom-scrollbar bg-surface2/20">
+            <div className="flex-1 overflow-y-auto px-4 py-6 lg:p-16 custom-scrollbar bg-surface2/20">
                <motion.div 
                  key={selected._id} 
                  initial={{ opacity: 0, y: 15 }} 
                  animate={{ opacity: 1, y: 0 }} 
-                 className="max-w-4xl mx-auto space-y-12 pb-20"
+                 className="w-full lg:max-w-4xl lg:mx-auto space-y-12 pb-20"
                >
                   {/* Lesson Header */}
                   <div className="space-y-6 pb-12 border-b border-border/50 relative">
