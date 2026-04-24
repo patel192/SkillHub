@@ -18,7 +18,7 @@ import { AdminLayout } from "./components/admin/AdminLayout";
 import { AdminDashboard } from "./components/admin/AdminDashboard";
 import { Courses } from "./components/admin/course/Courses";
 import { Users } from "./components/admin/users/Users";
-import {UserDetails} from "./components/admin/users/UserDetails";
+import { UserDetails } from "./components/admin/users/UserDetails";
 import { Resources } from "./components/admin/resource/Resources";
 import { Community } from "./components/user/communities/Community";
 import { CommunityDetails } from "./components/user/communities/CommunityDetails";
@@ -37,6 +37,7 @@ import { EditCourse } from "./components/admin/course/EditCourse";
 import { AddCourse } from "./components/admin/course/AddCourse";
 import { HelpSupport } from "./components/user/help/HelpSupport";
 import { PublicProfile } from "./components/user/PublicProfile";
+import { ProtectedRoute } from "./routes/ProtectedRoute";
 
 function App() {
   return (
@@ -45,27 +46,30 @@ function App() {
         <Route path="/" element={<PublicLayout />}></Route>
         <Route path="signup" element={<SignUp />}></Route>
         <Route path="login" element={<Login />}></Route>
-        <Route path="user" element={<UserLayout />}>
-          <Route path="dashboard" element={<UserDashboard />}></Route>
-          <Route
-            path="communities"
-            element={<Community basePath="user" />}
-          ></Route>
-          <Route path="community/:id" element={<CommunityDetails />}></Route>
-          <Route path="mycourses" element={<MyCourses />}></Route>
-          <Route path="certificates" element={<Certificates />}></Route>
-          <Route path="messages" element={<Messages />}></Route>
-          <Route path="leaderboard" element={<LeaderBoard />}></Route>
-          <Route path="profile" element={<Profile />}></Route>
-          <Route path="settings" element={<Settings />}></Route>
-          <Route path="course/:courseId" element={<CourseDetails />}></Route>
-          <Route path="learn/:courseId" element={<LearningPage />}></Route>
-          <Route path="activities" element={<Activities />}></Route>
-          <Route path="notifications" element={<Notifications />}></Route>
-          <Route path="report" element={<Report />}></Route>
-          <Route path="help" element={<HelpSupport />}></Route>
-          <Route path="view-profile/:id" element={<PublicProfile />}></Route>
+        <Route element={<ProtectedRoute allowdRole="user" />}>
+          <Route path="user" element={<UserLayout />}>
+            <Route path="dashboard" element={<UserDashboard />}></Route>
+            <Route
+              path="communities"
+              element={<Community basePath="user" />}
+            ></Route>
+            <Route path="community/:id" element={<CommunityDetails />}></Route>
+            <Route path="mycourses" element={<MyCourses />}></Route>
+            <Route path="certificates" element={<Certificates />}></Route>
+            <Route path="messages" element={<Messages />}></Route>
+            <Route path="leaderboard" element={<LeaderBoard />}></Route>
+            <Route path="profile" element={<Profile />}></Route>
+            <Route path="settings" element={<Settings />}></Route>
+            <Route path="course/:courseId" element={<CourseDetails />}></Route>
+            <Route path="learn/:courseId" element={<LearningPage />}></Route>
+            <Route path="activities" element={<Activities />}></Route>
+            <Route path="notifications" element={<Notifications />}></Route>
+            <Route path="report" element={<Report />}></Route>
+            <Route path="help" element={<HelpSupport />}></Route>
+            <Route path="view-profile/:id" element={<PublicProfile />}></Route>
+          </Route>
         </Route>
+        <Route element={<ProtectedRoute allowdRole="admin"/> }>
         <Route path="admin" element={<AdminLayout />}>
           <Route path="admindashboard" element={<AdminDashboard />}></Route>
           <Route path="resources" element={<Resources />}></Route>
@@ -89,6 +93,7 @@ function App() {
             element={<AdminCommunityDetails basePath="admin" />}
           ></Route>
           <Route path="settings" element={<AdminSettings />}></Route>
+        </Route>
         </Route>
       </Routes>
       <Toaster position="top-right" />
