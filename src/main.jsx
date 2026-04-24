@@ -19,5 +19,5 @@ createRoot(document.getElementById("root")).render(
         </SettingsProvider>
       </AuthProvider>
     </PersistGate>
-  </Provider>,
+  </Provider>
 );
