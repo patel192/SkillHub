@@ -3,45 +3,67 @@ import { motion, AnimatePresence, useAnimation } from "framer-motion";
 import { Link, useNavigate } from "react-router-dom";
 import apiClient from "../../api/axiosConfig";
 import {
-  Eye, EyeOff, ArrowRight, Mail, Lock, AlertCircle,
-  CheckCircle2, Shield, Zap, Github, Chrome, ChevronLeft,
-  Loader2, Code, TrendingUp, Users,
+  Eye,
+  EyeOff,
+  ArrowRight,
+  Mail,
+  Lock,
+  AlertCircle,
+  CheckCircle2,
+  Shield,
+  Zap,
+  Github,
+  Chrome,
+  ChevronLeft,
+  Loader2,
+  Code,
+  TrendingUp,
+  Users,
 } from "lucide-react";
 import { useAuth } from "../../context/AuthContext";
-
+import { useDispatch } from "react-redux";
+import { useSelector } from "react-redux";
+import { loginSuccess } from "../../redux/features/auth/authSlice";
 // ─────────────────────────────────────────
 // DESIGN TOKENS — identical to PublicLayout & SignUp
 // ─────────────────────────────────────────
 const C = {
-  brand:       "#16A880",
-  brandDark:   "#0D7A5F",
-  brandLight:  "#1FC99A",
-  accent:      "#F59E0B",
-  bg:          "#0A0F0D",
-  surface:     "#111814",
-  surface2:    "#182219",
-  surface3:    "#1E2B22",
-  border:      "rgba(22,168,128,0.15)",
-  borderHov:   "rgba(22,168,128,0.40)",
-  text:        "#E8F5F0",
-  textMuted:   "#7A9E8E",
-  textDim:     "#3D5C4E",
-  error:       "#F87171",
-  errorBg:     "rgba(248,113,113,0.08)",
+  brand: "#16A880",
+  brandDark: "#0D7A5F",
+  brandLight: "#1FC99A",
+  accent: "#F59E0B",
+  bg: "#0A0F0D",
+  surface: "#111814",
+  surface2: "#182219",
+  surface3: "#1E2B22",
+  border: "rgba(22,168,128,0.15)",
+  borderHov: "rgba(22,168,128,0.40)",
+  text: "#E8F5F0",
+  textMuted: "#7A9E8E",
+  textDim: "#3D5C4E",
+  error: "#F87171",
+  errorBg: "rgba(248,113,113,0.08)",
   errorBorder: "rgba(248,113,113,0.25)",
-  success:     "#34D399",
+  success: "#34D399",
 };
 
 // ─────────────────────────────────────────
 // ANIMATION VARIANTS
 // ─────────────────────────────────────────
 const containerVariants = {
-  hidden:  { opacity: 0 },
-  visible: { opacity: 1, transition: { staggerChildren: 0.08, delayChildren: 0.1 } },
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: { staggerChildren: 0.08, delayChildren: 0.1 },
+  },
 };
 const itemVariants = {
-  hidden:  { opacity: 0, y: 16 },
-  visible: { opacity: 1, y: 0, transition: { type: "spring", stiffness: 110, damping: 15 } },
+  hidden: { opacity: 0, y: 16 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: { type: "spring", stiffness: 110, damping: 15 },
+  },
 };
 const shakeVariants = {
   shake: { x: [0, -9, 9, -7, 7, 0], transition: { duration: 0.42 } },
@@ -54,7 +76,7 @@ const FloatingBlob = ({ style, delay = 0 }) => (
   <motion.div
     initial={{ opacity: 0, scale: 0.75 }}
     animate={{
-      scale:   [1, 1.18, 1],
+      scale: [1, 1.18, 1],
       opacity: [0.3, 0.5, 0.3],
       x: [0, 22, -22, 0],
       y: [0, -22, 22, 0],
@@ -69,9 +91,18 @@ const FloatingBlob = ({ style, delay = 0 }) => (
 // INPUT FIELD
 // ─────────────────────────────────────────
 const InputField = ({
-  icon: Icon, label, type = "text", name, value,
-  onChange, error, showPasswordToggle, showPassword,
-  onTogglePassword, placeholder, autoComplete,
+  icon: Icon,
+  label,
+  type = "text",
+  name,
+  value,
+  onChange,
+  error,
+  showPasswordToggle,
+  showPassword,
+  onTogglePassword,
+  placeholder,
+  autoComplete,
   rightSlot,
 }) => {
   const [focused, setFocused] = useState(false);
@@ -108,8 +139,8 @@ const InputField = ({
           boxShadow: error
             ? `0 0 0 1.5px ${C.errorBorder}`
             : focused
-            ? `0 0 0 1.5px ${C.brand}88, 0 0 22px ${C.brand}18`
-            : `0 0 0 1px ${"var(--border)"}`,
+              ? `0 0 0 1.5px ${C.brand}88, 0 0 22px ${C.brand}18`
+              : `0 0 0 1px ${"var(--border)"}`,
         }}
         transition={{ duration: 0.2 }}
         className="relative rounded-xl overflow-hidden"
@@ -124,7 +155,9 @@ const InputField = ({
         </div>
 
         <input
-          type={showPasswordToggle ? (showPassword ? "text" : "password") : type}
+          type={
+            showPasswordToggle ? (showPassword ? "text" : "password") : type
+          }
           name={name}
           value={value}
           onChange={onChange}
@@ -165,7 +198,11 @@ const SocialButton = ({ icon: Icon, label }) => (
     whileTap={{ scale: 0.97 }}
     type="button"
     className="w-full flex items-center justify-center gap-2.5 py-3 rounded-xl text-[14px] font-medium border transition-all duration-200"
-    style={{ background: "var(--surface3)", borderColor: "var(--border)", color: "var(--text-muted)" }}
+    style={{
+      background: "var(--surface3)",
+      borderColor: "var(--border)",
+      color: "var(--text-muted)",
+    }}
     onMouseEnter={(e) => {
       e.currentTarget.style.borderColor = "var(--border)";
       e.currentTarget.style.color = "var(--text)";
@@ -184,11 +221,11 @@ const SocialButton = ({ icon: Icon, label }) => (
 // LEFT PANEL DATA
 // ─────────────────────────────────────────
 const QUICK_STATS = [
-  { value: "120K+", label: "Active Learners",  icon: Users },
-  { value: "98%",   label: "Placement Rate",   icon: TrendingUp },
+  { value: "120K+", label: "Active Learners", icon: Users },
+  { value: "98%", label: "Placement Rate", icon: TrendingUp },
 ];
 const FEATURES = [
-  { icon: Zap,    text: "Pick up exactly where you left off" },
+  { icon: Zap, text: "Pick up exactly where you left off" },
   { icon: Shield, text: "Secure, end-to-end encrypted session" },
 ];
 
@@ -197,39 +234,48 @@ const FEATURES = [
 // ─────────────────────────────────────────
 export const Login = () => {
   const { login } = useAuth();
-  const navigate  = useNavigate();
-  const controls  = useAnimation();
-  const formRef   = useRef(null);
+  const dispatch = useDispatch();
+  const authState = useSelector((state) => state.auth);
+  const navigate = useNavigate();
+  const controls = useAnimation();
+  const formRef = useRef(null);
 
-  const [form, setForm] = useState({ email: "", password: "", rememberMe: false });
+  const [form, setForm] = useState({
+    email: "",
+    password: "",
+    rememberMe: false,
+  });
   const [showPassword, setShowPassword] = useState(false);
-  const [loading,      setLoading]      = useState(false);
-  const [errors,       setErrors]       = useState({});
-  const [success,      setSuccess]      = useState(false);
-  const [mousePos,     setMousePos]     = useState({ x: 0, y: 0 });
+  const [loading, setLoading] = useState(false);
+  const [errors, setErrors] = useState({});
+  const [success, setSuccess] = useState(false);
+  const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
 
   // Load remembered email
   useEffect(() => {
     const remembered = localStorage.getItem("rememberedEmail");
-    if (remembered) setForm((p) => ({ ...p, email: remembered, rememberMe: true }));
+    if (remembered)
+      setForm((p) => ({ ...p, email: remembered, rememberMe: true }));
   }, []);
 
   // Parallax for left panel
   useEffect(() => {
     const onMove = (e) =>
       setMousePos({
-        x: (e.clientX / window.innerWidth  - 0.5) * 16,
+        x: (e.clientX / window.innerWidth - 0.5) * 16,
         y: (e.clientY / window.innerHeight - 0.5) * 16,
       });
     window.addEventListener("mousemove", onMove);
     return () => window.removeEventListener("mousemove", onMove);
   }, []);
-
+  useEffect(() => {
+    console.log("Redux Auth State:", authState);
+  }, [authState]);
   const validate = () => {
     const errs = {};
-    if (!form.email.trim())                           errs.email    = "Required";
-    else if (!/\S+@\S+\.\S+/.test(form.email))       errs.email    = "Invalid email";
-    if (!form.password)                               errs.password = "Required";
+    if (!form.email.trim()) errs.email = "Required";
+    else if (!/\S+@\S+\.\S+/.test(form.email)) errs.email = "Invalid email";
+    if (!form.password) errs.password = "Required";
     setErrors(errs);
     return Object.keys(errs).length === 0;
   };
@@ -242,7 +288,10 @@ export const Login = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!validate()) { controls.start("shake"); return; }
+    if (!validate()) {
+      controls.start("shake");
+      return;
+    }
     setLoading(true);
     try {
       const loginForm = {
@@ -253,18 +302,30 @@ export const Login = () => {
       const res = await apiClient.post("/loginuser", loginForm);
       if (res.status === 200) {
         const { data, token } = res.data;
-        
+
         login(data, token);
-        
-        if (form.rememberMe) localStorage.setItem("rememberedEmail", form.email);
-        else                 localStorage.removeItem("rememberedEmail");
+        dispatch(
+          loginSuccess({
+            user: data,
+            token: token,
+            role: data.role,
+          }),
+        );
+
+        if (form.rememberMe)
+          localStorage.setItem("rememberedEmail", form.email);
+        else localStorage.removeItem("rememberedEmail");
 
         setSuccess(true);
         await new Promise((r) => setTimeout(r, 900));
-        navigate(data.role === "admin" ? "/admin/admindashboard" : "/user/dashboard");
+        navigate(
+          data.role === "admin" ? "/admin/admindashboard" : "/user/dashboard",
+        );
       }
     } catch (err) {
-      setErrors({ submit: err.response?.data?.message || "Invalid email or password." });
+      setErrors({
+        submit: err.response?.data?.message || "Invalid email or password.",
+      });
       controls.start("shake");
     } finally {
       setLoading(false);
@@ -274,7 +335,11 @@ export const Login = () => {
   return (
     <div
       className="min-h-screen flex overflow-hidden relative"
-      style={{ background: "var(--bg)", fontFamily: "'DM Sans', sans-serif", color: "var(--text)" }}
+      style={{
+        background: "var(--bg)",
+        fontFamily: "'DM Sans', sans-serif",
+        color: "var(--text)",
+      }}
     >
       {/* Google Fonts */}
       <style>{`@import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,700&family=DM+Sans:wght@400;500;600&display=swap');`}</style>
@@ -283,18 +348,34 @@ export const Login = () => {
       <div className="fixed inset-0 pointer-events-none overflow-hidden">
         <FloatingBlob
           delay={0}
-          style={{ width: 500, height: 500, top: -100, left: -100,
-            background: `radial-gradient(circle, ${C.brand}28 0%, transparent 70%)` }}
+          style={{
+            width: 500,
+            height: 500,
+            top: -100,
+            left: -100,
+            background: `radial-gradient(circle, ${C.brand}28 0%, transparent 70%)`,
+          }}
         />
         <FloatingBlob
           delay={2.5}
-          style={{ width: 400, height: 400, bottom: 0, right: 0,
-            background: "radial-gradient(circle, #6366F128 0%, transparent 70%)" }}
+          style={{
+            width: 400,
+            height: 400,
+            bottom: 0,
+            right: 0,
+            background:
+              "radial-gradient(circle, #6366F128 0%, transparent 70%)",
+          }}
         />
         <FloatingBlob
           delay={5}
-          style={{ width: 300, height: 300, top: "50%", left: "35%",
-            background: `radial-gradient(circle, ${C.accent}18 0%, transparent 70%)` }}
+          style={{
+            width: 300,
+            height: 300,
+            top: "50%",
+            left: "35%",
+            background: `radial-gradient(circle, ${C.accent}18 0%, transparent 70%)`,
+          }}
         />
         {/* Dot grid */}
         <div
@@ -302,7 +383,8 @@ export const Login = () => {
           style={{
             backgroundImage: `radial-gradient(${C.brand}14 1px, transparent 1px)`,
             backgroundSize: "36px 36px",
-            maskImage: "radial-gradient(ellipse 80% 60% at 50% 40%, black 50%, transparent 100%)",
+            maskImage:
+              "radial-gradient(ellipse 80% 60% at 50% 40%, black 50%, transparent 100%)",
           }}
         />
       </div>
@@ -310,7 +392,7 @@ export const Login = () => {
       {/* ── LEFT PANEL ─────────────────────────── */}
       <motion.div
         initial={{ x: -80, opacity: 0 }}
-        animate={{ x: 0,   opacity: 1 }}
+        animate={{ x: 0, opacity: 1 }}
         transition={{ duration: 0.85, ease: [0.22, 1, 0.36, 1] }}
         className="hidden lg:flex lg:w-[48%] relative flex-col justify-between p-12 xl:p-16 border-r"
         style={{
@@ -319,7 +401,10 @@ export const Login = () => {
         }}
       >
         {/* Logo */}
-        <Link to="/" className="inline-flex items-center gap-3 group z-10 relative">
+        <Link
+          to="/"
+          className="inline-flex items-center gap-3 group z-10 relative"
+        >
           <motion.div
             whileHover={{ scale: 1.06, rotate: 6 }}
             className="w-11 h-11 rounded-xl flex items-center justify-center"
@@ -342,15 +427,14 @@ export const Login = () => {
         <div className="relative z-10 space-y-8 max-w-md">
           <motion.div
             initial={{ y: 22, opacity: 0 }}
-            animate={{ y: 0,  opacity: 1 }}
+            animate={{ y: 0, opacity: 1 }}
             transition={{ delay: 0.3 }}
           >
             <h1
               className="text-5xl xl:text-[52px] font-bold leading-[1.1] tracking-tight mb-4"
               style={{ fontFamily: "'Fraunces', serif" }}
             >
-              Welcome back{" "}
-              <br />
+              Welcome back <br />
               to{" "}
               <span
                 style={{
@@ -362,7 +446,10 @@ export const Login = () => {
                 SkillHub
               </span>
             </h1>
-            <p className="text-[17px] leading-relaxed" style={{ color: "var(--text-muted)" }}>
+            <p
+              className="text-[17px] leading-relaxed"
+              style={{ color: "var(--text-muted)" }}
+            >
               Continue your journey to mastery. Your next project awaits — pick
               up right where you left off.
             </p>
@@ -379,18 +466,29 @@ export const Login = () => {
               <div
                 key={idx}
                 className="p-4 rounded-2xl border flex flex-col gap-1"
-                style={{ background: "var(--surface2)", borderColor: "var(--border)" }}
+                style={{
+                  background: "var(--surface2)",
+                  borderColor: "var(--border)",
+                }}
               >
                 <div className="flex items-center gap-2">
                   <stat.icon size={14} style={{ color: C.brand }} />
                 </div>
                 <div
                   className="text-2xl font-bold"
-                  style={{ fontFamily: "'Fraunces', serif", color: "var(--text)" }}
+                  style={{
+                    fontFamily: "'Fraunces', serif",
+                    color: "var(--text)",
+                  }}
                 >
                   {stat.value}
                 </div>
-                <div className="text-[13px]" style={{ color: "var(--text-muted)" }}>{stat.label}</div>
+                <div
+                  className="text-[13px]"
+                  style={{ color: "var(--text-muted)" }}
+                >
+                  {stat.label}
+                </div>
               </div>
             ))}
           </motion.div>
@@ -406,14 +504,17 @@ export const Login = () => {
               <motion.div
                 key={idx}
                 initial={{ x: -18, opacity: 0 }}
-                animate={{ x: 0,   opacity: 1 }}
+                animate={{ x: 0, opacity: 1 }}
                 transition={{ delay: 0.72 + idx * 0.1 }}
                 className="flex items-center gap-3 text-[15px]"
                 style={{ color: "var(--text-muted)" }}
               >
                 <div
                   className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0"
-                  style={{ background: `${C.brand}18`, border: `1px solid ${"var(--border)"}` }}
+                  style={{
+                    background: `${C.brand}18`,
+                    border: `1px solid ${"var(--border)"}`,
+                  }}
                 >
                   <f.icon size={14} style={{ color: C.brand }} />
                 </div>
@@ -429,27 +530,53 @@ export const Login = () => {
           animate={{ y: 0, opacity: 1 }}
           transition={{ delay: 0.95 }}
           className="relative z-10 p-5 rounded-2xl border"
-          style={{ background: "var(--surface2)", borderColor: "var(--border)" }}
+          style={{
+            background: "var(--surface2)",
+            borderColor: "var(--border)",
+          }}
         >
-          <span className="text-3xl font-bold leading-none" style={{ color: `${C.brand}44` }}>"</span>
-          <p className="text-[14px] leading-relaxed -mt-1 mb-4" style={{ color: "var(--text-muted)" }}>
+          <span
+            className="text-3xl font-bold leading-none"
+            style={{ color: `${C.brand}44` }}
+          >
+            "
+          </span>
+          <p
+            className="text-[14px] leading-relaxed -mt-1 mb-4"
+            style={{ color: "var(--text-muted)" }}
+          >
             SkillHub's project-based approach helped me land my dream job at a
             Fortune 500 company. The mentorship was invaluable.
           </p>
           <div className="flex items-center gap-3">
             <div
               className="w-9 h-9 rounded-full flex items-center justify-center text-white text-[12px] font-bold flex-shrink-0"
-              style={{ background: `linear-gradient(135deg, #6366F1, #818CF8)` }}
+              style={{
+                background: `linear-gradient(135deg, #6366F1, #818CF8)`,
+              }}
             >
               SM
             </div>
             <div>
-              <p className="text-[13px] font-semibold" style={{ color: "var(--text)" }}>Sarah Miller</p>
-              <p className="text-[12px]" style={{ color: "var(--text-muted)" }}>Senior Developer at Microsoft</p>
+              <p
+                className="text-[13px] font-semibold"
+                style={{ color: "var(--text)" }}
+              >
+                Sarah Miller
+              </p>
+              <p className="text-[12px]" style={{ color: "var(--text-muted)" }}>
+                Senior Developer at Microsoft
+              </p>
             </div>
             <div className="ml-auto flex gap-0.5">
               {[...Array(5)].map((_, i) => (
-                <span key={i} className="text-[12px]" style={{ color: C.accent }}>★</span>
+                <span
+                  key={i}
+                  className="text-[12px]"
+                  style={{ color: C.accent }}
+                >
+                  ★
+                </span>
               ))}
             </div>
           </div>
@@ -469,11 +596,16 @@ export const Login = () => {
             <Link to="/" className="inline-flex items-center gap-2.5">
               <div
                 className="w-10 h-10 rounded-xl flex items-center justify-center"
-                style={{ background: `linear-gradient(135deg, ${C.brand}, ${C.brandLight})` }}
+                style={{
+                  background: `linear-gradient(135deg, ${C.brand}, ${C.brandLight})`,
+                }}
               >
                 <Code className="w-5 h-5 text-white" />
               </div>
-              <span className="text-xl font-bold" style={{ fontFamily: "'Fraunces', serif" }}>
+              <span
+                className="text-xl font-bold"
+                style={{ fontFamily: "'Fraunces', serif" }}
+              >
                 SkillHub
               </span>
             </Link>
@@ -505,7 +637,10 @@ export const Login = () => {
               </div>
               <h2
                 className="text-[28px] font-bold mb-1"
-                style={{ fontFamily: "'Fraunces', serif", color: "var(--text)" }}
+                style={{
+                  fontFamily: "'Fraunces', serif",
+                  color: "var(--text)",
+                }}
               >
                 Welcome back
               </h2>
@@ -523,12 +658,18 @@ export const Login = () => {
             {/* Divider */}
             <motion.div variants={itemVariants} className="relative mb-6">
               <div className="absolute inset-0 flex items-center">
-                <div className="w-full border-t" style={{ borderColor: "var(--border)" }} />
+                <div
+                  className="w-full border-t"
+                  style={{ borderColor: "var(--border)" }}
+                />
               </div>
               <div className="relative flex justify-center">
                 <span
                   className="px-3 text-[12px] font-medium uppercase tracking-wider"
-                  style={{ background: "var(--surface)", color: "var(--text-muted)" }}
+                  style={{
+                    background: "var(--surface)",
+                    color: "var(--text-muted)",
+                  }}
                 >
                   Or continue with email
                 </span>
@@ -577,10 +718,14 @@ export const Login = () => {
                     className="relative w-4 h-4 rounded flex items-center justify-center border transition-all"
                     style={{
                       background: form.rememberMe ? C.brand : "transparent",
-                      borderColor: form.rememberMe ? C.brand : "var(--text-muted)",
+                      borderColor: form.rememberMe
+                        ? C.brand
+                        : "var(--text-muted)",
                     }}
                   >
-                    {form.rememberMe && <CheckCircle2 size={10} className="text-white" />}
+                    {form.rememberMe && (
+                      <CheckCircle2 size={10} className="text-white" />
+                    )}
                     <input
                       type="checkbox"
                       name="rememberMe"
@@ -595,7 +740,9 @@ export const Login = () => {
                   to="/forgot-password"
                   className="font-semibold transition-colors"
                   style={{ color: C.brand }}
-                  onMouseEnter={(e) => (e.currentTarget.style.color = C.brandLight)}
+                  onMouseEnter={(e) =>
+                    (e.currentTarget.style.color = C.brandLight)
+                  }
                   onMouseLeave={(e) => (e.currentTarget.style.color = C.brand)}
                 >
                   Forgot password?
@@ -669,7 +816,9 @@ export const Login = () => {
                 to="/signup"
                 className="font-semibold inline-flex items-center gap-1 group transition-colors"
                 style={{ color: C.brand }}
-                onMouseEnter={(e) => (e.currentTarget.style.color = C.brandLight)}
+                onMouseEnter={(e) =>
+                  (e.currentTarget.style.color = C.brandLight)
+                }
                 onMouseLeave={(e) => (e.currentTarget.style.color = C.brand)}
               >
                 Create account
@@ -689,7 +838,9 @@ export const Login = () => {
                 className="transition-colors"
                 style={{ color: "var(--text-muted)" }}
                 onMouseEnter={(e) => (e.target.style.color = "var(--text)")}
-                onMouseLeave={(e) => (e.target.style.color = "var(--text-muted)")}
+                onMouseLeave={(e) =>
+                  (e.target.style.color = "var(--text-muted)")
+                }
               >
                 Privacy Policy
               </a>{" "}
@@ -699,7 +850,9 @@ export const Login = () => {
                 className="transition-colors"
                 style={{ color: "var(--text-muted)" }}
                 onMouseEnter={(e) => (e.target.style.color = "var(--text)")}
-                onMouseLeave={(e) => (e.target.style.color = "var(--text-muted)")}
+                onMouseLeave={(e) =>
+                  (e.target.style.color = "var(--text-muted)")
+                }
               >
                 Terms of Service
               </a>
@@ -712,8 +865,12 @@ export const Login = () => {
               to="/"
               className="inline-flex items-center gap-2 text-[13px] transition-colors"
               style={{ color: "var(--text-muted)" }}
-              onMouseEnter={(e) => (e.currentTarget.style.color = "var(--text)")}
-              onMouseLeave={(e) => (e.currentTarget.style.color = "var(--text-muted)")}
+              onMouseEnter={(e) =>
+                (e.currentTarget.style.color = "var(--text)")
+              }
+              onMouseLeave={(e) =>
+                (e.currentTarget.style.color = "var(--text-muted)")
+              }
             >
               <ChevronLeft className="w-4 h-4" />
               Back to home
