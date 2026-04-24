@@ -1,7 +1,8 @@
-import React from 'react'
-
+import React from "react";
+import { useSelector } from "react-redux";
 export const GlobalLoader = () => {
-  return (
-    <div>Loader Mounted</div>
-  )
-}
+  const state = useSelector((state) => state);
+
+  console.log("Redux state:", state);
+  return <div>Loader Mounted</div>;
+};
