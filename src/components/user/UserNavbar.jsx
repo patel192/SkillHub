@@ -3,6 +3,8 @@
 // ==========================================
 
 import React, { useEffect, useState, useRef } from "react";
+import { logout } from "../../redux/features/auth/authSlice";
+import { useDispatch } from "react-redux";
 import {
   Menu,
   Bell,
@@ -15,7 +17,7 @@ import {
   Code,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Link, useNavigate, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { useAuth } from "../../context/AuthContext";
 // ─────────────────────────────────────────
@@ -45,9 +47,9 @@ const ROUTE_LABELS = {
 };
 
 export const UserNavbar = ({ toggleSidebar, isSidebarOpen, isMobile }) => {
-  const navigate = useNavigate();
+  const dispatch = useDispatch();
   const location = useLocation();
-
+  const navigate = useNavigate();
   const [time, setTime] = useState(new Date());
   const [notifOpen, setNotifOpen] = useState(false);
   const [dropdownOpen, setDropdownOpen] = useState(false);
@@ -60,12 +62,14 @@ export const UserNavbar = ({ toggleSidebar, isSidebarOpen, isMobile }) => {
 
   const notifRef = useRef(null);
   const dropdownRef = useRef(null);
-  const { userId, token, user, logout } = useAuth();
-  
+  const { userId, token, user } = useAuth();
+
   // Dynamic page title logic
   const getPageTitle = () => {
-    if (location.pathname.startsWith("/user/view-profile/")) return "User Profile";
-    if (location.pathname.startsWith("/user/community/"))   return "Community Details";
+    if (location.pathname.startsWith("/user/view-profile/"))
+      return "User Profile";
+    if (location.pathname.startsWith("/user/community/"))
+      return "Community Details";
     return ROUTE_LABELS[location.pathname] || "SkillHub";
   };
   const pageTitle = getPageTitle();
@@ -95,7 +99,12 @@ export const UserNavbar = ({ toggleSidebar, isSidebarOpen, isMobile }) => {
       .get(`/user/${userId}`, { headers: { Authorization: `Bearer ${token}` } })
       .then((res) => {
         setAvatar(res.data?.data?.avatar || res.data?.avatar);
-        setUserName(res.data?.data?.fullname || res.data?.fullname || user?.fullname || "User");
+        setUserName(
+          res.data?.data?.fullname ||
+            res.data?.fullname ||
+            user?.fullname ||
+            "User",
+        );
       })
       .catch(() => setUserName(user?.fullname || "User"));
   }, [userId, token, user]);
@@ -130,7 +139,9 @@ export const UserNavbar = ({ toggleSidebar, isSidebarOpen, isMobile }) => {
   };
 
   const handleLogout = () => {
-    logout();
+    dispatch(logout());
+    localStorage.removeItem("persist:root");
+    navigate("/login");
   };
 
   const formattedTime = time.toLocaleTimeString([], {
