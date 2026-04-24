@@ -184,7 +184,7 @@ const StatCard = ({ icon: Icon, label, value, subtext, trend, delay = 0 }) => (
 // ==========================================
 
 export const UserDashboard = () => {
-  const { userId, token,loading:authLoading } = useAuth();
+  const { userId, token } = useAuth();
   console.log("User ID from AuthContext:", userId);
   const navigate = useNavigate();
   const [userName, setUserName] = useState("");
@@ -203,7 +203,6 @@ export const UserDashboard = () => {
 
   // Fetch all dashboard data
   useEffect(() => {
-    if(authLoading) return;
     if(!userId || !token) return;
     const fetchData = async () => {
       try {
@@ -293,7 +292,7 @@ export const UserDashboard = () => {
     };
 
     fetchData();
-  }, [userId, token,authLoading]);
+  }, [userId, token]);
 
   const formatTime = (minutes) => {
     const hours = Math.floor(minutes / 60);

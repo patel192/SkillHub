@@ -1,5 +1,6 @@
 import { configureStore } from "@reduxjs/toolkit";
 import authReducer from "./features/auth/authSlice";
+import uiReducer from "./features/ui/uiSlice"
 import { persistStore,persistReducer } from "redux-persist";
 import storage from "redux-persist/lib/storage";
 const persistConfig = {
@@ -14,6 +15,7 @@ const persistedAuthReducer = persistReducer(
 export const store = configureStore({
   reducer:{
     auth:persistedAuthReducer,
+    ui:uiReducer,
   }
 });
 

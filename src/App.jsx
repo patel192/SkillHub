@@ -38,10 +38,11 @@ import { AddCourse } from "./components/admin/course/AddCourse";
 import { HelpSupport } from "./components/user/help/HelpSupport";
 import { PublicProfile } from "./components/user/PublicProfile";
 import { ProtectedRoute } from "./routes/ProtectedRoute";
-
+import { GlobalLoader } from "./components/common/GlobalLoader";
 function App() {
   return (
     <>
+    <GlobalLoader/>
       <Routes>
         <Route path="/" element={<PublicLayout />}></Route>
         <Route path="signup" element={<SignUp />}></Route>
