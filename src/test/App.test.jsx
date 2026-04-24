@@ -1,20 +1,17 @@
 import { render } from "@testing-library/react";
-import { describe, it, expect, vi } from "vitest";
-import { MemoryRouter } from "react-router-dom";
+import { Provider } from "react-redux";
+import { BrowserRouter } from "react-router-dom";
+import { store } from "../redux/store";
 import App from "../App";
 
-vi.mock("@lottiefiles/react-lottie-player", () => ({
-  Player: () => <div data-testid="lottie-player" />,
-}));
-
 describe("App Component", () => {
-  it("renders without crashing", () => {
+  test("renders without crashing", () => {
     render(
-      <MemoryRouter>
-        <App />
-      </MemoryRouter>
+      <Provider store={store}>
+        <BrowserRouter>
+          <App />
+        </BrowserRouter>
+      </Provider>
     );
-
-    expect(document.body).toBeTruthy();
   });
 });
