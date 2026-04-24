@@ -1,6 +1,6 @@
 import axios from "axios";
 import {logout} from "../redux/features/auth/authSlice";
-import store from "../redux/store";
+import {store} from "../redux/store";
 // Create axios instance with base URL
 const apiClient = axios.create({
   baseURL: "https://skillhub-backend-gs3t.onrender.com",
