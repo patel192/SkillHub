@@ -185,8 +185,8 @@ const StatCard = ({ icon: Icon, label, value, subtext, trend, delay = 0 }) => (
 // ==========================================
 
 export const UserDashboard = () => {
-  const { userId, token } = useSelector((state) => state.auth);
-  console.log("User ID from AuthContext:", userId);
+  const { userId, token, isAuthenticated } = useSelector((state) => state.auth);
+  console.log("User ID from AuthContext:", userId, "Authenticated:", isAuthenticated, "Token:", token);
   const navigate = useNavigate();
   const [userName, setUserName] = useState("");
   const [dashboard, setDashboard] = useState(null);
@@ -204,7 +204,15 @@ export const UserDashboard = () => {
 
   // Fetch all dashboard data
   useEffect(() => {
-    if(!userId || !token) return;
+    // If not authenticated and no token, skip (not logged in)
+    if (!isAuthenticated && (!userId || !token)) {
+      setLoading(false);
+      return;
+    }
+    // Still rehydrating - wait for auth state
+    if (!userId || !token) {
+      return;
+    }
     const fetchData = async () => {
       try {
         setLoading(true);
@@ -277,23 +285,30 @@ export const UserDashboard = () => {
       } catch (err) {
         console.error("Dashboard loading error:", err);
         // Set some default state to avoid infinite loading
-        setDashboard({
-          coursesCount: 0,
-          certificatesCount: 0,
-          challenges: 0,
-          totalMinutes: 0,
-          recentActivity: [],
-          recommended: [],
-          topCourse: null,
-          weeklyGoal: 0,
-        });
-      } finally {
+          setDashboard({
+            coursesCount: 0,
+            certificatesCount: 0,
+            challenges: 0,
+            totalMinutes: 0,
+            recentActivity: [],
+            recommended: [],
+            topCourse: null,
+            weeklyGoal: 0,
+          });
+        } finally {
+          setLoading(false);
+        }
+      };
+
+      fetchData();
+    }, [userId, token, isAuthenticated]);
+
+    // If we're not authenticated anymore, stop loading
+    useEffect(() => {
+      if (!isAuthenticated && (!userId || !token)) {
         setLoading(false);
       }
-    };
-
-    fetchData();
-  }, [userId, token]);
+    }, [isAuthenticated, userId, token]);
 
   const formatTime = (minutes) => {
     const hours = Math.floor(minutes / 60);

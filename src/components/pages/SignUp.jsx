@@ -265,11 +265,10 @@ const FEATURES = [
 // MAIN COMPONENT
 // ─────────────────────────────────────────
 export const SignUp = () => {
-  const navigate  = useNavigate();
-  const dispatch  = useDispatch();
-  const { isAuthenticated } = useSelector((state) => state.auth);
-  const controls  = useAnimation();
-  const formRef   = useRef(null);
+  const navigate = useNavigate();
+  const { token, userId } = useSelector((state) => state.auth);
+  const controls = useAnimation();
+  const formRef = useRef(null);
 
   const [form, setForm] = useState({
     fullname: "", email: "", password: "",
