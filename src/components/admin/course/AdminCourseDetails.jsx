@@ -1,3 +1,4 @@
+import { useSelector } from "react-redux";
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import apiClient from "../../../api/axiosConfig";
@@ -8,7 +9,7 @@ import {
   Trash2, MessageSquare, BookOpen, Layers,Zap
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
-import { useAuth } from "../../../context/AuthContext";
+
 import toast from "react-hot-toast";
 
 const C = {
@@ -23,7 +24,7 @@ const C = {
 };
 
 export const AdminCourseDetails = () => {
-  const { token, loading: authLoading } = useAuth();
+  const { token, loading: authLoading } = useSelector((state) => state.auth);
   const { id } = useParams();
   const navigate = useNavigate();
 

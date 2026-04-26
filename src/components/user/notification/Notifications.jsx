@@ -1,3 +1,4 @@
+import { useSelector } from "react-redux";
 import React, { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import apiClient from "../../../api/axiosConfig";
@@ -16,7 +17,7 @@ import {
   Zap,
   Clock,
 } from "lucide-react";
-import { useAuth } from "../../../context/AuthContext";
+
 // ==========================================
 // DESIGN TOKENS (Matching Dashboard Theme)
 // ==========================================
@@ -356,7 +357,7 @@ export const Notifications = () => {
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState("ALL"); // ALL, UNREAD, READ
   
-  const {userId} = useAuth();
+  const {userId} = useSelector((state) => state.auth);
 
   const fetchNotifications = async () => {
     try {

@@ -1,3 +1,5 @@
+import { useSelector, useDispatch } from "react-redux";
+import { fetchAllCommunities } from "../../../redux/features/community/communitySlice";
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import apiClient from "../../../api/axiosConfig";
@@ -14,7 +16,7 @@ import {
   MessageCircle,
   Sparkles
 } from "lucide-react";
-import { useAuth } from "../../../context/AuthContext";
+
 // ==========================================
 // DESIGN TOKENS (Matching Dashboard Theme)
 // ==========================================
@@ -201,7 +203,7 @@ export const Community = ({ basePath }) => {
   const [searchQuery, setSearchQuery] = useState("");
   const [loading, setLoading] = useState(true);
   const [activeFilter, setActiveFilter] = useState("all");
-  const {token} = useAuth();
+  const {token} = useSelector((state) => state.auth);
   const navigate = useNavigate();
 
   useEffect(() => {

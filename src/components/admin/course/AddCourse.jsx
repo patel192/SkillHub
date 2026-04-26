@@ -1,6 +1,7 @@
+import { useSelector } from "react-redux";
 import React, { useState } from "react";
 import apiClient from "../../../api/axiosConfig";
-import { useAuth } from "../../../context/AuthContext";
+
 import { motion, AnimatePresence } from "framer-motion";
 import { 
   ArrowLeft, Save, Image as ImageIcon, Layout, 
@@ -19,7 +20,7 @@ const C = {
 };
 
 export const AddCourse = () => {
-  const { token, loading: authLoading } = useAuth();
+  const { token, loading: authLoading } = useSelector((state) => state.auth);
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   

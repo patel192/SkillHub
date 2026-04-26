@@ -11,9 +11,9 @@ import {
   Settings,
 } from "lucide-react";
 import apiClient from "../../api/axiosConfig";
-import { useAuth } from "../../context/AuthContext";
+
 import { useNavigate } from "react-router-dom";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { logout } from "../../redux/features/auth/authSlice";
 const C = {
   brand: "var(--brand)",
@@ -25,7 +25,7 @@ const C = {
 export const AdminNavbar = ({ toggleSidebar, isSidebarOpen, isMobile }) => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
-  const { user, userId, token, loading: authLoading } = useAuth();
+  const { user, userId, token, loading: authLoading } = useSelector((state) => state.auth);
   const handleLogout = () => {
     dispatch(logout());
     localStorage.removeItem("persist:root");

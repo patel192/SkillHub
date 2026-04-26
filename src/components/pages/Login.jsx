@@ -1,3 +1,4 @@
+import { useDispatch, useSelector } from "react-redux";
 import React, { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence, useAnimation } from "framer-motion";
 import { Link, useNavigate } from "react-router-dom";
@@ -20,9 +21,9 @@ import {
   TrendingUp,
   Users,
 } from "lucide-react";
-import { useAuth } from "../../context/AuthContext";
-import { useDispatch } from "react-redux";
-import { useSelector } from "react-redux";
+
+
+
 import { loginSuccess } from "../../redux/features/auth/authSlice";
 // ─────────────────────────────────────────
 // DESIGN TOKENS — identical to PublicLayout & SignUp
@@ -233,7 +234,7 @@ const FEATURES = [
 // MAIN COMPONENT
 // ─────────────────────────────────────────
 export const Login = () => {
-  const { login } = useAuth();
+  const { login } = useSelector((state) => state.auth);
   const dispatch = useDispatch();
   const authState = useSelector((state) => state.auth);
   const navigate = useNavigate();

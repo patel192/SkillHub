@@ -1,3 +1,4 @@
+import { useSelector } from "react-redux";
 import React, { useEffect, useState } from "react";
 import apiClient from "../../../api/axiosConfig";
 import { motion, AnimatePresence } from "framer-motion";
@@ -7,7 +8,7 @@ import {
   Filter, ArrowLeft, MoreVertical, Flag
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { useAuth } from "../../../context/AuthContext";
+
 import toast from "react-hot-toast";
 
 const C = {
@@ -26,7 +27,7 @@ export const Reports = () => {
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const navigate = useNavigate();
-  const { token, authLoading } = useAuth();
+  const { token, authLoading } = useSelector((state) => state.auth);
 
   useEffect(() => {
     if (!token || authLoading) return;

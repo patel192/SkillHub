@@ -1,7 +1,8 @@
+import { useSelector } from "react-redux";
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import apiClient from "../../../api/axiosConfig";
-import { useAuth } from "../../../context/AuthContext";
+
 import { motion, AnimatePresence } from "framer-motion";
 import {
   ArrowLeft, CheckCircle, Trash2, AlertTriangle, 
@@ -23,7 +24,7 @@ const C = {
 };
 
 export const ReportsDetail = () => {
-  const { token, authLoading } = useAuth();
+  const { token, authLoading } = useSelector((state) => state.auth);
   const { id } = useParams();
   const navigate = useNavigate();
 

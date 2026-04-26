@@ -1,3 +1,5 @@
+import { useSelector, useDispatch } from "react-redux";
+import { fetchUserProfile } from "../../redux/features/users/usersSlice";
 import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import apiClient from "../../api/axiosConfig"
@@ -18,7 +20,7 @@ import {
   CheckCircle2,
   X
 } from "lucide-react";
-import { useAuth } from "../../context/AuthContext";
+
 // ==========================================
 // DESIGN TOKENS (Matching Dashboard Theme)
 // ==========================================
@@ -190,10 +192,12 @@ const FormField = ({ label, name, value, onChange, disabled, type = "text", mult
 // ==========================================
 
 export const Profile = () => {
-  const {userId} = useAuth();
+  const {userId} = useSelector((state) => state.auth);
+  const { profile, profileLoading } = useSelector((state) => state.users);
+  const dispatch = useDispatch();
   
   const [userData, setUserData] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const loading = profileLoading || (!userData && !editMode);
   const [editMode, setEditMode] = useState(false);
   const [saving, setSaving] = useState(false);
   const [avatarFile, setAvatarFile] = useState(null);

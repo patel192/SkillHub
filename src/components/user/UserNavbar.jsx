@@ -4,7 +4,7 @@
 
 import React, { useEffect, useState, useRef } from "react";
 import { logout } from "../../redux/features/auth/authSlice";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import {
   Menu,
   Bell,
@@ -19,7 +19,7 @@ import {
 import { motion, AnimatePresence } from "framer-motion";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import axios from "axios";
-import { useAuth } from "../../context/AuthContext";
+
 // ─────────────────────────────────────────
 // DESIGN TOKENS
 // ─────────────────────────────────────────
@@ -62,7 +62,7 @@ export const UserNavbar = ({ toggleSidebar, isSidebarOpen, isMobile }) => {
 
   const notifRef = useRef(null);
   const dropdownRef = useRef(null);
-  const { userId, token, user } = useAuth();
+  const { userId, token, user } = useSelector((state) => state.auth);
 
   // Dynamic page title logic
   const getPageTitle = () => {

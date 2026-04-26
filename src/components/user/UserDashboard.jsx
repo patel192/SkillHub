@@ -1,3 +1,4 @@
+import { useSelector } from "react-redux";
 import React, { useEffect, useState, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import apiClient from "../../api/axiosConfig";
@@ -22,7 +23,7 @@ import {
   Code,
   MoreHorizontal,
 } from "lucide-react";
-import { useAuth } from "../../context/AuthContext";
+
 // ==========================================
 // DESIGN TOKENS (Matching Your Theme)
 // ==========================================
@@ -184,7 +185,7 @@ const StatCard = ({ icon: Icon, label, value, subtext, trend, delay = 0 }) => (
 // ==========================================
 
 export const UserDashboard = () => {
-  const { userId, token } = useAuth();
+  const { userId, token } = useSelector((state) => state.auth);
   console.log("User ID from AuthContext:", userId);
   const navigate = useNavigate();
   const [userName, setUserName] = useState("");

@@ -1,9 +1,10 @@
+import { useSelector } from "react-redux";
 import React, { useState, useEffect } from "react";
 import { Crown, Award, Trophy, Medal, Target, Zap, Flame, Star, TrendingUp,Users } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import apiClient from "../../../api/axiosConfig";
 import { useMemo } from "react";
-import { useAuth } from "../../../context/AuthContext";
+
 // ==========================================
 // DESIGN TOKENS (Matching Dashboard Theme)
 // ==========================================
@@ -129,7 +130,7 @@ export const LeaderBoard = () => {
   const [loading, setLoading] = useState(true);
   const [userRank, setUserRank] = useState(null);
 
-  const {userId} = useAuth();
+  const {userId} = useSelector((state) => state.auth);
 
   // Fetch users
   useEffect(() => {

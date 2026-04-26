@@ -1,12 +1,13 @@
+import { useSelector } from "react-redux";
 import React, { useEffect, useState, useCallback } from "react";
 import { AdminSidebar } from "./AdminSidebar";
 import { AdminNavbar } from "./AdminNavbar";
 import { Outlet, useLocation, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { useAuth } from "../../context/AuthContext";
+
 
 export const AdminLayout = () => {
-  const { user, role, loading: authLoading } = useAuth();
+  const { user, role, loading: authLoading } = useSelector((state) => state.auth);
   const navigate = useNavigate();
   const location = useLocation();
 

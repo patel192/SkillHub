@@ -4,20 +4,14 @@ import App from "./App.jsx";
 import "./theme.css";
 import { store, persistor } from "./redux/store.js";
 import { BrowserRouter } from "react-router-dom";
-import { AuthProvider } from "./context/AuthContext.jsx";
-import { SettingsProvider } from "./context/SettingsContext.jsx";
 import { Provider } from "react-redux";
 import { PersistGate } from "redux-persist/integration/react";
 createRoot(document.getElementById("root")).render(
   <Provider store={store}>
     <PersistGate loading={null} persistor={persistor}>
-      <AuthProvider>
-        <SettingsProvider>
-          <BrowserRouter>
-            <App />
-          </BrowserRouter>
-        </SettingsProvider>
-      </AuthProvider>
+      <BrowserRouter>
+        <App />
+      </BrowserRouter>
     </PersistGate>
   </Provider>
 );

@@ -1,3 +1,4 @@
+import { useSelector } from "react-redux";
 import React, { useEffect, useState, useRef, useCallback } from "react";
 import apiClient from "../../../api/axiosConfig";
 import { motion, AnimatePresence } from "framer-motion";
@@ -22,7 +23,7 @@ import {
   Zap,
   Loader2
 } from "lucide-react";
-import { useAuth } from "../../../context/AuthContext";
+
 import toast from "react-hot-toast";
 
 // ==========================================
@@ -41,7 +42,7 @@ const C = {
 let socket = null;
 
 export const Messages = () => {
-  const { token, userId: currentUserId } = useAuth();
+  const { token, userId: currentUserId } = useSelector((state) => state.auth);
 
   // Connection state
   const [isConnected, setIsConnected] = useState(false);

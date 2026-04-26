@@ -1,3 +1,4 @@
+import { useSelector } from "react-redux";
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
@@ -7,7 +8,7 @@ import {
   PlusCircle, Activity, Globe, Info
 } from "lucide-react";
 import apiClient from "../../../api/axiosConfig";
-import { useAuth } from "../../../context/AuthContext";
+
 import toast from "react-hot-toast";
 
 const C = {
@@ -22,7 +23,7 @@ const C = {
 };
 
 export const Resources = () => {
-  const { token, loading: authLoading } = useAuth();
+  const { token, loading: authLoading } = useSelector((state) => state.auth);
   const [courses, setCourses] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [loading, setLoading] = useState(true);

@@ -1,10 +1,8 @@
 import axios from "axios";
 import { logout } from "../redux/features/auth/authSlice";
 import { store } from "../redux/store";
-import {
-  startLoading,
-  stopLoading,
-} from "../redux/features/ui/uiSlice";
+import { startLoading, stopLoading } from "../redux/features/ui/uiSlice";
+import { toast } from "react-hot-toast";
 
 const apiClient = axios.create({
   baseURL: "https://skillhub-backend-gs3t.onrender.com",
@@ -25,8 +23,7 @@ apiClient.interceptors.request.use(
     const token = localStorage.getItem("token");
 
     if (token) {
-      config.headers.Authorization =
-        `Bearer ${token}`;
+      config.headers.Authorization = `Bearer ${token}`;
     }
 
     return config;
@@ -35,7 +32,7 @@ apiClient.interceptors.request.use(
   (error) => {
     store.dispatch(stopLoading());
     return Promise.reject(error);
-  }
+  },
 );
 
 //
@@ -60,9 +57,11 @@ apiClient.interceptors.response.use(
 
       window.location.href = "/login";
     }
+    const message = error.response?.data?.message || "Something went wrong";
+    toast.error(message);
 
     return Promise.reject(error);
-  }
+  },
 );
 
 export default apiClient;

@@ -39,10 +39,12 @@ import { HelpSupport } from "./components/user/help/HelpSupport";
 import { PublicProfile } from "./components/user/PublicProfile";
 import { ProtectedRoute } from "./routes/ProtectedRoute";
 import { GlobalLoader } from "./components/common/GlobalLoader";
+import { AuthListener } from "./components/common/AuthListener";
 function App() {
   return (
     <>
     <GlobalLoader/>
+    <AuthListener/>
       <Routes>
         <Route path="/" element={<PublicLayout />}></Route>
         <Route path="signup" element={<SignUp />}></Route>

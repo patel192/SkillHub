@@ -1,7 +1,8 @@
+import { useSelector } from "react-redux";
 import React, { useEffect, useState, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import apiClient from "../../../api/axiosConfig";
-import { useAuth } from "../../../context/AuthContext";
+
 import { motion, AnimatePresence } from "framer-motion";
 import toast from "react-hot-toast";
 import {
@@ -49,7 +50,7 @@ export const CourseLessons = ({ courseId: propCourseId }) => {
   const params = useParams();
   const navigate = useNavigate();
   const courseId = propCourseId || params.courseId;
-  const { token, loading: authLoading } = useAuth();
+  const { token, loading: authLoading } = useSelector((state) => state.auth);
 
   const [lessons, setLessons] = useState([]);
   const [selected, setSelected] = useState(null);

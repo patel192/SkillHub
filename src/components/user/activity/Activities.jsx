@@ -1,3 +1,4 @@
+import { useSelector } from "react-redux";
 import React, { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import apiClient from "../../../api/axiosConfig";
@@ -14,7 +15,7 @@ import {
   MoreHorizontal,
   Trash2,
 } from "lucide-react";
-import { useAuth } from "../../../context/AuthContext";
+
 // ==========================================
 // DESIGN TOKENS (Matching Dashboard Theme)
 // ==========================================
@@ -308,7 +309,7 @@ export const Activities = () => {
   const [activities, setActivities] = useState([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState("ALL");
-  const {userId} = useAuth();
+  const {userId} = useSelector((state) => state.auth);
 
   const fetchActivities = async () => {
     try {

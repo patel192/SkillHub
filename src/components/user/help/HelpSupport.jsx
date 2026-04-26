@@ -1,3 +1,4 @@
+import { useSelector } from "react-redux";
 import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
@@ -18,7 +19,7 @@ import {
   Plus,
   Minus,
 } from "lucide-react";
-import { useSettings } from "../../../context/SettingsContext";
+
 
 // ─────────────────────────────────────────
 // DESIGN TOKENS
@@ -133,7 +134,7 @@ const AccordionItem = ({ question, answer, isOpen, onClick }) => (
 // ─────────────────────────────────────────
 
 export const HelpSupport = () => {
-  const { settings, updateSettings } = useSettings();
+  const { settings, updateSettings } = useSelector((state) => state.settings);
   const [searchQuery, setSearchQuery] = useState("");
   const [activeFaq, setActiveFaq] = useState(null);
 

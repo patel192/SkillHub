@@ -1,3 +1,5 @@
+import { useSelector, useDispatch } from "react-redux";
+import { fetchCommunityDetails, fetchCommunityPosts, joinCommunity, leaveCommunity } from "../../../redux/features/community/communitySlice";
 import React, { useState, useEffect, useCallback, useMemo } from "react";
 import { useParams, Link } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
@@ -26,7 +28,7 @@ import {
   Image as ImageIcon,
   Share2,
 } from "lucide-react";
-import { useAuth } from "../../../context/AuthContext";
+
 // ==========================================
 // DESIGN TOKENS
 // ==========================================
@@ -130,7 +132,7 @@ const useCommunity = (communityId) => {
 };
 
 const useMembership = (community, communityId, refreshCommunity) => {
-  const {userId} = useAuth();
+  const {userId} = useSelector((state) => state.auth);
 
   const isMember = useMemo(() => {
     if (!community?.members || !userId) return false;

@@ -1,3 +1,4 @@
+import { useSelector } from "react-redux";
 import React, { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence, useAnimation } from "framer-motion";
 import { Link, useNavigate } from "react-router-dom";
@@ -7,7 +8,7 @@ import {
   Shield, Zap, Mail, Lock, User, AlertCircle,
   Github, Chrome, ChevronLeft, Code,
 } from "lucide-react";
-import { useAuth } from "../../context/AuthContext";
+
 
 // ─────────────────────────────────────────
 // DESIGN TOKENS — matches PublicLayout
@@ -264,7 +265,7 @@ const FEATURES = [
 // MAIN COMPONENT
 // ─────────────────────────────────────────
 export const SignUp = () => {
-  const { login } = useAuth();
+  const { login } = useSelector((state) => state.auth);
   const navigate  = useNavigate();
   const controls  = useAnimation();
   const formRef   = useRef(null);

@@ -1,3 +1,4 @@
+import { useSelector } from "react-redux";
 import React, { useState } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
@@ -15,7 +16,7 @@ import {
   Settings,
   Bell
 } from "lucide-react";
-import { useAuth } from "../../context/AuthContext";
+
 
 const C = {
   brand: "var(--brand)",
@@ -38,7 +39,7 @@ const MENU_ITEMS = [
 export const AdminSidebar = ({ isOpen, toggle, isMobile }) => {
   const navigate = useNavigate();
   const location = useLocation();
-  const { logout } = useAuth();
+  const { logout } = useSelector((state) => state.auth);
 
   return (
     <>

@@ -1,3 +1,5 @@
+import { useSelector, useDispatch } from "react-redux";
+import { fetchAllUsers, toggleUserStatus, toggleUserRole } from "../../../redux/features/users/usersSlice";
 import React, { useEffect, useState } from "react";
 import apiClient from "../../../api/axiosConfig";
 import { useNavigate } from "react-router-dom";
@@ -8,7 +10,7 @@ import {
   Filter, ChevronRight, Activity, Zap, 
   MoreVertical, CheckCircle, XCircle 
 } from "lucide-react";
-import { useAuth } from "../../../context/AuthContext";
+
 import toast from "react-hot-toast";
 
 const C = {
@@ -23,7 +25,7 @@ const C = {
 };
 
 export const Users = () => {
-  const { token, loading: authLoading } = useAuth();
+  const { token, loading: authLoading } = useSelector((state) => state.auth);
   const navigate = useNavigate();
   const [users, setUsers] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");

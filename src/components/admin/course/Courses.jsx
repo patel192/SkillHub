@@ -1,3 +1,5 @@
+import { useSelector, useDispatch } from "react-redux";
+import { fetchAllCourses, deleteCourse as deleteCourseAction, toggleCoursePublish } from "../../../redux/features/courses/coursesSlice";
 import React, { useEffect, useState } from "react";
 import apiClient from "../../../api/axiosConfig";
 import { useNavigate } from "react-router-dom";
@@ -7,7 +9,7 @@ import {
   Globe, Zap, ChevronRight, AlertCircle, Clock
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
-import { useAuth } from "../../../context/AuthContext";
+
 import toast from "react-hot-toast";
 
 const C = {
@@ -32,7 +34,7 @@ export const Courses = () => {
   const [filterCategory, setFilterCategory] = useState("All");
   const [filterStatus, setFilterStatus] = useState("All");
   
-  const { token, loading: authLoading } = useAuth();
+  const { token, loading: authLoading } = useSelector((state) => state.auth);
   const navigate = useNavigate();
 
   useEffect(() => {

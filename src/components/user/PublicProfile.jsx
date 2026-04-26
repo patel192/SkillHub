@@ -1,3 +1,5 @@
+import { useSelector, useDispatch } from "react-redux";
+import { fetchUserProfile } from "../../redux/features/users/usersSlice";
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
@@ -20,7 +22,7 @@ import {
   Lock,
   Shield
 } from "lucide-react";
-import { useAuth } from "../../context/AuthContext";
+
 import toast from "react-hot-toast";
 
 // ==========================================
@@ -57,11 +59,11 @@ const ProfileSkeleton = () => (
 // ==========================================
 export const PublicProfile = () => {
   const { id: userId } = useParams();
-  const { userId: currentUserId } = useAuth();
+  const { userId: currentUserId } = useSelector((state) => state.auth);
   const navigate = useNavigate();
   
-  const [userData, setUserData] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const { profile: userData, profileLoading: loading } = useSelector((state) => state.users);
+  const dispatch = useDispatch();
   const [activeTab, setActiveTab] = useState("profile");
   const [friendStatus, setFriendStatus] = useState("none"); // none, pending_out, pending_in, friends
   const [actionLoading, setActionLoading] = useState(false);
@@ -110,11 +112,9 @@ export const PublicProfile = () => {
     const fetchUser = async () => {
       if (!userId) return;
       try {
-        setLoading(true);
+        
         // Fetch User Data
-        const res = await apiClient.get(`/user/${userId}`);
-        const data = res.data?.data || res.data;
-        setUserData(data);
+        await dispatch(fetchUserProfile(userId)).unwrap();
 
         // Fetch User Settings for Privacy
         try {
@@ -134,7 +134,7 @@ export const PublicProfile = () => {
       } catch (err) {
         console.error("Public Profile fetch error:", err);
       } finally {
-        setLoading(false);
+        
       }
     };
     

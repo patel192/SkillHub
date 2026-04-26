@@ -1,7 +1,8 @@
+import { useSelector } from "react-redux";
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import apiClient from "../../../api/axiosConfig";
-import { useAuth } from "../../../context/AuthContext";
+
 import { motion, AnimatePresence } from "framer-motion";
 import { 
   ArrowLeft, Save, Image as ImageIcon, Layout, 
@@ -21,7 +22,7 @@ const C = {
 export const EditCourse = () => {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { token, loading: authLoading } = useAuth();
+  const { token, loading: authLoading } = useSelector((state) => state.auth);
   
   const [formData, setFormData] = useState({
     title: "",

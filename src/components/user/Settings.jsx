@@ -1,3 +1,5 @@
+import { useSelector, useDispatch } from "react-redux";
+import { updateSettings } from "../../redux/features/settings/settingsSlice";
 import React, { useState, useEffect } from "react";
 import {
   UserCog,
@@ -25,8 +27,8 @@ import {
   KeyRound
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
-import { useSettings } from "../../context/SettingsContext";
-import { useAuth } from "../../context/AuthContext";
+
+
 import apiClient from "../../api/axiosConfig";
 
 // ==========================================
@@ -187,8 +189,9 @@ const SaveButton = ({ onClick, loading, children, danger = false }) => (
 // ==========================================
 
 export const Settings = () => {
-  const { userId } = useAuth();
-  const { settings, loading: settingsLoading, updateSettings, refreshSettings } = useSettings();
+  const { userId } = useSelector((state) => state.auth);
+  const { settings, loading: settingsLoading } = useSelector((state) => state.settings);
+  const dispatch = useDispatch();
   
   const [activeTab, setActiveTab] = useState("account");
   const [saving, setSaving] = useState(false);
@@ -289,11 +292,7 @@ export const Settings = () => {
   const handlePrivacySave = async () => {
     setSaving(true);
     try {
-      await updateSettings({
-        profilePublic: localSettings.profilePublic,
-        showActivity: localSettings.showActivity,
-        showProgress: localSettings.showProgress
-      });
+      await dispatch(updateSettings({ userId, newSettings: { profilePublic: localSettings.profilePublic, showActivity: localSettings.showActivity, showProgress: localSettings.showProgress } })).unwrap();
       showToast("Privacy settings saved");
     } catch (err) {
       showToast("Failed to save privacy settings", "error");
@@ -305,11 +304,7 @@ export const Settings = () => {
   const handleAppearanceSave = async () => {
     setSaving(true);
     try {
-      await updateSettings({
-        theme: localSettings.theme,
-        animationsEnabled: localSettings.animationsEnabled,
-        compactMode: localSettings.compactMode
-      });
+      await dispatch(updateSettings({ userId, newSettings: { theme: localSettings.theme, animationsEnabled: localSettings.animationsEnabled, compactMode: localSettings.compactMode } })).unwrap();
       showToast("Appearance preferences saved");
     } catch (err) {
       showToast("Failed to save appearance", "error");
@@ -321,13 +316,7 @@ export const Settings = () => {
   const handleNotificationsSave = async () => {
     setSaving(true);
     try {
-      await updateSettings({
-        emailNotifications: localSettings.emailNotifications,
-        pushNotifications: localSettings.pushNotifications,
-        courseUpdates: localSettings.courseUpdates,
-        achievementAlerts: localSettings.achievementAlerts,
-        marketingEmails: localSettings.marketingEmails
-      });
+      await dispatch(updateSettings({ userId, newSettings: { emailNotifications: localSettings.emailNotifications, pushNotifications: localSettings.pushNotifications, courseUpdates: localSettings.courseUpdates, achievementAlerts: localSettings.achievementAlerts, marketingEmails: localSettings.marketingEmails } })).unwrap();
       showToast("Notification preferences updated");
     } catch (err) {
       showToast("Failed to update notifications", "error");

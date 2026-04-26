@@ -1,6 +1,7 @@
+import { useSelector } from "react-redux";
 import React, { useEffect, useState } from "react";
 import apiClient from "../../../api/axiosConfig";
-import { useAuth } from "../../../context/AuthContext";
+
 import { Link, useParams, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import toast from "react-hot-toast";
@@ -25,7 +26,7 @@ import { X } from "lucide-react";
  */
 
 export const AdminCommunityDetails = () => {
-  const { token, userId, loading: authLoading } = useAuth();
+  const { token, userId, loading: authLoading } = useSelector((state) => state.auth);
   const { id } = useParams(); // community id
   const navigate = useNavigate();
 

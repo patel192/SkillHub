@@ -1,3 +1,4 @@
+import { useSelector } from "react-redux";
 // ==========================================
 // UserSidebar.jsx - Navigation Sidebar
 // ==========================================
@@ -10,7 +11,7 @@ import {
   LogOut, Users, HelpCircle, Code, Activity, Bell, Flag,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
-import { useAuth } from "../../context/AuthContext";
+
 
 // ─────────────────────────────────────────
 // DESIGN TOKENS
@@ -45,7 +46,7 @@ const MENU_ITEMS = [
 export const UserSidebar = ({ isOpen, toggle, isMobile }) => {
   const navigate = useNavigate();
   const location = useLocation();
-  const { logout } = useAuth();
+  const { logout } = useSelector((state) => state.auth);
 
   const handleLogout = () => { logout(); };
 

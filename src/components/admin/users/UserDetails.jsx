@@ -1,7 +1,9 @@
+import { useSelector, useDispatch } from "react-redux";
+import { fetchUserById, toggleUserStatus, toggleUserRole } from "../../../redux/features/users/usersSlice";
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import apiClient from "../../../api/axiosConfig";
-import { useAuth } from "../../../context/AuthContext";
+
 import { motion, AnimatePresence } from "framer-motion";
 import { 
   ArrowLeft, Edit, ShieldAlert, Trash2, 
@@ -24,24 +26,19 @@ const C = {
 };
 
 export const UserDetails = () => {
-  const { token, loading: authLoading } = useAuth();
+  const { token, loading: authLoading } = useSelector((state) => state.auth);
   const { id } = useParams();
   const navigate = useNavigate();
 
-  const [user, setUser] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const { currentUser: user, loading } = useSelector((state) => state.users);
+  const dispatch = useDispatch();
 
   const fetchUser = async () => {
     try {
-      setLoading(true);
-      const res = await apiClient.get(`/user/${id}`);
-      setUser(res.data.data);
+      await dispatch(fetchUserById(id)).unwrap();
     } catch (err) {
-      console.error("Failed to fetch user:", err);
       toast.error("Failed to sync user profile");
       navigate("/admin/users");
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -53,8 +50,7 @@ export const UserDetails = () => {
   const handleToggleStatus = async () => {
     const toastId = toast.loading(`${user.isActive ? 'Deactivating' : 'Restoring'} profile...`);
     try {
-      await apiClient.patch(`/user/${id}`, { isActive: !user.isActive });
-      setUser(prev => ({ ...prev, isActive: !prev.isActive }));
+      await dispatch(toggleUserStatus({ id, isActive: !user.isActive })).unwrap();
       toast.success(user.isActive ? "Access Restricted" : "Access Restored", { id: toastId });
     } catch (err) {
       toast.error("Status update failed", { id: toastId });
@@ -65,8 +61,7 @@ export const UserDetails = () => {
     const newRole = user.role === 'admin' ? 'user' : 'admin';
     const toastId = toast.loading(`Promoting to ${newRole}...`);
     try {
-      await apiClient.patch(`/user/${id}`, { role: newRole });
-      setUser(prev => ({ ...prev, role: newRole }));
+      await dispatch(toggleUserRole({ id, role: newRole })).unwrap();
       toast.success(`Role escalated to ${newRole}`, { id: toastId });
     } catch (err) {
       toast.error("Role update failed", { id: toastId });

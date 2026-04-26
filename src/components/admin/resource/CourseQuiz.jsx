@@ -1,8 +1,9 @@
+import { useSelector } from "react-redux";
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import apiClient from "../../../api/axiosConfig";
-import { useAuth } from "../../../context/AuthContext";
+
 import {
   Plus,
   CheckCircle,
@@ -39,7 +40,7 @@ const C = {
 };
 
 export const CourseQuiz = () => {
-  const { token, loading: authLoading } = useAuth();
+  const { token, loading: authLoading } = useSelector((state) => state.auth);
   const { courseId } = useParams();
   const navigate = useNavigate();
 

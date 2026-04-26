@@ -1,3 +1,4 @@
+import { useSelector } from "react-redux";
 import React, { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
@@ -12,7 +13,7 @@ import {
   CartesianGrid, Tooltip, ResponsiveContainer, AreaChart, Area,
   PieChart, Pie, Cell, BarChart, Bar
 } from "recharts";
-import { useAuth } from "../../context/AuthContext";
+
 import { useNavigate } from "react-router-dom";
 
 // ==========================================
@@ -36,7 +37,7 @@ const C = {
 const COLORS = [C.brand, C.accent, "#6366F1", "#EC4899", "#8B5CF6"];
 
 export const AdminDashboard = () => {
-  const { token, user, loading: authLoading } = useAuth();
+  const { token, user, loading: authLoading } = useSelector((state) => state.auth);
   const navigate = useNavigate();
 
   const [stats, setStats] = useState({});

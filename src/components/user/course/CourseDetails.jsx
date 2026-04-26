@@ -1,3 +1,5 @@
+import { useSelector, useDispatch } from "react-redux";
+import { fetchCourseById, enrollInCourse } from "../../../redux/features/courses/coursesSlice";
 import React, { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useParams, useNavigate } from "react-router-dom";
@@ -23,7 +25,7 @@ import {
   Calendar,
 } from "lucide-react";
 import { ReportModal } from "../report/ReportModal";
-import { useAuth } from "../../../context/AuthContext";
+
 // ==========================================
 // DESIGN TOKENS (Matching MyCourses Theme)
 // ==========================================
@@ -49,7 +51,8 @@ export const CourseDetails = () => {
   const [savingBookmark, setSavingBookmark] = useState(false);
   const [isBookmarked, setIsBookmarked] = useState(false);
 
-  const { token, userId, loading: authLoading } = useAuth();
+  const { token, userId, loading: authLoading } = useSelector((state) => state.auth);
+  const dispatch = useDispatch();
 
   useEffect(() => {
     let mounted = true;

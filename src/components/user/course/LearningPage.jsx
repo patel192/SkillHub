@@ -1,10 +1,11 @@
+import { useSelector } from "react-redux";
 import React, { useEffect, useState, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import { vscDarkPlus } from "react-syntax-highlighter/dist/esm/styles/prism";
 import { motion, AnimatePresence } from "framer-motion";
 import apiClient from "../../../api/axiosConfig";
-import { useAuth } from "../../../context/AuthContext";
+
 import {
   Clock,
   BookOpen,
@@ -38,7 +39,7 @@ const C = {
 export const LearningPage = () => {
   const { courseId } = useParams();
   const navigate = useNavigate();
-  const { userId } = useAuth();
+  const { userId } = useSelector((state) => state.auth);
   const canvasRef = useRef(null);
   const startTimeRef = useRef(null);
   const intervalRef = useRef(null);
