@@ -20,7 +20,8 @@ apiClient.interceptors.request.use(
   (config) => {
     store.dispatch(startLoading());
 
-    const token = localStorage.getItem("token");
+    const state = store.getState();
+    const token = state.auth.token || localStorage.getItem("token");
 
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;

@@ -51,7 +51,7 @@ export const AuthListener = () => {
       }, remainingTime);
       return () => clearTimeout(timer);
     } catch (err) {
-      console.log("Invalid Token");
+      console.log("Invalid Token", err);
       handleLogout();
     }
   }, [token, user, dispatch, handleLogout]);

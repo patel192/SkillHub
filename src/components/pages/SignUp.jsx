@@ -265,8 +265,9 @@ const FEATURES = [
 // MAIN COMPONENT
 // ─────────────────────────────────────────
 export const SignUp = () => {
-  const { login } = useSelector((state) => state.auth);
   const navigate  = useNavigate();
+  const dispatch  = useDispatch();
+  const { isAuthenticated } = useSelector((state) => state.auth);
   const controls  = useAnimation();
   const formRef   = useRef(null);
 
@@ -324,11 +325,11 @@ export const SignUp = () => {
         password: form.password.trim(),
       };
       const res = await apiClient.post("/user", signupForm);
-      const { user, token } = res.data;
-      
-      login(user, token);
-      
-      setSubmitted(true);
+       const { user, token } = res.data;
+        
+        dispatch(loginSuccess({ user, token, role: user.role }));
+        
+        setSubmitted(true);
       setCurrentStep(2);
       await new Promise((r) => setTimeout(r, 1100));
       navigate("/login");

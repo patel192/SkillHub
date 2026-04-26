@@ -146,10 +146,10 @@ const coursesSlice = createSlice({
         state.allCourses = state.allCourses.filter((c) => c._id !== action.payload);
       })
       
-      // enrollInCourse
-      .addCase(enrollInCourse.fulfilled, (state, action) => {
-        // Optimistically add to myCourses if needed or just re-fetch
-      })
+       // enrollInCourse
+       .addCase(enrollInCourse.fulfilled, (state) => {
+         // Optimistically add to myCourses if needed or just re-fetch
+       })
 
       // toggleCoursePublish
       .addCase(toggleCoursePublish.fulfilled, (state, action) => {

@@ -234,9 +234,8 @@ const FEATURES = [
 // MAIN COMPONENT
 // ─────────────────────────────────────────
 export const Login = () => {
-  const { login } = useSelector((state) => state.auth);
   const dispatch = useDispatch();
-  const authState = useSelector((state) => state.auth);
+  const { isAuthenticated, token, user, loading: authLoading, error: authError } = useSelector((state) => state.auth);
   const navigate = useNavigate();
   const controls = useAnimation();
   const formRef = useRef(null);
@@ -269,9 +268,6 @@ export const Login = () => {
     window.addEventListener("mousemove", onMove);
     return () => window.removeEventListener("mousemove", onMove);
   }, []);
-  useEffect(() => {
-    console.log("Redux Auth State:", authState);
-  }, [authState]);
   const validate = () => {
     const errs = {};
     if (!form.email.trim()) errs.email = "Required";
@@ -304,7 +300,6 @@ export const Login = () => {
       if (res.status === 200) {
         const { data, token } = res.data;
 
-        login(data, token);
         dispatch(
           loginSuccess({
             user: data,

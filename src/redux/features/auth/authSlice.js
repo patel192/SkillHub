@@ -45,4 +45,6 @@ export const {
     logout
 } = authSlice.actions;
 
+export const login = loginSuccess;
+
 export default authSlice.reducer;
