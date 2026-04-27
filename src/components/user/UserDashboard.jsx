@@ -185,7 +185,8 @@ const StatCard = ({ icon: Icon, label, value, subtext, trend, delay = 0 }) => (
 // ==========================================
 
 export const UserDashboard = () => {
-  const { userId, token, isAuthenticated } = useSelector((state) => state.auth);
+  const { user, token, isAuthenticated } = useSelector((state) => state.auth);
+  const userId = user?.id;
   console.log(
     "User ID from AuthContext:",
     userId,
@@ -217,7 +218,8 @@ export const UserDashboard = () => {
       return;
     }
     // Still rehydrating - wait for auth state
-    if (!userId || !token) {
+    if (!userId || !token || !isAuthenticated) {
+      setLoading(false);
       return;
     }
     const fetchData = async () => {
