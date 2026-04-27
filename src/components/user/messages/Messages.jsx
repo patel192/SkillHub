@@ -292,15 +292,15 @@ export const Messages = () => {
         socket = null;
       }
     };
-  }, [currentUserId, token, selectedUserId]);
+  }, [currentUserId, token]);
 
   // ===============================
   // Data Fetching
   // ===============================
   const fetchFriends = async () => {
     try {
-      const res = await apiClient.get(`/friends/${currentUserId}`,{
-        skipLoader:true
+      const res = await apiClient.get(`/friends/${currentUserId}`, {
+        skipLoader: true,
       });
       const list = res.data?.data ?? [];
       setFriends(list);
@@ -313,8 +313,8 @@ export const Messages = () => {
   const fetchRequests = async () => {
     if (!currentUserId) return;
     try {
-      const res = await apiClient.get(`/friends/requests/${currentUserId}`,{
-        skipLoader:true
+      const res = await apiClient.get(`/friends/requests/${currentUserId}`, {
+        skipLoader: true,
       });
       const allRequests = res.data?.data ?? [];
 
@@ -341,8 +341,8 @@ export const Messages = () => {
     if (!currentUserId) return;
     try {
       setDiscoverLoading(true);
-      const res = await apiClient.get("/users/search?q=",{
-        skipLoader:true
+      const res = await apiClient.get("/users/search?q=", {
+        skipLoader: true,
       });
       const allUsers = res.data?.data || res.data || [];
       const existingFriends = new Set(friends.map((f) => String(f._id)));
@@ -360,11 +360,14 @@ export const Messages = () => {
   }, [currentUserId, friends]);
 
   const fetchMessages = async (friendId) => {
-    if (!friendId) return setMessages([]);
+    if (!friendId || !currentUserId) return;
     try {
-      const res = await apiClient.get(`/messages/${currentUserId}/${friendId}`,{
-        skipLoader:true,
-      });
+      const res = await apiClient.get(
+        `/messages/${currentUserId}/${friendId}`,
+        {
+          skipLoader: true,
+        },
+      );
       setMessages(res.data?.messages ?? res.data?.data ?? []);
     } catch {
       setMessages([]);
@@ -372,12 +375,12 @@ export const Messages = () => {
   };
 
   useEffect(() => {
-  if (!currentUserId) return;
+    if (!currentUserId) return;
 
-  fetchFriends();
-  fetchRequests();
-  fetchDiscoverUsers();
-}, [currentUserId]);
+    fetchFriends();
+    fetchRequests();
+    fetchDiscoverUsers();
+  }, [currentUserId]);
 
   useEffect(() => {
     if (activeSidebarTab === "discover" && discoverUsers.length === 0) {
@@ -389,14 +392,17 @@ export const Messages = () => {
   }, [activeSidebarTab]);
 
   useEffect(() => {
+    if (!selectedUserId || !currentUserId) return;
+
     fetchMessages(selectedUserId);
-    if (socket && selectedUserId) {
+
+    if (socket) {
       socket.emit("join_conversation", {
         userId: currentUserId,
         friendId: selectedUserId,
       });
     }
-  }, [selectedUserId]);
+  }, [selectedUserId, currentUserId]);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -601,8 +607,6 @@ export const Messages = () => {
       fetchMessages(selectedUserId);
     }
   };
-
-  
 
   // ===============================
   // Friend Handlers
