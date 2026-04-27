@@ -325,7 +325,8 @@ export const MyCourses = () => {
   const [discoverCourses, setDiscoverCourses] = useState([]);
   const [loading, setLoading] = useState(true);
   const [stats, setStats] = useState({ total: 0, completed: 0, inProgress: 0, hours: 0 });
-  const {userId,loading:authLoading} = useSelector((state) => state.auth);
+  const {user,loading:authLoading} = useSelector((state) => state.auth);
+  const userId = user?.id;
 
   useEffect(() => {
     if(!userId || authLoading) return;
