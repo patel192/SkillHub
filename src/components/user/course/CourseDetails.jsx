@@ -51,7 +51,8 @@ export const CourseDetails = () => {
   const [savingBookmark, setSavingBookmark] = useState(false);
   const [isBookmarked, setIsBookmarked] = useState(false);
 
-  const { token, userId, loading: authLoading } = useSelector((state) => state.auth);
+  const { token, user, loading: authLoading } = useSelector((state) => state.auth);
+  const userId = user?.id;
   const dispatch = useDispatch();
 
   useEffect(() => {
