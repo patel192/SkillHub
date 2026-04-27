@@ -18,7 +18,9 @@ const apiClient = axios.create({
 
 apiClient.interceptors.request.use(
   (config) => {
-    store.dispatch(startLoading());
+    if(!config.skiploader) {
+      store.dispatch(startLoading());
+    }
 
     const state = store.getState();
     const token = state.auth.token || localStorage.getItem("token");
