@@ -21,7 +21,7 @@ import {
   CheckCheck,
   Compass,
   Zap,
-  Loader2
+  Loader2,
 } from "lucide-react";
 
 import toast from "react-hot-toast";
@@ -42,7 +42,9 @@ const C = {
 let socket = null;
 
 export const Messages = () => {
-  const { token, userId: currentUserId } = useSelector((state) => state.auth);
+  const { token, user } = useSelector((state) => state.auth);
+
+  const currentUserId = user?._id || user?.id;
 
   // Connection state
   const [isConnected, setIsConnected] = useState(false);
@@ -88,6 +90,8 @@ export const Messages = () => {
   // WebSocket Connection Setup
   // ===============================
   useEffect(() => {
+    if (!token || !currentUserId) return;
+
     const initSocket = () => {
       setIsConnecting(true);
 
@@ -295,7 +299,9 @@ export const Messages = () => {
   // ===============================
   const fetchFriends = async () => {
     try {
-      const res = await apiClient.get(`/friends/${currentUserId}`);
+      const res = await apiClient.get(`/friends/${currentUserId}`,{
+        skipLoader:true
+      });
       const list = res.data?.data ?? [];
       setFriends(list);
       if (!selectedUserId && list.length > 0) setSelectedUserId(list[0]._id);
@@ -307,17 +313,21 @@ export const Messages = () => {
   const fetchRequests = async () => {
     if (!currentUserId) return;
     try {
-      const res = await apiClient.get(`/friends/requests/${currentUserId}`);
+      const res = await apiClient.get(`/friends/requests/${currentUserId}`,{
+        skipLoader:true
+      });
       const allRequests = res.data?.data ?? [];
-      
+
       // Filter into incoming (others requested you) and outgoing (you requested others)
-      const incomingReqs = allRequests.filter(r => 
-        String(r.recipient?._id || r.recipient) === String(currentUserId)
+      const incomingReqs = allRequests.filter(
+        (r) =>
+          String(r.recipient?._id || r.recipient) === String(currentUserId),
       );
-      const outgoingReqs = allRequests.filter(r => 
-        String(r.requester?._id || r.requester) === String(currentUserId)
+      const outgoingReqs = allRequests.filter(
+        (r) =>
+          String(r.requester?._id || r.requester) === String(currentUserId),
       );
-      
+
       setIncoming(incomingReqs);
       setOutgoing(outgoingReqs);
     } catch (err) {
@@ -331,12 +341,15 @@ export const Messages = () => {
     if (!currentUserId) return;
     try {
       setDiscoverLoading(true);
-      const res = await apiClient.get("/users/search?q=");
+      const res = await apiClient.get("/users/search?q=",{
+        skipLoader:true
+      });
       const allUsers = res.data?.data || res.data || [];
-      const existingFriends = new Set(friends.map(f => String(f._id)));
-      const filtered = allUsers.filter(u => 
-        String(u._id) !== String(currentUserId) && 
-        !existingFriends.has(String(u._id))
+      const existingFriends = new Set(friends.map((f) => String(f._id)));
+      const filtered = allUsers.filter(
+        (u) =>
+          String(u._id) !== String(currentUserId) &&
+          !existingFriends.has(String(u._id)),
       );
       setDiscoverUsers(filtered.slice(0, 15));
     } catch (err) {
@@ -349,7 +362,9 @@ export const Messages = () => {
   const fetchMessages = async (friendId) => {
     if (!friendId) return setMessages([]);
     try {
-      const res = await apiClient.get(`/messages/${currentUserId}/${friendId}`);
+      const res = await apiClient.get(`/messages/${currentUserId}/${friendId}`,{
+        skipLoader:true,
+      });
       setMessages(res.data?.messages ?? res.data?.data ?? []);
     } catch {
       setMessages([]);
@@ -357,10 +372,12 @@ export const Messages = () => {
   };
 
   useEffect(() => {
-    fetchFriends();
-    fetchRequests();
-    fetchDiscoverUsers();
-  }, [currentUserId]);
+  if (!currentUserId) return;
+
+  fetchFriends();
+  fetchRequests();
+  fetchDiscoverUsers();
+}, [currentUserId]);
 
   useEffect(() => {
     if (activeSidebarTab === "discover" && discoverUsers.length === 0) {
@@ -434,10 +451,9 @@ export const Messages = () => {
           receiverId: selectedUserId,
         });
 
-        const res = await apiClient.patch(
-          `/message/${editMsg._id}`,
-          { text: messageText }
-        );
+        const res = await apiClient.patch(`/message/${editMsg._id}`, {
+          text: messageText,
+        });
 
         const updated = res.data?.message ?? res.data ?? null;
         if (updated) {
@@ -486,15 +502,12 @@ export const Messages = () => {
         replyTo: replyTo?._id ?? null,
       });
 
-      const res = await apiClient.post(
-        "/message",
-        {
-          senderId: currentUserId,
-          receiverId: selectedUserId,
-          text: messageText,
-          replyTo: replyTo?._id ?? null,
-        }
-      );
+      const res = await apiClient.post("/message", {
+        senderId: currentUserId,
+        receiverId: selectedUserId,
+        text: messageText,
+        replyTo: replyTo?._id ?? null,
+      });
 
       const newMsg = res.data?.message ?? res.data?.data ?? null;
       if (newMsg) {
@@ -554,10 +567,10 @@ export const Messages = () => {
         emoji,
       });
 
-      await apiClient.patch(
-        `/message/${msgId}/reaction`,
-        { userId: currentUserId, emoji },
-      );
+      await apiClient.patch(`/message/${msgId}/reaction`, {
+        userId: currentUserId,
+        emoji,
+      });
     } catch (err) {
       console.error("reaction error", err);
       toast.error("Failed to react");
@@ -589,19 +602,16 @@ export const Messages = () => {
     }
   };
 
-  const handleForward = (msg) => {
-    toast.success("Forward feature coming soon!");
-  };
+  
 
   // ===============================
   // Friend Handlers
   // ===============================
   const handleIncomingAction = async (requestId, action) => {
     try {
-      await apiClient.patch(
-        `/friends/request/${requestId}`,
-        { status: action }
-      );
+      await apiClient.patch(`/friends/request/${requestId}`, {
+        status: action,
+      });
 
       if (socket) {
         socket.emit("friend_request_response", { requestId, status: action });
@@ -619,10 +629,10 @@ export const Messages = () => {
     const id = String(recipientId);
     setAddingRequestIds((prev) => new Set(prev).add(id));
     try {
-      await apiClient.post(
-        `/friends/request`,
-        { requesterId: currentUserId, recipientId: id },
-      );
+      await apiClient.post(`/friends/request`, {
+        requesterId: currentUserId,
+        recipientId: id,
+      });
 
       if (socket) {
         socket.emit("send_friend_request", { recipientId: id });
@@ -678,16 +688,13 @@ export const Messages = () => {
     e.preventDefault();
     if (!reportTarget) return;
     try {
-      await apiClient.post(
-        "/report",
-        {
-          reporter: currentUserId,
-          type: reportType,
-          description: reportMessage,
-          targetType: reportTarget.type,
-          targetId: reportTarget.id,
-        }
-      );
+      await apiClient.post("/report", {
+        reporter: currentUserId,
+        type: reportType,
+        description: reportMessage,
+        targetType: reportTarget.type,
+        targetId: reportTarget.id,
+      });
 
       toast.success(`${reportTarget.type} reported successfully`);
       setReportType("");
@@ -720,7 +727,10 @@ export const Messages = () => {
   // Render
   // ===============================
   return (
-    <div className="flex h-screen" style={{ background: "var(--bg)", color: "var(--text)" }}>
+    <div
+      className="flex h-screen"
+      style={{ background: "var(--bg)", color: "var(--text)" }}
+    >
       {/* Connection Status Bar */}
       <AnimatePresence>
         {!isConnected && (
@@ -738,14 +748,20 @@ export const Messages = () => {
                   transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
                   className="w-4 h-4 border-2 border-white border-t-transparent rounded-full"
                 />
-                <span className="text-sm font-medium" style={{ color: "var(--bg)" }}>
+                <span
+                  className="text-sm font-medium"
+                  style={{ color: "var(--bg)" }}
+                >
                   Connecting to chat server...
                 </span>
               </>
             ) : (
               <>
                 <WifiOff size={16} style={{ color: "var(--bg)" }} />
-                <span className="text-sm font-medium" style={{ color: "var(--bg)" }}>
+                <span
+                  className="text-sm font-medium"
+                  style={{ color: "var(--bg)" }}
+                >
                   Disconnected. Trying to reconnect...
                 </span>
               </>
@@ -773,7 +789,10 @@ export const Messages = () => {
           className="h-full flex flex-col"
         >
           {/* Header */}
-          <div className="p-4 border-b" style={{ borderColor: "var(--border)" }}>
+          <div
+            className="p-4 border-b"
+            style={{ borderColor: "var(--border)" }}
+          >
             <h2
               className="text-xl font-bold mb-4"
               style={{ color: "var(--text)", fontFamily: "Fraunces, serif" }}
@@ -795,7 +814,10 @@ export const Messages = () => {
                 style={{
                   background:
                     activeSidebarTab === "friends" ? C.brand : "transparent",
-                  color: activeSidebarTab === "friends" ? "var(--bg)" : "var(--text-muted)",
+                  color:
+                    activeSidebarTab === "friends"
+                      ? "var(--bg)"
+                      : "var(--text-muted)",
                 }}
               >
                 Friends
@@ -806,7 +828,10 @@ export const Messages = () => {
                 style={{
                   background:
                     activeSidebarTab === "requests" ? C.brand : "transparent",
-                  color: activeSidebarTab === "requests" ? "var(--bg)" : "var(--text-muted)",
+                  color:
+                    activeSidebarTab === "requests"
+                      ? "var(--bg)"
+                      : "var(--text-muted)",
                 }}
               >
                 Requests
@@ -824,7 +849,10 @@ export const Messages = () => {
 
           {/* Search */}
           {activeSidebarTab === "friends" && (
-            <div className="p-4 border-b" style={{ borderColor: "var(--border)" }}>
+            <div
+              className="p-4 border-b"
+              style={{ borderColor: "var(--border)" }}
+            >
               <div className="relative">
                 <Search
                   size={16}
@@ -942,7 +970,10 @@ export const Messages = () => {
                                 disabled={adding}
                                 onClick={() => sendFriendRequest(id)}
                                 className="px-3 py-1.5 rounded-lg text-xs font-medium"
-                                style={{ background: C.brand, color: "var(--bg)" }}
+                                style={{
+                                  background: C.brand,
+                                  color: "var(--bg)",
+                                }}
                               >
                                 {adding ? "..." : "Add"}
                               </motion.button>
@@ -969,10 +1000,16 @@ export const Messages = () => {
                     className="w-16 h-16 mx-auto mb-4 rounded-full flex items-center justify-center"
                     style={{ background: "var(--surface2)" }}
                   >
-                    <UserPlus size={24} style={{ color: "var(--text-muted)" }} />
+                    <UserPlus
+                      size={24}
+                      style={{ color: "var(--text-muted)" }}
+                    />
                   </div>
                   <p className="text-sm">No friends yet</p>
-                  <p className="text-xs mt-1" style={{ color: "var(--text-muted)" }}>
+                  <p
+                    className="text-xs mt-1"
+                    style={{ color: "var(--text-muted)" }}
+                  >
                     Search users to add friends
                   </p>
                 </div>
@@ -1028,7 +1065,9 @@ export const Messages = () => {
                       <div
                         className="text-xs truncate"
                         style={{
-                          color: typingUsers.has(f._id) ? C.brand : "var(--text-muted)",
+                          color: typingUsers.has(f._id)
+                            ? C.brand
+                            : "var(--text-muted)",
                         }}
                       >
                         {typingUsers.has(f._id) ? "typing..." : "Tap to chat"}
@@ -1089,7 +1128,10 @@ export const Messages = () => {
                     Incoming Requests
                   </h3>
                   {incoming.length === 0 ? (
-                    <p className="text-sm px-1" style={{ color: "var(--text-muted)" }}>
+                    <p
+                      className="text-sm px-1"
+                      style={{ color: "var(--text-muted)" }}
+                    >
                       No pending requests
                     </p>
                   ) : (
@@ -1113,7 +1155,10 @@ export const Messages = () => {
                             className="w-10 h-10 rounded-full"
                             alt={nameOf(r.requester)}
                           />
-                          <span className="text-sm" style={{ color: "var(--text)" }}>
+                          <span
+                            className="text-sm"
+                            style={{ color: "var(--text)" }}
+                          >
                             {nameOf(r.requester)}
                           </span>
                         </div>
@@ -1161,7 +1206,10 @@ export const Messages = () => {
                     Sent Requests
                   </h3>
                   {outgoing.length === 0 ? (
-                    <p className="text-sm px-1" style={{ color: "var(--text-muted)" }}>
+                    <p
+                      className="text-sm px-1"
+                      style={{ color: "var(--text-muted)" }}
+                    >
                       No sent requests
                     </p>
                   ) : (
@@ -1183,7 +1231,10 @@ export const Messages = () => {
                           alt={nameOf(r.recipient)}
                         />
                         <div>
-                          <div className="text-sm" style={{ color: "var(--text)" }}>
+                          <div
+                            className="text-sm"
+                            style={{ color: "var(--text)" }}
+                          >
                             {nameOf(r.recipient)}
                           </div>
                           <div className="text-xs" style={{ color: C.accent }}>
@@ -1198,16 +1249,33 @@ export const Messages = () => {
             ) : activeSidebarTab === "discover" ? (
               <div className="space-y-4">
                 <div className="flex items-center justify-between mb-4 px-1">
-                  <h3 className="text-sm font-semibold" style={{ color: "var(--text-muted)" }}>Suggested Connections</h3>
-                  <button onClick={fetchDiscoverUsers} disabled={discoverLoading} className="p-1 hover:bg-surface2 rounded-lg transition-colors">
-                    <Zap size={14} className={discoverLoading ? "animate-spin" : ""} style={{ color: C.brand }} />
+                  <h3
+                    className="text-sm font-semibold"
+                    style={{ color: "var(--text-muted)" }}
+                  >
+                    Suggested Connections
+                  </h3>
+                  <button
+                    onClick={fetchDiscoverUsers}
+                    disabled={discoverLoading}
+                    className="p-1 hover:bg-surface2 rounded-lg transition-colors"
+                  >
+                    <Zap
+                      size={14}
+                      className={discoverLoading ? "animate-spin" : ""}
+                      style={{ color: C.brand }}
+                    />
                   </button>
                 </div>
-                
+
                 {discoverLoading && discoverUsers.length === 0 ? (
                   <div className="space-y-3">
-                    {[1, 2, 3].map(i => (
-                      <div key={i} className="h-16 rounded-xl animate-pulse" style={{ background: "var(--surface2)" }} />
+                    {[1, 2, 3].map((i) => (
+                      <div
+                        key={i}
+                        className="h-16 rounded-xl animate-pulse"
+                        style={{ background: "var(--surface2)" }}
+                      />
                     ))}
                   </div>
                 ) : discoverUsers.length === 0 ? (
@@ -1226,21 +1294,42 @@ export const Messages = () => {
                         initial={{ opacity: 0, x: -10 }}
                         animate={{ opacity: 1, x: 0 }}
                         className="flex items-center justify-between p-3 rounded-xl hover:bg-surface2 group transition-colors border"
-                        style={{ background: "var(--surface)", borderColor: "var(--border)" }}
+                        style={{
+                          background: "var(--surface)",
+                          borderColor: "var(--border)",
+                        }}
                       >
-                        <div className="flex items-center gap-3 cursor-pointer" onClick={() => navigate(`/user/view-profile/${id}`)}>
+                        <div
+                          className="flex items-center gap-3 cursor-pointer"
+                          onClick={() => navigate(`/user/view-profile/${id}`)}
+                        >
                           <img
-                            src={u.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(nameOf(u))}&background=16A880&color=fff`}
+                            src={
+                              u.avatar ||
+                              `https://ui-avatars.com/api/?name=${encodeURIComponent(nameOf(u))}&background=16A880&color=fff`
+                            }
                             className="w-10 h-10 rounded-full"
                           />
                           <div className="min-w-0">
-                            <div className="text-sm font-bold truncate" style={{ color: "var(--text)" }}>{nameOf(u)}</div>
-                            <div className="text-[10px] opacity-60 truncate">Student Learner</div>
+                            <div
+                              className="text-sm font-bold truncate"
+                              style={{ color: "var(--text)" }}
+                            >
+                              {nameOf(u)}
+                            </div>
+                            <div className="text-[10px] opacity-60 truncate">
+                              Student Learner
+                            </div>
                           </div>
                         </div>
-                        
+
                         {alreadyRequested ? (
-                          <div className="text-[10px] font-bold uppercase tracking-wider" style={{ color: C.accent }}>Pending</div>
+                          <div
+                            className="text-[10px] font-bold uppercase tracking-wider"
+                            style={{ color: C.accent }}
+                          >
+                            Pending
+                          </div>
                         ) : (
                           <motion.button
                             whileHover={{ scale: 1.1 }}
@@ -1248,9 +1337,16 @@ export const Messages = () => {
                             onClick={() => sendFriendRequest(id)}
                             disabled={adding}
                             className="p-2 rounded-lg"
-                            style={{ background: `${C.brand}15`, color: C.brand }}
+                            style={{
+                              background: `${C.brand}15`,
+                              color: C.brand,
+                            }}
                           >
-                            {adding ? <Loader2 size={16} className="animate-spin" /> : <UserPlus size={16} />}
+                            {adding ? (
+                              <Loader2 size={16} className="animate-spin" />
+                            ) : (
+                              <UserPlus size={16} />
+                            )}
                           </motion.button>
                         )}
                       </motion.div>
@@ -1303,7 +1399,10 @@ export const Messages = () => {
                   )}
                 </div>
                 <div>
-                  <div className="font-semibold" style={{ color: "var(--text)" }}>
+                  <div
+                    className="font-semibold"
+                    style={{ color: "var(--text)" }}
+                  >
                     {nameOf(selectedUser)}
                   </div>
                   <div
@@ -1441,7 +1540,9 @@ export const Messages = () => {
                                 ? `linear-gradient(135deg, ${C.brand}, ${C.brandLight})`
                                 : "var(--surface2)",
                               color: isMine ? "var(--bg)" : "var(--text)",
-                              border: isMine ? "none" : `1px solid ${"var(--border)"}`,
+                              border: isMine
+                                ? "none"
+                                : `1px solid ${"var(--border)"}`,
                               opacity: msg.isPending ? 0.7 : 1,
                             }}
                           >
@@ -1653,7 +1754,10 @@ export const Messages = () => {
               >
                 <ArrowLeft size={32} style={{ color: "var(--text-muted)" }} />
               </div>
-              <p className="text-lg font-medium" style={{ color: "var(--text-muted)" }}>
+              <p
+                className="text-lg font-medium"
+                style={{ color: "var(--text-muted)" }}
+              >
                 Select a conversation
               </p>
               <p className="text-sm mt-2">
@@ -1671,7 +1775,10 @@ export const Messages = () => {
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: 20 }}
               className="px-6 py-3 border-t"
-              style={{ borderColor: "var(--border)", background: "var(--surface)" }}
+              style={{
+                borderColor: "var(--border)",
+                background: "var(--surface)",
+              }}
             >
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
@@ -1719,7 +1826,10 @@ export const Messages = () => {
 
         {/* Input */}
         {selectedUserId && (
-          <div className="px-6 py-4 border-t" style={{ borderColor: "var(--border)" }}>
+          <div
+            className="px-6 py-4 border-t"
+            style={{ borderColor: "var(--border)" }}
+          >
             <div className="flex items-end gap-3">
               <div className="flex-1 relative">
                 <input
@@ -1780,12 +1890,18 @@ export const Messages = () => {
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.9, opacity: 0 }}
               className="w-full max-w-md rounded-2xl p-6"
-              style={{ background: "var(--surface)", border: `1px solid ${"var(--border)"}` }}
+              style={{
+                background: "var(--surface)",
+                border: `1px solid ${"var(--border)"}`,
+              }}
             >
               <div className="flex items-center justify-between mb-6">
                 <h2
                   className="text-xl font-bold"
-                  style={{ color: "var(--text)", fontFamily: "Fraunces, serif" }}
+                  style={{
+                    color: "var(--text)",
+                    fontFamily: "Fraunces, serif",
+                  }}
                 >
                   Report {reportTarget?.type}
                 </h2>
@@ -1852,7 +1968,10 @@ export const Messages = () => {
                     type="button"
                     onClick={() => setIsReportOpen(false)}
                     className="flex-1 py-3 rounded-xl font-medium transition-colors"
-                    style={{ background: "var(--surface2)", color: "var(--text)" }}
+                    style={{
+                      background: "var(--surface2)",
+                      color: "var(--text)",
+                    }}
                   >
                     Cancel
                   </button>
