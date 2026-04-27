@@ -13,7 +13,9 @@ export const fetchSettings = createAsyncThunk(
   "settings/fetchSettings",
   async (userId, { rejectWithValue }) => {
     try {
-      const res = await apiClient.get(`/user/${userId}/settings`);
+      const res = await apiClient.get(`/user/${userId}/settings`,{
+        skipLoader:true
+      });
       const data = res.data.data;
       applyTheme(data.theme);
       return data;

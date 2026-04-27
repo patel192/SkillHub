@@ -3,10 +3,12 @@ import { useDispatch, useSelector } from "react-redux";
 import { jwtDecode } from "jwt-decode";
 import { logout } from "../../redux/features/auth/authSlice";
 import { fetchSettings } from "../../redux/features/settings/settingsSlice";
+import { useLocation } from "react-router-dom";
 
 const INACTIVE_TIME = 30 * 60 * 1000;
 
 export const AuthListener = () => {
+  const location = useLocation();
   const dispatch = useDispatch();
   const { token, user } = useSelector((state) => state.auth);
   const timerRef = useRef(null);
@@ -31,8 +33,14 @@ export const AuthListener = () => {
     if (!token) return;
 
     // Settings fetch
-    if (user && (user._id || user.id)) {
-        dispatch(fetchSettings(user._id || user.id));
+    const publicRoutes = ["/", "/login", "/signup"];
+
+    if (
+      user &&
+      (user._id || user.id) &&
+      !publicRoutes.includes(location.pathname)
+    ) {
+      dispatch(fetchSettings(user._id || user.id));
     }
 
     // Token Expiration Logic
