@@ -11,6 +11,16 @@ const apiClient = axios.create({
     "Content-Type": "application/json",
   },
 });
+apiClient.interceptors.request.use((config) => {
+  console.log("API CALL:", config.url);
+
+  if (!config.skipLoader) {
+    console.log("LOADER TRIGGERED FOR:", config.url);
+    store.dispatch(startLoading());
+  }
+
+  return config;
+});
 
 //
 // REQUEST
