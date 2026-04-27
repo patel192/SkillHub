@@ -186,7 +186,14 @@ const StatCard = ({ icon: Icon, label, value, subtext, trend, delay = 0 }) => (
 
 export const UserDashboard = () => {
   const { userId, token, isAuthenticated } = useSelector((state) => state.auth);
-  console.log("User ID from AuthContext:", userId, "Authenticated:", isAuthenticated, "Token:", token);
+  console.log(
+    "User ID from AuthContext:",
+    userId,
+    "Authenticated:",
+    isAuthenticated,
+    "Token:",
+    token,
+  );
   const navigate = useNavigate();
   const [userName, setUserName] = useState("");
   const [dashboard, setDashboard] = useState(null);
@@ -218,15 +225,32 @@ export const UserDashboard = () => {
         setLoading(true);
         const [userRes, coursesRes, certRes, actRes, notifRes, recRes] =
           await Promise.all([
-            apiClient.get(`/user/${userId}`),
-            apiClient.get(`/enrollment/${userId}`),
-            apiClient.get(`/certificates/${userId}`),
-            apiClient.get(`/activities/${userId}`),
-            apiClient.get(`/notifications/${userId}`),
-            apiClient.get("/courses"),
+            apiClient.get(`/user/${userId}`, { skipLoader: true }),
+
+            apiClient.get(`/enrollment/${userId}`, {
+              skipLoader: true,
+            }),
+
+            apiClient.get(`/certificates/${userId}`, {
+              skipLoader: true,
+            }),
+
+            apiClient.get(`/activities/${userId}`, {
+              skipLoader: true,
+            }),
+
+            apiClient.get(`/notifications/${userId}`, {
+              skipLoader: true,
+            }),
+
+            apiClient.get("/courses", {
+              skipLoader: true,
+            }),
           ]);
 
-        setUserName(userRes.data?.data?.fullname || userRes.data?.fullname || "User");
+        setUserName(
+          userRes.data?.data?.fullname || userRes.data?.fullname || "User",
+        );
         setNotifications(notifRes.data?.data || notifRes.data || []);
 
         // Calculate learning time from localStorage
@@ -254,7 +278,9 @@ export const UserDashboard = () => {
           courseTimes.sort((a, b) => b.seconds - a.seconds);
           const topCourseId = courseTimes[0].courseId;
           try {
-            const c = await apiClient.get(`/course/${topCourseId}`);
+            const c = await apiClient.get(`/course/${topCourseId}`, {
+              skipLoader: true,
+            });
             const courseData = c.data?.data || c.data;
             if (courseData) {
               topCourse = {
@@ -273,8 +299,10 @@ export const UserDashboard = () => {
         }
 
         setDashboard({
-          coursesCount: coursesRes.data?.data?.length || coursesRes.data?.length || 0,
-          certificatesCount: certRes.data?.data?.length || certRes.data?.length || 0,
+          coursesCount:
+            coursesRes.data?.data?.length || coursesRes.data?.length || 0,
+          certificatesCount:
+            certRes.data?.data?.length || certRes.data?.length || 0,
           challenges: 12,
           totalMinutes,
           recentActivity: (actRes.data?.data || actRes.data || []).slice(0, 5),
@@ -285,30 +313,30 @@ export const UserDashboard = () => {
       } catch (err) {
         console.error("Dashboard loading error:", err);
         // Set some default state to avoid infinite loading
-          setDashboard({
-            coursesCount: 0,
-            certificatesCount: 0,
-            challenges: 0,
-            totalMinutes: 0,
-            recentActivity: [],
-            recommended: [],
-            topCourse: null,
-            weeklyGoal: 0,
-          });
-        } finally {
-          setLoading(false);
-        }
-      };
-
-      fetchData();
-    }, [userId, token, isAuthenticated]);
-
-    // If we're not authenticated anymore, stop loading
-    useEffect(() => {
-      if (!isAuthenticated && (!userId || !token)) {
+        setDashboard({
+          coursesCount: 0,
+          certificatesCount: 0,
+          challenges: 0,
+          totalMinutes: 0,
+          recentActivity: [],
+          recommended: [],
+          topCourse: null,
+          weeklyGoal: 0,
+        });
+      } finally {
         setLoading(false);
       }
-    }, [isAuthenticated, userId, token]);
+    };
+
+    fetchData();
+  }, [userId, token, isAuthenticated]);
+
+  // If we're not authenticated anymore, stop loading
+  useEffect(() => {
+    if (!isAuthenticated && (!userId || !token)) {
+      setLoading(false);
+    }
+  }, [isAuthenticated, userId, token]);
 
   const formatTime = (minutes) => {
     const hours = Math.floor(minutes / 60);
@@ -485,7 +513,10 @@ export const UserDashboard = () => {
 
                 <h3
                   className="text-xl font-bold mb-2 line-clamp-1"
-                  style={{ fontFamily: "'Fraunces', serif", color: "var(--text)" }}
+                  style={{
+                    fontFamily: "'Fraunces', serif",
+                    color: "var(--text)",
+                  }}
                 >
                   {dashboard.topCourse.name}
                 </h3>
@@ -565,7 +596,10 @@ export const UserDashboard = () => {
             <div className="flex items-center justify-between mb-4">
               <h2
                 className="text-xl font-bold flex items-center gap-2"
-                style={{ fontFamily: "'Fraunces', serif", color: "var(--text)" }}
+                style={{
+                  fontFamily: "'Fraunces', serif",
+                  color: "var(--text)",
+                }}
               >
                 <Star size={20} style={{ color: C.brand }} />
                 Recommended for You
@@ -646,7 +680,10 @@ export const UserDashboard = () => {
             </h2>
 
             <GlowCard className="p-0 overflow-hidden" gradient={false}>
-              <div className="divide-y" style={{ borderColor: "var(--border)" }}>
+              <div
+                className="divide-y"
+                style={{ borderColor: "var(--border)" }}
+              >
                 {dashboard.recentActivity.length > 0 ? (
                   dashboard.recentActivity.map((activity, idx) => (
                     <motion.div
@@ -663,7 +700,9 @@ export const UserDashboard = () => {
                         <Zap size={18} style={{ color: C.brand }} />
                       </div>
                       <div className="flex-1 min-w-0">
-                        <p style={{ color: "var(--text)" }}>{activity.message}</p>
+                        <p style={{ color: "var(--text)" }}>
+                          {activity.message}
+                        </p>
                         <p
                           className="text-xs mt-1"
                           style={{ color: "var(--text-muted)" }}
@@ -682,7 +721,10 @@ export const UserDashboard = () => {
                     </motion.div>
                   ))
                 ) : (
-                  <div className="p-8 text-center" style={{ color: "var(--text-muted)" }}>
+                  <div
+                    className="p-8 text-center"
+                    style={{ color: "var(--text-muted)" }}
+                  >
                     <Activity size={32} className="mx-auto mb-2 opacity-50" />
                     <p>No recent activity</p>
                   </div>
@@ -764,7 +806,10 @@ export const UserDashboard = () => {
             <div className="flex items-center justify-between mb-4">
               <h2
                 className="text-lg font-bold flex items-center gap-2"
-                style={{ fontFamily: "'Fraunces', serif", color: "var(--text)" }}
+                style={{
+                  fontFamily: "'Fraunces', serif",
+                  color: "var(--text)",
+                }}
               >
                 <Bell size={18} style={{ color: C.brand }} />
                 Notifications
@@ -809,7 +854,10 @@ export const UserDashboard = () => {
                       >
                         {notification.message}
                       </p>
-                      <p className="text-xs mt-1" style={{ color: "var(--text-muted)" }}>
+                      <p
+                        className="text-xs mt-1"
+                        style={{ color: "var(--text-muted)" }}
+                      >
                         {new Date(notification.createdAt).toLocaleTimeString(
                           [],
                           {
@@ -821,7 +869,10 @@ export const UserDashboard = () => {
                     </motion.div>
                   ))
                 ) : (
-                  <div className="p-6 text-center" style={{ color: "var(--text-muted)" }}>
+                  <div
+                    className="p-6 text-center"
+                    style={{ color: "var(--text-muted)" }}
+                  >
                     <Bell size={24} className="mx-auto mb-2 opacity-30" />
                     <p className="text-sm">No notifications</p>
                   </div>
