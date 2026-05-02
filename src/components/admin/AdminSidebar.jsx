@@ -1,7 +1,7 @@
 import { useSelector,useDispatch } from "react-redux";
 import React, { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
-import {  AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import {
   LayoutDashboard,
   LogOut,
@@ -134,7 +134,7 @@ const SidebarContent = ({ isOpen, toggle, currentPath, onLogout, isMobile }) => 
       {/* Footer */}
       <div className="p-3 border-t space-y-1" style={{ borderColor: 'var(--border)' }}>
         <button
-          onClick={() => { dispatch(() => logout()) }}
+          onClick={( )=> dispatch(logout())}
           className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-red-400 hover:bg-red-400/10 transition-colors"
         >
           <LogOut size={18} />
