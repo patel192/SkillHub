@@ -1,7 +1,7 @@
-import { useSelector } from "react-redux";
+import { useSelector,useDispatch } from "react-redux";
 import React, { useState } from "react";
-import { Link, useNavigate, useLocation } from "react-router-dom";
-import { motion, AnimatePresence } from "framer-motion";
+import { Link, useLocation } from "react-router-dom";
+import {  AnimatePresence } from "framer-motion";
 import {
   LayoutDashboard,
   LogOut,
@@ -16,7 +16,7 @@ import {
   Settings,
   Bell
 } from "lucide-react";
-
+import {logout} from "../../redux/features/auth/authSlice"
 
 const C = {
   brand: "var(--brand)",
@@ -37,7 +37,7 @@ const MENU_ITEMS = [
 ];
 
 export const AdminSidebar = ({ isOpen, toggle, isMobile }) => {
-  const navigate = useNavigate();
+  const dispatch = useDispatch();
   const location = useLocation();
   const { logout } = useSelector((state) => state.auth);
 
@@ -134,7 +134,7 @@ const SidebarContent = ({ isOpen, toggle, currentPath, onLogout, isMobile }) => 
       {/* Footer */}
       <div className="p-3 border-t space-y-1" style={{ borderColor: 'var(--border)' }}>
         <button
-          onClick={() => { onLogout(); window.location.href = "/login"; }}
+          onClick={() => { dispatch(() => logout()) }}
           className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-red-400 hover:bg-red-400/10 transition-colors"
         >
           <LogOut size={18} />
