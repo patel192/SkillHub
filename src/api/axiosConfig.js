@@ -5,7 +5,7 @@ import { startLoading, stopLoading } from "../redux/features/ui/uiSlice";
 import { toast } from "react-hot-toast";
 
 const apiClient = axios.create({
-  baseURL: "https://skillhub-backend-gs3t.onrender.com",
+  baseURL: "https://skillhub-backend-1.onrender.com",
   timeout: 10000,
   headers: {
     "Content-Type": "application/json",
